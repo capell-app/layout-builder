@@ -3,7 +3,7 @@
     use Capell\LayoutBuilder\Models\Widget;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
-    use Capell\LayoutBuilder\Support\LayoutBlockData;
+    use Capell\LayoutBuilder\Support\LayoutWidgetData;
 @endphp
 
 @props([
@@ -19,17 +19,17 @@
 @if ($layout?->containers)
     @foreach (ResolveLayoutAreaContainersAction::run($layout->containers, (string) $area) as $containerKey => $container)
         @php
-            $layoutBlocks = collect($container['widgets'] ?? $container['blocks'] ?? [])
-                ->map(static fn (mixed $blockData): array => LayoutBlockData::normalize($blockData))
-                ->filter(static fn (array $blockData): bool => LayoutBlockData::key($blockData) !== null)
-                ->map(static fn (array $blockData): ?Widget => CapellLayoutManager::getStoredContainerBlock(
+            $layoutWidgets = collect($container['widgets'] ?? $container ?? [])
+                ->map(static fn (mixed $widgetData): array => LayoutWidgetData::normalize($widgetData))
+                ->filter(static fn (array $widgetData): bool => LayoutWidgetData::key($widgetData) !== null)
+                ->map(static fn (array $widgetData): ?Widget => CapellLayoutManager::getStoredContainerWidget(
                     (string) $containerKey,
-                    (string) LayoutBlockData::key($blockData),
-                    LayoutBlockData::occurrence($blockData),
+                    (string) LayoutWidgetData::key($widgetData),
+                    LayoutWidgetData::occurrence($widgetData),
                 ))
                 ->filter();
 
-            if ($layoutBlocks->isEmpty()) {
+            if ($layoutWidgets->isEmpty()) {
                 continue;
             }
 

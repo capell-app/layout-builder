@@ -11,8 +11,8 @@ use Capell\Frontend\Data\CacheInvalidationRule;
 use Capell\Frontend\Support\Cache\CacheInvalidationRegistry;
 use Capell\LayoutBuilder\Models\Widget;
 
-it('walks layout builder block graph dependents back to pages', function (): void {
-    $block = Widget::factory()->create();
+it('walks layout builder widget graph dependents back to pages', function (): void {
+    $widget = Widget::factory()->create();
     $layout = Layout::factory()->create();
     $page = Page::factory()
         ->withTranslations()
@@ -33,14 +33,14 @@ it('walks layout builder block graph dependents back to pages', function (): voi
         'source_type' => Layout::class,
         'source_id' => $layout->id,
         'target_type' => Widget::class,
-        'target_id' => $block->id,
-        'kind' => 'uses_layout_block',
+        'target_id' => $widget->id,
+        'kind' => 'uses_layout_widget',
         'strength' => ContentGraphEdgeStrength::Strong,
         'source_package' => 'capell-app/layout-builder',
         'site_id' => $page->site_id,
     ]);
 
-    $plan = resolve(CacheInvalidationRegistry::class)->planForChangedModel($block);
+    $plan = resolve(CacheInvalidationRegistry::class)->planForChangedModel($widget);
 
     expect(collect($plan->rules)->contains(
         fn (CacheInvalidationRule $rule): bool => $rule->kind === CacheInvalidationRule::KIND_PUBLIC_RENDER_DATA

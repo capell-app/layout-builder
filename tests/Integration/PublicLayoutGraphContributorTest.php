@@ -9,7 +9,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 
@@ -22,7 +22,7 @@ beforeEach(function (): void {
         public function getClassComponentAliases(): array
         {
             return [
-                'capell::block.default' => PackageAlert::class,
+                'capell::widget.default' => PackageAlert::class,
             ];
         }
 
@@ -39,58 +39,58 @@ beforeEach(function (): void {
 it('routes public graph rendering through layout builder package payload contributors', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
-    $block = Widget::factory()->create(['key' => 'package-backed-block']);
+    $widget = Widget::factory()->create(['key' => 'package-backed-widget']);
 
     TranslationFactory::new()
-        ->translatable($block)
+        ->translatable($widget)
         ->language($language)
         ->create([
-            'title' => 'Package-backed block',
+            'title' => 'Package-backed widget',
             'content' => '<p>Base content</p>',
         ]);
 
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
-            'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]]],
+            'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
         ],
     ]);
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.package-public-block-payload-contributor', fn (): PublicBlockPayloadContributor => new class implements PublicBlockPayloadContributor
+    app()->singleton('test.package-public-widget-payload-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
     {
         public function priority(): int
         {
             return 10;
         }
 
-        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [
                 'package_contributor' => [
-                    'block' => $block->key,
+                    'widget' => $widget->key,
                     'container' => $containerKey,
                     'occurrence' => $occurrence,
                 ],
             ];
         }
 
-        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): string
+        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
-            return '<section data-package-contributor="' . $block->key . '"></section>';
+            return '<section data-package-contributor="' . $widget->key . '"></section>';
         }
     });
 
-    app()->tag('test.package-public-block-payload-contributor', PublicBlockPayloadContributor::TAG);
+    app()->tag('test.package-public-widget-payload-contributor', PublicWidgetPayloadContributor::TAG);
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
-    $blockData = $graph->containers[0]->blocks[0];
+    $widgetData = $graph->containers[0]->widgets[0];
 
-    expect($blockData->data['title'])->toBe('Package-backed block')
-        ->and($blockData->data['package_contributor'])->toBe([
-            'block' => 'package-backed-block',
+    expect($widgetData->data['title'])->toBe('Package-backed widget')
+        ->and($widgetData->data['package_contributor'])->toBe([
+            'widget' => 'package-backed-widget',
             'container' => 'main',
             'occurrence' => 1,
         ])
-        ->and($blockData->html)->toBe('<section data-package-contributor="package-backed-block"></section>');
+        ->and($widgetData->html)->toBe('<section data-package-contributor="package-backed-widget"></section>');
 });

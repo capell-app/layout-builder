@@ -19,15 +19,15 @@ return [
     'resources' => [
         'demo_path' => env('CAPELL_LAYOUT_BUILDER_DEMO_PATH'),
 
-        'block' => [
+        'widget' => [
             'icon' => 'heroicon-o-puzzle-piece',
             'active_icon' => 'heroicon-s-puzzle-piece',
         ],
     ],
 
-    'block' => [
+    'widget' => [
         'skip_render_empty' => env('CAPELL_LAYOUT_BUILDER_SKIP_RENDER_EMPTY_WIDGETS', true),
     ],
 
-    'default_block' => 'capell.block.default',
+    'default_widget' => 'capell.widget.default',
 ];

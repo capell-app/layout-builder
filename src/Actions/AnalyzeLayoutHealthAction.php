@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
-use Capell\ContentBlocks\Data\BlockDefinitionData;
-use Capell\ContentBlocks\Support\BlockRegistry;
-use Capell\ContentBlocks\Support\NullBlockDefinition;
+use Capell\BlockLibrary\Data\BlockDefinitionData;
+use Capell\BlockLibrary\Support\BlockRegistry;
+use Capell\BlockLibrary\Support\NullBlockDefinition;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\LayoutBlockData;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -28,28 +28,28 @@ final class AnalyzeLayoutHealthAction
      */
     public function handle(LayoutBuilderStateData $state, ?string $themeKey = null): array
     {
-        $blockModels = $this->blocks($state);
-        $knownWidgetKeys = $blockModels->keys()->all();
+        $widgetModels = $this->widgets($state);
+        $knownWidgetKeys = $widgetModels->keys()->all();
         $diagnostics = AnalyzeLayoutDiagnosticsAction::run($state, $knownWidgetKeys);
         $anchors = [];
         $registry = class_exists(BlockRegistry::class) ? resolve(BlockRegistry::class) : null;
 
         foreach ($state->containers as $containerKey => $container) {
-            $containerBlocks = LayoutBlockData::fromContainer($container);
+            $containerWidgets = LayoutWidgetData::fromContainer($container);
 
-            foreach ($containerBlocks as $blockIndex => $containerBlock) {
-                $widgetKey = $containerBlock['widget_key'] ?? null;
-                $meta = is_array($containerBlock['meta'] ?? null) ? $containerBlock['meta'] : [];
-                $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
+            foreach ($containerWidgets as $widgetIndex => $containerWidget) {
+                $widgetKey = $containerWidget['widget_key'] ?? null;
+                $meta = is_array($containerWidget['meta'] ?? null) ? $containerWidget['meta'] : [];
+                $settings = is_array($meta['widget_settings'] ?? null) ? $meta['widget_settings'] : [];
                 $anchorId = $this->anchorId($settings['anchor_id'] ?? null);
 
                 if ($anchorId !== null && isset($anchors[$anchorId])) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Warning,
-                        code: 'duplicate_block_anchor',
-                        message: __('capell-layout-builder::message.duplicate_block_anchor', ['anchor' => $anchorId]),
+                        code: 'duplicate_widget_anchor',
+                        message: __('capell-layout-builder::message.duplicate_widget_anchor', ['anchor' => $anchorId]),
                         containerKey: (string) $containerKey,
-                        blockIndex: $blockIndex,
+                        widgetIndex: $widgetIndex,
                     );
                 }
 
@@ -65,14 +65,14 @@ final class AnalyzeLayoutHealthAction
                     continue;
                 }
 
-                $assets = $state->assets[(string) $containerKey][$blockIndex] ?? [];
+                $assets = $state->assets[(string) $containerKey][$widgetIndex] ?? [];
                 if (is_array($assets) && count($assets) > 6) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Warning,
-                        code: 'too_many_block_cards',
-                        message: __('capell-layout-builder::message.too_many_block_cards', ['max' => 6]),
+                        code: 'too_many_widget_cards',
+                        message: __('capell-layout-builder::message.too_many_widget_cards', ['max' => 6]),
                         containerKey: (string) $containerKey,
-                        blockIndex: $blockIndex,
+                        widgetIndex: $widgetIndex,
                     );
                 }
 
@@ -80,25 +80,25 @@ final class AnalyzeLayoutHealthAction
                     continue;
                 }
 
-                $block = $blockModels->get($widgetKey);
-                if (! $block instanceof Widget) {
+                $widget = $widgetModels->get($widgetKey);
+                if (! $widget instanceof Widget) {
                     continue;
                 }
 
-                $publicBlock = $this->blockWithPublicOccurrenceMeta($block, $meta);
-                $definitionKey = $this->definitionKey($publicBlock, $registry);
+                $publicWidget = $this->widgetWithPublicOccurrenceMeta($widget, $meta);
+                $definitionKey = $this->definitionKey($publicWidget, $registry);
                 $definition = $registry->get($definitionKey) ?? NullBlockDefinition::make($definitionKey);
-                $presentation = ResolveBlockPresentationDataAction::run($publicBlock, $themeKey);
+                $presentation = ResolveWidgetPresentationDataAction::run($publicWidget, $themeKey);
 
                 $diagnostics = [
                     ...$diagnostics,
-                    ...$this->variantDiagnostics($definition, $meta, $themeKey, (string) $containerKey, $blockIndex),
-                    ...BlockContractValidatorAction::run(
+                    ...$this->variantDiagnostics($definition, $meta, $themeKey, (string) $containerKey, $widgetIndex),
+                    ...WidgetContractValidatorAction::run(
                         definition: $definition,
                         presentation: $presentation,
-                        payload: $this->contentPayload($containerBlock, is_array($assets) ? $assets : []),
+                        payload: $this->contentPayload($containerWidget, is_array($assets) ? $assets : []),
                         containerKey: (string) $containerKey,
-                        blockIndex: $blockIndex,
+                        widgetIndex: $widgetIndex,
                     ),
                 ];
             }
@@ -110,11 +110,11 @@ final class AnalyzeLayoutHealthAction
     /**
      * @return Collection<string, Widget>
      */
-    private function blocks(LayoutBuilderStateData $state): Collection
+    private function widgets(LayoutBuilderStateData $state): Collection
     {
         $layoutWidgetKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => LayoutBlockData::fromContainer($container))
-            ->map(static fn (array $block): ?string => LayoutBlockData::key($block))
+            ->flatMap(fn (array $container): array => LayoutWidgetData::fromContainer($container))
+            ->map(static fn (array $widget): ?string => LayoutWidgetData::key($widget))
             ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()
@@ -139,13 +139,13 @@ final class AnalyzeLayoutHealthAction
     /**
      * @param  array<string, mixed>  $meta
      */
-    private function blockWithPublicOccurrenceMeta(Widget $block, array $meta): Widget
+    private function widgetWithPublicOccurrenceMeta(Widget $widget, array $meta): Widget
     {
         $safeMeta = array_intersect_key($meta, array_flip([
             'widget_key',
-            'block_variant',
+            'widget_variant',
         ]));
-        $settings = is_array($meta['block_settings'] ?? null) ? $meta['block_settings'] : [];
+        $settings = is_array($meta['widget_settings'] ?? null) ? $meta['widget_settings'] : [];
         $safeSettings = array_intersect_key($settings, array_flip([
             'spacing',
             'background',
@@ -157,45 +157,45 @@ final class AnalyzeLayoutHealthAction
         ]));
 
         if ($safeSettings !== []) {
-            $safeMeta['block_settings'] = $safeSettings;
+            $safeMeta['widget_settings'] = $safeSettings;
         }
 
         if ($safeMeta === []) {
-            return $block;
+            return $widget;
         }
 
-        $publicBlock = clone $block;
-        $baseMeta = is_array($block->meta) ? $block->meta : [];
-        $publicBlock->setAttribute('meta', array_replace_recursive($baseMeta, $safeMeta));
+        $publicWidget = clone $widget;
+        $baseMeta = is_array($widget->meta) ? $widget->meta : [];
+        $publicWidget->setAttribute('meta', array_replace_recursive($baseMeta, $safeMeta));
 
-        return $publicBlock;
+        return $publicWidget;
     }
 
-    private function definitionKey(Widget $block, BlockRegistry $registry): string
+    private function definitionKey(Widget $widget, BlockRegistry $registry): string
     {
-        $meta = is_array($block->meta) ? $block->meta : [];
+        $meta = is_array($widget->meta) ? $widget->meta : [];
         $configuredKey = $meta['widget_key'] ?? null;
 
         if (is_string($configuredKey) && trim($configuredKey) !== '') {
             return trim($configuredKey);
         }
 
-        $typeKey = $block->type?->key;
+        $typeKey = $widget->type?->key;
 
         if (is_string($typeKey) && $registry->has($typeKey)) {
             return $typeKey;
         }
 
-        return $block->key;
+        return $widget->key;
     }
 
     /**
      * @param  array<string, mixed>  $meta
      * @return array<int, LayoutDiagnosticData>
      */
-    private function variantDiagnostics(BlockDefinitionData $definition, array $meta, ?string $themeKey, string $containerKey, int $blockIndex): array
+    private function variantDiagnostics(BlockDefinitionData $definition, array $meta, ?string $themeKey, string $containerKey, int $widgetIndex): array
     {
-        $configuredVariant = $meta['block_variant'] ?? null;
+        $configuredVariant = $meta['widget_variant'] ?? null;
         $variant = is_string($configuredVariant) && $configuredVariant !== ''
             ? $configuredVariant
             : $definition->defaultVariant->value();
@@ -207,12 +207,12 @@ final class AnalyzeLayoutHealthAction
         return [
             new LayoutDiagnosticData(
                 severity: LayoutDiagnosticSeverity::Warning,
-                code: 'unsupported_block_variant',
-                message: __('capell-layout-builder::message.unsupported_block_variant', [
+                code: 'unsupported_widget_variant',
+                message: __('capell-layout-builder::message.unsupported_widget_variant', [
                     'variant' => $this->variantLabel($definition, $variant),
                 ]),
                 containerKey: $containerKey,
-                blockIndex: $blockIndex,
+                widgetIndex: $widgetIndex,
             ),
         ];
     }
@@ -233,13 +233,13 @@ final class AnalyzeLayoutHealthAction
     }
 
     /**
-     * @param  array<string, mixed>  $containerBlock
+     * @param  array<string, mixed>  $containerWidget
      * @param  array<int, mixed>  $assets
      * @return array<string, mixed>
      */
-    private function contentPayload(array $containerBlock, array $assets): array
+    private function contentPayload(array $containerWidget, array $assets): array
     {
-        $meta = is_array($containerBlock['meta'] ?? null) ? $containerBlock['meta'] : [];
+        $meta = is_array($containerWidget['meta'] ?? null) ? $containerWidget['meta'] : [];
         $content = is_array($meta['content'] ?? null) ? $meta['content'] : [];
 
         if (! array_key_exists('items', $content) && $assets !== []) {

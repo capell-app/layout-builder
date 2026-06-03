@@ -3,13 +3,13 @@
 declare(strict_types=1);
 
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Core\Contracts\Actionable;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Data\LayoutAssetBridgeData;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Support\LayoutAssetBridgeRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAdminRegistrationActionable;
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 
@@ -51,7 +51,7 @@ it('registers the layout builder admin stylesheet through Filament assets', func
     /** @var Css $style */
     expect($style->getPath())->toEndWith('resources/css/layout-builder/admin/capell-layout-filament.css')
         ->and($style->getRelativePublicPath())->toBe('css/capell-layout-builder/capell-layout-builder-filament.css')
-        ->and((string) $style->getHtml())->toBe("<link
+        ->and($style->getHtml()->toHtml())->toBe("<link
             href=\"{$style->getHref()}\"
             rel=\"stylesheet\"
             data-navigate-track
@@ -84,11 +84,3 @@ it('registers and resolves layout asset bridges by key', function (): void {
         ->and($registry->get('page'))->toBe($asset)
         ->and($registry->all())->toBe(['page' => $asset]);
 });
-
-final class LayoutBuilderAdminRegistrationActionable implements Actionable
-{
-    public static function run(mixed ...$parameters): mixed
-    {
-        return $parameters;
-    }
-}

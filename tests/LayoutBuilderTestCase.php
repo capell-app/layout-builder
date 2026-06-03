@@ -7,7 +7,7 @@ namespace Capell\LayoutBuilder\Tests;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Providers\AdminServiceProvider;
 use Capell\Admin\Providers\Filament\AdminPanelProvider;
-use Capell\ContentBlocks\Providers\ContentBlocksServiceProvider;
+use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\HtmlCache\Providers\HtmlCacheServiceProvider;
@@ -49,7 +49,7 @@ abstract class LayoutBuilderTestCase extends AbstractTestCase
         return [
             ...parent::getPackageProviders($app),
             AdminServiceProvider::class,
-            ContentBlocksServiceProvider::class,
+            BlockLibraryServiceProvider::class,
             FrontendServiceProvider::class,
             HtmlCacheServiceProvider::class,
             AdminPanelProvider::class,
@@ -67,7 +67,7 @@ abstract class LayoutBuilderTestCase extends AbstractTestCase
         parent::getEnvironmentSetUp($app);
 
         CapellCore::forcePackageInstalled(AdminServiceProvider::$packageName);
-        CapellCore::forcePackageInstalled(ContentBlocksServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(BlockLibraryServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(HtmlCacheServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);

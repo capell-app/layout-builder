@@ -13,7 +13,7 @@
     "require": {
         "php": "^8.3",
         "capell-app/admin": "^4.0 || 4.x-dev",
-        "capell-app/content-blocks": "^4.0 || 4.x-dev",
+        "capell-app/block-library": "^4.0 || 4.x-dev",
         "capell-app/core": "^4.0 || 4.x-dev",
         "capell-app/frontend": "^4.0 || 4.x-dev"
     },

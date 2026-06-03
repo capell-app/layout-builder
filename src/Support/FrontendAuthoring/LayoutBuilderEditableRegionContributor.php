@@ -9,7 +9,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
 use Capell\FrontendAuthoring\Data\EditableRegionPayloadData;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\LayoutBlockData;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
@@ -44,8 +44,8 @@ final class LayoutBuilderEditableRegionContributor
         $containers = is_array($containers) ? $containers : [];
 
         $widgetKeys = collect($containers)
-            ->flatMap(fn (mixed $container): array => LayoutBlockData::fromContainer(is_array($container) ? $container : []))
-            ->map(static fn (array $blockData): ?string => LayoutBlockData::key($blockData))
+            ->flatMap(fn (mixed $container): array => LayoutWidgetData::fromContainer(is_array($container) ? $container : []))
+            ->map(static fn (array $widgetData): ?string => LayoutWidgetData::key($widgetData))
             ->filter()
             ->unique()
             ->values()
@@ -62,25 +62,25 @@ final class LayoutBuilderEditableRegionContributor
             ->keyBy('key');
 
         foreach ($containers as $containerKey => $container) {
-            foreach (LayoutBlockData::fromContainer(is_array($container) ? $container : []) as $blockIndex => $blockData) {
-                $widgetKey = LayoutBlockData::key($blockData);
+            foreach (LayoutWidgetData::fromContainer(is_array($container) ? $container : []) as $widgetIndex => $widgetData) {
+                $widgetKey = LayoutWidgetData::key($widgetData);
                 $widget = $widgetKey === null ? null : $widgets->get($widgetKey);
 
                 if (! $widget instanceof Widget) {
                     continue;
                 }
 
-                $regions[] = $this->blockRegion($pageUrl, $page, $layout, $widget, (string) $containerKey, (int) $blockIndex);
-                $regions[] = $this->blockAssetsRegion($pageUrl, $page, $layout, $widget, (string) $containerKey, (int) $blockIndex);
+                $regions[] = $this->widgetRegion($pageUrl, $page, $layout, $widget, (string) $containerKey, (int) $widgetIndex);
+                $regions[] = $this->widgetAssetsRegion($pageUrl, $page, $layout, $widget, (string) $containerKey, (int) $widgetIndex);
             }
         }
 
         return $regions;
     }
 
-    public static function blockSelector(int|string $layoutId, string $containerKey, int $blockIndex): string
+    public static function widgetSelector(int|string $layoutId, string $containerKey, int $widgetIndex): string
     {
-        return '#layout-block-' . hash('xxh128', $layoutId . ':' . $containerKey . ':' . $blockIndex);
+        return '#layout-widget-' . hash('xxh128', $layoutId . ':' . $containerKey . ':' . $widgetIndex);
     }
 
     private function pageLayoutRegion(PageUrl $pageUrl, Model $page, Layout $layout): EditableRegionPayloadData
@@ -99,25 +99,25 @@ final class LayoutBuilderEditableRegionContributor
         );
     }
 
-    private function blockRegion(PageUrl $pageUrl, Model $page, Layout $layout, Widget $widget, string $containerKey, int $blockIndex): EditableRegionPayloadData
+    private function widgetRegion(PageUrl $pageUrl, Model $page, Layout $layout, Widget $widget, string $containerKey, int $widgetIndex): EditableRegionPayloadData
     {
         return $this->region(
             pageUrl: $pageUrl,
             page: $page,
             layout: $layout,
             recordKey: (int) $widget->getKey(),
-            field: 'block',
-            label: __('capell-layout-builder::button.edit_block') . ': ' . $widget->name,
-            selector: self::blockSelector((int) $layout->getKey(), $containerKey, $blockIndex),
-            regionKey: sprintf('layout.block.%s.%d', $containerKey, $blockIndex),
-            target: sprintf('layout.block.%s.%d', $containerKey, $blockIndex),
+            field: 'widget',
+            label: __('capell-layout-builder::button.edit_widget') . ': ' . $widget->name,
+            selector: self::widgetSelector((int) $layout->getKey(), $containerKey, $widgetIndex),
+            regionKey: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
+            target: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
             description: $widget->type?->name,
             containerKey: $containerKey,
-            blockIndex: $blockIndex,
+            widgetIndex: $widgetIndex,
         );
     }
 
-    private function blockAssetsRegion(PageUrl $pageUrl, Model $page, Layout $layout, Widget $widget, string $containerKey, int $blockIndex): EditableRegionPayloadData
+    private function widgetAssetsRegion(PageUrl $pageUrl, Model $page, Layout $layout, Widget $widget, string $containerKey, int $widgetIndex): EditableRegionPayloadData
     {
         return $this->region(
             pageUrl: $pageUrl,
@@ -125,13 +125,13 @@ final class LayoutBuilderEditableRegionContributor
             layout: $layout,
             recordKey: (int) $widget->getKey(),
             field: 'assets',
-            label: __('capell-layout-builder::button.show_block_assets') . ': ' . $widget->name,
-            selector: self::blockSelector((int) $layout->getKey(), $containerKey, $blockIndex),
-            regionKey: sprintf('layout.block-assets.%s.%d', $containerKey, $blockIndex),
-            target: sprintf('layout.block.%s.%d', $containerKey, $blockIndex),
+            label: __('capell-layout-builder::button.show_widget_assets') . ': ' . $widget->name,
+            selector: self::widgetSelector((int) $layout->getKey(), $containerKey, $widgetIndex),
+            regionKey: sprintf('layout.widget-assets.%s.%d', $containerKey, $widgetIndex),
+            target: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
             description: __('capell-layout-builder::generic.assets'),
             containerKey: $containerKey,
-            blockIndex: $blockIndex,
+            widgetIndex: $widgetIndex,
         );
     }
 
@@ -147,7 +147,7 @@ final class LayoutBuilderEditableRegionContributor
         string $target,
         ?string $description,
         ?string $containerKey = null,
-        ?int $blockIndex = null,
+        ?int $widgetIndex = null,
     ): EditableRegionPayloadData {
         return new EditableRegionPayloadData(
             model: $field === 'layout' ? Layout::class : Widget::class,
@@ -170,7 +170,7 @@ final class LayoutBuilderEditableRegionContributor
                 'pageId' => (int) $page->getKey(),
                 'pageClass' => $page::class,
                 'initialContainerKey' => $containerKey,
-                'initialBlockIndex' => $blockIndex,
+                'initialWidgetIndex' => $widgetIndex,
             ],
         );
     }

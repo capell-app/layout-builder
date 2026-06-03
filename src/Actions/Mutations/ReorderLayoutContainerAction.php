@@ -38,7 +38,7 @@ final class ReorderLayoutContainerAction
                 type: 'container_reordered',
                 label: __('capell-layout-builder::message.container_reordered', ['container' => $containerKey]),
                 containerKey: $containerKey,
-                blockIndex: null,
+                widgetIndex: null,
             ),
         ]);
     }

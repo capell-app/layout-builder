@@ -58,7 +58,7 @@ it('keeps companion package source off legacy layout builder namespaces', functi
 it('keeps optional package integrations behind explicit gates', function (): void {
     $sourcePath = dirname(__DIR__, 2) . '/src';
     $allowedIntegrationPaths = [
-        'src/Filament/Configurators/Blocks/RegisteredAssetWidgetAssetForm.php',
+        'src/Filament/Configurators/Widgets/RegisteredAssetWidgetAssetForm.php',
         'src/LayoutBuilderServiceProvider.php',
         'src/Livewire/Filament/Support/LayoutBuilderActionFactory.php',
         'src/Support/Creator/TypeCreator.php',

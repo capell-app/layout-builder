@@ -15,7 +15,7 @@ use Capell\Core\Contracts\Extensions\RegistersExtensionAdminResource;
 use Capell\Core\Contracts\Extensions\RegistersExtensionAsset;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Configurators\Types\BlockTypeConfigurator;
+use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
@@ -37,9 +37,9 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private const string LEGACY_LAYOUT_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource';
 
-    private const string LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Blocks\\WidgetResource';
+    private const string LEGACY_WIDGET_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource';
 
-    private const string WIDGET_TYPE_CONFIGURATOR = BlockTypeConfigurator::class;
+    private const string WIDGET_TYPE_CONFIGURATOR = WidgetTypeConfigurator::class;
 
     public function __construct(private readonly Container $app) {}
 

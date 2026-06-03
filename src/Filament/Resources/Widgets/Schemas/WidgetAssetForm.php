@@ -7,10 +7,10 @@ namespace Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
-use Capell\LayoutBuilder\Enums\BlockAssetConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Configurators\Blocks\PageWidgetAssetForm;
-use Capell\LayoutBuilder\Filament\Configurators\Blocks\RegisteredAssetWidgetAssetForm;
+use Capell\LayoutBuilder\Enums\WidgetAssetConfiguratorEnum;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\PageWidgetAssetForm;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\RegisteredAssetWidgetAssetForm;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Arrayable;
@@ -30,17 +30,17 @@ class WidgetAssetForm implements FormConfigurator
         $adminSchema = null;
 
         if ($record instanceof WidgetAsset && $record->exists) {
-            $block = $record->block;
+            $widget = $record->widget;
 
-            $adminSchema = $block->admin['block_asset_configurator'][$assetType]
-                ?? $block->type->admin['block_asset_configurator'][$assetType]
+            $adminSchema = $widget->admin['widget_asset_configurator'][$assetType]
+                ?? $widget->type->admin['widget_asset_configurator'][$assetType]
                 ?? null;
         }
 
-        $enumCase = BlockAssetConfiguratorEnum::class . '::' . ucfirst((string) $assetType);
+        $enumCase = WidgetAssetConfiguratorEnum::class . '::' . ucfirst((string) $assetType);
 
         if ($adminSchema === null && defined($enumCase)) {
-            $adminSchema = BlockAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
+            $adminSchema = WidgetAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
         }
 
         if ($adminSchema === null && $assetType !== 'page') {

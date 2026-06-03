@@ -24,10 +24,10 @@ final class NormalizeLayoutBuilderStateAction
             $containers[$containerKey]['widgets'] = array_values($container['widgets'] ?? []);
             $containers[$containerKey]['meta'] = $this->normalizeContainerMeta($container['meta'] ?? []);
 
-            $blockCount = count($containers[$containerKey]['widgets']);
-            $assets[$containerKey] = $this->normalizeBlockSlots($assets[$containerKey] ?? [], $blockCount);
-            $originalAssets[$containerKey] = $this->normalizeBlockSlots($originalAssets[$containerKey] ?? [], $blockCount);
-            $selectedRecords[$containerKey] = $this->normalizeBlockSlots($selectedRecords[$containerKey] ?? [], $blockCount);
+            $widgetCount = count($containers[$containerKey]['widgets']);
+            $assets[$containerKey] = $this->normalizeWidgetSlots($assets[$containerKey] ?? [], $widgetCount);
+            $originalAssets[$containerKey] = $this->normalizeWidgetSlots($originalAssets[$containerKey] ?? [], $widgetCount);
+            $selectedRecords[$containerKey] = $this->normalizeWidgetSlots($selectedRecords[$containerKey] ?? [], $widgetCount);
         }
 
         return new LayoutMutationResultData(
@@ -44,12 +44,12 @@ final class NormalizeLayoutBuilderStateAction
      * @param  array<int, mixed>  $slots
      * @return array<int, mixed>
      */
-    private function normalizeBlockSlots(array $slots, int $blockCount): array
+    private function normalizeWidgetSlots(array $slots, int $widgetCount): array
     {
         $normalizedSlots = [];
 
-        for ($blockIndex = 0; $blockIndex < $blockCount; $blockIndex++) {
-            $normalizedSlots[$blockIndex] = $slots[$blockIndex] ?? [];
+        for ($widgetIndex = 0; $widgetIndex < $widgetCount; $widgetIndex++) {
+            $normalizedSlots[$widgetIndex] = $slots[$widgetIndex] ?? [];
         }
 
         return $normalizedSlots;

@@ -26,9 +26,7 @@
                 $containerHandle = $handleForContainer((string) $containerKey);
                 $containerTitle = (string) ($container['meta']['name'] ?? Str::of((string) $containerKey)->headline());
                 $colspan = min(12, max(1, (int) data_get($container, 'meta.colspan', 12)));
-                $widgets = is_array($container['widgets'] ?? null)
-                    ? $container['widgets']
-                    : (is_array($container['blocks'] ?? null) ? $container['blocks'] : []);
+                $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
             @endphp
 
             <section
@@ -42,23 +40,23 @@
                     {{ $containerTitle }}
                 </div>
 
-                <div class="clb-preview-blocks">
-                    @forelse ($widgets as $blockIndex => $containerBlock)
+                <div class="clb-preview-widgets">
+                    @forelse ($widgets as $widgetIndex => $containerWidget)
                         @php
-                            $block = $containerBlocks[$containerKey][$blockIndex] ?? null;
-                            $blockHandle = $handleForBlock((string) $containerKey, (int) $blockIndex);
+                            $widget = $containerWidgets[$containerKey][$widgetIndex] ?? null;
+                            $widgetHandle = $handleForWidget((string) $containerKey, (int) $widgetIndex);
                         @endphp
 
                         <article
-                            class="clb-preview-block"
-                            data-clb-preview-node="{{ $blockHandle }}"
-                            data-clb-preview-node-type="block"
+                            class="clb-preview-widget"
+                            data-clb-preview-node="{{ $widgetHandle }}"
+                            data-clb-preview-node-type="widget"
                         >
-                            @if ($block instanceof Widget)
-                                {!! $renderBlockPreview($block, is_array($containerBlock) ? $containerBlock : [], (string) $containerKey, (int) $blockIndex) !!}
+                            @if ($widget instanceof Widget)
+                                {!! $renderWidgetPreview($widget, is_array($containerWidget) ? $containerWidget : [], (string) $containerKey, (int) $widgetIndex) !!}
                             @else
                                 <div class="clb-preview-fallback">
-                                    {{ __('capell-admin::message.unknown_block', ['block' => data_get($containerBlock, 'widget_key', __('capell-admin::generic.unknown'))]) }}
+                                    {{ __('capell-admin::message.unknown_widget', ['widget' => data_get($containerWidget, 'widget_key', __('capell-admin::generic.unknown'))]) }}
                                 </div>
                             @endif
                         </article>

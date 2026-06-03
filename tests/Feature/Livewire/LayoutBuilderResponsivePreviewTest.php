@@ -7,6 +7,8 @@ use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
+use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 
 uses(CreatesAdminUser::class);
 
@@ -54,11 +56,11 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertSeeHtml('syncPanelLayout')
         ->assertSeeHtml('actionLoading')
         ->assertSeeHtml('selectNode')
-        ->assertSeeHtml('data-match-frontend-container-layout="true"')
+        ->assertElementExists('[data-match-frontend-container-layout="true"]')
         ->assertSeeHtml('shouldStackContainersForActiveBreakpoint')
-        ->assertSeeHtml('layout-builder-canvas-scroll')
-        ->assertSeeHtml('x-bind:aria-pressed')
-        ->assertDontSeeHtml('wire:click="setActiveBreakpoint');
+        ->assertElementExists('.layout-builder-canvas-scroll')
+        ->assertElementExists('[x-bind\\:aria-pressed]')
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[wire\\:click^="setActiveBreakpoint"]'));
 });
 
 it('can opt out of frontend container stacking in the admin preview from the package namespace', function (): void {
@@ -69,7 +71,7 @@ it('can opt out of frontend container stacking in the admin preview from the pac
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->assertSeeHtml('data-match-frontend-container-layout="false"');
+        ->assertElementExists('[data-match-frontend-container-layout="false"]');
 });
 
 it('resets a responsive override to the base colspan fallback from the package namespace', function (): void {

@@ -10,9 +10,9 @@ enum SchemaExtenderEnum: string
 
     case LayoutContainer = 'capell.layout_container_schema.extenders';
 
-    case LayoutBlock = 'capell.layout_block_configurator.extenders';
+    case LayoutWidget = 'capell.layout_widget_configurator.extenders';
 
-    case Widget = 'capell.block_schema.extenders';
+    case Widget = 'capell.widget_schema.extenders';
 
-    case WidgetAsset = 'capell.block_asset_configurator.extenders';
+    case WidgetAsset = 'capell.widget_asset_configurator.extenders';
 }

@@ -11,7 +11,7 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
 {
     case LayoutContainer = 'LayoutContainers';
 
-    case LayoutBlock = 'LayoutBlocks';
+    case LayoutWidget = 'LayoutWidgets';
 
     case Widget = 'Widgets';
 
@@ -50,17 +50,17 @@ enum ConfiguratorTypeEnum: string implements ConfiguratorTypeEnumInterface
                 fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
                 LayoutContainerConfiguratorEnum::cases(),
             ),
-            self::LayoutBlock => array_map(
-                fn (LayoutBlockConfiguratorEnum $configurator): string => $configurator->value,
-                LayoutBlockConfiguratorEnum::cases(),
+            self::LayoutWidget => array_map(
+                fn (LayoutWidgetConfiguratorEnum $configurator): string => $configurator->value,
+                LayoutWidgetConfiguratorEnum::cases(),
             ),
             self::Widget => array_map(
-                fn (BlockConfiguratorEnum $configurator): string => $configurator->value,
-                BlockConfiguratorEnum::cases(),
+                fn (WidgetConfiguratorEnum $configurator): string => $configurator->value,
+                WidgetConfiguratorEnum::cases(),
             ),
             self::WidgetAsset => array_map(
-                fn (BlockAssetConfiguratorEnum $configurator): string => $configurator->value,
-                BlockAssetConfiguratorEnum::cases(),
+                fn (WidgetAssetConfiguratorEnum $configurator): string => $configurator->value,
+                WidgetAssetConfiguratorEnum::cases(),
             ),
         };
 

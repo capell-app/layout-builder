@@ -17,7 +17,7 @@ class WidgetAssetsRelationManager extends RelationManager
 {
     use HasRelationManagerBadge;
 
-    protected static string $relationship = 'blockAssets';
+    protected static string $relationship = 'widgetAssets';
 
     #[Override]
     public static function getTitle(Model $ownerRecord, string $pageClass): string

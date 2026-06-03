@@ -74,7 +74,7 @@ class WidgetResource extends Resource
     #[Override]
     public static function getNavigationLabel(): string
     {
-        return (string) (__('capell-layout-builder::navigation.blocks'));
+        return (string) (__('capell-layout-builder::navigation.widgets'));
     }
 
     #[Override]
@@ -86,25 +86,25 @@ class WidgetResource extends Resource
     #[Override]
     public static function getPluralModelLabel(): string
     {
-        return __('capell-layout-builder::navigation.blocks');
+        return __('capell-layout-builder::navigation.widgets');
     }
 
     #[Override]
     public static function getModelLabel(): string
     {
-        return __('capell-layout-builder::navigation.block');
+        return __('capell-layout-builder::navigation.widget');
     }
 
     #[Override]
     public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return config('capell-layout-builder.resources.block.icon', static::$navigationIcon);
+        return config('capell-layout-builder.resources.widget.icon', static::$navigationIcon);
     }
 
     #[Override]
     public static function getActiveNavigationIcon(): string|BackedEnum|Htmlable|null
     {
-        return config('capell-layout-builder.resources.block.active_icon', static::$activeNavigationIcon);
+        return config('capell-layout-builder.resources.widget.active_icon', static::$activeNavigationIcon);
     }
 
     #[Override]

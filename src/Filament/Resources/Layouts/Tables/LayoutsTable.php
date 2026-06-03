@@ -49,9 +49,9 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->schema(fn (Layout $record): array => [
                 ViewEntry::make('widgets')
                     ->view(
-                        'capell-layout-builder::components.infolists.entries.layout-blocks',
+                        'capell-layout-builder::components.infolists.entries.layout-widgets',
                         [
-                            'widgets' => self::widgetBlocksForLayout($record),
+                            'widgets' => self::widgetWidgetsForLayout($record),
                         ],
                     ),
             ]);
@@ -72,9 +72,9 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layout_blocks')
-                    ->label(__('capell-layout-builder::table.container_blocks'))
-                    ->getStateUsing(fn (Layout $record): array => self::widgetBlocksForLayout($record)
+                TextColumn::make('layout_widgets')
+                    ->label(__('capell-layout-builder::table.container_widgets'))
+                    ->getStateUsing(fn (Layout $record): array => self::widgetWidgetsForLayout($record)
                         ->pluck('name')
                         ->all())
                     ->wrap()
@@ -121,7 +121,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     {
         return [
             SelectFilter::make('widget_key')
-                ->label(__('capell-layout-builder::form.block'))
+                ->label(__('capell-layout-builder::form.widget'))
                 ->options(fn () => Widget::query()
                     ->pluck('name', 'key')
                     ->all())
@@ -130,7 +130,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
                     if (isset($state['value']) && $state['value'] !== '') {
                         $indicators['widget_key'] = __(
-                            'capell-layout-builder::filter.block',
+                            'capell-layout-builder::filter.widget',
                             ['search' => Widget::query()->where('key', $state['value'])->value('name')],
                         );
                     }
@@ -150,7 +150,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     /**
      * @return Collection<int, Widget>
      */
-    private static function widgetBlocksForLayout(Layout $layout): Collection
+    private static function widgetWidgetsForLayout(Layout $layout): Collection
     {
         $widgetKeys = $layout->widgets;
 

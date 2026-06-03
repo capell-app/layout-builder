@@ -54,19 +54,19 @@
             hasActiveSearch() {
                 return this.search.trim() !== ''
             },
-            itemMatches(block) {
+            itemMatches(widget) {
                 return (
                     !this.hasActiveSearch() ||
-                    this.normalize(block.dataset.layoutContentSearch).includes(
+                    this.normalize(widget.dataset.layoutContentSearch).includes(
                         this.normalize(this.search),
                     )
                 )
             },
-            groupMatches(block) {
+            groupMatches(widget) {
                 return (
                     !this.hasActiveSearch() ||
                     Array.from(
-                        block.querySelectorAll(
+                        widget.querySelectorAll(
                             '[data-layout-content-item-key]',
                         ),
                     ).some((item) => this.itemMatches(item))
@@ -147,7 +147,7 @@
                         </p>
                     </div>
 
-                    <label class="relative block w-full sm:max-w-xs">
+                    <label class="widget relative w-full sm:max-w-xs">
                         <span class="sr-only">
                             {{ __('capell-layout-builder::form.search_content_inventory') }}
                         </span>
@@ -234,13 +234,13 @@
                                         $item->renderedText,
                                         $item->placementLabel,
                                         $item->containerLabel,
-                                        $item->blockLabel,
+                                        $item->widgetLabel,
                                         $item->assetType,
                                         (string) $item->assetId,
                                         implode(' ', $item->warnings),
                                     ])->filter(fn (?string $value): bool => filled($value))->implode(' '))->squish();
-                                    $editBlockAssetClickHandler = '$wire.mountAction(\'editBlockAsset\', ' . Js::from($item->editActionArguments) . ')';
-                                    $editBlockClickHandler = '$wire.mountAction(\'editBlock\', ' . Js::from($item->blockEditActionArguments) . ')';
+                                    $editWidgetAssetClickHandler = '$wire.mountAction(\'editWidgetAsset\', ' . Js::from($item->editActionArguments) . ')';
+                                    $editWidgetClickHandler = '$wire.mountAction(\'editWidget\', ' . Js::from($item->widgetEditActionArguments) . ')';
                                 @endphp
 
                                 <article
@@ -370,24 +370,24 @@
                                                 icon="heroicon-o-pencil"
                                                 size="xs"
                                                 type="button"
-                                                data-layout-content-action="editBlockAsset"
-                                                x-on:click="{{ $editBlockAssetClickHandler }}"
+                                                data-layout-content-action="editWidgetAsset"
+                                                x-on:click="{{ $editWidgetAssetClickHandler }}"
                                             >
                                                 {{ __('capell-admin::button.edit') }}
                                             </x-filament::button>
                                         @endif
 
                                         @if ($this->canEditLayout())
-                                            @if ($item->hasBlockCopySource)
+                                            @if ($item->hasWidgetCopySource)
                                                 <x-filament::button
                                                     color="gray"
                                                     icon="heroicon-o-document-text"
                                                     size="xs"
                                                     type="button"
-                                                    data-layout-content-action="editBlock"
-                                                    x-on:click="{{ $editBlockClickHandler }}"
+                                                    data-layout-content-action="editWidget"
+                                                    x-on:click="{{ $editWidgetClickHandler }}"
                                                 >
-                                                    {{ __('capell-layout-builder::button.edit_block_copy') }}
+                                                    {{ __('capell-layout-builder::button.edit_widget_copy') }}
                                                 </x-filament::button>
                                             @endif
 

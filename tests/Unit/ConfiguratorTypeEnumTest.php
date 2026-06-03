@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
-use Capell\LayoutBuilder\Enums\BlockAssetConfiguratorEnum;
-use Capell\LayoutBuilder\Enums\BlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Enums\LayoutBlockConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\LayoutContainerConfiguratorEnum;
+use Capell\LayoutBuilder\Enums\LayoutWidgetConfiguratorEnum;
+use Capell\LayoutBuilder\Enums\WidgetAssetConfiguratorEnum;
+use Capell\LayoutBuilder\Enums\WidgetConfiguratorEnum;
 
 it('owns layout configurator group metadata in the layout builder package', function (): void {
     $reflection = new ReflectionClass(ConfiguratorTypeEnum::class);
@@ -18,7 +18,7 @@ it('owns layout configurator group metadata in the layout builder package', func
         ->and(ConfiguratorTypeEnum::WidgetAsset->getName())->toBe('WidgetAsset')
         ->and(array_keys(ConfiguratorTypeEnum::getAllConfigurators()))->toBe([
             'LayoutContainers',
-            'LayoutBlocks',
+            'LayoutWidgets',
             'Widgets',
             'WidgetAssets',
         ]);
@@ -33,17 +33,17 @@ it('uses package-owned configurator enum lists instead of core layout builder en
             fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
             LayoutContainerConfiguratorEnum::cases(),
         ))
-        ->and(ConfiguratorTypeEnum::LayoutBlock->getConfigurators())->toBe(array_map(
-            fn (LayoutBlockConfiguratorEnum $configurator): string => $configurator->value,
-            LayoutBlockConfiguratorEnum::cases(),
+        ->and(ConfiguratorTypeEnum::LayoutWidget->getConfigurators())->toBe(array_map(
+            fn (LayoutWidgetConfiguratorEnum $configurator): string => $configurator->value,
+            LayoutWidgetConfiguratorEnum::cases(),
         ))
         ->and(ConfiguratorTypeEnum::Widget->getConfigurators())->toBe(array_map(
-            fn (BlockConfiguratorEnum $configurator): string => $configurator->value,
-            BlockConfiguratorEnum::cases(),
+            fn (WidgetConfiguratorEnum $configurator): string => $configurator->value,
+            WidgetConfiguratorEnum::cases(),
         ))
         ->and(ConfiguratorTypeEnum::WidgetAsset->getConfigurators())->toBe(array_map(
-            fn (BlockAssetConfiguratorEnum $configurator): string => $configurator->value,
-            BlockAssetConfiguratorEnum::cases(),
+            fn (WidgetAssetConfiguratorEnum $configurator): string => $configurator->value,
+            WidgetAssetConfiguratorEnum::cases(),
         ));
 });
 

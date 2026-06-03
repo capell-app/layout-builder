@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Capell\Admin\Data\AdminAssetData;
 use Capell\Admin\Facades\CapellAdmin;
-use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Core\Data\AssetData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
@@ -22,19 +21,17 @@ use Capell\FrontendAuthoring\Support\EditorSurfaces\FieldEditorSurface;
 use Capell\HtmlCache\Models\CachedModelUrl;
 use Capell\HtmlCache\Support\Cache\HtmlCachePathResolver;
 use Capell\LayoutBuilder\Actions\BuildLayoutBuilderTreeAction;
-use Capell\LayoutBuilder\Data\AdminBlockPreviewData;
+use Capell\LayoutBuilder\Data\AdminWidgetPreviewData;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditableRegionContributor;
 use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAsset;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetEnum;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetForm;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
-use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Schema;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Gate;
@@ -42,6 +39,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema as SchemaFacade;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+use Sinnbeck\DomAssertions\Asserts\AssertElement;
+use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 use Spatie\Permission\Models\Permission;
 
 uses(CreatesAdminUser::class);
@@ -65,8 +64,23 @@ it('renders the visual layout builder by default from the package namespace', fu
         ->assertDontSee('Inspector')
         ->assertSee(__('capell-layout-builder::message.preview_status_current'))
         ->assertSee(__('capell-layout-builder::message.container_empty'))
-        ->assertSeeHtml('data-capell-layout-builder-admin-preview="true"')
+        ->assertElementExists('.layout-builder-visual-editor-empty')
+        ->assertElementExists('.layout-builder-visual-grid-empty')
+        ->assertElementExists('.layout-builder-shadow-preview-empty')
+        ->assertElementExists('[data-capell-layout-builder-admin-preview="true"]')
         ->assertSeeHtml('capell-layout-builder:request-page-state');
+});
+
+it('renders a full width empty page preview when a layout has no containers', function (): void {
+    $layout = Layout::factory()->create(['containers' => []]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSee(__('capell-layout-builder::message.layout_empty'))
+        ->assertElementExists('.clb-preview-empty-page')
+        ->assertElementExists('.layout-builder-shadow-preview-empty');
+
+    expect(file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php'))
+        ->toContain('.clb-preview-empty-page { grid-column: 1 / -1; }');
 });
 
 it('resolves lazy mount scalar identifiers into builder models', function (): void {
@@ -109,14 +123,14 @@ it('rejects lazy mounted layout builders with a mismatched explicit site', funct
         ->assertForbidden();
 });
 
-it('selects the requested block when mounted from frontend authoring', function (): void {
+it('selects the requested widget when mounted from frontend authoring', function (): void {
     $site = Site::factory()->create();
-    $firstBlock = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
-    $secondBlock = Widget::factory()->create(['key' => 'proof', 'name' => 'Proof block']);
+    $firstWidget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $secondWidget = Widget::factory()->create(['key' => 'proof', 'name' => 'Proof widget']);
     $layout = Layout::factory()->site($site)->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $firstBlock->key, 'occurrence' => 1],
-            ['widget_key' => $secondBlock->key, 'occurrence' => 1],
+            ['widget_key' => $firstWidget->key, 'occurrence' => 1],
+            ['widget_key' => $secondWidget->key, 'occurrence' => 1],
         ]],
     ]]);
     $page = Page::factory()->for($site)->create([
@@ -129,12 +143,12 @@ it('selects the requested block when mounted from frontend authoring', function 
         'pageId' => $page->getKey(),
         'pageClass' => Page::class,
         'initialContainerKey' => 'main',
-        'initialBlockIndex' => 1,
+        'initialWidgetIndex' => 1,
     ])
         ->assertSet('selectedContainerKey', 'main')
-        ->assertSet('selectedBlockIndex', 1);
+        ->assertSet('selectedWidgetIndex', 1);
 
-    expect($component->instance()->selectedBlock()?->name)->toBe('Proof block');
+    expect($component->instance()->selectedWidget()?->name)->toBe('Proof widget');
 });
 
 it('dispatches frontend authoring dirty and saved lifecycle events', function (): void {
@@ -149,7 +163,7 @@ it('dispatches frontend authoring dirty and saved lifecycle events', function ()
         ->assertDispatched('capell-layout-builder-authoring-saved');
 });
 
-it('clears cached pages affected by frontend authoring block edits', function (): void {
+it('clears cached pages affected by frontend authoring widget edits', function (): void {
     Storage::fake('page_cache');
     config(['capell-admin.auto_refresh_cache' => false]);
 
@@ -164,10 +178,10 @@ it('clears cached pages affected by frontend authoring block edits', function ()
             'path' => '/',
             'status' => true,
         ]);
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->site($site)->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
     $page = Page::factory()->for($site)->create([
@@ -186,8 +200,8 @@ it('clears cached pages affected by frontend authoring block edits', function ()
         Storage::disk('page_cache')->put($cachePath, 'stale cached html');
 
         CachedModelUrl::query()->create([
-            'cacheable_type' => $block->getMorphClass(),
-            'cacheable_id' => $block->getKey(),
+            'cacheable_type' => $widget->getMorphClass(),
+            'cacheable_id' => $widget->getKey(),
             'url' => $url,
             'url_hash' => CachedModelUrl::hashUrl($url),
             'site_id' => $site->getKey(),
@@ -206,19 +220,19 @@ it('clears cached pages affected by frontend authoring block edits', function ()
         'pageId' => $page->getKey(),
         'pageClass' => Page::class,
         'initialContainerKey' => 'main',
-        'initialBlockIndex' => 0,
+        'initialWidgetIndex' => 0,
     ])
-        ->mountAction('editBlock', arguments: [
+        ->mountAction('editWidget', arguments: [
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
         ])
         ->assertSchemaComponentExists('meta.image_source.type')
         ->assertSchemaComponentExists('meta.image_source.url')
         ->setActionData([
-            ...$block->attributesToArray(),
+            ...$widget->attributesToArray(),
             'name' => 'Updated hero banner',
             'meta' => [
-                ...(array) $block->meta,
+                ...(array) $widget->meta,
                 'image_source' => [
                     'type' => 'url',
                     'url' => $imageUrl,
@@ -227,12 +241,12 @@ it('clears cached pages affected by frontend authoring block edits', function ()
         ])
         ->callMountedAction([
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
         ])
         ->assertHasNoActionErrors()
         ->assertDispatched('capell-layout-builder-authoring-saved');
 
-    expect($block->fresh()->meta['image_source']['url'] ?? null)->toBe($imageUrl);
+    expect($widget->fresh()->meta['image_source']['url'] ?? null)->toBe($imageUrl);
 
     foreach ($urls as $url) {
         $cachePath = $pathResolver->pathForUrl(parse_url($url, PHP_URL_PATH) ?: '/', $siteDomain);
@@ -242,7 +256,7 @@ it('clears cached pages affected by frontend authoring block edits', function ()
     }
 });
 
-it('contributes frontend authoring regions for page layout blocks and block assets', function (): void {
+it('contributes frontend authoring regions for page layout widgets and widget assets', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->getKey()]);
     $siteDomain = SiteDomain::factory()
@@ -254,10 +268,10 @@ it('contributes frontend authoring regions for page layout blocks and block asse
             'path' => '/',
             'status' => true,
         ]);
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->site($site)->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
     $page = Page::factory()->for($site)->create([
@@ -281,21 +295,21 @@ it('contributes frontend authoring regions for page layout blocks and block asse
 
     expect($regions)->toHaveCount(3)
         ->and(collect($regions)->pluck('surface')->unique()->values()->all())->toBe(['layout-builder'])
-        ->and(collect($regions)->pluck('field')->all())->toBe(['layout', 'block', 'assets'])
-        ->and($regions[1]->selector)->toBe(LayoutBuilderEditableRegionContributor::blockSelector((int) $layout->getKey(), 'main', 0))
+        ->and(collect($regions)->pluck('field')->all())->toBe(['layout', 'widget', 'assets'])
+        ->and($regions[1]->selector)->toBe(LayoutBuilderEditableRegionContributor::widgetSelector((int) $layout->getKey(), 'main', 0))
         ->and($regions[1]->context)->toMatchArray([
             'layoutId' => $layout->getKey(),
             'siteId' => $site->getKey(),
             'pageId' => $page->getKey(),
             'pageClass' => Page::class,
             'initialContainerKey' => 'main',
-            'initialBlockIndex' => 0,
+            'initialWidgetIndex' => 0,
         ]);
 
     $payload = resolve(EditableRegionSigner::class)->decode(resolve(EditableRegionSigner::class)->encode($regions[1]));
 
     expect($payload->surface)->toBe('layout-builder')
-        ->and($payload->target)->toBe('layout.block.main.0');
+        ->and($payload->target)->toBe('layout.widget.main.0');
 });
 
 it('renders the signed frontend authoring layout builder editor surface', function (): void {
@@ -332,10 +346,10 @@ it('renders the signed frontend authoring layout builder editor surface', functi
             'path' => '/',
             'status' => true,
         ]);
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->site($site)->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
     $page = Page::factory()->for($site)->create([
@@ -360,19 +374,18 @@ it('renders the signed frontend authoring layout builder editor surface', functi
 
     $this->get($signedUrl)
         ->assertOk()
-        ->assertSee('lang="en"', false)
-        ->assertSee('class="fi"', false)
+        ->assertElementExists('html.fi[lang="en"]')
         ->assertSee('capell-layout-builder-authoring')
         ->assertSee('css/capell-layout-builder/capell-layout-builder-filament.css')
-        ->assertSee("[x-cloak='']", false)
+        ->assertElementExists('[x-cloak]')
         ->assertSee('capell-authoring:editor-loaded')
         ->assertSee('capell-layout-builder-authoring-saved')
-        ->assertSee('wire:snapshot', false)
+        ->assertElementExists('[wire\:snapshot]')
         ->assertSee('Hero banner');
 });
 
-it('resolves the saved admin block preview view without checking the filesystem', function (): void {
-    $previewData = new AdminBlockPreviewData(
+it('resolves the saved admin widget preview view without checking the filesystem', function (): void {
+    $previewData = new AdminWidgetPreviewData(
         view: 'capell-layout-builder::filament.layout-builder.previews.custom',
         label: 'Custom preview',
         title: null,
@@ -387,15 +400,15 @@ it('resolves the saved admin block preview view without checking the filesystem'
 
     $component = new LayoutBuilder;
 
-    expect($component->resolveAdminBlockPreviewView($previewData))
+    expect($component->resolveAdminWidgetPreviewView($previewData))
         ->toBe('capell-layout-builder::filament.layout-builder.previews.custom');
 });
 
 it('keeps legacy editor mode transitions available inside the visual editor from the package namespace', function (): void {
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
@@ -422,33 +435,33 @@ it('lets content editors use content first without advanced layout access from t
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
         ->assertDontSee(__('capell-layout-builder::button.add_container'))
-        ->assertDontSee(__('capell-layout-builder::button.add_block'));
+        ->assertDontSee(__('capell-layout-builder::button.add_widget'));
 
     $component
         ->call('showAdvancedLayout')
         ->assertForbidden();
 });
 
-it('blocks content only editors from direct layout block meta mutation', function (): void {
+it('widgets content only editors from direct layout widget meta mutation', function (): void {
     Permission::findOrCreate('EditContent:Layout');
     Permission::findOrCreate('EditLayout:Layout');
     Permission::findOrCreate('Update:Layout');
 
     test()->actingAs(test()->createUserWithPermission('EditContent:Layout'));
 
-    $block = Widget::factory()->create(['key' => 'hero']);
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->call('editLayoutBlock', 'main', 0, ['html_class' => 'content-only-change'])
+        ->call('editLayoutWidget', 'main', 0, ['html_class' => 'content-only-change'])
         ->assertForbidden();
 });
 
-it('lets content editors submit block asset edits without layout access from the package namespace', function (): void {
+it('lets content editors submit widget asset edits without layout access from the package namespace', function (): void {
     Permission::findOrCreate('EditContent:Layout');
     Permission::findOrCreate('EditLayout:Layout');
     Permission::findOrCreate('Update:Layout');
@@ -456,32 +469,32 @@ it('lets content editors submit block asset edits without layout access from the
 
     test()->actingAs(test()->createUserWithPermission(['EditContent:Layout', 'View:Page']));
 
-    $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $blockAsset = WidgetAsset::factory()
-        ->block($block)
+    $widgetAsset = WidgetAsset::factory()
+        ->widget($widget)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editBlockAsset', data: [
+        ->callAction('editWidgetAsset', data: [
             'meta' => ['variant' => 'featured'],
         ], arguments: [
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
             'index' => 0,
             'type' => 'page',
         ])
         ->assertHasNoActionErrors();
 
-    expect($blockAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+    expect($widgetAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });
 
 it('keeps saving non publishable builder asset records through the existing path', function (): void {
@@ -503,10 +516,10 @@ it('keeps saving non publishable builder asset records through the existing path
     );
     Relation::morphMap(['nonpublishable' => LayoutBuilderNonPublishableAsset::class]);
 
-    $block = Widget::factory()->create(['key' => 'asset-list', 'name' => 'Asset list']);
+    $widget = Widget::factory()->create(['key' => 'asset-list', 'name' => 'Asset list']);
     $asset = LayoutBuilderNonPublishableAsset::query()->create(['title' => 'Original title']);
     WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->occurrence(1)
         ->create([
             'asset_type' => 'nonpublishable',
@@ -516,84 +529,84 @@ it('keeps saving non publishable builder asset records through the existing path
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editBlockAsset', data: [
+        ->callAction('editWidgetAsset', data: [
             'asset' => ['title' => 'Updated title'],
         ], arguments: [
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
             'index' => 0,
             'type' => 'nonpublishable',
         ])
         ->assertHasNoActionErrors();
 
-    $freshAsset = $asset->fresh();
+    $freshAsset = capell_test_instance($asset->fresh(), LayoutBuilderNonPublishableAsset::class);
 
-    expect($freshAsset instanceof LayoutBuilderNonPublishableAsset ? $freshAsset->title : null)->toBe('Updated title');
+    expect($freshAsset->title)->toBe('Updated title');
 });
 
 it('renders widget rows in the structure tree and wires preview widget actions from the package namespace', function (): void {
-    $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
     WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     $tree = BuildLayoutBuilderTreeAction::run(
         containers: $layout->containers,
-        containerBlocks: ['main' => [$block]],
+        containerWidgets: ['main' => [$widget]],
         assets: ['main' => [[]]],
         page: null,
         selectedContainerKey: 'main',
-        selectedBlockIndex: 0,
+        selectedWidgetIndex: 0,
     );
 
     expect($tree->containers[0]->nodeId)
         ->toBe(hash('xxh128', 'container:main'))
-        ->and($tree->containers[0]->blocks[0]->nodeId)
-        ->toBe(hash('xxh128', 'block:main:0'));
+        ->and($tree->containers[0]->widgets[0]->nodeId)
+        ->toBe(hash('xxh128', 'widget:main:0'));
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee(__('capell-layout-builder::form.search_layout_tree'))
         ->assertSee('Featured')
-        ->assertSeeHtml('data-layout-builder-tree-search')
-        ->assertSeeHtml('data-clb-preview-node')
-        ->assertSeeHtml('previewBlockActions')
+        ->assertElementExists('[data-layout-builder-tree-search]')
+        ->assertElementExists('[data-clb-preview-node]')
+        ->assertSeeHtml('previewWidgetActions')
         ->assertSeeHtml('runPreviewAction')
-        ->assertSeeHtml('editBlock')
-        ->assertSeeHtml('duplicateBlock')
-        ->assertSeeHtml('removeBlock')
-        ->assertDontSeeHtml('visual-inspector')
-        ->call('selectBlock', 'main', 0)
+        ->assertSeeHtml('editWidget')
+        ->assertSeeHtml('duplicateWidget')
+        ->assertSeeHtml('removeWidget')
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.visual-inspector'))
+        ->call('selectWidget', 'main', 0)
         ->assertSet('selectedContainerKey', 'main')
-        ->assertSet('selectedBlockIndex', 0)
-        ->assertSee(__('capell-layout-builder::button.edit_block'))
+        ->assertSet('selectedWidgetIndex', 0)
+        ->assertSee(__('capell-layout-builder::button.edit_widget'))
         ->assertSeeHtml('mountAction')
-        ->assertDontSeeHtml('data-layout-content-action="editBlockAsset"');
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[data-layout-content-action="editWidgetAsset"]'));
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->set('visualPreviewNodeMap', [])
-        ->call('selectPreviewNode', hash('xxh128', 'block:main:0'))
+        ->call('selectPreviewNode', hash('xxh128', 'widget:main:0'))
         ->assertSet('selectedContainerKey', 'main')
-        ->assertSet('selectedBlockIndex', 0);
+        ->assertSet('selectedWidgetIndex', 0);
 
     $treeView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-tree.blade.php');
     $editorView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php');
 
     expect($treeView)
-        ->not->toContain('$this->editBlockAssetAction')
+        ->not->toContain('$this->editWidgetAssetAction')
         ->and($editorView)
         ->not->toContain('visual-inspector')
         ->toContain('mountAction(actionName, args)')
@@ -606,19 +619,19 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->toContain('role="menuitem"');
 });
 
-it('renders block copy in the visual preview from the package namespace', function (): void {
+it('renders widget copy in the visual preview from the package namespace', function (): void {
     $language = Language::factory()->create();
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
     WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1]);
 
     Translation::query()->create([
-        'translatable_type' => $block->getMorphClass(),
-        'translatable_id' => $block->getKey(),
+        'translatable_type' => $widget->getMorphClass(),
+        'translatable_id' => $widget->getKey(),
         'language_id' => $language->getKey(),
         'title' => 'Every section can be rebuilt in the layout builder',
         'content' => '<p>Widget-owned support copy.</p>',
@@ -626,13 +639,13 @@ it('renders block copy in the visual preview from the package namespace', functi
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee('Every section can be rebuilt in the layout builder')
-        ->assertSeeHtml('data-clb-preview-node-type="block"');
+        ->assertElementExists('[data-clb-preview-node-type="widget"]');
 
     expect($component->get('visualPreviewHtml'))
         ->toContain('Every section can be rebuilt in the layout builder')
@@ -711,7 +724,7 @@ it('clears redo history when a new layout mutation follows undo from the package
         ->and($component->get('layoutRedoSnapshots'))->toBe([]);
 });
 
-it('blocks content only editors from layout undo and redo from the package namespace', function (): void {
+it('widgets content only editors from layout undo and redo from the package namespace', function (): void {
     Permission::findOrCreate('EditContent:Layout');
     Permission::findOrCreate('EditLayout:Layout');
     Permission::findOrCreate('Update:Layout');
@@ -741,59 +754,35 @@ it('blocks content only editors from layout undo and redo from the package names
 });
 
 it('rejects stale content first asset saves from the package namespace', function (): void {
-    $block = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
-    $blockAsset = WidgetAsset::factory()
-        ->block($block)
+    $widgetAsset = WidgetAsset::factory()
+        ->widget($widget)
         ->asset($asset)
         ->occurrence(1)
         ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
 
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [
-            ['widget_key' => $block->key, 'occurrence' => 1],
+            ['widget_key' => $widget->key, 'occurrence' => 1],
         ]],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->callAction('editBlockAsset', data: [
+        ->callAction('editWidgetAsset', data: [
             'meta' => ['variant' => 'featured'],
         ], arguments: [
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
             'index' => 0,
             'type' => 'page',
             'contentInventorySignature' => 'stale-signature',
         ])
         ->assertNotified(__('capell-layout-builder::message.content_stale'));
 
-    expect($blockAsset->fresh()->meta['variant'] ?? null)->toBe('default');
+    expect($widgetAsset->fresh()->meta['variant'] ?? null)->toBe('default');
 });
-
-enum LayoutBuilderNonPublishableAssetEnum: string
-{
-    case Nonpublishable = 'nonpublishable';
-}
 
 /**
  * @property string|null $title
  */
-class LayoutBuilderNonPublishableAsset extends Model
-{
-    /** @use HasFactory<Factory<self>> */
-    use HasFactory;
-
-    protected $table = 'layout_builder_non_publishable_assets';
-
-    protected $guarded = [];
-}
-
-class LayoutBuilderNonPublishableAssetForm implements FormConfigurator
-{
-    public static function configure(Schema $configurator, mixed $context = null): Schema
-    {
-        return $configurator->schema([
-            TextInput::make('title'),
-        ]);
-    }
-}

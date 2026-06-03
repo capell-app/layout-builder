@@ -109,10 +109,10 @@ class LayoutPreviewRenderer
      */
     private function containerHeight(array $container): int
     {
-        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
-        $blockCount = max(1, count($blocks));
+        $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+        $widgetCount = max(1, count($widgets));
 
-        return self::HEADER_HEIGHT + 28 + ($blockCount * self::WIDGET_HEIGHT) + (($blockCount - 1) * self::WIDGET_GAP);
+        return self::HEADER_HEIGHT + 28 + ($widgetCount * self::WIDGET_HEIGHT) + (($widgetCount - 1) * self::WIDGET_GAP);
     }
 
     /**
@@ -130,26 +130,26 @@ class LayoutPreviewRenderer
         $textColor = $this->textColor($image, $containerColor);
         imagestring($image, 5, $left + 18, $top + 17, $this->fitText((string) ($container['key'] ?? 'container'), max(8, (int) floor($width / 11))), $textColor);
 
-        $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
-        $blockTop = $top + self::HEADER_HEIGHT + 12;
+        $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+        $widgetTop = $top + self::HEADER_HEIGHT + 12;
 
-        if ($blocks === []) {
-            $this->drawEmptyBlock($image, $left + 14, $blockTop, $width - 28);
+        if ($widgets === []) {
+            $this->drawEmptyWidget($image, $left + 14, $widgetTop, $width - 28);
 
             return;
         }
 
-        foreach ($blocks as $block) {
-            if (! is_array($block)) {
+        foreach ($widgets as $widget) {
+            if (! is_array($widget)) {
                 continue;
             }
 
-            $this->drawBlock($image, $layout, $block, $left + 14, $blockTop, $width - 28, $usedHues);
-            $blockTop += self::WIDGET_HEIGHT + self::WIDGET_GAP;
+            $this->drawWidget($image, $layout, $widget, $left + 14, $widgetTop, $width - 28, $usedHues);
+            $widgetTop += self::WIDGET_HEIGHT + self::WIDGET_GAP;
         }
     }
 
-    private function drawEmptyBlock(GdImage $image, int $left, int $top, int $width): void
+    private function drawEmptyWidget(GdImage $image, int $left, int $top, int $width): void
     {
         $fillColor = $this->allocateColor($image, 255, 255, 255);
         $textColor = $this->allocateColor($image, 100, 116, 139);
@@ -158,22 +158,22 @@ class LayoutPreviewRenderer
     }
 
     /**
-     * @param  array<string, mixed>  $block
+     * @param  array<string, mixed>  $widget
      * @param  array<int, int>  $usedHues
      */
-    private function drawBlock(GdImage $image, Layout $layout, array $block, int $left, int $top, int $width, array &$usedHues): void
+    private function drawWidget(GdImage $image, Layout $layout, array $widget, int $left, int $top, int $width, array &$usedHues): void
     {
-        $widgetKey = (string) ($block['key'] ?? 'block');
-        $blockColor = $this->color($layout, 'block:' . $widgetKey, 0.54, $usedHues);
-        $fillColor = $this->allocateColor($image, $blockColor[0], $blockColor[1], $blockColor[2]);
+        $widgetKey = (string) ($widget['key'] ?? 'widget');
+        $widgetColor = $this->color($layout, 'widget:' . $widgetKey, 0.54, $usedHues);
+        $fillColor = $this->allocateColor($image, $widgetColor[0], $widgetColor[1], $widgetColor[2]);
         imagefilledrectangle($image, $left, $top, $left + $width, $top + self::WIDGET_HEIGHT, $fillColor);
 
-        $textColor = $this->textColor($image, $blockColor);
-        $iconLabel = $this->iconLabel($block);
+        $textColor = $this->textColor($image, $widgetColor);
+        $iconLabel = $this->iconLabel($widget);
         imagestring($image, 5, $left + 16, $top + 16, $iconLabel, $textColor);
         imagestring($image, 5, $left + 58, $top + 16, $this->fitText($widgetKey, max(8, (int) floor(($width - 74) / 11))), $textColor);
 
-        $name = (string) ($block['name'] ?? '');
+        $name = (string) ($widget['name'] ?? '');
         if ($name !== '' && $name !== $widgetKey) {
             imagestring($image, 3, $left + 58, $top + 44, $this->fitText($name, max(8, (int) floor(($width - 74) / 8))), $textColor);
         }
@@ -305,11 +305,11 @@ class LayoutPreviewRenderer
     }
 
     /**
-     * @param  array<string, mixed>  $block
+     * @param  array<string, mixed>  $widget
      */
-    private function iconLabel(array $block): string
+    private function iconLabel(array $widget): string
     {
-        $icon = (string) ($block['icon'] ?? $block['type_icon'] ?? '');
+        $icon = (string) ($widget['icon'] ?? $widget['type_icon'] ?? '');
 
         if ($icon === '') {
             return '[]';

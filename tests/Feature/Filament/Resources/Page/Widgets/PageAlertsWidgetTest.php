@@ -60,7 +60,7 @@ function pageWithHeroContentAndLayoutWithoutHeroWidget(): Page
     Widget::factory()->create([
         'key' => 'page-content',
         'meta' => [
-            'component' => 'capell.block.page.content',
+            'component' => 'capell.widget.page.content',
         ],
     ]);
 

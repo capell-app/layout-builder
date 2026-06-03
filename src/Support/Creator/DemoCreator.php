@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
 use Spatie\MediaLibrary\HasMedia;
 
-class DemoCreator extends ApDemoBlockCreator
+class DemoCreator extends ApDemoWidgetCreator
 {
     public function __construct(
         protected readonly ?Model $user = null,
@@ -28,7 +28,7 @@ class DemoCreator extends ApDemoBlockCreator
 
         /** @var class-string<Model&HasMedia> $contentModel */
         $this->contentModel = $contentModel;
-        $this->blockModel = Widget::class;
+        $this->widgetModel = Widget::class;
         $this->typeModel = Blueprint::class;
         $this->pageModel = Page::class;
     }

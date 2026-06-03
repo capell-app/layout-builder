@@ -10,7 +10,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
-use Capell\LayoutBuilder\Support\LayoutBlockData;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
@@ -36,30 +36,30 @@ class LayoutLoaded implements EventSubscriber
             return;
         }
 
-        $this->loadLayoutBlocks($layout, $page, $language);
+        $this->loadLayoutWidgets($layout, $page, $language);
     }
 
-    protected function loadLayoutBlocks(Layout $layout, Pageable $page, Language $language): void
+    protected function loadLayoutWidgets(Layout $layout, Pageable $page, Language $language): void
     {
-        CapellLayoutManager::clearContainerBlocks();
+        CapellLayoutManager::clearContainerWidgets();
 
-        // Preload all blocks/assets once to minimize queries during iteration
+        // Preload all widgets/assets once to minimize queries during iteration
         $loader = resolve(LayoutLoader::class);
-        $loader->preloadLayoutBlocks($layout, $language, $page);
+        $loader->preloadLayoutWidgets($layout, $language, $page);
 
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
         foreach ($containers as $containerKey => $container) {
-            foreach (LayoutBlockData::fromContainer($container) as $blockData) {
-                $widgetKey = LayoutBlockData::key($blockData);
+            foreach (LayoutWidgetData::fromContainer($container) as $widgetData) {
+                $widgetKey = LayoutWidgetData::key($widgetData);
                 if ($widgetKey === null) {
                     continue;
                 }
 
-                $occurrence = LayoutBlockData::occurrence($blockData);
+                $occurrence = LayoutWidgetData::occurrence($widgetData);
 
-                $block = $loader->getLayoutBlock(
+                $widget = $loader->getLayoutWidget(
                     $layout,
                     $widgetKey,
                     $language,
@@ -68,11 +68,11 @@ class LayoutLoaded implements EventSubscriber
                     $occurrence,
                 );
 
-                if (! $block instanceof Widget) {
+                if (! $widget instanceof Widget) {
                     continue;
                 }
 
-                CapellLayoutManager::storeContainerBlock($containerKey, $widgetKey, $block, $occurrence);
+                CapellLayoutManager::storeContainerWidget($containerKey, $widgetKey, $widget, $occurrence);
             }
         }
     }

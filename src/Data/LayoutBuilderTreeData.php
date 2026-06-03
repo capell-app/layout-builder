@@ -14,7 +14,7 @@ final class LayoutBuilderTreeData extends Data
     public function __construct(
         public array $containers,
         public int $containerCount,
-        public int $blockCount,
+        public int $widgetCount,
         public string $signature,
     ) {}
 }

@@ -4,80 +4,12 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAssetHarness;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
-final class LayoutBuilderAssetHarness extends LayoutBuilder
-{
-    #[Override]
-    public function assertCanUpdateLayout(): void {}
-
-    #[Override]
-    public function assertCanEditContent(): void {}
-
-    /**
-     * @param  array<string, array<int, Widget>>  $containerBlocks
-     */
-    public function setContainerBlocks(array $containerBlocks): void
-    {
-        $this->containerBlocks = $containerBlocks;
-    }
-
-    public function exposeUpdatePageAssets(string $containerKey, int $blockIndex, ?bool $hasPageAssets = null): void
-    {
-        $this->updatePageAssets($containerKey, $blockIndex, $hasPageAssets);
-    }
-
-    /**
-     * @return array<array-key, mixed>
-     */
-    public function exposeMapBlockAssets(Widget $block, string $containerKey, ?string $oldContainerKey = null): array
-    {
-        return $this->mapBlockAssets($block, $containerKey, $oldContainerKey);
-    }
-
-    /**
-     * @param  array<array-key, mixed>  $blockAssets
-     * @param  EloquentCollection<int, WidgetAsset>|null  $allBlockAssets
-     * @return EloquentCollection<int, WidgetAsset>
-     */
-    public function exposeSetupBlockAssets(
-        string $containerKey,
-        int $blockIndex,
-        array $blockAssets,
-        ?EloquentCollection $allBlockAssets,
-        Widget $block,
-    ): EloquentCollection {
-        return $this->setupBlockAssets($containerKey, $blockIndex, $blockAssets, $allBlockAssets, $block);
-    }
-
-    /**
-     * @param  EloquentCollection<int, WidgetAsset>  $assets
-     * @return EloquentCollection<int, WidgetAsset>
-     */
-    public function exposeFilterContainerBlockAssets(
-        EloquentCollection $assets,
-        string $containerKey,
-        int $blockOccurrence,
-        ?Widget $block = null,
-    ): EloquentCollection {
-        return $this->filterContainerBlockAssets($assets, $containerKey, $blockOccurrence, $block);
-    }
-
-    public function exposeSaveOriginalAssets(): void
-    {
-        $this->saveOriginalAssets();
-    }
-
-    public function exposeDeleteRemovedBlockAssets(): void
-    {
-        $this->deleteRemovedBlockAssets();
-    }
-}
-
-it('reorders selects and removes in-memory block assets predictably', function (): void {
+it('reorders selects and removes in-memory widget assets predictably', function (): void {
     $harness = new LayoutBuilderAssetHarness;
     $harness->layout = Layout::factory()->create();
     $harness->containers = [
@@ -100,13 +32,13 @@ it('reorders selects and removes in-memory block assets predictably', function (
 
     expect($harness->canMoveAssetUp('main', 0, 0))->toBeFalse()
         ->and($harness->canMoveAssetDown('main', 0, 0))->toBeTrue()
-        ->and($harness->countBlockAssets('main', 0))->toBe(3)
-        ->and($harness->getBlockAssetsByType('main', 0, 'page'))->toBe([10, 20]);
+        ->and($harness->countWidgetAssets('main', 0))->toBe(3)
+        ->and($harness->getWidgetAssetsByType('main', 0, 'page'))->toBe([10, 20]);
 
     $harness->moveAssetDown('main', 0, 0);
 
-    $firstAssetAfterMove = capell_test_array($harness->getBlockAsset('main', 0, 0));
-    $secondAssetAfterMove = capell_test_array($harness->getBlockAsset('main', 0, 1));
+    $firstAssetAfterMove = capell_test_array($harness->getWidgetAsset('main', 0, 0));
+    $secondAssetAfterMove = capell_test_array($harness->getWidgetAsset('main', 0, 1));
 
     expect($firstAssetAfterMove['asset_id'] ?? null)->toBe(20)
         ->and($secondAssetAfterMove['asset_id'] ?? null)->toBe(10)
@@ -120,9 +52,9 @@ it('reorders selects and removes in-memory block assets predictably', function (
     $harness->selectedRecords['main'][0] = ['page.20', 'section.external-id'];
     $harness->removeSelectedAssets('main', 0);
 
-    $remainingAsset = capell_test_array($harness->getBlockAsset('main', 0, 0));
+    $remainingAsset = capell_test_array($harness->getWidgetAsset('main', 0, 0));
 
-    expect($harness->getBlockAssets('main', 0))
+    expect($harness->getWidgetAssets('main', 0))
         ->toHaveCount(1)
         ->and($remainingAsset['asset_id'] ?? null)->toBe(10)
         ->and($harness->getSelectedAssets('main', 0))->toBe([]);
@@ -132,17 +64,17 @@ it('reorders selects and removes in-memory block assets predictably', function (
     expect($harness->getSelectedAssets('main', 0))->toBe([]);
 });
 
-it('maps filters and restores persisted block assets for page scoped state', function (): void {
+it('maps filters and restores persisted widget assets for page scoped state', function (): void {
     $page = Page::factory()->withTranslations()->create();
     $otherPage = Page::factory()->withTranslations()->create();
     $layout = Layout::factory()->create();
-    $block = Widget::factory()->create(['key' => 'hero']);
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $globalAsset = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($page)
         ->create(['container' => null, 'occurrence' => 1, 'order' => 2, 'workspace_id' => 0]);
     $pageAsset = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($page)
         ->create([
             'container' => 'main',
@@ -153,7 +85,7 @@ it('maps filters and restores persisted block assets for page scoped state', fun
             'pageable_type' => $page->getMorphClass(),
         ]);
     $otherPageAsset = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($otherPage)
         ->create([
             'container' => 'main',
@@ -164,7 +96,7 @@ it('maps filters and restores persisted block assets for page scoped state', fun
             'pageable_type' => $otherPage->getMorphClass(),
         ]);
 
-    $block->setRelation('assets', new EloquentCollection([$globalAsset, $pageAsset, $otherPageAsset]));
+    $widget->setRelation('assets', new EloquentCollection([$globalAsset, $pageAsset, $otherPageAsset]));
 
     $harness = new LayoutBuilderAssetHarness;
     $harness->layout = $layout;
@@ -172,19 +104,19 @@ it('maps filters and restores persisted block assets for page scoped state', fun
     $harness->containers = [
         'main' => [
             'widgets' => [
-                ['widget_key' => $block->key, 'occurrence' => 1],
+                ['widget_key' => $widget->key, 'occurrence' => 1],
             ],
         ],
     ];
     $harness->assets = ['main' => [[]]];
     $harness->selectedRecords = ['main' => [[]]];
-    $harness->setContainerBlocks(['main' => [$block]]);
+    $harness->setContainerWidgets(['main' => [$widget]]);
 
-    $allBlockAssets = WidgetAsset::query()
+    $allWidgetAssets = WidgetAsset::query()
         ->whereKey([$globalAsset->getKey(), $pageAsset->getKey(), $otherPageAsset->getKey()])
         ->get();
 
-    $mappedAssets = $harness->exposeMapBlockAssets($block, 'main', 'old-main');
+    $mappedAssets = $harness->exposeMapWidgetAssets($widget, 'main', 'old-main');
 
     expect($mappedAssets[1])
         ->toMatchArray([
@@ -195,16 +127,16 @@ it('maps filters and restores persisted block assets for page scoped state', fun
             'old_container' => 'old-main',
         ]);
 
-    $filteredAssets = $harness->exposeFilterContainerBlockAssets(
-        $allBlockAssets,
+    $filteredAssets = $harness->exposeFilterContainerWidgetAssets(
+        $allWidgetAssets,
         'main',
         1,
-        $block,
+        $widget,
     );
 
     expect($filteredAssets->pluck('id')->all())->toBe([$globalAsset->getKey()]);
 
-    $restoredAssets = $harness->exposeSetupBlockAssets(
+    $restoredAssets = $harness->exposeSetupWidgetAssets(
         'main',
         0,
         [
@@ -221,8 +153,8 @@ it('maps filters and restores persisted block assets for page scoped state', fun
                 'old_container' => 'main',
             ],
         ],
-        $allBlockAssets,
-        $block,
+        $allWidgetAssets,
+        $widget,
     );
 
     $restoredAsset = capell_test_instance($restoredAssets->first(), WidgetAsset::class);
@@ -267,24 +199,24 @@ it('captures original assets and deletes only removed persisted asset records', 
     $page = Page::factory()->withTranslations()->create();
     $removedPage = Page::factory()->withTranslations()->create();
     $layout = Layout::factory()->create();
-    $block = Widget::factory()->create(['key' => 'hero']);
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $keptAsset = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($page)
         ->create(['container' => null, 'occurrence' => 1, 'order' => 1, 'workspace_id' => 0]);
     $removedAsset = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($removedPage)
         ->create(['container' => null, 'occurrence' => 1, 'order' => 2, 'workspace_id' => 0]);
 
-    $block->setRelation('assets', new EloquentCollection([$keptAsset, $removedAsset]));
+    $widget->setRelation('assets', new EloquentCollection([$keptAsset, $removedAsset]));
 
     $harness = new LayoutBuilderAssetHarness;
     $harness->layout = $layout;
     $harness->containers = [
         'main' => [
             'widgets' => [
-                ['widget_key' => $block->key, 'occurrence' => 1],
+                ['widget_key' => $widget->key, 'occurrence' => 1],
             ],
         ],
     ];
@@ -311,7 +243,7 @@ it('captures original assets and deletes only removed persisted asset records', 
         ],
     ];
     $harness->selectedRecords = ['main' => [[]]];
-    $harness->setContainerBlocks(['main' => [$block]]);
+    $harness->setContainerWidgets(['main' => [$widget]]);
 
     $harness->exposeSaveOriginalAssets();
 
@@ -326,7 +258,7 @@ it('captures original assets and deletes only removed persisted asset records', 
         ],
     ];
 
-    $harness->exposeDeleteRemovedBlockAssets();
+    $harness->exposeDeleteRemovedWidgetAssets();
 
     expect(WidgetAsset::query()->whereKey($keptAsset->getKey())->exists())->toBeTrue()
         ->and(WidgetAsset::query()->whereKey($removedAsset->getKey())->exists())->toBeFalse();

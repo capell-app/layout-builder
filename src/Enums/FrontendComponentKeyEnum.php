@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Enums;
 
 enum FrontendComponentKeyEnum: string
 {
-    case SectionBlock = 'capell.asset.section.block';
+    case SectionWidget = 'capell.asset.section.widget';
 
     case SectionTeamMember = 'capell.asset.section.team-member';
 }

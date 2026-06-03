@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Support\LayoutPreviews;
 
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\LayoutBlockData;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 final class LayoutPreviewSignature
@@ -28,14 +28,14 @@ final class LayoutPreviewSignature
         $containers = is_array($containers) ? $containers : [];
 
         $widgetKeys = $this->widgetKeys($containers);
-        $blocks = $this->blocksByKey($widgetKeys);
+        $widgets = $this->widgetsByKey($widgetKeys);
 
         return [
             'layout' => [
                 'id' => $layout->getKey(),
                 'key' => $layout->getAttribute('key'),
             ],
-            'containers' => $this->normalizeContainers($containers, $blocks),
+            'containers' => $this->normalizeContainers($containers, $widgets),
         ];
     }
 
@@ -52,8 +52,8 @@ final class LayoutPreviewSignature
                 continue;
             }
 
-            foreach (LayoutBlockData::fromContainer($container) as $block) {
-                $widgetKey = LayoutBlockData::key($block);
+            foreach (LayoutWidgetData::fromContainer($container) as $widget) {
+                $widgetKey = LayoutWidgetData::key($widget);
                 if ($widgetKey === null) {
                     continue;
                 }
@@ -69,27 +69,27 @@ final class LayoutPreviewSignature
      * @param  array<int, string>  $widgetKeys
      * @return array<string, Widget>
      */
-    private function blocksByKey(array $widgetKeys): array
+    private function widgetsByKey(array $widgetKeys): array
     {
         if ($widgetKeys === []) {
             return [];
         }
 
-        /** @var EloquentCollection<int, Widget> $blocks */
-        $blocks = Widget::query()
+        /** @var EloquentCollection<int, Widget> $widgets */
+        $widgets = Widget::query()
             ->with('type')
             ->whereIn('key', $widgetKeys)
             ->get();
 
-        return $blocks->keyBy('key')->all();
+        return $widgets->keyBy('key')->all();
     }
 
     /**
      * @param  array<string, mixed>  $containers
-     * @param  array<string, Widget>  $blocks
+     * @param  array<string, Widget>  $widgets
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeContainers(array $containers, array $blocks): array
+    private function normalizeContainers(array $containers, array $widgets): array
     {
         $normalizedContainers = [];
 
@@ -101,7 +101,7 @@ final class LayoutPreviewSignature
             $normalizedContainers[] = [
                 'key' => $containerKey,
                 'colspan' => $this->colspan($container),
-                'widgets' => $this->normalizeBlocks($container['widgets'] ?? [], $blocks),
+                'widgets' => $this->normalizeWidgets($container['widgets'] ?? [], $widgets),
             ];
         }
 
@@ -119,32 +119,32 @@ final class LayoutPreviewSignature
     }
 
     /**
-     * @param  array<string, Widget>  $blocks
+     * @param  array<string, Widget>  $widgets
      * @return array<int, array<string, mixed>>
      */
-    private function normalizeBlocks(mixed $containerBlocks, array $blocks): array
+    private function normalizeWidgets(mixed $containerWidgets, array $widgets): array
     {
-        $normalizedBlocks = [];
+        $normalizedWidgets = [];
 
-        foreach (LayoutBlockData::normalizeMany($containerBlocks) as $containerBlock) {
-            $widgetKey = LayoutBlockData::key($containerBlock);
+        foreach (LayoutWidgetData::normalizeMany($containerWidgets) as $containerWidget) {
+            $widgetKey = LayoutWidgetData::key($containerWidget);
             if ($widgetKey === null) {
                 continue;
             }
 
-            $block = $blocks[$widgetKey] ?? null;
+            $widget = $widgets[$widgetKey] ?? null;
 
-            $normalizedBlocks[] = [
+            $normalizedWidgets[] = [
                 'key' => $widgetKey,
-                'occurrence' => LayoutBlockData::occurrence($containerBlock),
-                'name' => $block?->name,
-                'icon' => $block?->admin['icon'] ?? $block?->type?->admin['icon'] ?? null,
-                'type_name' => $block?->type?->name,
-                'type_icon' => $block?->type?->admin['icon'] ?? null,
-                'meta_name' => $containerBlock['meta']['name'] ?? null,
+                'occurrence' => LayoutWidgetData::occurrence($containerWidget),
+                'name' => $widget?->name,
+                'icon' => $widget?->admin['icon'] ?? $widget?->type?->admin['icon'] ?? null,
+                'type_name' => $widget?->type?->name,
+                'type_icon' => $widget?->type?->admin['icon'] ?? null,
+                'meta_name' => $containerWidget['meta']['name'] ?? null,
             ];
         }
 
-        return $normalizedBlocks;
+        return $normalizedWidgets;
     }
 }

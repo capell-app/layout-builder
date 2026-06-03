@@ -27,7 +27,7 @@ final class SummarizeLayoutChangesAction
                     type: 'container_added',
                     label: __('capell-layout-builder::message.container_added', ['container' => $containerKey]),
                     containerKey: $containerKey,
-                    blockIndex: null,
+                    widgetIndex: null,
                 );
 
                 continue;
@@ -38,7 +38,7 @@ final class SummarizeLayoutChangesAction
                     type: 'container_resized',
                     label: __('capell-layout-builder::message.container_resized', ['container' => $containerKey]),
                     containerKey: $containerKey,
-                    blockIndex: null,
+                    widgetIndex: null,
                 );
             }
 
@@ -47,7 +47,7 @@ final class SummarizeLayoutChangesAction
                     type: 'responsive_override_changed',
                     label: __('capell-layout-builder::message.responsive_override_changed', ['container' => $containerKey]),
                     containerKey: $containerKey,
-                    blockIndex: null,
+                    widgetIndex: null,
                 );
             }
         }
@@ -58,7 +58,7 @@ final class SummarizeLayoutChangesAction
                     type: 'container_removed',
                     label: __('capell-layout-builder::message.container_removed', ['container' => $containerKey]),
                     containerKey: $containerKey,
-                    blockIndex: null,
+                    widgetIndex: null,
                 );
             }
         }

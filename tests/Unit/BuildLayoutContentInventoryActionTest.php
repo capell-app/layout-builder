@@ -24,45 +24,45 @@ it('builds editor safe content groups in visual layout order from the package na
         ],
     ]);
 
-    $mainBlock = Widget::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
-    $footerBlock = Widget::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
+    $mainWidget = Widget::factory()->create(['key' => 'featured-products', 'name' => 'Featured products']);
+    $footerWidget = Widget::factory()->create(['key' => 'footer-links', 'name' => 'Footer links']);
     $sharedPage = Page::factory()->withTranslations()->create(['name' => 'Reusable product']);
     $footerPage = Page::factory()->withTranslations()->create(['name' => 'Terms page']);
 
     $mainAsset = WidgetAsset::factory()
-        ->block($mainBlock)
+        ->widget($mainWidget)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 1]);
 
     $reusedMainAsset = WidgetAsset::factory()
-        ->block($mainBlock)
+        ->widget($mainWidget)
         ->asset($sharedPage)
         ->container('main')
         ->occurrence(1)
         ->create(['order' => 2]);
 
     $footerAsset = WidgetAsset::factory()
-        ->block($footerBlock)
+        ->widget($footerWidget)
         ->asset($footerPage)
         ->container('footer')
         ->occurrence(1)
         ->create(['order' => 1]);
 
-    $mainBlock->setRelation('assets', new EloquentCollection([$mainAsset->load('asset.translation'), $reusedMainAsset->load('asset.translation')]));
-    $footerBlock->setRelation('assets', new EloquentCollection([$footerAsset->load('asset.translation')]));
+    $mainWidget->setRelation('assets', new EloquentCollection([$mainAsset->load('asset.translation'), $reusedMainAsset->load('asset.translation')]));
+    $footerWidget->setRelation('assets', new EloquentCollection([$footerAsset->load('asset.translation')]));
 
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
         containers: [
-            'main' => ['widgets' => [['widget_key' => $mainBlock->key, 'occurrence' => 1]], 'meta' => []],
-            'footer' => ['widgets' => [['widget_key' => $footerBlock->key, 'occurrence' => 1]], 'meta' => []],
+            'main' => ['widgets' => [['widget_key' => $mainWidget->key, 'occurrence' => 1]], 'meta' => []],
+            'footer' => ['widgets' => [['widget_key' => $footerWidget->key, 'occurrence' => 1]], 'meta' => []],
         ],
-        containerBlocks: [
-            'main' => [0 => $mainBlock],
-            'footer' => [0 => $footerBlock],
+        containerWidgets: [
+            'main' => [0 => $mainWidget],
+            'footer' => [0 => $footerWidget],
         ],
         assets: [
             'main' => [
@@ -89,7 +89,7 @@ it('builds editor safe content groups in visual layout order from the package na
         ->and($inventory->groups[0]->items[0]->isReused)->toBeTrue()
         ->and($inventory->groups[0]->items[0]->editActionArguments)->toMatchArray([
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
             'index' => 0,
             'type' => AssetEnum::Page->value,
             'contentInventorySignature' => 'known-signature',
@@ -98,54 +98,54 @@ it('builds editor safe content groups in visual layout order from the package na
         ->and($inventory->itemCount)->toBe(3);
 });
 
-it('adds block copy as its own editable ownership group', function (): void {
+it('adds widget copy as its own editable ownership group', function (): void {
     $layout = Layout::factory()->create();
     $language = Language::factory()->create();
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero widget']);
     $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
-    $blockAsset = WidgetAsset::factory()->block($block)->asset($page)->create();
+    $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($page)->create();
 
-    $blockTranslation = Translation::query()->create([
-        'translatable_type' => $block->getMorphClass(),
-        'translatable_id' => $block->getKey(),
+    $widgetTranslation = Translation::query()->create([
+        'translatable_type' => $widget->getMorphClass(),
+        'translatable_id' => $widget->getKey(),
         'language_id' => $language->getKey(),
         'title' => 'Every section can be rebuilt in the layout builder',
-        'content' => '<p>Own this line on the block, not the attached section.</p>',
+        'content' => '<p>Own this line on the widget, not the attached section.</p>',
     ]);
 
-    $block->setRelation('translation', $blockTranslation);
-    $block->setRelation('assets', new EloquentCollection([$blockAsset->load('asset.translation')]));
+    $widget->setRelation('translation', $widgetTranslation);
+    $widget->setRelation('assets', new EloquentCollection([$widgetAsset->load('asset.translation')]));
 
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
-        containers: ['main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
-        containerBlocks: ['main' => [0 => $block]],
-        assets: ['main' => [0 => [layoutBuilderInventoryAssetState($blockAsset)]]],
+        containers: ['main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]], 'meta' => []]],
+        containerWidgets: ['main' => [0 => $widget]],
+        assets: ['main' => [0 => [layoutBuilderInventoryAssetState($widgetAsset)]]],
         signature: 'known-signature',
     );
 
     expect($inventory->groups)->toHaveCount(2)
-        ->and($inventory->groups[0]->key)->toBe('block-content')
+        ->and($inventory->groups[0]->key)->toBe('widget-content')
         ->and($inventory->groups[0]->items[0]->canEditAsset)->toBeFalse()
-        ->and($inventory->groups[0]->items[0]->hasBlockCopySource)->toBeTrue()
-        ->and($inventory->groups[0]->items[0]->sourceLabel)->toBe(__('capell-layout-builder::generic.block_translation_source'))
+        ->and($inventory->groups[0]->items[0]->hasWidgetCopySource)->toBeTrue()
+        ->and($inventory->groups[0]->items[0]->sourceLabel)->toBe(__('capell-layout-builder::generic.widget_translation_source'))
         ->and($inventory->groups[0]->items[0]->renderedText)->toContain('Every section can be rebuilt in the layout builder')
-        ->and($inventory->groups[0]->items[0]->blockEditActionArguments)->toMatchArray([
+        ->and($inventory->groups[0]->items[0]->widgetEditActionArguments)->toMatchArray([
             'containerKey' => 'main',
-            'blockIndex' => 0,
+            'widgetIndex' => 0,
         ])
         ->and($inventory->groups[1]->key)->toBe('page-content')
-        ->and($inventory->groups[1]->items[0]->warnings)->toContain(__('capell-layout-builder::message.block_copy_source_warning'))
+        ->and($inventory->groups[1]->items[0]->warnings)->toContain(__('capell-layout-builder::message.widget_copy_source_warning'))
         ->and($inventory->itemCount)->toBe(2);
 });
 
 it('lets higher priority package contributors decorate groups and items last', function (): void {
     $layout = Layout::factory()->create();
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero block']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero widget']);
     $page = Page::factory()->withTranslations()->create(['name' => 'Home page']);
-    $blockAsset = WidgetAsset::factory()->block($block)->asset($page)->create();
-    $block->setRelation('assets', new EloquentCollection([$blockAsset->load('asset.translation')]));
+    $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($page)->create();
+    $widget->setRelation('assets', new EloquentCollection([$widgetAsset->load('asset.translation')]));
 
     $lowPriorityContributor = new class implements LayoutContentGroupContributor
     {
@@ -214,9 +214,9 @@ it('lets higher priority package contributors decorate groups and items last', f
     $inventory = BuildLayoutContentInventoryAction::run(
         layout: $layout,
         page: null,
-        containers: ['hero' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]], 'meta' => []]],
-        containerBlocks: ['hero' => [0 => $block]],
-        assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($blockAsset)]]],
+        containers: ['hero' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]], 'meta' => []]],
+        containerWidgets: ['hero' => [0 => $widget]],
+        assets: ['hero' => [0 => [layoutBuilderInventoryAssetState($widgetAsset)]]],
         signature: 'known-signature',
         contributors: [$highPriorityContributor, $lowPriorityContributor],
     );
@@ -228,15 +228,15 @@ it('lets higher priority package contributors decorate groups and items last', f
 /**
  * @return array<string, mixed>
  */
-function layoutBuilderInventoryAssetState(WidgetAsset $blockAsset): array
+function layoutBuilderInventoryAssetState(WidgetAsset $widgetAsset): array
 {
     return [
-        'id' => $blockAsset->getKey(),
-        'block_id' => $blockAsset->block_id,
-        'asset_id' => $blockAsset->asset_id,
-        'asset_type' => $blockAsset->asset_type,
-        'meta' => $blockAsset->meta ?? [],
-        'order' => $blockAsset->order,
-        'occurrence' => $blockAsset->occurrence,
+        'id' => $widgetAsset->getKey(),
+        'widget_id' => $widgetAsset->widget_id,
+        'asset_id' => $widgetAsset->asset_id,
+        'asset_type' => $widgetAsset->asset_type,
+        'meta' => $widgetAsset->meta ?? [],
+        'order' => $widgetAsset->order,
+        'occurrence' => $widgetAsset->occurrence,
     ];
 }

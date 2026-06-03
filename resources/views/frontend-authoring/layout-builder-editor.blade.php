@@ -93,7 +93,7 @@
                 'pageId' => $pageId,
                 'pageClass' => $pageClass,
                 'initialContainerKey' => $initialContainerKey,
-                'initialBlockIndex' => $initialBlockIndex,
+                'initialWidgetIndex' => $initialWidgetIndex,
             ])
         </main>
 

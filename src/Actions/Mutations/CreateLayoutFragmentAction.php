@@ -12,41 +12,41 @@ final class CreateLayoutFragmentAction
 {
     use AsAction;
 
-    public function handle(LayoutBuilderStateData $state, string $containerKey, ?int $blockIndex): LayoutFragmentData
+    public function handle(LayoutBuilderStateData $state, string $containerKey, ?int $widgetIndex): LayoutFragmentData
     {
         $container = $state->containers[$containerKey] ?? null;
 
         if (! is_array($container)) {
             return new LayoutFragmentData(
                 sourceContainerKey: $containerKey,
-                sourceBlockIndex: $blockIndex,
+                sourceWidgetIndex: $widgetIndex,
                 container: null,
-                block: null,
+                widget: null,
             );
         }
 
-        if ($blockIndex === null) {
+        if ($widgetIndex === null) {
             return new LayoutFragmentData(
                 sourceContainerKey: $containerKey,
-                sourceBlockIndex: null,
+                sourceWidgetIndex: null,
                 container: $container,
-                block: null,
+                widget: null,
                 assets: $state->assets[$containerKey] ?? [],
                 originalAssets: $state->originalAssets[$containerKey] ?? [],
                 selectedRecords: $state->selectedRecords[$containerKey] ?? [],
             );
         }
 
-        $block = $container['widgets'][$blockIndex] ?? null;
+        $widget = $container['widgets'][$widgetIndex] ?? null;
 
         return new LayoutFragmentData(
             sourceContainerKey: $containerKey,
-            sourceBlockIndex: $blockIndex,
+            sourceWidgetIndex: $widgetIndex,
             container: null,
-            block: is_array($block) ? $block : null,
-            assets: $state->assets[$containerKey][$blockIndex] ?? [],
-            originalAssets: $state->originalAssets[$containerKey][$blockIndex] ?? [],
-            selectedRecords: $state->selectedRecords[$containerKey][$blockIndex] ?? [],
+            widget: is_array($widget) ? $widget : null,
+            assets: $state->assets[$containerKey][$widgetIndex] ?? [],
+            originalAssets: $state->originalAssets[$containerKey][$widgetIndex] ?? [],
+            selectedRecords: $state->selectedRecords[$containerKey][$widgetIndex] ?? [],
         );
     }
 }

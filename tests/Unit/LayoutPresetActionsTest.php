@@ -21,8 +21,8 @@ it('persists site-scoped layout presets as layout-only snapshots by default', fu
                         'widget_key' => 'hero',
                         'occurrence' => 1,
                         'meta' => [
-                            'block_variant' => 'split-media',
-                            'block_settings' => [
+                            'widget_variant' => 'split-media',
+                            'widget_settings' => [
                                 'anchor_id' => 'Hero Section',
                                 'signed_url' => 'https://example.test/admin/signed',
                             ],
@@ -66,7 +66,7 @@ it('can persist a current editor container snapshot without reading stale layout
                     [
                         'widget_key' => 'hero',
                         'occurrence' => 1,
-                        'meta' => ['block_settings' => ['anchor_id' => 'Edited']],
+                        'meta' => ['widget_settings' => ['anchor_id' => 'Edited']],
                     ],
                 ],
             ],
@@ -76,7 +76,7 @@ it('can persist a current editor container snapshot without reading stale layout
     expect($preset->category)->toBe('hero')
         ->and($preset->snapshot['containers'])->toHaveKey('hero')
         ->and($preset->snapshot['containers'])->not->toHaveKey('main')
-        ->and($preset->snapshot['containers']['hero']['widgets'][0]['meta']['block_settings']['anchor_id'])->toBe('Edited');
+        ->and($preset->snapshot['containers']['hero']['widgets'][0]['meta']['widget_settings']['anchor_id'])->toBe('Edited');
 });
 
 it('can save a site-scoped preset from a global layout', function (): void {
@@ -98,7 +98,7 @@ it('can save a site-scoped preset from a global layout', function (): void {
         ->and($preset->snapshot['containers'])->toHaveKey('main');
 });
 
-it('normalizes shorthand layout blocks when saving presets', function (): void {
+it('normalizes shorthand layout widgets when saving presets', function (): void {
     $site = Site::factory()->create();
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
@@ -169,7 +169,7 @@ it('strips unsafe metadata from starter content presets', function (): void {
                                 'signed_url' => 'https://example.test/admin/signed',
                                 'signed-editor-url' => 'https://example.test/admin/signed-editor-url',
                             ],
-                            'block_settings' => ['anchor_id' => 'Hero'],
+                            'widget_settings' => ['anchor_id' => 'Hero'],
                             'public_view' => 'admin.secret',
                         ],
                         'content' => [
@@ -205,8 +205,8 @@ it('strips unsafe preset metadata values', function (): void {
                         'widget_key' => 'hero',
                         'meta' => [
                             'widget_key' => 'package_pricing',
-                            'block_variant' => 'schema-markup',
-                            'block_settings' => [
+                            'widget_variant' => 'schema-markup',
+                            'widget_settings' => [
                                 'anchor_id' => 'Package pricing',
                                 'cta_url' => 'https://example.test/admin/signed-editor-url?signature=secret',
                                 'secondary_cta_url' => '/admin/pages/1?signature=secret',
@@ -242,11 +242,11 @@ it('applies presets only within the same site and uniques duplicate anchors', fu
                     'widgets' => [
                         [
                             'widget_key' => 'hero',
-                            'meta' => ['block_settings' => ['anchor_id' => 'Feature Grid']],
+                            'meta' => ['widget_settings' => ['anchor_id' => 'Feature Grid']],
                         ],
                         [
                             'widget_key' => 'cards',
-                            'meta' => ['block_settings' => ['anchor_id' => 'Feature Grid']],
+                            'meta' => ['widget_settings' => ['anchor_id' => 'Feature Grid']],
                         ],
                     ],
                 ],
@@ -256,8 +256,8 @@ it('applies presets only within the same site and uniques duplicate anchors', fu
 
     $updatedLayout = ApplyLayoutPresetAction::run($preset, $layout, $site);
 
-    expect($updatedLayout->containers['main']['widgets'][0]['meta']['block_settings']['anchor_id'])->toBe('feature-grid')
-        ->and($updatedLayout->containers['main']['widgets'][1]['meta']['block_settings']['anchor_id'])->toBe('feature-grid-2')
+    expect($updatedLayout->containers['main']['widgets'][0]['meta']['widget_settings']['anchor_id'])->toBe('feature-grid')
+        ->and($updatedLayout->containers['main']['widgets'][1]['meta']['widget_settings']['anchor_id'])->toBe('feature-grid-2')
         ->and($layout->fresh()->containers)->toBe([]);
 });
 
@@ -319,7 +319,7 @@ it('strips unsafe metadata when applying stored preset snapshots', function (): 
                             'widget_key' => 'hero',
                             'meta' => [
                                 'admin_schema' => ['secret' => true],
-                                'block_settings' => [
+                                'widget_settings' => [
                                     'anchor_id' => 'Package pricing',
                                     'cta_url' => 'https://example.test/admin/signed-editor-url?signature=secret',
                                     'signed_url' => 'https://example.test/admin/signed',
@@ -349,7 +349,7 @@ it('uniques pasted preset anchors against the current builder state', function (
                 'widgets' => [
                     [
                         'widget_key' => 'hero',
-                        'meta' => ['block_settings' => ['anchor_id' => 'feature-grid']],
+                        'meta' => ['widget_settings' => ['anchor_id' => 'feature-grid']],
                     ],
                 ],
             ],
@@ -361,21 +361,21 @@ it('uniques pasted preset anchors against the current builder state', function (
 
     $fragment = new LayoutFragmentData(
         sourceContainerKey: 'preset',
-        sourceBlockIndex: null,
+        sourceWidgetIndex: null,
         container: [
             'widgets' => [
                 [
                     'widget_key' => 'cards',
-                    'meta' => ['block_settings' => ['anchor_id' => 'Feature Grid']],
+                    'meta' => ['widget_settings' => ['anchor_id' => 'Feature Grid']],
                 ],
             ],
         ],
-        block: null,
+        widget: null,
     );
 
     $result = PasteLayoutFragmentAction::run($state, $fragment, 'main');
 
-    expect($result->state->containers['preset-copy']['widgets'][0]['meta']['block_settings']['anchor_id'])
+    expect($result->state->containers['preset-copy']['widgets'][0]['meta']['widget_settings']['anchor_id'])
         ->toBe('feature-grid-2');
 });
 

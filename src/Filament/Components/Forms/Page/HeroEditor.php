@@ -33,7 +33,7 @@ class HeroEditor extends Group
                     return false;
                 }
 
-                return ! $this->hasPageBlockHeroAssets($page);
+                return ! $this->hasPageWidgetHeroAssets($page);
             })
             ->schema([
                 ContentEditor::make('hero')
@@ -47,7 +47,7 @@ class HeroEditor extends Group
             ]);
     }
 
-    protected function hasPageBlockHeroAssets(Pageable $page): bool
+    protected function hasPageWidgetHeroAssets(Pageable $page): bool
     {
         $cache = cache();
 
@@ -56,7 +56,7 @@ class HeroEditor extends Group
         }
 
         return $cache->rememberForever(
-            sprintf('page-%d-has-hero-block-assets', $page->id),
+            sprintf('page-%d-has-hero-widget-assets', $page->id),
             function () use ($page): bool {
                 /** @var class-string<WidgetAsset> $model */
                 $model = WidgetAsset::class;
@@ -64,7 +64,7 @@ class HeroEditor extends Group
                 return $model::query()
                     ->where('pageable_type', $page->getMorphClass())
                     ->where('pageable_id', $page->getKey())
-                    ->whereHas('block', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
+                    ->whereHas('widget', fn (Builder $query): Builder => $query->whereLike('key', 'hero%'))
                     ->exists();
             },
         );

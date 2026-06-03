@@ -8,11 +8,11 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\Livewire\OpaqueBlockReference;
+use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 
-it('renders a valid encrypted public block fragment reference', function (): void {
+it('renders a valid encrypted public widget fragment reference', function (): void {
     [$reference] = publicFragmentFixture('<section class="fragment-card">Public fragment</section>');
 
     expect(RenderPublicFragmentAction::run($reference))->toBe('<section class="fragment-card">Public fragment</section>');
@@ -28,7 +28,7 @@ it('exposes the public fragment route with fragment specific cache headers', fun
         ->assertSee('Route fragment', false);
 });
 
-it('returns a generic 404 for invalid encrypted public block references', function (): void {
+it('returns a generic 404 for invalid encrypted public widget references', function (): void {
     $this->get('/_fragments/not-a-valid-token')
         ->assertNotFound()
         ->assertDontSee('decrypt', false)
@@ -48,7 +48,7 @@ it('does not render a replayed reference for another site and page', function ()
     ]);
     $otherPage = Page::factory()->site($otherSite)->layout($otherLayout)->withTranslations($otherLanguage)->create();
 
-    $replayedReference = OpaqueBlockReference::encode([
+    $replayedReference = OpaqueWidgetReference::encode([
         ...$referenceData,
         'page_id' => $otherPage->getKey(),
         'page_type' => $otherPage->getMorphClass(),
@@ -57,7 +57,7 @@ it('does not render a replayed reference for another site and page', function ()
     expect(RenderPublicFragmentAction::run($replayedReference))->toBeNull();
 });
 
-it('blocks unsafe authoring surface html in public fragments', function (): void {
+it('widgets unsafe authoring surface html in public fragments', function (): void {
     [$reference] = publicFragmentFixture('<section data-capell-authoring="true">Unsafe fragment</section>');
 
     expect(RenderPublicFragmentAction::run($reference))->toBeNull();
@@ -70,25 +70,25 @@ function publicFragmentFixture(string $html): array
 {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->getKey()]);
-    $block = Widget::factory()->create(['key' => 'public-fragment-block']);
+    $widget = Widget::factory()->create(['key' => 'public-fragment-widget']);
 
     TranslationFactory::new()
-        ->translatable($block)
+        ->translatable($widget)
         ->language($language)
         ->create([
-            'title' => 'Public fragment block',
+            'title' => 'Public fragment widget',
             'content' => '<p>Base content</p>',
         ]);
 
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
-            'main' => ['widgets' => [['widget_key' => $block->key, 'occurrence' => 1]]],
+            'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
         ],
     ]);
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.public-fragment-payload-contributor', fn (): PublicBlockPayloadContributor => new class($html) implements PublicBlockPayloadContributor
+    app()->singleton('test.public-fragment-payload-contributor', fn (): PublicWidgetPayloadContributor => new class($html) implements PublicWidgetPayloadContributor
     {
         public function __construct(private string $html) {}
 
@@ -97,17 +97,17 @@ function publicFragmentFixture(string $html): array
             return 100;
         }
 
-        public function data(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): array
+        public function data(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): array
         {
             return [];
         }
 
-        public function html(Widget $block, Page $page, Language $language, string $containerKey, int $occurrence): string
+        public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): string
         {
             return $this->html;
         }
     });
-    app()->tag('test.public-fragment-payload-contributor', PublicBlockPayloadContributor::TAG);
+    app()->tag('test.public-fragment-payload-contributor', PublicWidgetPayloadContributor::TAG);
 
     $referenceData = [
         'site_id' => $site->getKey(),
@@ -116,10 +116,10 @@ function publicFragmentFixture(string $html): array
         'layout_id' => $layout->getKey(),
         'language_id' => $language->getKey(),
         'container_key' => 'main',
-        'widget_key' => $block->key,
+        'widget_key' => $widget->key,
         'occurrence' => 1,
-        'block_data' => [],
+        'widget_data' => [],
     ];
 
-    return [OpaqueBlockReference::encode($referenceData), $referenceData];
+    return [OpaqueWidgetReference::encode($referenceData), $referenceData];
 }

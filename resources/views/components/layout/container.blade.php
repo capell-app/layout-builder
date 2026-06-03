@@ -2,10 +2,10 @@
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
     use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
-    use Capell\LayoutBuilder\Enums\BlockComponentEnum;
+    use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
     use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
-    use Capell\LayoutBuilder\Support\LayoutBlockData;
+    use Capell\LayoutBuilder\Support\LayoutWidgetData;
 
     $containerWidth = ! empty($container['meta']['container'])
         ? ContainerWidthEnum::from($container['meta']['container'])
@@ -65,11 +65,11 @@
         'self-end justify-self-end' => $alignment === ContainerAlignmentEnum::End,
         'w-full self-stretch justify-self-stretch' => $alignment === ContainerAlignmentEnum::Stretch,
         'hidden' => $hideOnMobile && $hideOnTablet && $hideOnDesktop,
-        'hidden lg:block' => $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
-        'hidden md:block lg:hidden' => $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
-        'hidden md:block' => $hideOnMobile && ! $hideOnTablet && ! $hideOnDesktop,
+        'hidden lg:widget' => $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
+        'hidden md:widget lg:hidden' => $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
+        'hidden md:widget' => $hideOnMobile && ! $hideOnTablet && ! $hideOnDesktop,
         'md:hidden' => ! $hideOnMobile && $hideOnTablet && $hideOnDesktop,
-        'md:hidden lg:block' => ! $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
+        'md:hidden lg:widget' => ! $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
         'lg:hidden' => ! $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
         'space-y-4' => $spacing === 'sm',
         'space-y-2' => $spacing === 'md',
@@ -99,45 +99,45 @@
         'mb-20' => in_array('b-xl', $margin, true),
     ])
 >
-    @foreach (LayoutBlockData::fromContainer($container) as $blockIndex => $blockData)
+    @foreach (LayoutWidgetData::fromContainer($container) as $widgetIndex => $widgetData)
         @php
-            $blockKey = LayoutBlockData::key($blockData);
-            if ($blockKey === null) {
+            $widgetKey = LayoutWidgetData::key($widgetData);
+            if ($widgetKey === null) {
                 continue;
             }
 
-            $block = CapellLayoutManager::getStoredContainerBlock(
+            $widget = CapellLayoutManager::getStoredContainerWidget(
                 (string) $containerKey,
-                $blockKey,
-                LayoutBlockData::occurrence($blockData),
+                $widgetKey,
+                LayoutWidgetData::occurrence($widgetData),
             );
 
-            if (! $block) {
+            if (! $widget) {
                 continue;
             }
 
-            $component = $block->getComponent();
+            $component = $widget->getComponent();
             if (! $component) {
                 continue;
             }
 
             $componentKey = (string) $component;
             if (! $showHero && in_array($componentKey, [
-                BlockComponentEnum::Hero->value,
-                BlockComponentEnum::BannerImage->value,
-                BlockComponentEnum::ApHeroBanner->value,
+                WidgetComponentEnum::Hero->value,
+                WidgetComponentEnum::BannerImage->value,
+                WidgetComponentEnum::ApHeroBanner->value,
             ], true)) {
                 continue;
             }
 
-            $type = $block->getMetaComponentType();
+            $type = $widget->getMetaComponentType();
             $currentColspan = (int) $previousColspan + (int) $colspan;
             if ($columnStart) {
                 $currentColspan += $columnStart - 1;
             }
         @endphp
 
-        @include('capell-layout-builder::components.layout.block', [
+        @include('capell-layout-builder::components.layout.widget', [
             'component' => $component,
             'containerColspan' => $colspan,
             'container' => $container,
@@ -147,9 +147,9 @@
             'loop' => $loop,
             'layout' => $layout,
             'type' => $type,
-            'block' => $block,
-            'blockIndex' => $blockIndex,
-            'blockData' => $blockData,
+            'widget' => $widget,
+            'widgetIndex' => $widgetIndex,
+            'widgetData' => $widgetData,
             'pageSlot' => $pageSlot,
         ])
     @endforeach

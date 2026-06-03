@@ -22,6 +22,6 @@ class InvalidateTypeLayoutPreviewImagesAction
             ->pluck('key')
             ->all();
 
-        return InvalidateBlockLayoutPreviewImagesAction::run($widgetKeys);
+        return InvalidateWidgetLayoutPreviewImagesAction::run($widgetKeys);
     }
 }

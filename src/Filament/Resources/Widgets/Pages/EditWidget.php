@@ -12,6 +12,7 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Models\Widget;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
@@ -46,7 +47,7 @@ class EditWidget extends EditRecord
         $recordTitle = $this->getRecordTitle();
 
         return new HtmlString(
-            __('capell-layout-builder::heading.edit_block_record', [
+            __('capell-layout-builder::heading.edit_widget_record', [
                 'name' => Str::limit($recordTitle instanceof Htmlable ? $recordTitle->toHtml() : $recordTitle, 40),
             ]),
         );
@@ -60,7 +61,7 @@ class EditWidget extends EditRecord
         $type = $this->record->type;
 
         if ($type !== null) {
-            $subheading .= __('capell-layout-builder::heading.block_type', [
+            $subheading .= __('capell-layout-builder::heading.widget_type', [
                 'type' => $type->name,
             ]);
         }
@@ -127,6 +128,8 @@ class EditWidget extends EditRecord
     #[Override]
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        unset($data['blueprint_id']);
+
         $existingMeta = is_array($this->record->meta) ? $this->record->meta : [];
         $submittedMeta = is_array($data['meta'] ?? null) ? $data['meta'] : [];
 
@@ -152,10 +155,12 @@ class EditWidget extends EditRecord
             RestoreAction::make('restore'),
             DeleteAction::make('delete'),
             ForceDeleteAction::make('forceDelete'),
-            CreateWidgetAction::make('create')
-                ->redirectAfterCreate(),
-            ReplicateAction::make('replicate')
-                ->hidden($this->record->trashed()),
+            ActionGroup::make([
+                CreateWidgetAction::make('create')
+                    ->redirectAfterCreate(),
+                ReplicateAction::make('replicate')
+                    ->hidden($this->record->trashed()),
+            ]),
         ];
     }
 

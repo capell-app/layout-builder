@@ -163,9 +163,9 @@ class WidgetsTable implements TableConfigurator
                     return new HtmlString(implode('<br />', $components));
                 })
                 ->toggleable(isToggledHiddenByDefault: true),
-            TextColumn::make('block_assets_count')
+            TextColumn::make('widget_assets_count')
                 ->label(__('capell-admin::table.total_assets'))
-                ->counts('blockAssets')
+                ->counts('widgetAssets')
                 ->sortable()
                 ->alignCenter()
                 ->numeric()
@@ -188,7 +188,7 @@ class WidgetsTable implements TableConfigurator
                                 'capell-admin::components.tables.url',
                                 [
                                     'state' => $state,
-                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[block_id][value]' => $record->key]),
+                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
                                 ],
                             ),
                         );
@@ -250,7 +250,7 @@ class WidgetsTable implements TableConfigurator
     {
         return [
             SelectFilter::make('blueprint_id')
-                ->label(__('capell-layout-builder::form.block_type'))
+                ->label(__('capell-layout-builder::form.widget_type'))
                 ->relationship(
                     name: 'type',
                     titleAttribute: 'name',

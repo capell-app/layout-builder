@@ -91,7 +91,7 @@
                     <ul class="mt-2 list-disc space-y-1 ps-5 text-sm">
                         @foreach ($this->layoutDiagnostics as $diagnostic)
                             <li>
-                                {{ $diagnostic['message'] ?? __('capell-admin::message.unknown_block', ['block' => __('capell-admin::generic.unknown')]) }}
+                                {{ $diagnostic['message'] ?? __('capell-admin::message.unknown_widget', ['widget' => __('capell-admin::generic.unknown')]) }}
                             </li>
                         @endforeach
                     </ul>

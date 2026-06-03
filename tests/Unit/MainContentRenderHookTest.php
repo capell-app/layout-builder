@@ -14,17 +14,17 @@ use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 use Illuminate\Support\Facades\Blade;
 
 beforeEach(function (): void {
-    CapellLayoutManager::clearContainerBlocks();
-    Blade::component(PackageAlert::class, 'capell::block.default');
+    CapellLayoutManager::clearContainerWidgets();
+    Blade::component(PackageAlert::class, 'capell::widget.default');
     resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
-        key: 'capell.block.default',
-        type: 'layout-block',
-        blade: 'capell::block.default',
+        key: 'capell.widget.default',
+        type: 'layout-widget',
+        blade: 'capell::widget.default',
     ));
 });
 
 afterEach(function (): void {
-    CapellLayoutManager::clearContainerBlocks();
+    CapellLayoutManager::clearContainerWidgets();
 });
 
 it('registers the shared main content render hook', function (): void {
@@ -55,17 +55,17 @@ it('renders stored layout containers through the shared hook and updates render 
     /** @var RenderHookRegistry<RenderHookContext> $registry */
     $registry = resolve(RenderHookRegistry::class);
 
-    $pageContentBlock = new Widget([
+    $pageContentWidget = new Widget([
         'key' => 'page-content',
         'meta' => [],
     ]);
-    $slotBlock = new Widget([
+    $slotWidget = new Widget([
         'key' => 'slot',
         'meta' => ['type' => 'slot'],
     ]);
 
-    CapellLayoutManager::storeContainerBlock('main', 'page-content', $pageContentBlock);
-    CapellLayoutManager::storeContainerBlock('sidebar', 'slot', $slotBlock);
+    CapellLayoutManager::storeContainerWidget('main', 'page-content', $pageContentWidget);
+    CapellLayoutManager::storeContainerWidget('sidebar', 'slot', $slotWidget);
 
     $context = new MainContentRenderHookData(
         layout: (object) [
@@ -97,7 +97,7 @@ it('renders stored layout containers through the shared hook and updates render 
 
     expect($output)->toContain('id="layout-container-main"')
         ->and($output)->toContain('id="layout-container-sidebar"')
-        ->and($context->pageContentBlockRendered)->toBeTrue()
+        ->and($context->pageContentWidgetRendered)->toBeTrue()
         ->and($context->slotRendered)->toBeTrue();
 });
 
@@ -108,13 +108,13 @@ it('owns the main content layout rendering views', function (): void {
     $area = file_get_contents($basePath . '/resources/views/components/layout/area.blade.php');
 
     expect($registrar)->toContain('RegisterMainContentLayoutHook')
-        ->and($mainContent)->toContain('BlockIsSlotAction')
+        ->and($mainContent)->toContain('WidgetIsSlotAction')
         ->and($mainContent)->toContain('ResolveLayoutAreaContainersAction::run')
         ->and($mainContent)->toContain('LayoutAreaRegistry::MAIN')
-        ->and($mainContent)->toContain('CapellLayoutManager::getStoredContainerBlock')
+        ->and($mainContent)->toContain('CapellLayoutManager::getStoredContainerWidget')
         ->and($mainContent)->toContain('capell-layout-builder::components.layout.container')
         ->and($area)->toContain('ResolveLayoutAreaContainersAction::run')
-        ->and($area)->toContain('CapellLayoutManager::getStoredContainerBlock')
+        ->and($area)->toContain('CapellLayoutManager::getStoredContainerWidget')
         ->and($area)->not->toContain('::query()')
         ->and($area)->not->toContain('DB::')
         ->and($area)->not->toContain('signed');

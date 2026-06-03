@@ -24,7 +24,7 @@ final class BuildLayoutContentInventoryAction
 
     /**
      * @param  array<string, array<string, mixed>>  $containers
-     * @param  array<string, array<int, Widget>>  $containerBlocks
+     * @param  array<string, array<int, Widget>>  $containerWidgets
      * @param  array<string, array<int, array<int, array<string, mixed>>>>  $assets
      * @param  iterable<int, LayoutContentGroupContributor>|null  $contributors
      */
@@ -32,7 +32,7 @@ final class BuildLayoutContentInventoryAction
         Layout $layout,
         ?Pageable $page,
         array $containers,
-        array $containerBlocks,
+        array $containerWidgets,
         array $assets,
         string $signature,
         ?iterable $contributors = null,
@@ -56,46 +56,46 @@ final class BuildLayoutContentInventoryAction
 
             $containerLabel = $this->containerLabel($containerKey, $container);
 
-            foreach (($container['widgets'] ?? []) as $blockIndex => $containerBlock) {
-                $block = $containerBlocks[$containerKey][$blockIndex] ?? null;
+            foreach (($container['widgets'] ?? []) as $widgetIndex => $containerWidget) {
+                $widget = $containerWidgets[$containerKey][$widgetIndex] ?? null;
 
-                if (! $block instanceof Widget) {
+                if (! $widget instanceof Widget) {
                     continue;
                 }
 
-                $blockLabel = $this->blockLabel($block, $containerBlock);
-                $blockCopy = $this->blockCopy($block);
+                $widgetLabel = $this->widgetLabel($widget, $containerWidget);
+                $widgetCopy = $this->widgetCopy($widget);
 
-                if ($blockCopy['text'] !== null) {
+                if ($widgetCopy['text'] !== null) {
                     $item = new LayoutContentItemData(
-                        key: $this->blockCopyItemKey($containerKey, $blockIndex, $containerBlock, $block),
-                        label: $blockLabel,
-                        summary: $blockCopy['text'],
-                        typeLabel: __('capell-layout-builder::generic.block_content'),
-                        ownershipGroupKey: 'block-content',
-                        ownershipGroupLabel: __('capell-layout-builder::generic.block_content_sources'),
-                        sourceLabel: __('capell-layout-builder::generic.block_translation_source'),
+                        key: $this->widgetCopyItemKey($containerKey, $widgetIndex, $containerWidget, $widget),
+                        label: $widgetLabel,
+                        summary: $widgetCopy['text'],
+                        typeLabel: __('capell-layout-builder::generic.widget_content'),
+                        ownershipGroupKey: 'widget-content',
+                        ownershipGroupLabel: __('capell-layout-builder::generic.widget_content_sources'),
+                        sourceLabel: __('capell-layout-builder::generic.widget_translation_source'),
                         sourceDetail: __('capell-layout-builder::generic.content_tab_title_content_fields'),
-                        renderedText: $blockCopy['text'],
-                        renderedTextSourceLabel: $blockCopy['source'],
-                        placementLabel: $this->blockPlacementLabel($containerLabel, $blockLabel),
+                        renderedText: $widgetCopy['text'],
+                        renderedTextSourceLabel: $widgetCopy['source'],
+                        placementLabel: $this->widgetPlacementLabel($containerLabel, $widgetLabel),
                         containerKey: $containerKey,
                         containerLabel: $containerLabel,
-                        blockIndex: $blockIndex,
-                        blockLabel: $blockLabel,
+                        widgetIndex: $widgetIndex,
+                        widgetLabel: $widgetLabel,
                         assetIndex: -1,
-                        assetType: 'block',
-                        assetId: $block->getKey(),
+                        assetType: 'widget',
+                        assetId: $widget->getKey(),
                         canEditAsset: false,
                         isReused: false,
                         editActionArguments: [],
-                        blockEditActionArguments: [
+                        widgetEditActionArguments: [
                             'containerKey' => $containerKey,
-                            'blockIndex' => $blockIndex,
+                            'widgetIndex' => $widgetIndex,
                         ],
-                        hasBlockCopySource: true,
+                        hasWidgetCopySource: true,
                         warnings: [],
-                        meta: $containerBlock['meta'] ?? [],
+                        meta: $containerWidget['meta'] ?? [],
                     );
 
                     foreach ($contributors as $contributor) {
@@ -106,35 +106,35 @@ final class BuildLayoutContentInventoryAction
                     $itemCount++;
                 }
 
-                $blockAssets = $assets[$containerKey][$blockIndex] ?? [];
+                $widgetAssets = $assets[$containerKey][$widgetIndex] ?? [];
 
-                foreach ($blockAssets as $assetIndex => $assetState) {
-                    $blockAsset = $this->resolveBlockAsset($block, $assetState, $assetIndex);
+                foreach ($widgetAssets as $assetIndex => $assetState) {
+                    $widgetAsset = $this->resolveWidgetAsset($widget, $assetState, $assetIndex);
 
-                    if (! $blockAsset instanceof WidgetAsset) {
+                    if (! $widgetAsset instanceof WidgetAsset) {
                         continue;
                     }
 
                     $assetKey = $this->assetKey($assetState);
                     $ownershipGroup = $this->ownershipGroup($assetState);
                     $source = $this->source($assetState);
-                    $warnings = $this->warnings($assetState, isset($reusedAssetKeys[$assetKey]), $blockCopy);
+                    $warnings = $this->warnings($assetState, isset($reusedAssetKeys[$assetKey]), $widgetCopy);
                     $item = new LayoutContentItemData(
-                        key: $this->itemKey($containerKey, $blockIndex, $assetIndex, $assetState),
-                        label: $this->assetLabel($blockAsset),
-                        summary: $this->assetSummary($blockAsset),
+                        key: $this->itemKey($containerKey, $widgetIndex, $assetIndex, $assetState),
+                        label: $this->assetLabel($widgetAsset),
+                        summary: $this->assetSummary($widgetAsset),
                         typeLabel: $this->assetTypeLabel($assetState),
                         ownershipGroupKey: $ownershipGroup['key'],
                         ownershipGroupLabel: $ownershipGroup['label'],
                         sourceLabel: $source['label'],
                         sourceDetail: $source['detail'],
-                        renderedText: $blockCopy['text'],
-                        renderedTextSourceLabel: $blockCopy['source'],
-                        placementLabel: $this->placementLabel($containerLabel, $blockLabel, $assetIndex),
+                        renderedText: $widgetCopy['text'],
+                        renderedTextSourceLabel: $widgetCopy['source'],
+                        placementLabel: $this->placementLabel($containerLabel, $widgetLabel, $assetIndex),
                         containerKey: $containerKey,
                         containerLabel: $containerLabel,
-                        blockIndex: $blockIndex,
-                        blockLabel: $blockLabel,
+                        widgetIndex: $widgetIndex,
+                        widgetLabel: $widgetLabel,
                         assetIndex: $assetIndex,
                         assetType: (string) ($assetState['asset_type'] ?? ''),
                         assetId: $assetState['asset_id'] ?? null,
@@ -142,16 +142,16 @@ final class BuildLayoutContentInventoryAction
                         isReused: isset($reusedAssetKeys[$assetKey]),
                         editActionArguments: [
                             'containerKey' => $containerKey,
-                            'blockIndex' => $blockIndex,
+                            'widgetIndex' => $widgetIndex,
                             'index' => $assetIndex,
                             'type' => (string) ($assetState['asset_type'] ?? ''),
                             'contentInventorySignature' => $signature,
                         ],
-                        blockEditActionArguments: [
+                        widgetEditActionArguments: [
                             'containerKey' => $containerKey,
-                            'blockIndex' => $blockIndex,
+                            'widgetIndex' => $widgetIndex,
                         ],
-                        hasBlockCopySource: $blockCopy['text'] !== null,
+                        hasWidgetCopySource: $widgetCopy['text'] !== null,
                         warnings: $warnings,
                         meta: $assetState['meta'] ?? [],
                     );
@@ -197,8 +197,8 @@ final class BuildLayoutContentInventoryAction
         $counts = [];
 
         foreach ($assets as $containerAssets) {
-            foreach ($containerAssets as $blockAssets) {
-                foreach ($blockAssets as $assetState) {
+            foreach ($containerAssets as $widgetAssets) {
+                foreach ($widgetAssets as $assetState) {
                     $key = $this->assetKey($assetState);
                     $counts[$key] = ($counts[$key] ?? 0) + 1;
                 }
@@ -238,41 +238,41 @@ final class BuildLayoutContentInventoryAction
     }
 
     /**
-     * @param  array<string, mixed>  $containerBlock
+     * @param  array<string, mixed>  $containerWidget
      */
-    private function blockLabel(Widget $block, array $containerBlock): string
+    private function widgetLabel(Widget $widget, array $containerWidget): string
     {
-        $configuredName = Arr::get($containerBlock, 'meta.name');
+        $configuredName = Arr::get($containerWidget, 'meta.name');
 
         if (is_string($configuredName) && trim($configuredName) !== '') {
             return trim($configuredName);
         }
 
-        return $block->name !== '' ? $block->name : __('capell-layout-builder::generic.untitled_content_block');
+        return $widget->name !== '' ? $widget->name : __('capell-layout-builder::generic.untitled_content_widget');
     }
 
     /**
      * @param  array<string, mixed>  $assetState
      */
-    private function resolveBlockAsset(Widget $block, array $assetState, int $assetIndex): ?WidgetAsset
+    private function resolveWidgetAsset(Widget $widget, array $assetState, int $assetIndex): ?WidgetAsset
     {
-        $blockAsset = $block->assets->get($assetIndex);
+        $widgetAsset = $widget->assets->get($assetIndex);
 
-        if ($blockAsset instanceof WidgetAsset) {
-            return $blockAsset;
+        if ($widgetAsset instanceof WidgetAsset) {
+            return $widgetAsset;
         }
 
         $assetId = $assetState['asset_id'] ?? null;
         $assetType = $assetState['asset_type'] ?? null;
 
-        return $block->assets
+        return $widget->assets
             ->first(fn (WidgetAsset $candidate): bool => $candidate->asset_type === $assetType
                 && $candidate->asset_id === $assetId);
     }
 
-    private function assetLabel(WidgetAsset $blockAsset): string
+    private function assetLabel(WidgetAsset $widgetAsset): string
     {
-        $asset = $blockAsset->asset;
+        $asset = $widgetAsset->asset;
 
         if ($asset instanceof Model) {
             foreach (['name', 'title'] as $attribute) {
@@ -288,12 +288,12 @@ final class BuildLayoutContentInventoryAction
             }
         }
 
-        return __('capell-layout-builder::generic.untitled_content_block');
+        return __('capell-layout-builder::generic.untitled_content_widget');
     }
 
-    private function assetSummary(WidgetAsset $blockAsset): ?string
+    private function assetSummary(WidgetAsset $widgetAsset): ?string
     {
-        $asset = $blockAsset->asset;
+        $asset = $widgetAsset->asset;
 
         if (! $asset instanceof Model) {
             return null;
@@ -304,7 +304,7 @@ final class BuildLayoutContentInventoryAction
         if ($translation instanceof Model && $translation->hasAttribute('title')) {
             $title = $translation->getAttribute('title');
 
-            if (is_string($title) && $title !== '' && $title !== $this->assetLabel($blockAsset)) {
+            if (is_string($title) && $title !== '' && $title !== $this->assetLabel($widgetAsset)) {
                 return $title;
             }
         }
@@ -359,7 +359,7 @@ final class BuildLayoutContentInventoryAction
     private function ownershipGroupSummary(string $groupKey): ?string
     {
         return match ($groupKey) {
-            'block-content' => $this->translation('capell-layout-builder::message.block_content_sources_summary'),
+            'widget-content' => $this->translation('capell-layout-builder::message.widget_content_sources_summary'),
             'page-content' => $this->translation('capell-layout-builder::message.page_content_sources_summary'),
             'section-assets' => $this->translation('capell-layout-builder::message.section_content_sources_summary'),
             'media-assets' => $this->translation('capell-layout-builder::message.media_content_sources_summary'),
@@ -404,9 +404,9 @@ final class BuildLayoutContentInventoryAction
     /**
      * @return array{source: string|null, text: string|null}
      */
-    private function blockCopy(Widget $block): array
+    private function widgetCopy(Widget $widget): array
     {
-        $translation = $block->getRelationValue('translation');
+        $translation = $widget->getRelationValue('translation');
 
         if (! $translation instanceof Model) {
             return ['source' => null, 'text' => null];
@@ -436,17 +436,17 @@ final class BuildLayoutContentInventoryAction
         }
 
         return [
-            'source' => __('capell-layout-builder::generic.block_translation_source'),
+            'source' => __('capell-layout-builder::generic.widget_translation_source'),
             'text' => Str::limit(implode(' ', $parts), 180),
         ];
     }
 
     /**
      * @param  array<string, mixed>  $assetState
-     * @param  array{source: string|null, text: string|null}  $blockCopy
+     * @param  array{source: string|null, text: string|null}  $widgetCopy
      * @return array<int, string>
      */
-    private function warnings(array $assetState, bool $isReused, array $blockCopy): array
+    private function warnings(array $assetState, bool $isReused, array $widgetCopy): array
     {
         $warnings = [];
 
@@ -458,38 +458,38 @@ final class BuildLayoutContentInventoryAction
             $warnings[] = __('capell-layout-builder::message.content_reused_warning');
         }
 
-        if ($blockCopy['text'] !== null) {
-            $warnings[] = __('capell-layout-builder::message.block_copy_source_warning');
+        if ($widgetCopy['text'] !== null) {
+            $warnings[] = __('capell-layout-builder::message.widget_copy_source_warning');
         }
 
         return $warnings;
     }
 
-    private function placementLabel(string $containerLabel, string $blockLabel, int $assetIndex): string
+    private function placementLabel(string $containerLabel, string $widgetLabel, int $assetIndex): string
     {
         return __('capell-layout-builder::generic.content_placement', [
             'container' => $containerLabel,
-            'block' => $blockLabel,
+            'widget' => $widgetLabel,
             'position' => $assetIndex + 1,
         ]);
     }
 
-    private function blockPlacementLabel(string $containerLabel, string $blockLabel): string
+    private function widgetPlacementLabel(string $containerLabel, string $widgetLabel): string
     {
-        return __('capell-layout-builder::generic.block_content_placement', [
+        return __('capell-layout-builder::generic.widget_content_placement', [
             'container' => $containerLabel,
-            'block' => $blockLabel,
+            'widget' => $widgetLabel,
         ]);
     }
 
     /**
      * @param  array<string, mixed>  $assetState
      */
-    private function itemKey(string $containerKey, int $blockIndex, int $assetIndex, array $assetState): string
+    private function itemKey(string $containerKey, int $widgetIndex, int $assetIndex, array $assetState): string
     {
         return implode(':', [
             $containerKey,
-            (string) $blockIndex,
+            (string) $widgetIndex,
             (string) ($assetState['occurrence'] ?? 1),
             (string) ($assetState['asset_type'] ?? ''),
             (string) ($assetState['asset_id'] ?? ''),
@@ -498,16 +498,16 @@ final class BuildLayoutContentInventoryAction
     }
 
     /**
-     * @param  array<string, mixed>  $containerBlock
+     * @param  array<string, mixed>  $containerWidget
      */
-    private function blockCopyItemKey(string $containerKey, int $blockIndex, array $containerBlock, Widget $block): string
+    private function widgetCopyItemKey(string $containerKey, int $widgetIndex, array $containerWidget, Widget $widget): string
     {
         return implode(':', [
             $containerKey,
-            (string) $blockIndex,
-            (string) ($containerBlock['occurrence'] ?? 1),
-            'block',
-            (string) $block->getKey(),
+            (string) $widgetIndex,
+            (string) ($containerWidget['occurrence'] ?? 1),
+            'widget',
+            (string) $widget->getKey(),
             'copy',
         ]);
     }
