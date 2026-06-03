@@ -1,6 +1,6 @@
 {
     "name": "capell-app/layout-builder",
-    "description": "Visual layout composition, content-first editing, and public layout rendering for Capell",
+    "description": "The visual layout and widget composition engine for Capell CMS — content-first and drag-drop editing, responsive containers, reusable widgets, and safe public rendering.",
     "keywords": [
         "capell",
         "layout-builder",

@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^4.0",
     "version": "4.x-dev",
-    "description": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
+    "description": "Compose pages visually with reusable widgets and named layout areas — edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
     "product": {
         "group": "Capell Foundation",
         "tier": "free",
@@ -15,7 +15,12 @@
     "namespace": "Capell\\LayoutBuilder",
     "surfaces": ["admin", "frontend", "console"],
     "dependencies": {
-        "requires": ["capell-app/core", "capell-app/frontend"],
+        "requires": [
+            "capell-app/core",
+            "capell-app/admin",
+            "capell-app/block-library",
+            "capell-app/frontend"
+        ],
         "supports": [],
         "conflicts": []
     },
@@ -143,12 +148,37 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Visual layout composition, content-first editing, and public layout rendering for Capell.",
+        "summary": "Compose pages visually with reusable widgets and named layout areas — edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",
                 "alt": "Layout Builder extension preview image",
                 "caption": "Layout Builder extension preview"
+            },
+            {
+                "path": "docs/screenshots/layout-builder-screen.png",
+                "alt": "Layout Builder editor composing a page from widgets and layout areas",
+                "caption": "Compose pages visually in the dual-mode layout editor"
+            },
+            {
+                "path": "docs/screenshots/widgets-admin-index.png",
+                "alt": "Reusable widgets admin index with component, usage, and status columns",
+                "caption": "Manage reusable widgets across layouts"
+            },
+            {
+                "path": "docs/screenshots/create-edit-widget-form.png",
+                "alt": "Create and edit widget form with display, settings, and asset configuration",
+                "caption": "Configure a reusable widget and its assets"
+            },
+            {
+                "path": "docs/screenshots/sections-admin-index.png",
+                "alt": "Layout containers admin index listing named layout areas",
+                "caption": "Organise named layout areas and containers"
+            },
+            {
+                "path": "docs/screenshots/frontend-page-rendering-layout-builder-widgets.png",
+                "alt": "Anonymous public page rendering Layout Builder widgets as clean HTML",
+                "caption": "Render to clean, query-free public HTML"
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

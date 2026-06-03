@@ -1,15 +1,16 @@
 # Layout Builder — Improvement & Growth Plan
+
 > Package: capell-app/layout-builder · Kind: package · Tier: free · Product group: Capell Foundation · Bundle: foundation · Status: Draft
 
 ## 1. Snapshot
 
-Layout Builder is the composition engine for Capell: it persists named layout containers and reusable `Widget` records, and resolves them into a query-free public graph for the frontend. It spans three surfaces (`admin`, `frontend`, `console`) and ships 48 Actions (`src/Actions/`), the bulk of the domain logic — public rendering through `BuildPublicLayoutGraphAction` (`src/Actions/BuildPublicLayoutGraphAction.php`, behind the `PublicLayoutGraphBuilder` contract), a Livewire dual-mode editor (`src/Livewire/Filament/LayoutBuilder.php` + four `Concerns/`), layout health diagnostics (`AnalyzeLayoutHealthAction`), reusable presets (`LayoutPreset` model + `SaveLayoutPresetAction`/`ApplyLayoutPresetAction`), encrypted lazy fragments (`Actions/Fragments/RenderPublicFragmentAction.php`), and a deterministic widget visual-regression command. Tables: `layouts` (JSON `containers`), `widgets`, `widget_assets`, `widget_widgets`, `layout_presets` (`database/migrations/2026_05_10_190841_*`). It is consumed by the Frontend package (via the `PublicLayoutGraphBuilder` / `FrontendRuntimeManifestContributor` / `WidgetResourceUsageContributor` tags), themes (`LayoutAreaRegistry`, e.g. Foundation Theme's `header` area), block-library (`BlockRegistry` for diagnostics), and frontend-authoring (editable-region surface). Marketplace `summary` (verbatim): *"Visual layout composition, content-first editing, and public layout rendering for Capell."* Manifest declares **1** screenshot (`docs/assets/marketplace/extension-card.jpg`) while **10** PNGs are committed under `docs/screenshots/` and catalogued in `docs/screenshots.json` — a media mismatch.
+Layout Builder is the composition engine for Capell: it persists named layout containers and reusable `Widget` records, and resolves them into a query-free public graph for the frontend. It spans three surfaces (`admin`, `frontend`, `console`) and ships 48 Actions (`src/Actions/`), the bulk of the domain logic — public rendering through `BuildPublicLayoutGraphAction` (`src/Actions/BuildPublicLayoutGraphAction.php`, behind the `PublicLayoutGraphBuilder` contract), a Livewire dual-mode editor (`src/Livewire/Filament/LayoutBuilder.php` + four `Concerns/`), layout health diagnostics (`AnalyzeLayoutHealthAction`), reusable presets (`LayoutPreset` model + `SaveLayoutPresetAction`/`ApplyLayoutPresetAction`), encrypted lazy fragments (`Actions/Fragments/RenderPublicFragmentAction.php`), and a deterministic widget visual-regression command. Tables: `layouts` (JSON `containers`), `widgets`, `widget_assets`, `widget_widgets`, `layout_presets` (`database/migrations/2026_05_10_190841_*`). It is consumed by the Frontend package (via the `PublicLayoutGraphBuilder` / `FrontendRuntimeManifestContributor` / `WidgetResourceUsageContributor` tags), themes (`LayoutAreaRegistry`, e.g. Foundation Theme's `header` area), block-library (`BlockRegistry` for diagnostics), and frontend-authoring (editable-region surface). Marketplace `summary` (verbatim): _"Visual layout composition, content-first editing, and public layout rendering for Capell."_ Manifest declares **1** screenshot (`docs/assets/marketplace/extension-card.jpg`) while **10** PNGs are committed under `docs/screenshots/` and catalogued in `docs/screenshots.json` — a media mismatch.
 
 ## 2. Improvements (existing functionality)
 
 Prioritized.
 
-1. **Implement a real package health check** — `compatibleCapellApiVersion()` is the *only* method on the class; the manifest advertises the check as *"package surfaces, providers, and install health are discoverable by Diagnostics"* with `severity: critical`, but nothing verifies tables exist, the install action ran, the public graph builder is bound, or the editor Livewire component is registered. A critical-severity check that only echoes `'^4.0'` gives false assurance. — `src/Health/LayoutBuilderHealthCheck.php` — **S**
+1. **Implement a real package health check** — `compatibleCapellApiVersion()` is the _only_ method on the class; the manifest advertises the check as _"package surfaces, providers, and install health are discoverable by Diagnostics"_ with `severity: critical`, but nothing verifies tables exist, the install action ran, the public graph builder is bound, or the editor Livewire component is registered. A critical-severity check that only echoes `'^4.0'` gives false assurance. — `src/Health/LayoutBuilderHealthCheck.php` — **S**
 
 2. **Delete or wire up `CapellLayoutCacheKeyEnum`** — the enum defines `WidgetByKey` and `WidgetOptions` cache key prefixes, but a full-tree grep finds **zero** references outside the enum file itself (no `remember`/`forget` against these keys anywhere in `src/`, `resources/`, `tests/`). Either dead code or an abandoned caching scheme. The live caching path is `LayoutLoader` via `CapellCore::rememberCache` + a request-scoped `$preloaded` array. — `src/Enums/CapellLayoutCacheKeyEnum.php`, `src/Support/Loader/LayoutLoader.php` — **S**
 
@@ -32,7 +33,7 @@ Capabilities declared: `layout-builder`, `layout-builder-admin`, `layout-builder
 - **Layout templates / starter layouts (differentiator).** Presets exist (`LayoutPreset`, scope `layout_only` | `starter_content`) but are container-snapshot fragments, not whole-page templates an editor picks at page creation. A template gallery (apply a full named layout to a new page) is the natural premium tier and the closest existing primitive (`SaveLayoutPresetAction`) is already built. — table-stakes-plus.
 - **Global / synced blocks (differentiator).** `Widget` records are reusable and `widget_widgets` nests them, but editing one instance does not propagate to all placements (no "edit once, update everywhere"). This is a headline feature in WordPress Gutenberg / Webflow and a strong paid upsell. — differentiator.
 - **Revision history / restore (table-stakes).** No layout versioning. `LayoutMutationHistory` is per-session undo only; there is no "restore previous published layout." Page builders are expected to have this. — table-stakes.
-- **Responsive controls beyond width.** `LayoutBreakpoint` (Desktop/Tablet/Mobile) drives per-breakpoint `colspan` overrides only (`ResizeLayoutContainerAction`). No per-breakpoint visibility on *containers* (device visibility exists for widgets via `presentation.manage_advanced`), ordering, or spacing. — table-stakes.
+- **Responsive controls beyond width.** `LayoutBreakpoint` (Desktop/Tablet/Mobile) drives per-breakpoint `colspan` overrides only (`ResizeLayoutContainerAction`). No per-breakpoint visibility on _containers_ (device visibility exists for widgets via `presentation.manage_advanced`), ordering, or spacing. — table-stakes.
 - **Accessibility tooling.** `AnalyzeLayoutHealthAction` checks duplicate anchors, too-many-cards, and unsupported variants — but no a11y diagnostics (heading-order, alt-text presence, contrast hints). `HeroWidgetHasPrimaryHeadingAction` hints the appetite exists; generalize it. — differentiator.
 - **Drag-drop nested columns.** Containers are a flat keyed map with `colspan`; there is no true nested column/row tree in the layout model (nesting is only widget-in-widget via `widget_widgets`). Deep section→row→column composition is a common expectation. — table-stakes.
 - **Block/widget reuse discovery.** `FindReusableWidgetsAction` exists and is wired into the editor (`ManagesLayoutBuilderState`), but it is a thin (20-line) lookup — no usage counts, no "where used" surfaced to editors at insert time. — incremental.
@@ -52,39 +53,41 @@ Capabilities declared: `layout-builder`, `layout-builder-admin`, `layout-builder
 
 This is correctly a **free / foundation** package — it is the composition engine the rest of the platform renders through (Frontend, themes, block-library all depend on it). Standalone pricing makes no sense; its commercial value is as the floor that makes Capell a real page-builder CMS rather than a flat-content CMS.
 
-**Current copy — critique.** Manifest `summary` and composer `description` are identical and feature-listy ("Visual layout composition, content-first editing, and public layout rendering") — three internal capability names, no benefit, no audience. It tells a buyer *what the code does*, not *what they get*.
+**Current copy — critique.** Manifest `summary` and composer `description` are identical and feature-listy ("Visual layout composition, content-first editing, and public layout rendering") — three internal capability names, no benefit, no audience. It tells a buyer _what the code does_, not _what they get_.
 
 **Improved `summary` (manifest):**
+
 > "Compose pages visually with reusable widgets and named layout areas — edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals."
 
 **Improved composer `description` (one line):**
+
 > "The visual layout and widget composition engine for Capell CMS — content-first and drag-drop editing, responsive containers, reusable widgets, and safe public rendering."
 
-**Tier / upsell.** Keep the engine free. The credible premium line sits *on top* of existing primitives: (a) **whole-page templates / starter-layout gallery** (extends `LayoutPreset`), (b) **global synced blocks** (edit-once-update-everywhere over `Widget`/`widget_widgets`), (c) **advanced blocks & layout revision history**. Package these as a paid "Layout Pro" add-on so the foundation stays open and the differentiators monetize. The advanced presentation controls already gated behind `presentation.manage_advanced` show this split is intended.
+**Tier / upsell.** Keep the engine free. The credible premium line sits _on top_ of existing primitives: (a) **whole-page templates / starter-layout gallery** (extends `LayoutPreset`), (b) **global synced blocks** (edit-once-update-everywhere over `Widget`/`widget_widgets`), (c) **advanced blocks & layout revision history**. Package these as a paid "Layout Pro" add-on so the foundation stays open and the differentiators monetize. The advanced presentation controls already gated behind `presentation.manage_advanced` show this split is intended.
 
 **Media gaps.** Surface the 10 committed screenshots (only 1 declared, §2.5); add a short animated capture of content-first editing and responsive-breakpoint switching — the two demos `docs/overview.md` explicitly says should be captured separately. A GIF of the editor is worth more than any static card for a layout product.
 
-**Pitch contribution.** Strengthen the Capell pitch by leading with this package: it is the proof that Capell is a *composable* CMS. Position it as "the engine themes and the public site render through," then point buyers to the Pro add-on for templates/global blocks.
+**Pitch contribution.** Strengthen the Capell pitch by leading with this package: it is the proof that Capell is a _composable_ CMS. Position it as "the engine themes and the public site render through," then point buyers to the Pro add-on for templates/global blocks.
 
 **Keywords / tags (8–12):** `page-builder`, `visual-editor`, `drag-and-drop`, `layout`, `widgets`, `content-first`, `reusable-blocks`, `responsive-layout`, `filament`, `livewire`, `cms`, `block-composition`.
 
 ## 6. Prioritized Roadmap
 
-| Item | Bucket | Effort | Impact | Section ref |
-| --- | --- | --- | --- | --- |
-| Align `capell.json` deps with composer (add admin, block-library) | Now | S | High | §2.3 / §4 |
-| Implement real package health check (tables, install, bindings) | Now | S | High | §2.1 / §4 |
-| Remove dead `CapellLayoutCacheKeyEnum` (or wire it) | Now | S | Med | §2.2 / §4 |
-| Promote 3–5 screenshots into manifest marketplace block | Now | S | High | §2.5 / §5 |
-| Rewrite manifest `summary` + composer `description` | Now | S | High | §5 |
-| Add public render performance-budget test (20ms / 50 queries) | Now | M | High | §4 |
-| Add fragment tamper/replay → 404 safety test | Now | M | High | §4 |
-| Audit & remove/cover orphan Actions (ApplyLayoutPlan, PreviewLayoutPlan, SaveFormComponentRelationship, InstallPackage) | Next | M | Med | §2.7 / §4 |
-| Cover PersistLayoutBuilderStateAction + install path | Next | M | High | §4 |
-| Translate inline Livewire notifications | Next | M | Med | §2.4 / §4 |
-| Split BuildLayoutContentInventoryAction (554 lines) | Next | M | Med | §2.6 |
-| Whole-page templates / starter-layout gallery (Pro) | Next | L | High | §3 / §5 |
-| Durable / diff-based undo-redo history | Later | M | Med | §2.8 / §3 |
-| Global synced blocks (edit-once-update-everywhere) (Pro) | Later | L | High | §3 / §5 |
-| Layout revision history + restore | Later | L | High | §3 |
-| Accessibility diagnostics in AnalyzeLayoutHealthAction | Later | M | Med | §3 |
+| Item                                                                                                                    | Bucket | Effort | Impact | Section ref |
+| ----------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------ | ----------- |
+| Align `capell.json` deps with composer (add admin, block-library)                                                       | Now    | S      | High   | §2.3 / §4   |
+| Implement real package health check (tables, install, bindings)                                                         | Now    | S      | High   | §2.1 / §4   |
+| Remove dead `CapellLayoutCacheKeyEnum` (or wire it)                                                                     | Now    | S      | Med    | §2.2 / §4   |
+| Promote 3–5 screenshots into manifest marketplace block                                                                 | Now    | S      | High   | §2.5 / §5   |
+| Rewrite manifest `summary` + composer `description`                                                                     | Now    | S      | High   | §5          |
+| Add public render performance-budget test (20ms / 50 queries)                                                           | Now    | M      | High   | §4          |
+| Add fragment tamper/replay → 404 safety test                                                                            | Now    | M      | High   | §4          |
+| Audit & remove/cover orphan Actions (ApplyLayoutPlan, PreviewLayoutPlan, SaveFormComponentRelationship, InstallPackage) | Next   | M      | Med    | §2.7 / §4   |
+| Cover PersistLayoutBuilderStateAction + install path                                                                    | Next   | M      | High   | §4          |
+| Translate inline Livewire notifications                                                                                 | Next   | M      | Med    | §2.4 / §4   |
+| Split BuildLayoutContentInventoryAction (554 lines)                                                                     | Next   | M      | Med    | §2.6        |
+| Whole-page templates / starter-layout gallery (Pro)                                                                     | Next   | L      | High   | §3 / §5     |
+| Durable / diff-based undo-redo history                                                                                  | Later  | M      | Med    | §2.8 / §3   |
+| Global synced blocks (edit-once-update-everywhere) (Pro)                                                                | Later  | L      | High   | §3 / §5     |
+| Layout revision history + restore                                                                                       | Later  | L      | High   | §3          |
+| Accessibility diagnostics in AnalyzeLayoutHealthAction                                                                  | Later  | M      | Med    | §3          |
