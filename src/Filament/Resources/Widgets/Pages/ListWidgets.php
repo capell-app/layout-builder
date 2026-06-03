@@ -34,7 +34,7 @@ class ListWidgets extends ListRecords
     #[Override]
     public function getSubheading(): string|Htmlable|null
     {
-        return __('capell-admin::generic.block_info');
+        return __('capell-admin::generic.widget_info');
     }
 
     /**

@@ -12,19 +12,19 @@ use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 
-it('adds layout builder runtime manifest flags for blade layouts with blade blocks', function (): void {
+it('adds layout builder runtime manifest flags for blade layouts with blade widgets', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Widget::factory()->create([
-        'key' => 'blade-block',
+    $widget = Widget::factory()->create([
+        'key' => 'blade-widget',
         'meta' => [
-            'component' => 'capell.block.default',
+            'component' => 'capell.widget.default',
         ],
     ]);
     $layout = Layout::factory()->make([
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key],
+                    ['widget_key' => $widget->key],
                 ],
             ],
         ],
@@ -45,12 +45,12 @@ it('adds layout builder runtime manifest flags for blade layouts with blade bloc
         ->and($resolution->runtimeManifest->modules['layout-builder'])->toBeTrue();
 });
 
-it('adds livewire island flags for blade layouts with livewire blocks', function (): void {
+it('adds livewire island flags for blade layouts with livewire widgets', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Widget::factory()->create([
-        'key' => 'livewire-block',
+    $widget = Widget::factory()->create([
+        'key' => 'livewire-widget',
         'meta' => [
-            'component' => 'capell.block.default',
+            'component' => 'capell.widget.default',
             'livewire' => true,
         ],
     ]);
@@ -58,7 +58,7 @@ it('adds livewire island flags for blade layouts with livewire blocks', function
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key],
+                    ['widget_key' => $widget->key],
                 ],
             ],
         ],
@@ -79,17 +79,17 @@ it('adds livewire island flags for blade layouts with livewire blocks', function
         ->and($resolution->runtimeManifest->modules['layout-builder'])->toBeTrue();
 });
 
-it('extracts livewire block keys from container key fallbacks', function (): void {
+it('extracts livewire widget keys from container key fallbacks', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Widget::factory()->create([
-        'key' => 'container-key-livewire-block',
+    $widget = Widget::factory()->create([
+        'key' => 'container-key-livewire-widget',
         'is_livewire' => true,
     ]);
     $layout = Layout::factory()->make([
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['key' => $block->key],
+                    ['key' => $widget->key],
                 ],
             ],
         ],
@@ -108,10 +108,10 @@ it('extracts livewire block keys from container key fallbacks', function (): voi
         ->and($resolution->runtimeManifest->modules['layout-builder'])->toBeTrue();
 });
 
-it('ignores disabled livewire blocks when contributing blade runtime flags', function (): void {
+it('ignores disabled livewire widgets when contributing blade runtime flags', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Widget::factory()->create([
-        'key' => 'disabled-livewire-block',
+    $widget = Widget::factory()->create([
+        'key' => 'disabled-livewire-widget',
         'is_livewire' => true,
         'status' => false,
     ]);
@@ -119,7 +119,7 @@ it('ignores disabled livewire blocks when contributing blade runtime flags', fun
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key],
+                    ['widget_key' => $widget->key],
                 ],
             ],
         ],
@@ -138,10 +138,10 @@ it('ignores disabled livewire blocks when contributing blade runtime flags', fun
         ->and($resolution->runtimeManifest->modules['layout-builder'])->toBeTrue();
 });
 
-it('ignores future livewire blocks when contributing blade runtime flags', function (): void {
+it('ignores future livewire widgets when contributing blade runtime flags', function (): void {
     $page = Page::factory()->make(['meta' => null]);
-    $block = Widget::factory()->create([
-        'key' => 'future-livewire-block',
+    $widget = Widget::factory()->create([
+        'key' => 'future-livewire-widget',
         'is_livewire' => true,
         'visible_from' => now()->addDay(),
     ]);
@@ -149,7 +149,7 @@ it('ignores future livewire blocks when contributing blade runtime flags', funct
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key],
+                    ['widget_key' => $widget->key],
                 ],
             ],
         ],
@@ -168,21 +168,21 @@ it('ignores future livewire blocks when contributing blade runtime flags', funct
         ->and($resolution->runtimeManifest->modules['layout-builder'])->toBeTrue();
 });
 
-it('ignores livewire blocks with inaccessible block blueprints when contributing blade runtime flags', function (): void {
+it('ignores livewire widgets with inaccessible widget blueprints when contributing blade runtime flags', function (): void {
     $page = Page::factory()->make(['meta' => null]);
     $blueprint = Blueprint::factory()
         ->type(LayoutTypeEnum::Widget->value)
         ->create(['meta' => ['accessible' => false]]);
-    $block = Widget::factory()->create([
+    $widget = Widget::factory()->create([
         'blueprint_id' => $blueprint->getKey(),
-        'key' => 'inaccessible-livewire-block',
+        'key' => 'inaccessible-livewire-widget',
         'is_livewire' => true,
     ]);
     $layout = Layout::factory()->make([
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key],
+                    ['widget_key' => $widget->key],
                 ],
             ],
         ],
@@ -205,10 +205,10 @@ it('does not change non blade-only runtime manifests', function (): void {
     $page = Page::factory()->make([
         'meta' => ['rendering_strategy' => RenderingStrategyEnum::FullLivewire->value],
     ]);
-    $block = Widget::factory()->create([
-        'key' => 'livewire-block',
+    $widget = Widget::factory()->create([
+        'key' => 'livewire-widget',
         'meta' => [
-            'component' => 'capell.block.default',
+            'component' => 'capell.widget.default',
             'livewire' => true,
         ],
     ]);
@@ -216,7 +216,7 @@ it('does not change non blade-only runtime manifests', function (): void {
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key],
+                    ['widget_key' => $widget->key],
                 ],
             ],
         ],

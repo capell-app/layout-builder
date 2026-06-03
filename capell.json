@@ -37,7 +37,7 @@
             "type": "admin-resource",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
             "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
-            "group": "Block"
+            "group": "Widget"
         },
         {
             "type": "configurator",
@@ -45,7 +45,7 @@
             "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
             "groups": [
                 "LayoutContainers",
-                "LayoutBlocks",
+                "LayoutWidgets",
                 "Widgets",
                 "WidgetAssets"
             ]
@@ -82,7 +82,7 @@
             "layouts",
             "widgets",
             "widget_assets",
-            "widget_blocks"
+            "widget_widgets"
         ]
     },
     "commands": {

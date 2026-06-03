@@ -11,9 +11,9 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
-use Capell\LayoutBuilder\Data\PublicLayoutBlockData;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
-use Capell\LayoutBuilder\Support\Livewire\OpaqueBlockReference;
+use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
+use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Response;
@@ -35,7 +35,7 @@ class RenderPublicFragmentAction
 
     private function render(string $reference): ?string
     {
-        $data = OpaqueBlockReference::decode($reference);
+        $data = OpaqueWidgetReference::decode($reference);
 
         $site = $this->model(Site::class, $data['site_id'] ?? null);
         $layout = $this->model(Layout::class, $data['layout_id'] ?? null);
@@ -78,27 +78,27 @@ class RenderPublicFragmentAction
             }
         }
 
-        $block = null;
+        $widget = null;
 
         if ($container instanceof PublicLayoutContainerData) {
-            foreach ($container->blocks as $candidateBlock) {
-                if ($candidateBlock->key === $widgetKey && $candidateBlock->occurrence === $occurrence) {
-                    $block = $candidateBlock;
+            foreach ($container->widgets as $candidateWidget) {
+                if ($candidateWidget->key === $widgetKey && $candidateWidget->occurrence === $occurrence) {
+                    $widget = $candidateWidget;
 
                     break;
                 }
             }
         }
 
-        if (! $block instanceof PublicLayoutBlockData || ! is_string($block->html) || trim($block->html) === '') {
+        if (! $widget instanceof PublicLayoutWidgetData || ! is_string($widget->html) || trim($widget->html) === '') {
             return null;
         }
 
-        $response = new Response($block->html);
+        $response = new Response($widget->html);
         $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
         AssertPublicHtmlContainsNoAuthoringSurfaceAction::run($response);
 
-        return $block->html;
+        return $widget->html;
     }
 
     /**

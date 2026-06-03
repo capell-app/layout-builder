@@ -1,11 +1,11 @@
 @php
     use Capell\Frontend\Data\MainContentRenderHookData;
-    use Capell\LayoutBuilder\Actions\BlockIsSlotAction;
+    use Capell\LayoutBuilder\Actions\WidgetIsSlotAction;
     use Capell\LayoutBuilder\Actions\ResolveLayoutAreaContainersAction;
     use Capell\LayoutBuilder\Models\Widget;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
-    use Capell\LayoutBuilder\Support\LayoutBlockData;
+    use Capell\LayoutBuilder\Support\LayoutWidgetData;
 
     /** @var MainContentRenderHookData $context */
     $previousColspan = null;
@@ -14,26 +14,26 @@
 @if ($context->layout?->containers)
     @foreach (ResolveLayoutAreaContainersAction::run($context->layout->containers, LayoutAreaRegistry::MAIN) as $containerKey => $container)
         @php
-            $layoutBlocks = collect($container['widgets'] ?? $container['blocks'] ?? [])
-                ->map(static fn (mixed $blockData): array => LayoutBlockData::normalize($blockData))
-                ->filter(static fn (array $blockData): bool => LayoutBlockData::key($blockData) !== null)
-                ->map(static fn (array $blockData): ?Widget => CapellLayoutManager::getStoredContainerBlock(
+            $layoutWidgets = collect($container['widgets'] ?? $container ?? [])
+                ->map(static fn (mixed $widgetData): array => LayoutWidgetData::normalize($widgetData))
+                ->filter(static fn (array $widgetData): bool => LayoutWidgetData::key($widgetData) !== null)
+                ->map(static fn (array $widgetData): ?Widget => CapellLayoutManager::getStoredContainerWidget(
                     (string) $containerKey,
-                    (string) LayoutBlockData::key($blockData),
-                    LayoutBlockData::occurrence($blockData),
+                    (string) LayoutWidgetData::key($widgetData),
+                    LayoutWidgetData::occurrence($widgetData),
                 ))
                 ->filter();
 
-            if ($layoutBlocks->isEmpty()) {
+            if ($layoutWidgets->isEmpty()) {
                 continue;
             }
 
-            $context->pageContentBlockRendered = $context->pageContentBlockRendered || collect($container['widgets'] ?? $container['blocks'] ?? [])
-                ->map(static fn (mixed $blockData): array => LayoutBlockData::normalize($blockData))
-                ->contains(static fn (array $blockData): bool => LayoutBlockData::key($blockData) === 'page-content');
+            $context->pageContentWidgetRendered = $context->pageContentWidgetRendered || collect($container['widgets'] ?? $container ?? [])
+                ->map(static fn (mixed $widgetData): array => LayoutWidgetData::normalize($widgetData))
+                ->contains(static fn (array $widgetData): bool => LayoutWidgetData::key($widgetData) === 'page-content');
 
-            $hasSlotBlock = ! $context->slotRendered && $layoutBlocks->contains(
-                static fn (Widget $layoutBlock): bool => BlockIsSlotAction::run($layoutBlock),
+            $hasSlotWidget = ! $context->slotRendered && $layoutWidgets->contains(
+                static fn (Widget $layoutWidget): bool => WidgetIsSlotAction::run($layoutWidget),
             );
 
             $colspan = (int) ($container['meta']['colspan'] ?? 12);
@@ -58,12 +58,12 @@
             'colspan' => $colspan,
             'columnStart' => $columnStart,
             'htmlClass' => $htmlClass,
-            'pageSlot' => $hasSlotBlock ? $context->pageSlot : null,
+            'pageSlot' => $hasSlotWidget ? $context->pageSlot : null,
             'previousColspan' => $previousColspan,
         ])
 
         @php
-            if ($hasSlotBlock && $context->pageSlot) {
+            if ($hasSlotWidget && $context->pageSlot) {
                 $context->slotRendered = true;
             }
 

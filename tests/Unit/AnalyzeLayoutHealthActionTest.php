@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-use Capell\ContentBlocks\Data\BlockCompatibilityData;
-use Capell\ContentBlocks\Data\BlockContentContractData;
-use Capell\ContentBlocks\Data\BlockDefinitionData;
-use Capell\ContentBlocks\Data\BlockVariantData;
-use Capell\ContentBlocks\Data\BlockVariantKey;
-use Capell\ContentBlocks\Support\BlockRegistry;
+use Capell\BlockLibrary\Data\BlockCompatibilityData;
+use Capell\BlockLibrary\Data\BlockContentContractData;
+use Capell\BlockLibrary\Data\BlockDefinitionData;
+use Capell\BlockLibrary\Data\BlockVariantData;
+use Capell\BlockLibrary\Data\BlockVariantKey;
+use Capell\BlockLibrary\Support\BlockRegistry;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
@@ -25,13 +25,13 @@ it('reports duplicate anchors and over-limit cards without exposing diagnostics 
                     [
                         'widget_key' => 'known',
                         'meta' => [
-                            'block_settings' => ['anchor_id' => 'Feature Grid'],
+                            'widget_settings' => ['anchor_id' => 'Feature Grid'],
                         ],
                     ],
                     [
                         'widget_key' => 'known',
                         'meta' => [
-                            'block_settings' => ['anchor_id' => 'Feature Grid'],
+                            'widget_settings' => ['anchor_id' => 'Feature Grid'],
                         ],
                     ],
                 ],
@@ -58,19 +58,19 @@ it('reports duplicate anchors and over-limit cards without exposing diagnostics 
     $diagnostics = AnalyzeLayoutHealthAction::run($state);
 
     expect(collect($diagnostics)->pluck('code')->all())
-        ->toContain('duplicate_block_anchor')
-        ->toContain('too_many_block_cards');
+        ->toContain('duplicate_widget_anchor')
+        ->toContain('too_many_widget_cards');
 });
 
-it('includes block contract and theme compatibility warnings in layout health', function (): void {
+it('includes widget contract and theme compatibility warnings in layout health', function (): void {
     resolve(BlockRegistry::class)->register(new BlockDefinitionData(
         key: 'known',
         label: 'Known',
-        description: 'Known block.',
+        description: 'Known widget.',
         category: 'marketing',
-        view: 'vendor-package::blocks.known',
+        view: 'vendor-package::widgets.known',
         variants: [
-            new BlockVariantData(BlockVariantKey::from('default'), 'vendor-package::blocks.variants.default'),
+            new BlockVariantData(BlockVariantKey::from('default'), 'vendor-package::widgets.variants.default'),
         ],
         contentContract: new BlockContentContractData(
             requiredFields: ['heading'],
@@ -103,18 +103,18 @@ it('includes block contract and theme compatibility warnings in layout health', 
     $diagnostics = AnalyzeLayoutHealthAction::run($state, 'unsupported-theme');
 
     expect(collect($diagnostics)->pluck('code')->all())
-        ->toContain('unsupported_block_variant')
-        ->toContain('missing_required_block_field');
+        ->toContain('unsupported_widget_variant')
+        ->toContain('missing_required_widget_field');
 
-    $unsupportedBlockVariantDiagnostic = capell_test_instance(
-        collect($diagnostics)->firstWhere('code', 'unsupported_block_variant'),
+    $unsupportedWidgetVariantDiagnostic = capell_test_instance(
+        collect($diagnostics)->firstWhere('code', 'unsupported_widget_variant'),
         LayoutDiagnosticData::class,
     );
 
-    expect($unsupportedBlockVariantDiagnostic->message)->toContain('Default');
+    expect($unsupportedWidgetVariantDiagnostic->message)->toContain('Default');
 });
 
-it('supports legacy shorthand block keys in layout health analysis', function (): void {
+it('supports legacy shorthand widget keys in layout health analysis', function (): void {
     Widget::factory()->create(['key' => 'breadcrumbs']);
 
     $state = new LayoutBuilderStateData(
@@ -130,10 +130,10 @@ it('supports legacy shorthand block keys in layout health analysis', function ()
 
     $diagnostics = AnalyzeLayoutHealthAction::run($state);
 
-    expect(collect($diagnostics)->pluck('code')->all())->not->toContain('unknown_block');
+    expect(collect($diagnostics)->pluck('code')->all())->not->toContain('unknown_widget');
 });
 
-it('includes legacy shorthand block keys in preview signatures', function (): void {
+it('includes legacy shorthand widget keys in preview signatures', function (): void {
     Widget::factory()->create(['key' => 'breadcrumbs']);
 
     $layout = Layout::factory()->make([

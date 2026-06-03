@@ -5,40 +5,36 @@ declare(strict_types=1);
 use Capell\Core\Data\Makers\MakerInputData;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Actions\MakeBlockAction;
+use Capell\LayoutBuilder\Actions\MakeWidgetAction;
 use Capell\LayoutBuilder\Actions\SaveFormComponentRelationshipAction;
-use Capell\LayoutBuilder\Filament\Components\Forms\AssetsRepeater as LayoutBuilderAssetsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\Layout\LayoutTab;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
-use Capell\LayoutBuilder\Support\Makers\LayoutBuilderBlockMaker;
-use Filament\Actions\Action;
-use Filament\Actions\ActionGroup;
+use Capell\LayoutBuilder\Support\Makers\LayoutBuilderWidgetMaker;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAssetsRepeaterHarness;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderCoverageSchemaHarness;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Contracts\CanEntangleWithSingularRelationships;
 use Filament\Schemas\Components\Livewire;
-use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Livewire\Component as LivewireComponent;
 
-it('scaffolds block blade and livewire files with registration guidance', function (): void {
+it('scaffolds widget blade and livewire files with registration guidance', function (): void {
     $name = 'Coverage Spotlight ' . str_replace('.', '', uniqid('', true));
     $kebab = str($name)->studly()->kebab()->toString();
-    $viewDirectory = sys_get_temp_dir() . '/capell-layout-builder-blocks-' . $kebab;
+    $viewDirectory = sys_get_temp_dir() . '/capell-layout-builder-widgets-' . $kebab;
 
-    $result = MakeBlockAction::run($name, $viewDirectory, livewire: true, force: true);
+    $result = MakeWidgetAction::run($name, $viewDirectory, livewire: true, force: true);
 
-    $classPath = app_path('Livewire/Blocks/' . str($name)->studly()->toString() . 'Widget.php');
-    $livewireViewPath = resource_path('views/blocks/livewire/' . $kebab . '.blade.php');
+    $classPath = app_path('Livewire/Widgets/' . str($name)->studly()->toString() . 'Widget.php');
+    $livewireViewPath = resource_path('views/widgets/livewire/' . $kebab . '.blade.php');
 
     expect($result->created)->toBeTrue()
         ->and($result->viewPath)->toBe($viewDirectory . DIRECTORY_SEPARATOR . $kebab . '.blade.php')
         ->and(file_get_contents($result->viewPath))->toContain($kebab)
         ->and(file_exists($classPath))->toBeTrue()
         ->and(file_exists($livewireViewPath))->toBeTrue()
-        ->and($result->seederSnippet)->toContain(sprintf("['type' => 'block', 'key' => '%s']", $kebab));
+        ->and($result->seederSnippet)->toContain(sprintf("['type' => 'widget', 'key' => '%s']", $kebab));
 
     @unlink($result->viewPath);
     @rmdir($viewDirectory);
@@ -46,23 +42,23 @@ it('scaffolds block blade and livewire files with registration guidance', functi
     @unlink($livewireViewPath);
 });
 
-it('previews and runs the layout builder block maker with livewire files', function (): void {
+it('previews and runs the layout builder widget maker with livewire files', function (): void {
     $input = new MakerInputData(
-        maker: 'layout-builder.block',
+        maker: 'layout-builder.widget',
         values: ['name' => 'Maker Coverage Card', 'livewire' => true],
         dryRun: false,
         force: true,
         databaseWrites: false,
     );
 
-    $maker = new LayoutBuilderBlockMaker;
+    $maker = new LayoutBuilderWidgetMaker;
     $definition = $maker->definition();
     $preview = $maker->preview($input);
     $result = $maker->run($input);
 
-    expect($definition->key)->toBe('layout-builder.block')
+    expect($definition->key)->toBe('layout-builder.widget')
         ->and($preview->files)->toHaveCount(3)
-        ->and($preview->commands->first())->toContain('capell:layout-builder-make-block')
+        ->and($preview->commands->first())->toContain('capell:layout-builder-make-widget')
         ->and($result->successful)->toBeTrue()
         ->and($result->files)->toHaveCount(3)
         ->and($result->notes->first())->toContain('maker-coverage-card');
@@ -108,7 +104,7 @@ it('saves and removes singular relationship records through the shared form rela
     expect(Layout::query()->whereKey($layout)->exists())->toBeFalse();
 });
 
-it('adds layout builder block assets through the repeater action workflow', function (): void {
+it('adds layout builder widget assets through the repeater action workflow', function (): void {
     $assetPage = Page::factory()->create(['name' => 'Layout builder asset page']);
     $component = LayoutBuilderAssetsRepeaterHarness::make('assets');
     $component->container(Schema::make(new LayoutBuilderCoverageSchemaHarness)->operation('edit'));
@@ -166,113 +162,4 @@ function layoutBuilderCoverageTabComponents(LayoutTab $tab, Layout $layout): arr
     }
 
     return $tab->evaluate($schema, ['record' => $layout]);
-}
-
-final class LayoutBuilderCoverageSchemaHarness extends LivewireComponent implements HasSchemas
-{
-    public function makeFilamentTranslatableContentDriver(): ?TranslatableContentDriver
-    {
-        return null;
-    }
-
-    public function getOldSchemaState(string $statePath): mixed
-    {
-        return null;
-    }
-
-    /**
-     * @param  array<Component>  $skipComponentsChildContainersWhileSearching
-     */
-    public function getSchemaComponent(string $key, bool $withHidden = false, array $skipComponentsChildContainersWhileSearching = []): Component|Action|ActionGroup|null
-    {
-        return null;
-    }
-
-    public function getSchema(string $name): ?Schema
-    {
-        return null;
-    }
-
-    public function currentlyValidatingSchema(?Schema $schema): void {}
-
-    public function getDefaultTestingSchemaName(): ?string
-    {
-        return null;
-    }
-}
-
-final class LayoutBuilderAssetsRepeaterHarness extends LayoutBuilderAssetsRepeater
-{
-    /** @var array<array-key, mixed> */
-    public array $rawState = [];
-
-    public ?Schema $lastChildSchema = null;
-
-    public bool $afterStateUpdatedCalled = false;
-
-    public bool $partiallyRendered = false;
-
-    public bool $collapsedCalled = false;
-
-    #[Override]
-    public function getRawState(): mixed
-    {
-        return $this->rawState;
-    }
-
-    #[Override]
-    public function rawState(mixed $state): static
-    {
-        $this->rawState = is_array($state) ? $state : [];
-
-        return $this;
-    }
-
-    /**
-     * @return array<array-key, mixed>
-     */
-    #[Override]
-    public function getRawItemState(string $key): array
-    {
-        $state = $this->rawState[$key] ?? [];
-
-        return is_array($state) ? $state : [];
-    }
-
-    #[Override]
-    public function getChildSchema($key = null): Schema
-    {
-        $state = is_int($key) || is_string($key)
-            ? ($this->rawState[$key] ?? [])
-            : [];
-
-        $this->lastChildSchema = Schema::make(new LayoutBuilderCoverageSchemaHarness)
-            ->operation('edit')
-            ->statePath('state')
-            ->rawState(is_array($state) ? $state : []);
-
-        return $this->lastChildSchema;
-    }
-
-    #[Override]
-    public function collapsed(bool|Closure $condition = true, bool $shouldMakeComponentCollapsible = true): static
-    {
-        $this->collapsedCalled = true;
-
-        return parent::collapsed($condition, $shouldMakeComponentCollapsible);
-    }
-
-    #[Override]
-    public function callAfterStateUpdated(bool $shouldBubbleToParents = true): static
-    {
-        $this->afterStateUpdatedCalled = true;
-
-        return $this;
-    }
-
-    #[Override]
-    public function partiallyRender(): void
-    {
-        $this->partiallyRendered = true;
-    }
 }

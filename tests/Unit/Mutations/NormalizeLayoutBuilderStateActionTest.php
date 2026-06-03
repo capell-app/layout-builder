@@ -26,22 +26,22 @@ it('represents layout builder state and mutation output with typed data', functi
         code: 'responsive_colspan_clamped',
         message: 'Responsive colspan was clamped.',
         containerKey: 'main',
-        blockIndex: null,
+        widgetIndex: null,
     );
 
     $blockingDiagnostic = new LayoutDiagnosticData(
         severity: LayoutDiagnosticSeverity::Blocking,
-        code: 'missing_required_block',
-        message: 'A required block is missing.',
+        code: 'missing_required_widget',
+        message: 'A required widget is missing.',
         containerKey: 'main',
-        blockIndex: null,
+        widgetIndex: null,
     );
 
     $change = new LayoutChangeData(
         type: 'container_resized',
         label: 'Container main resized',
         containerKey: 'main',
-        blockIndex: null,
+        widgetIndex: null,
     );
 
     $result = new LayoutMutationResultData(
@@ -83,7 +83,7 @@ it('represents layout builder state and mutation output with typed data', functi
         ]);
 });
 
-it('normalizes sparse block state and clamps responsive metadata', function (): void {
+it('normalizes sparse widget state and clamps responsive metadata', function (): void {
     $state = new LayoutBuilderStateData(
         containers: [
             'main' => [

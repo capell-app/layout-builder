@@ -23,12 +23,12 @@ class InstallPackageAction
         LayoutModelRegistrar::register();
 
         $typeCreator = resolve(TypeCreator::class);
-        $typeCreator->createBlockTypes();
+        $typeCreator->createWidgetTypes();
 
         $typeCreator->createDefaultContentType();
         $typeCreator->createBuilderContentType();
 
-        InstallLayoutBuilderBlockCatalogAction::run();
+        InstallLayoutBuilderWidgetCatalogAction::run();
 
         $layoutCreator = resolve(LayoutCreator::class);
         $layoutCreator->setup();

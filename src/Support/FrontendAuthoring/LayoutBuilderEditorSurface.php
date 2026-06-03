@@ -34,8 +34,8 @@ final class LayoutBuilderEditorSurface implements EditableRegionEditorSurface
             'pageId' => $this->integerContext($context, 'pageId'),
             'pageClass' => $pageClass,
             'initialContainerKey' => isset($context['initialContainerKey']) ? (string) $context['initialContainerKey'] : null,
-            'initialBlockIndex' => isset($context['initialBlockIndex']) && is_numeric($context['initialBlockIndex'])
-                ? (int) $context['initialBlockIndex']
+            'initialWidgetIndex' => isset($context['initialWidgetIndex']) && is_numeric($context['initialWidgetIndex'])
+                ? (int) $context['initialWidgetIndex']
                 : null,
         ]);
     }

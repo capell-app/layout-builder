@@ -17,13 +17,13 @@ use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
-use Capell\LayoutBuilder\Enums\BlockComponentEnum;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Enums\ComponentTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LivewireComponentsEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Listeners\AfterRecordSaved;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
 use Capell\LayoutBuilder\Listeners\SiteTreeRebuilt;
@@ -63,8 +63,8 @@ final class LayoutBuilderCoreRegistrar
     private function registerManagers(): void
     {
         App::singleton(CapellLayoutManager::class, fn (): CapellLayoutManager => new CapellLayoutManager);
-        App::bind(PublicBlockPayloadResolver::class, DefaultPublicBlockPayloadResolver::class);
-        App::tag([], PublicBlockPayloadContributor::TAG);
+        App::bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
+        App::tag([], PublicWidgetPayloadContributor::TAG);
     }
 
     private function registerRelationships(): void
@@ -91,15 +91,6 @@ final class LayoutBuilderCoreRegistrar
             fn (Blueprint $model): HasMany => $model->hasMany(Widget::class, 'blueprint_id'),
         );
 
-        Page::resolveRelationUsing(
-            'blockAssets',
-            fn (Page $model): MorphMany => $model->widgetAssets(),
-        );
-
-        Page::resolveRelationUsing(
-            'blocks',
-            fn (Page $model): MorphToMany => $model->widgets(),
-        );
     }
 
     private function registerModelEvents(): void
@@ -154,54 +145,54 @@ final class LayoutBuilderCoreRegistrar
     {
         $registry = App::make(RenderableRegistry::class);
 
-        foreach (BlockComponentEnum::cases() as $blockComponent) {
-            $blade = match ($blockComponent) {
-                BlockComponentEnum::AssetAccordion => 'capell::block.asset.accordion',
-                BlockComponentEnum::AssetBanner => 'capell::block.asset.banners',
-                BlockComponentEnum::AssetBlock => 'capell::block.asset.blocks',
-                BlockComponentEnum::AssetCarousel => 'capell::block.asset.carousel',
-                BlockComponentEnum::AssetFeatures => 'capell::block.asset.features',
-                BlockComponentEnum::AssetMedia => 'capell::block.asset.media',
-                BlockComponentEnum::AssetTestimonials => 'capell::block.asset.testimonials',
-                BlockComponentEnum::AnnouncementBar => 'capell::block.announcement-bar',
-                BlockComponentEnum::Assets => 'capell::block.asset',
-                BlockComponentEnum::BannerImage => 'capell::block.banner-image',
-                BlockComponentEnum::Default => 'capell::block.default',
-                BlockComponentEnum::Hero => 'capell::block.hero',
-                BlockComponentEnum::Navigation => 'capell::block.navigation',
-                BlockComponentEnum::NavigationTabs => 'capell::block.navigation.tabs',
-                BlockComponentEnum::PageBreadcrumbs => 'capell::block.page.breadcrumbs',
-                BlockComponentEnum::PageChildren => 'capell::block.page.children',
-                BlockComponentEnum::PageContent => 'capell::block.page.content',
-                BlockComponentEnum::PageLatest => 'capell::block.page.latest',
-                BlockComponentEnum::PageSiblings => 'capell::block.page.siblings',
-                BlockComponentEnum::PageSlot => 'capell::block.slot',
-                BlockComponentEnum::Pages => 'capell::block.asset.pages',
-                BlockComponentEnum::Snippet => 'capell::block.snippet',
-                BlockComponentEnum::ApHeroBanner => 'capell::block.modern.hero-banner',
-                BlockComponentEnum::ApCardGrid => 'capell::block.modern.card-grid',
-                BlockComponentEnum::ApFeatureList => 'capell::block.modern.feature-list',
-                BlockComponentEnum::ApCTASection => 'capell::block.modern.cta-section',
-                BlockComponentEnum::ApImageGallery => 'capell::block.modern.image-gallery',
-                BlockComponentEnum::ApTeamMembers => 'capell::block.modern.team-members',
-                BlockComponentEnum::ApPricingTable => 'capell::block.modern.pricing-table',
-                BlockComponentEnum::ApTestimonials => 'capell::block.modern.testimonials',
-                BlockComponentEnum::ApFaqSection => 'capell::block.modern.faq-section',
-                BlockComponentEnum::ApStatsSection => 'capell::block.modern.stats-section',
-                BlockComponentEnum::ApAlternatingContent => 'capell::block.modern.alternating-content',
-                BlockComponentEnum::ApProcessSteps => 'capell::block.modern.process-steps',
-                BlockComponentEnum::KitchenSinkRichText,
-                BlockComponentEnum::KitchenSinkStructuredText,
-                BlockComponentEnum::KitchenSinkDataDisplay,
-                BlockComponentEnum::KitchenSinkForms,
-                BlockComponentEnum::KitchenSinkInteractions,
-                BlockComponentEnum::KitchenSinkEmbeds,
-                BlockComponentEnum::KitchenSinkUtilityStates => 'capell::block.kitchen-sink.reference',
+        foreach (WidgetComponentEnum::cases() as $widgetComponent) {
+            $blade = match ($widgetComponent) {
+                WidgetComponentEnum::AssetAccordion => 'capell::widget.asset.accordion',
+                WidgetComponentEnum::AssetBanner => 'capell::widget.asset.banners',
+                WidgetComponentEnum::AssetWidget => 'capell::widget.asset.widgets',
+                WidgetComponentEnum::AssetCarousel => 'capell::widget.asset.carousel',
+                WidgetComponentEnum::AssetFeatures => 'capell::widget.asset.features',
+                WidgetComponentEnum::AssetMedia => 'capell::widget.asset.media',
+                WidgetComponentEnum::AssetTestimonials => 'capell::widget.asset.testimonials',
+                WidgetComponentEnum::AnnouncementBar => 'capell::widget.announcement-bar',
+                WidgetComponentEnum::Assets => 'capell::widget.asset',
+                WidgetComponentEnum::BannerImage => 'capell::widget.banner-image',
+                WidgetComponentEnum::Default => 'capell::widget.default',
+                WidgetComponentEnum::Hero => 'capell::widget.hero',
+                WidgetComponentEnum::Navigation => 'capell::widget.navigation',
+                WidgetComponentEnum::NavigationTabs => 'capell::widget.navigation.tabs',
+                WidgetComponentEnum::PageBreadcrumbs => 'capell::widget.page.breadcrumbs',
+                WidgetComponentEnum::PageChildren => 'capell::widget.page.children',
+                WidgetComponentEnum::PageContent => 'capell::widget.page.content',
+                WidgetComponentEnum::PageLatest => 'capell::widget.page.latest',
+                WidgetComponentEnum::PageSiblings => 'capell::widget.page.siblings',
+                WidgetComponentEnum::PageSlot => 'capell::widget.slot',
+                WidgetComponentEnum::Pages => 'capell::widget.asset.pages',
+                WidgetComponentEnum::Snippet => 'capell::widget.snippet',
+                WidgetComponentEnum::ApHeroBanner => 'capell::widget.modern.hero-banner',
+                WidgetComponentEnum::ApCardGrid => 'capell::widget.modern.card-grid',
+                WidgetComponentEnum::ApFeatureList => 'capell::widget.modern.feature-list',
+                WidgetComponentEnum::ApCTASection => 'capell::widget.modern.cta-section',
+                WidgetComponentEnum::ApImageGallery => 'capell::widget.modern.image-gallery',
+                WidgetComponentEnum::ApTeamMembers => 'capell::widget.modern.team-members',
+                WidgetComponentEnum::ApPricingTable => 'capell::widget.modern.pricing-table',
+                WidgetComponentEnum::ApTestimonials => 'capell::widget.modern.testimonials',
+                WidgetComponentEnum::ApFaqSection => 'capell::widget.modern.faq-section',
+                WidgetComponentEnum::ApStatsSection => 'capell::widget.modern.stats-section',
+                WidgetComponentEnum::ApAlternatingContent => 'capell::widget.modern.alternating-content',
+                WidgetComponentEnum::ApProcessSteps => 'capell::widget.modern.process-steps',
+                WidgetComponentEnum::KitchenSinkRichText,
+                WidgetComponentEnum::KitchenSinkStructuredText,
+                WidgetComponentEnum::KitchenSinkDataDisplay,
+                WidgetComponentEnum::KitchenSinkForms,
+                WidgetComponentEnum::KitchenSinkInteractions,
+                WidgetComponentEnum::KitchenSinkEmbeds,
+                WidgetComponentEnum::KitchenSinkUtilityStates => 'capell::widget.kitchen-sink.reference',
             };
 
             $registry->register(new RenderableDefinitionData(
-                key: $blockComponent->value,
-                type: 'layout-block',
+                key: $widgetComponent->value,
+                type: 'layout-widget',
                 blade: $blade,
             ));
         }
@@ -211,16 +202,16 @@ final class LayoutBuilderCoreRegistrar
                 key: $assetComponent->value,
                 type: RenderableTypeEnum::Asset,
                 blade: match ($assetComponent) {
-                    FrontendComponentKeyEnum::SectionBlock => 'capell::components.section.block',
+                    FrontendComponentKeyEnum::SectionWidget => 'capell::components.section.widget',
                     FrontendComponentKeyEnum::SectionTeamMember => 'capell::components.section.team-member',
                 },
             ));
         }
 
         $registry->register(new RenderableDefinitionData(
-            key: LivewireComponentsEnum::PagesBlock->value,
-            type: 'layout-block',
-            livewire: 'capell::block.pages',
+            key: LivewireComponentsEnum::PagesWidget->value,
+            type: 'layout-widget',
+            livewire: 'capell::widget.pages',
         ));
     }
 
@@ -261,6 +252,6 @@ final class LayoutBuilderCoreRegistrar
 
     private function registerCloneableRelations(): void
     {
-        CapellCore::addCloneableRelations('page', 'blockAssets');
+        CapellCore::addCloneableRelations('page', 'widgetAssets');
     }
 }

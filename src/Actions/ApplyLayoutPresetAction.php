@@ -47,14 +47,14 @@ final class ApplyLayoutPresetAction
                 continue;
             }
 
-            $blocks = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+            $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
-            foreach ($blocks as &$block) {
-                if (! is_array($block)) {
+            foreach ($widgets as &$widget) {
+                if (! is_array($widget)) {
                     continue;
                 }
 
-                $anchor = $block['meta']['block_settings']['anchor_id'] ?? null;
+                $anchor = $widget['meta']['widget_settings']['anchor_id'] ?? null;
                 if (! is_string($anchor)) {
                     continue;
                 }
@@ -72,11 +72,11 @@ final class ApplyLayoutPresetAction
                     $suffix++;
                 }
 
-                $block['meta']['block_settings']['anchor_id'] = $uniqueAnchor;
+                $widget['meta']['widget_settings']['anchor_id'] = $uniqueAnchor;
                 $usedAnchors[$uniqueAnchor] = true;
             }
 
-            $container['widgets'] = $blocks;
+            $container['widgets'] = $widgets;
         }
 
         return $containers;

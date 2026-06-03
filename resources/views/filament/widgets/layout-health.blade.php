@@ -7,12 +7,12 @@
                     <div
                         class="text-sm font-medium text-gray-600 dark:text-gray-400"
                     >
-                        Total Blocks
+                        Total Widgets
                     </div>
                     <div
                         class="mt-1 text-2xl font-bold text-gray-900 dark:text-white"
                     >
-                        {{ $data->totalBlocks }}
+                        {{ $data->totalWidgets }}
                     </div>
                 </div>
                 <div class="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
@@ -53,15 +53,15 @@
                 </div>
             </div>
 
-            {{-- Block Groups --}}
+            {{-- Widget Groups --}}
             <div>
                 <h3
                     class="mb-3 text-sm font-semibold text-gray-900 dark:text-white"
                 >
-                    Blocks by Group
+                    Widgets by Group
                 </h3>
                 <div class="space-y-2">
-                    @forelse ($data->blocksByGroup as $group)
+                    @forelse ($data->widgetsByGroup as $group)
                         <div
                             class="flex items-center justify-between rounded px-3 py-2 text-sm odd:bg-gray-50 dark:odd:bg-gray-800/50"
                         >
@@ -85,19 +85,19 @@
                         </div>
                     @empty
                         <p class="text-sm text-gray-500">
-                            No blocks configured
+                            No widgets configured
                         </p>
                     @endforelse
                 </div>
             </div>
 
-            {{-- Least Used Blocks --}}
-            @if ($data->leastUsedBlocks->count())
+            {{-- Least Used Widgets --}}
+            @if ($data->leastUsedWidgets->count())
                 <details class="group">
                     <summary
                         class="flex cursor-pointer items-center justify-between gap-2 py-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
-                        <span>Least Used Blocks (Bottom 5)</span>
+                        <span>Least Used Widgets (Bottom 5)</span>
                         <svg
                             class="h-4 w-4 transition-transform group-open:rotate-180"
                             xmlns="http://www.w3.org/2000/svg"
@@ -112,17 +112,17 @@
                         </svg>
                     </summary>
                     <div class="mt-2 space-y-1 pl-2">
-                        @foreach ($data->leastUsedBlocks as $block)
+                        @foreach (->leastUsedWidgets as )
                             <div
                                 class="flex items-center justify-between rounded px-2 py-1 text-xs odd:bg-gray-50 dark:odd:bg-gray-800/50"
                             >
                                 <span class="text-gray-700 dark:text-gray-300">
-                                    {{ $block->name }}
+                                    {{ $widget->name }}
                                 </span>
                                 <span
                                     class="rounded bg-amber-100 px-1.5 py-0.5 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
                                 >
-                                    {{ $block->layoutCount }} layouts
+                                    {{ $widget->layoutCount }} layouts
                                 </span>
                             </div>
                         @endforeach
@@ -130,17 +130,17 @@
                 </details>
             @endif
 
-            {{-- Unused Blocks --}}
-            @if ($data->unusedBlocks->count())
+            {{-- Unused Widgets --}}
+            @if ($data->unusedWidgets->count())
                 <details class="group">
                     <summary
                         class="flex cursor-pointer items-center justify-between gap-2 py-2 text-sm font-medium text-gray-900 dark:text-white"
                     >
-                        <span>Unused Block Types</span>
+                        <span>Unused Widget Types</span>
                         <span
                             class="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-700 dark:bg-red-900/40 dark:text-red-300"
                         >
-                            {{ $data->unusedBlocks->count() }}
+                            {{ $data->unusedWidgets->count() }}
                         </span>
                         <svg
                             class="h-4 w-4 transition-transform group-open:rotate-180"
@@ -156,17 +156,17 @@
                         </svg>
                     </summary>
                     <div class="mt-2 space-y-1 pl-2">
-                        @foreach ($data->unusedBlocks as $block)
+                        @foreach (->unusedWidgets as )
                             <div
                                 class="flex items-center justify-between rounded px-2 py-1 text-xs odd:bg-gray-50 dark:odd:bg-gray-800/50"
                             >
                                 <span class="text-gray-700 dark:text-gray-300">
-                                    {{ $block->name }}
+                                    {{ $widget->name }}
                                 </span>
                                 <span
                                     class="rounded bg-gray-100 px-1.5 py-0.5 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
                                 >
-                                    {{ $block->group }}
+                                    {{ $widget->group }}
                                 </span>
                             </div>
                         @endforeach

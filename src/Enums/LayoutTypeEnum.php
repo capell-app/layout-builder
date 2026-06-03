@@ -14,8 +14,6 @@ enum LayoutTypeEnum: string implements HasLabel
 {
     case Widget = 'widget';
 
-    public const self Block = self::Widget;
-
     /**
      * @return class-string<resource>
      */

@@ -21,13 +21,15 @@ class AdminSchema
     {
         return [
             ConfiguratorSelect::make('configurator')
-                ->helperText(__('capell-layout-builder::generic.admin_block_schema_info'))
-                ->setupOptions(ConfiguratorTypeEnum::Widget),
+                ->helperText(__('capell-layout-builder::generic.admin_widget_schema_info'))
+                ->setupOptions(ConfiguratorTypeEnum::Widget)
+                ->withCreateConfiguratorAction(ConfiguratorTypeEnum::Widget),
 
-            ConfiguratorSelect::make('layout_block_configurator')
-                ->label(__('capell-layout-builder::form.layout_block_configurator'))
-                ->helperText(__('capell-layout-builder::generic.admin_layout_builder_block_schema_info'))
-                ->setupOptions(ConfiguratorTypeEnum::LayoutBlock),
+            ConfiguratorSelect::make('layout_widget_configurator')
+                ->label(__('capell-layout-builder::form.layout_widget_configurator'))
+                ->helperText(__('capell-layout-builder::generic.admin_layout_builder_widget_schema_info'))
+                ->setupOptions(ConfiguratorTypeEnum::LayoutWidget)
+                ->withCreateConfiguratorAction(ConfiguratorTypeEnum::LayoutWidget),
 
             IconPicker::make('icon')
                 ->label(__('capell-admin::form.admin_icon')),
@@ -46,10 +48,11 @@ class AdminSchema
                     return ($record->type->admin['asset_types'] ?? []) !== [];
                 })
                 ->schema([
-                    ConfiguratorSelect::make('block_asset_configurator')
-                        ->label(__('capell-layout-builder::form.block_asset_configurator'))
-                        ->helperText(__('capell-layout-builder::generic.block_asset_configurator_info'))
-                        ->setupOptions(ConfiguratorTypeEnum::WidgetAsset),
+                    ConfiguratorSelect::make('widget_asset_configurator')
+                        ->label(__('capell-layout-builder::form.widget_asset_configurator'))
+                        ->helperText(__('capell-layout-builder::generic.widget_asset_configurator_info'))
+                        ->setupOptions(ConfiguratorTypeEnum::WidgetAsset)
+                        ->withCreateConfiguratorAction(ConfiguratorTypeEnum::WidgetAsset),
 
                     AssetTypeSelect::make('asset_types')
                         ->label(__('capell-admin::form.asset_type'))

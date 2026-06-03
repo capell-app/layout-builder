@@ -12,7 +12,7 @@
                 {{ __('capell-layout-builder::heading.layout_structure') }}
             </h2>
             <p>
-                {{ trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->blockCount, ['containers' => $tree->containerCount, 'blocks' => $tree->blockCount]) }}
+                {{ trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->widgetCount, ['containers' => $tree->containerCount, 'widgets' => $tree->widgetCount]) }}
             </p>
         </div>
     </div>
@@ -34,7 +34,7 @@
             <section
                 x-data="{ open: true }"
                 x-show="itemMatches($el)"
-                data-layout-builder-tree-search="{{ $container->label }} {{ $container->areaLabel }} {{ collect($container->blocks)->pluck('label')->implode(' ') }}"
+                data-layout-builder-tree-search="{{ $container->label }} {{ $container->areaLabel }} {{ collect($container->widgets)->pluck('label')->implode(' ') }}"
                 class="layout-builder-tree-container"
                 role="treeitem"
                 aria-expanded="true"
@@ -53,7 +53,7 @@
                     <span class="layout-builder-tree-row-main">
                         <span>{{ $container->label }}</span>
                         <small>
-                            {{ trans_choice('capell-layout-builder::message.layout_tree_block_count', $container->blockCount, ['count' => $container->blockCount]) }}
+                            {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $container->widgetCount, ['count' => $container->widgetCount]) }}
                         </small>
                     </span>
                     <span
@@ -68,30 +68,30 @@
                 <div
                     x-show="open"
                     x-collapse
-                    class="layout-builder-tree-blocks"
+                    class="layout-builder-tree-widgets"
                     role="group"
                 >
-                    @forelse ($container->blocks as $block)
+                    @forelse ($container->widgets as $widget)
                         <button
                             type="button"
                             @class([
-                                'layout-builder-tree-row layout-builder-tree-row-block',
-                                'layout-builder-tree-row-selected' => $block->isSelected,
+                                'layout-builder-tree-row layout-builder-tree-row-widget',
+                                'layout-builder-tree-row-selected' => $widget->isSelected,
                             ])
-                            x-on:click="selectFromTree(@js($block->nodeId), () => $wire.selectBlock(@js($block->containerKey), @js($block->blockIndex)))"
+                            x-on:click="selectFromTree(@js($widget->nodeId), () => $wire.selectWidget(@js($widget->containerKey), @js($widget->widgetIndex)))"
                         >
                             <span class="layout-builder-tree-row-icon">
-                                @svg($block->icon ?: 'heroicon-o-cube', 'h-4 w-4')
+                                @svg($widget->icon ?: 'heroicon-o-cube', 'h-4 w-4')
                             </span>
                             <span class="layout-builder-tree-row-main">
-                                <span>{{ $block->label }}</span>
+                                <span>{{ $widget->label }}</span>
                                 <small>
-                                    {{ collect([$block->typeLabel, $block->usesPageContent ? __('capell-layout-builder::generic.page_content_block') : null])->filter()->implode(' · ') }}
+                                    {{ collect([$widget->typeLabel, $widget->usesPageContent ? __('capell-layout-builder::generic.page_content_widget') : null])->filter()->implode(' · ') }}
                                 </small>
                             </span>
-                            @if ($block->assetCount > 0)
+                            @if ($widget->assetCount > 0)
                                 <span class="layout-builder-tree-badge">
-                                    {{ $block->assetCount }}
+                                    {{ $widget->assetCount }}
                                 </span>
                             @endif
                         </button>
@@ -108,7 +108,7 @@
     @if ($this->canEditLayout())
         <div class="layout-builder-tree-footer">
             {{ $this->addContainerAction }}
-            {{ $this->addBlockAction }}
+            {{ $this->addWidgetAction }}
         </div>
     @endif
 </div>

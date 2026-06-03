@@ -5,56 +5,32 @@ declare(strict_types=1);
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Actions\AddBlockToLayoutContainerAction;
-use Capell\LayoutBuilder\Actions\ApplyLayoutSidebarBlockContributionsAction;
-use Capell\LayoutBuilder\Actions\FindReusableBlocksAction;
-use Capell\LayoutBuilder\Actions\GetBlockContainerWidthAction;
-use Capell\LayoutBuilder\Actions\HeroBlockHasPrimaryHeadingAction;
-use Capell\LayoutBuilder\Actions\MakeBlockAction;
-use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
-use Capell\LayoutBuilder\Data\LayoutSidebarBlockData;
+use Capell\LayoutBuilder\Actions\AddWidgetToLayoutContainerAction;
+use Capell\LayoutBuilder\Actions\ApplyLayoutSidebarWidgetContributionsAction;
+use Capell\LayoutBuilder\Actions\FindReusableWidgetsAction;
+use Capell\LayoutBuilder\Actions\GetWidgetContainerWidthAction;
+use Capell\LayoutBuilder\Actions\HeroWidgetHasPrimaryHeadingAction;
+use Capell\LayoutBuilder\Actions\MakeWidgetAction;
+use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContext;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualSidebarContributor;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
-final class LayoutBuilderResidualSidebarContributor implements LayoutSidebarBlockContributor
-{
-    public function sidebarBlocks(): array
-    {
-        return [
-            new LayoutSidebarBlockData('sidebar-search', ['content'], ['compact' => true]),
-            new LayoutSidebarBlockData('missing-sidebar-block'),
-            new LayoutSidebarBlockData('other-layout-only', ['landing']),
-        ];
-    }
-}
-
-final class LayoutBuilderResidualFrontendContext
-{
-    /**
-     * @var array<string, mixed>
-     */
-    public array $data = [];
-
-    public function setFrontendData(string $key, mixed $value): void
-    {
-        $this->data[$key] = $value;
-    }
-}
-
-it('builds block seeder snippets', function (): void {
-    $snippet = resolve(MakeBlockAction::class)->seederSnippet('promo-card', 'Promo Card');
+it('builds widget seeder snippets', function (): void {
+    $snippet = resolve(MakeWidgetAction::class)->seederSnippet('promo-card', 'Promo Card');
 
     expect($snippet)->toContain("'key' => 'promo-card'")
         ->and($snippet)->toContain("'name' => 'Promo Card'");
 });
 
-it('rejects empty block scaffold names', function (): void {
-    MakeBlockAction::run('');
+it('rejects empty widget scaffold names', function (): void {
+    MakeWidgetAction::run('');
 })->throws(RuntimeException::class, 'Widget name is required.');
 
-it('adds layout blocks with occurrences and skips existing blocks when requested', function (): void {
-    $block = Widget::factory()->create(['key' => 'hero']);
+it('adds layout widgets with occurrences and skips existing widgets when requested', function (): void {
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $layout = Layout::factory()->create([
         'containers' => [
             'main' => [
@@ -65,7 +41,7 @@ it('adds layout blocks with occurrences and skips existing blocks when requested
         ],
     ]);
 
-    AddBlockToLayoutContainerAction::run($block, $layout, 'main');
+    AddWidgetToLayoutContainerAction::run($widget, $layout, 'main');
 
     expect($layout->refresh()->containers['main']['widgets'])->toHaveCount(2)
         ->and($layout->containers['main']['widgets'][1])->toBe([
@@ -73,24 +49,24 @@ it('adds layout blocks with occurrences and skips existing blocks when requested
             'occurrence' => 2,
         ]);
 
-    AddBlockToLayoutContainerAction::run($block, $layout, 'main', skipExists: true);
+    AddWidgetToLayoutContainerAction::run($widget, $layout, 'main', skipExists: true);
 
     expect($layout->refresh()->containers['main']['widgets'])->toHaveCount(2);
 });
 
-it('throws when adding a block to a missing layout container', function (): void {
-    $block = Widget::factory()->create(['key' => 'hero']);
+it('throws when adding a widget to a missing layout container', function (): void {
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $layout = Layout::factory()->create(['containers' => []]);
 
-    AddBlockToLayoutContainerAction::run($block, $layout, 'missing');
+    AddWidgetToLayoutContainerAction::run($widget, $layout, 'missing');
 })->throws(RuntimeException::class, "Container 'missing' not found in layout.");
 
-it('applies sidebar contributions only for existing applicable blocks', function (): void {
+it('applies sidebar contributions only for existing applicable widgets', function (): void {
     app()->bind(
         LayoutBuilderResidualSidebarContributor::class,
         fn (): LayoutBuilderResidualSidebarContributor => new LayoutBuilderResidualSidebarContributor,
     );
-    app()->tag([LayoutBuilderResidualSidebarContributor::class], LayoutSidebarBlockContributor::TAG);
+    app()->tag([LayoutBuilderResidualSidebarContributor::class], LayoutSidebarWidgetContributor::TAG);
 
     Widget::factory()->create(['key' => 'sidebar-search']);
     Widget::factory()->create(['key' => 'other-layout-only']);
@@ -106,8 +82,8 @@ it('applies sidebar contributions only for existing applicable blocks', function
         ],
     ]);
 
-    ApplyLayoutSidebarBlockContributionsAction::run($layout);
-    ApplyLayoutSidebarBlockContributionsAction::run($layout->refresh());
+    ApplyLayoutSidebarWidgetContributionsAction::run($layout);
+    ApplyLayoutSidebarWidgetContributionsAction::run($layout->refresh());
 
     expect($layout->refresh()->containers['sidebar']['meta']['colspan'])->toBe(3)
         ->and($layout->containers['sidebar']['widgets'])->toBe([
@@ -119,17 +95,17 @@ it('applies sidebar contributions only for existing applicable blocks', function
         ->and($layout->widgets)->toBe(['body', 'sidebar-search']);
 });
 
-it('resolves block container widths from meta defaults and frontend resolver services', function (): void {
-    $block = Widget::factory()->create(['meta' => ['container' => ContainerWidthEnum::Small->value]]);
+it('resolves widget container widths from meta defaults and frontend resolver services', function (): void {
+    $widget = Widget::factory()->create(['meta' => ['container' => ContainerWidthEnum::Small->value]]);
 
-    expect(GetBlockContainerWidthAction::run($block))->toBe(ContainerWidthEnum::Small);
+    expect(GetWidgetContainerWidthAction::run($widget))->toBe(ContainerWidthEnum::Small);
 
-    $block->forceFill(['meta' => []]);
+    $widget->forceFill(['meta' => []]);
     app()->bind('capell.frontend.layout-container-width-resolver', fn (): Closure => fn (?string $default): ContainerWidthEnum => $default === 'lg'
                 ? ContainerWidthEnum::Large
                 : ContainerWidthEnum::Full);
 
-    expect(GetBlockContainerWidthAction::run($block, ContainerWidthEnum::Large->value))->toBe(ContainerWidthEnum::Large);
+    expect(GetWidgetContainerWidthAction::run($widget, ContainerWidthEnum::Large->value))->toBe(ContainerWidthEnum::Large);
 
     app()->bind('capell.frontend.layout-container-width-resolver', function (): object {
         return new class
@@ -141,12 +117,12 @@ it('resolves block container widths from meta defaults and frontend resolver ser
         };
     });
 
-    expect(GetBlockContainerWidthAction::run($block))->toBe(ContainerWidthEnum::Medium)
-        ->and(GetBlockContainerWidthAction::run($block, ContainerWidthEnum::ExtraLarge->value))->toBe(ContainerWidthEnum::ExtraLarge)
-        ->and(FindReusableBlocksAction::run('hero'))->toBe([]);
+    expect(GetWidgetContainerWidthAction::run($widget))->toBe(ContainerWidthEnum::Medium)
+        ->and(GetWidgetContainerWidthAction::run($widget, ContainerWidthEnum::ExtraLarge->value))->toBe(ContainerWidthEnum::ExtraLarge)
+        ->and(FindReusableWidgetsAction::run('hero'))->toBe([]);
 });
 
-it('detects hero headings from page meta and first block asset translations', function (): void {
+it('detects hero headings from page meta and first widget asset translations', function (): void {
     $frontendContext = new LayoutBuilderResidualFrontendContext;
     app()->instance('capell.frontend.context', $frontendContext);
 
@@ -157,23 +133,23 @@ it('detects hero headings from page meta and first block asset translations', fu
         ],
     ])->save();
     $page->load('translation');
-    $emptyBlock = Widget::factory()->create();
-    $emptyBlock->setRelation('assets', new EloquentCollection);
+    $emptyWidget = Widget::factory()->create();
+    $emptyWidget->setRelation('assets', new EloquentCollection);
 
-    expect(HeroBlockHasPrimaryHeadingAction::run($emptyBlock, $page))->toBeTrue()
+    expect(HeroWidgetHasPrimaryHeadingAction::run($emptyWidget, $page))->toBeTrue()
         ->and($frontendContext->data['has_primary_heading'])->toBeTrue();
 
     $assetPage = Page::factory()->withTranslations()->create();
     $assetPage->translation->forceFill(['title' => 'Asset Heading'])->save();
     $assetPage->load('translation');
-    $blockAsset = WidgetAsset::factory()
-        ->block(Widget::factory()->create())
+    $widgetAsset = WidgetAsset::factory()
+        ->widget(Widget::factory()->create())
         ->asset($assetPage)
         ->make();
-    $blockAsset->setRelation('asset', $assetPage->load('translation'));
+    $widgetAsset->setRelation('asset', $assetPage->load('translation'));
 
-    $assetBlock = Widget::factory()->create();
-    $assetBlock->setRelation('assets', new EloquentCollection([$blockAsset]));
+    $assetWidget = Widget::factory()->create();
+    $assetWidget->setRelation('assets', new EloquentCollection([$widgetAsset]));
 
-    expect(HeroBlockHasPrimaryHeadingAction::run($assetBlock, $page))->toBeTrue();
+    expect(HeroWidgetHasPrimaryHeadingAction::run($assetWidget, $page))->toBeTrue();
 });

@@ -1,4 +1,4 @@
-@props(['containerKey', 'hasPageAssets', 'occurrence', 'panelId' => null, 'block', 'blockIndex'])
+@props(['containerKey', 'hasPageAssets', 'occurrence', 'panelId' => null, 'widget', 'widgetIndex'])
 @php
     use Capell\Core\Facades\CapellCore;
     use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -7,17 +7,17 @@
     use Filament\Support\Enums\IconSize;
     use Filament\Support\Enums\Size;
 
-    $assetsCount = $block->assets?->count() ?? 0;
+    $assetsCount = $widget->assets?->count() ?? 0;
 
     $removeAssetsAction = ($this->removeAssetsAction)([
         'containerKey' => $containerKey,
-        'blockIndex' => $blockIndex,
+        'widgetIndex' => $widgetIndex,
     ]);
 @endphp
 
 <div
     @if ($panelId) id="{{ $panelId }}" @endif
-    class="layout-builder-block-assets mx-4 mt-0.5 rounded shadow-xs ring-1 ring-gray-950/5 dark:ring-white/10"
+    class="layout-builder-widget-assets mx-4 mt-0.5 rounded shadow-xs ring-1 ring-gray-950/5 dark:ring-white/10"
     x-show="! isCollapsed"
     x-cloak
 >
@@ -32,10 +32,10 @@
             ])
         >
             <span class="font-semi-bold">
-                {{ $hasPageAssets ? __('capell-layout-builder::generic.block_asset_page') : __('capell-layout-builder::generic.block_assets') }}
+                {{ $hasPageAssets ? __('capell-layout-builder::generic.widget_asset_page') : __('capell-layout-builder::generic.widget_assets') }}
             </span>
             -
-            {{ $hasPageAssets ? __('capell-layout-builder::generic.block_assets_page_info') : __('capell-layout-builder::generic.block_assets_info') }}
+            {{ $hasPageAssets ? __('capell-layout-builder::generic.widget_assets_page_info') : __('capell-layout-builder::generic.widget_assets_info') }}
         </span>
         <div class="flex items-center gap-x-3">
             @if ($assetsCount > 1)
@@ -45,19 +45,19 @@
                     tag="button"
                     type="button"
                     class="cursor-pointer"
-                    x-on:click="toggleReorderingResources('{{ $containerKey }}', {{ $blockIndex }})"
-                    x-bind:aria-pressed="isBlockReorderingResources('{{ $containerKey }}', {{ $blockIndex }}).toString()"
+                    x-on:click="toggleReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
+                    x-bind:aria-pressed="isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }}).toString()"
                 >
                     @svg('heroicon-o-arrows-up-down', 'inline-block h-4 w-4 transition duration-75', [
-                        'x-show' => "! isBlockReorderingResources('{$containerKey}', {$blockIndex})",
+                        'x-show' => "! isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
                     ])
                     @svg('heroicon-o-check', 'inline-block h-4 w-4 transition duration-75', [
-                        'x-show' => "isBlockReorderingResources('{$containerKey}', {$blockIndex})",
+                        'x-show' => "isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
                         'x-cloak' => '',
                     ])
                     <span
                         x-text="
-                            ! isBlockReorderingResources('{{ $containerKey }}', {{ $blockIndex }})
+                            ! isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})
                                 ? '{{ __('capell-layout-builder::button.reorder') }}'
                                 : '{{ __('capell-layout-builder::button.cancel_reorder') }}'
                         "
@@ -69,17 +69,17 @@
 
     <div
         class="flex w-full flex-grow flex-wrap items-center justify-between gap-4 border-b border-gray-100 px-4 py-3 lg:order-1 lg:w-auto dark:border-gray-700"
-        x-show="{{ "selectedRecords['{$containerKey}'][{$blockIndex}].length" }}"
+        x-show="{{ "selectedRecords['{$containerKey}'][{$widgetIndex}].length" }}"
         x-transition
     >
         <x-capell-admin::tables.selection-indicator
             class="flex-grow !bg-transparent !p-0"
             :all-selectable-records-count="$assetsCount"
             :page="1"
-            :selected-records-property-name="'selectedRecords[\'' . $containerKey . '\'][' . $blockIndex . ']'"
-            :get-selected-records-count-action="'selectedRecords[\'' . $containerKey . '\'][' . $blockIndex . '].length'"
-            :select-all-records-action="'selectAllRecords(\'' . $containerKey . '\', ' . $blockIndex . ')'"
-            :deselect-all-records-action="'deselectAllRecords(\'' . $containerKey . '\', ' . $blockIndex . ')'"
+            :selected-records-property-name="'selectedRecords[\'' . $containerKey . '\'][' . $widgetIndex . ']'"
+            :get-selected-records-count-action="'selectedRecords[\'' . $containerKey . '\'][' . $widgetIndex . '].length'"
+            :select-all-records-action="'selectAllRecords(\'' . $containerKey . '\', ' . $widgetIndex . ')'"
+            :deselect-all-records-action="'deselectAllRecords(\'' . $containerKey . '\', ' . $widgetIndex . ')'"
         />
 
         @if ($removeAssetsAction && $removeAssetsAction->isVisible())
@@ -87,13 +87,13 @@
         @endif
     </div>
 
-    @if ($block->assets?->isNotEmpty())
+    @if ($widget->assets?->isNotEmpty())
         <div
             class="divide-y divide-black/5 dark:divide-white/10"
             x-sort="
                 $wire.reorderAssets(
                     '{{ $containerKey }}',
-                    {{ $blockIndex }},
+                    {{ $widgetIndex }},
                     $item,
                     $position,
                 )
@@ -104,14 +104,14 @@
                     : 180,
             }"
         >
-            @foreach ($block->assets as $blockAsset)
+            @foreach ($widget->assets as $widgetAsset)
                 <x-capell-layout-builder::filament.layout-builder.asset
                     :$containerKey
                     :index="$loop->index"
                     :$occurrence
-                    :$blockAsset
-                    :$block
-                    :$blockIndex
+                    :$widgetAsset
+                    :$widget
+                    :$widgetIndex
                 />
             @endforeach
         </div>
@@ -119,7 +119,7 @@
         <div
             class="py-3 text-center font-light tracking-tight text-gray-600 dark:text-gray-100"
         >
-            {{ $block->page_assets_count ? __('capell-layout-builder::message.block_has_page_assets', ['total' => $block->page_assets_count]) : __('capell-layout-builder::message.block_assets_empty') }}
+            {{ $widget->page_assets_count ? __('capell-layout-builder::message.widget_has_page_assets', ['total' => $widget->page_assets_count]) : __('capell-layout-builder::message.widget_assets_empty') }}
         </div>
     @endif
 </div>

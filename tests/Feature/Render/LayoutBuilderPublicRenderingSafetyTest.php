@@ -18,10 +18,10 @@ use Capell\LayoutBuilder\Models\Widget;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 it('does not force layout builder admin metadata into public responses', function (): void {
-    $block = Widget::factory()->create(['key' => 'hero']);
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $layout = Layout::factory()->create(['containers' => [
         'main' => [
-            'widgets' => [['widget_key' => $block->key]],
+            'widgets' => [['widget_key' => $widget->key]],
             'meta' => [
                 'colspan' => 12,
                 'responsive' => ['mobile' => ['colspan' => 6]],

@@ -22,13 +22,13 @@ final class RenderAdminLayoutPreviewAction
 
     /**
      * @param  array<string, array<string, mixed>>  $containers
-     * @param  array<string, array<int, Widget>>  $containerBlocks
+     * @param  array<string, array<int, Widget>>  $containerWidgets
      * @param  array<string, array<int, array<int, array<string, mixed>>>>  $assets
      * @param  array<string, mixed>  $pageFormState
      */
     public function handle(
         array $containers,
-        array $containerBlocks,
+        array $containerWidgets,
         array $assets,
         ?Pageable $page,
         array $pageFormState = [],
@@ -38,17 +38,17 @@ final class RenderAdminLayoutPreviewAction
 
         $html = resolve(Factory::class)->make('capell-layout-builder::filament.layout-builder.admin-preview.page', [
             'containers' => $containers,
-            'containerBlocks' => $containerBlocks,
+            'containerWidgets' => $containerWidgets,
             'assets' => $assets,
             'page' => $previewPage,
             'nodeMap' => &$nodeMap,
             'handleForContainer' => fn (string $containerKey): string => $this->handleForContainer($containerKey, $nodeMap),
-            'handleForBlock' => fn (string $containerKey, int $blockIndex): string => $this->handleForBlock($containerKey, $blockIndex, $nodeMap),
-            'renderBlockPreview' => fn (Widget $block, array $containerBlock, string $containerKey, int $blockIndex): HtmlString => $this->renderBlockPreview(
-                block: $block,
-                containerBlock: $containerBlock,
+            'handleForWidget' => fn (string $containerKey, int $widgetIndex): string => $this->handleForWidget($containerKey, $widgetIndex, $nodeMap),
+            'renderWidgetPreview' => fn (Widget $widget, array $containerWidget, string $containerKey, int $widgetIndex): HtmlString => $this->renderWidgetPreview(
+                widget: $widget,
+                containerWidget: $containerWidget,
                 containerKey: $containerKey,
-                blockIndex: $blockIndex,
+                widgetIndex: $widgetIndex,
                 assets: $assets,
                 page: $previewPage,
             ),
@@ -66,7 +66,7 @@ final class RenderAdminLayoutPreviewAction
     }
 
     /**
-     * @param  array<string, array{type: string, containerKey: string, blockIndex?: int}>  $nodeMap
+     * @param  array<string, array{type: string, containerKey: string, widgetIndex?: int}>  $nodeMap
      */
     private function handleForContainer(string $containerKey, array &$nodeMap): string
     {
@@ -80,15 +80,15 @@ final class RenderAdminLayoutPreviewAction
     }
 
     /**
-     * @param  array<string, array{type: string, containerKey: string, blockIndex?: int}>  $nodeMap
+     * @param  array<string, array{type: string, containerKey: string, widgetIndex?: int}>  $nodeMap
      */
-    private function handleForBlock(string $containerKey, int $blockIndex, array &$nodeMap): string
+    private function handleForWidget(string $containerKey, int $widgetIndex, array &$nodeMap): string
     {
-        $handle = hash('xxh128', 'block:' . $containerKey . ':' . $blockIndex);
+        $handle = hash('xxh128', 'widget:' . $containerKey . ':' . $widgetIndex);
         $nodeMap[$handle] = [
-            'type' => 'block',
+            'type' => 'widget',
             'containerKey' => $containerKey,
-            'blockIndex' => $blockIndex,
+            'widgetIndex' => $widgetIndex,
         ];
 
         return $handle;
@@ -96,22 +96,22 @@ final class RenderAdminLayoutPreviewAction
 
     /**
      * @param  array<string, array<int, array<int, array<string, mixed>>>>  $assets
-     * @param  array<string, mixed>  $containerBlock
+     * @param  array<string, mixed>  $containerWidget
      */
-    private function renderBlockPreview(
-        Widget $block,
-        array $containerBlock,
+    private function renderWidgetPreview(
+        Widget $widget,
+        array $containerWidget,
         string $containerKey,
-        int $blockIndex,
+        int $widgetIndex,
         array $assets,
         ?Pageable $page,
     ): HtmlString {
-        $previewData = ResolveAdminBlockPreviewDataAction::run(
-            block: $block,
-            containerBlock: $containerBlock,
+        $previewData = ResolveAdminWidgetPreviewDataAction::run(
+            widget: $widget,
+            containerWidget: $containerWidget,
             page: $page,
-            assetCount: count($assets[$containerKey][$blockIndex] ?? []),
-            hasPageAssets: $this->hasPageAssets($assets[$containerKey][$blockIndex] ?? []),
+            assetCount: count($assets[$containerKey][$widgetIndex] ?? []),
+            hasPageAssets: $this->hasPageAssets($assets[$containerKey][$widgetIndex] ?? []),
         );
 
         $view = $this->previewView($previewData->view);
@@ -119,15 +119,15 @@ final class RenderAdminLayoutPreviewAction
         try {
             return new HtmlString(resolve(Factory::class)->make($view, [
                 'previewData' => $previewData,
-                'block' => $block,
-                'containerBlock' => $containerBlock,
+                'widget' => $widget,
+                'containerWidget' => $containerWidget,
                 'containerKey' => $containerKey,
-                'blockIndex' => $blockIndex,
+                'widgetIndex' => $widgetIndex,
             ])->render());
         } catch (Throwable $throwable) {
             report($throwable);
 
-            return new HtmlString(resolve(Factory::class)->make('capell-layout-builder::filament.layout-builder.admin-preview.block-fallback', [
+            return new HtmlString(resolve(Factory::class)->make('capell-layout-builder::filament.layout-builder.admin-preview.widget-fallback', [
                 'previewData' => $previewData,
             ])->render());
         }
@@ -150,7 +150,7 @@ final class RenderAdminLayoutPreviewAction
     {
         return collect($assets)
             ->map(fn (array $containerAssets): array => collect($containerAssets)
-                ->map(fn (array $blockAssets): array => collect($blockAssets)
+                ->map(fn (array $widgetAssets): array => collect($widgetAssets)
                     ->map(fn (array $asset): array => Arr::only($asset, [
                         'id',
                         'asset_id',

@@ -116,13 +116,13 @@ class BackgroundSchema
             return null;
         }
 
-        $block = $record->block;
+        $widget = $record->widget;
 
-        if (! $block instanceof Widget) {
+        if (! $widget instanceof Widget) {
             return null;
         }
 
-        $backgroundColor = $block->getMeta($component->getName());
+        $backgroundColor = $widget->getMeta($component->getName());
 
         if (blank($backgroundColor)) {
             return null;

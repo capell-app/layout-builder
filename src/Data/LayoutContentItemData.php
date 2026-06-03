@@ -10,7 +10,7 @@ final class LayoutContentItemData extends Data
 {
     /**
      * @param  array<string, mixed>  $editActionArguments
-     * @param  array<string, mixed>  $blockEditActionArguments
+     * @param  array<string, mixed>  $widgetEditActionArguments
      * @param  array<int, string>  $warnings
      * @param  array<string, mixed>  $meta
      */
@@ -28,16 +28,16 @@ final class LayoutContentItemData extends Data
         public string $placementLabel,
         public string $containerKey,
         public string $containerLabel,
-        public int $blockIndex,
-        public string $blockLabel,
+        public int $widgetIndex,
+        public string $widgetLabel,
         public int $assetIndex,
         public string $assetType,
         public int|string|null $assetId,
         public bool $canEditAsset,
         public bool $isReused,
         public array $editActionArguments,
-        public array $blockEditActionArguments,
-        public bool $hasBlockCopySource,
+        public array $widgetEditActionArguments,
+        public bool $hasWidgetCopySource,
         public array $warnings,
         public array $meta,
     ) {}

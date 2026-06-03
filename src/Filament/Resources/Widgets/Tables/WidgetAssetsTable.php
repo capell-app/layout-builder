@@ -45,8 +45,8 @@ class WidgetAssetsTable implements TableConfigurator
             /** @phpstan-ignore-next-line WidgetAsset exposes this local scope through Eloquent. */
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets())
             ->reorderable('order')
-            ->heading(__('capell-layout-builder::heading.block_page_assets'))
-            ->description(__('capell-layout-builder::generic.block_page_assets_description'))
+            ->heading(__('capell-layout-builder::heading.widget_page_assets'))
+            ->description(__('capell-layout-builder::generic.widget_page_assets_description'))
             ->recordUrl(
                 fn (WidgetAsset $record): ?string => match ($record->asset_type) {
                     BlueprintSubjectEnum::Page->value => GetEditPageResourceUrlAction::run($record->asset),
@@ -120,15 +120,15 @@ class WidgetAssetsTable implements TableConfigurator
                                     ->whereNotNull(['pageable_type', 'pageable_id'])
                                     ->groupBy(['pageable_type', 'pageable_id'])
                                     ->get()
-                                    ->mapWithKeys(function (Model $blockAsset): array {
-                                        throw_unless($blockAsset instanceof WidgetAsset);
+                                    ->mapWithKeys(function (Model $widgetAsset): array {
+                                        throw_unless($widgetAsset instanceof WidgetAsset);
 
-                                        if (! is_string($blockAsset->pageable_type) || ! is_int($blockAsset->pageable_id)) {
+                                        if (! is_string($widgetAsset->pageable_type) || ! is_int($widgetAsset->pageable_id)) {
                                             return [];
                                         }
 
                                         return [
-                                            self::buildLookupKey($blockAsset->pageable_type, $blockAsset->pageable_id) => $blockAsset->pageable instanceof Model ? $blockAsset->pageable->getAttribute('name') : null,
+                                            self::buildLookupKey($widgetAsset->pageable_type, $widgetAsset->pageable_id) => $widgetAsset->pageable instanceof Model ? $widgetAsset->pageable->getAttribute('name') : null,
                                         ];
                                     })
                                     ->all();
@@ -232,7 +232,7 @@ class WidgetAssetsTable implements TableConfigurator
 
                 $ownerRecord = $livewire->getOwnerRecord();
 
-                throw_if(! $ownerRecord instanceof Widget, RuntimeException::class, 'Widget assets can only be attached to blocks.');
+                throw_if(! $ownerRecord instanceof Widget, RuntimeException::class, 'Widget assets can only be attached to widgets.');
 
                 $createdAsset = null;
 

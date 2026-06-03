@@ -9,6 +9,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\CapellExtension;
 use Capell\Core\Support\Manifest\CapellManifestData;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderInstallRecorder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
@@ -19,12 +20,6 @@ beforeEach(function (): void {
 afterEach(function (): void {
     CapellCore::clearPackages();
 });
-
-final class LayoutBuilderInstallRecorder
-{
-    /** @var list<string> */
-    public array $calls = [];
-}
 
 it('forces migrations when installing layout builder directly', function (): void {
     $migrateForceOptions = [];

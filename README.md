@@ -1,18 +1,18 @@
 # Capell Layout Builder
 
-`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, blocks, block assets, public layout graphs, content-first editing, and the Filament layout editor.
+`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, widgets, widget assets, public layout graphs, content-first editing, and the Filament layout editor.
 
 Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
 ## Why It Helps Your Capell Workflow
 
-- Provides the visual composition layer for Capell: layouts, containers, blocks, assets, public render graphs, and editor mutations.
+- Provides the visual composition layer for Capell: layouts, containers, widgets, assets, public render graphs, and editor mutations.
 - Helps editors assemble pages without storing theme-specific presentation markup in database content fields.
 - Gives developers Actions and registries for public-safe layout payloads, reusable presets, layout areas, and content-first editing.
 
 ## Best Used With
 
-- [Block Library](../block-library/README.md)
+- [Widget Library](../widget-library/README.md)
 - [Content Sections](../content-sections/README.md)
 - [Foundation Theme](../foundation-theme/README.md)
 
@@ -34,17 +34,17 @@ Configuration lives in `config/capell-layout-builder.php`.
 | `editor_mode.default`                     | Default editor mode. Defaults to `content_first`.                     |
 | `editor_mode.allowed`                     | Allowed modes. Current values are `content_first` and `layout_first`. |
 | `preview.match_frontend_container_layout` | Match admin preview container layout to frontend columns.             |
-| `block.skip_render_empty`                 | Skip empty blocks in public rendering.                                |
-| `default_block`                           | Default renderable key for new blocks.                                |
+| `widget.skip_render_empty`                | Skip empty widgets in public rendering.                               |
+| `default_widget`                          | Default renderable key for new widgets.                               |
 
 ## Main Surfaces
 
 | Surface                        | Package path                                                                                                       |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                                     |
-| Public block payloads          | `src/Contracts/PublicBlockPayloadContributor.php`, `src/Support/DefaultPublicBlockPayloadResolver.php`             |
+| Public widget payloads         | `src/Contracts/PublicWidgetPayloadContributor.php`, `src/Support/DefaultPublicWidgetPayloadResolver.php`           |
 | Layout areas                   | `src/Support/LayoutAreas/LayoutAreaRegistry.php`, `src/Actions/ResolveLayoutAreaContainersAction.php`              |
-| Block presentation projection  | `src/Actions/ResolveBlockPresentationDataAction.php`                                                               |
+| Widget presentation projection | `src/Actions/ResolveWidgetPresentationDataAction.php`                                                              |
 | Layout health checks           | `src/Actions/AnalyzeLayoutHealthAction.php`                                                                        |
 | Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
 | Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                                |
@@ -67,9 +67,9 @@ $graph = BuildPublicLayoutGraphAction::run(
 );
 ```
 
-Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
+Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
 
-Block variants and settings are stored as authoring state in block meta, but public rendering receives only the sanitized `presentation` payload:
+Widget variants and settings are stored as authoring state in widget meta, but public rendering receives only the sanitized `presentation` payload:
 
 ```php
 [
@@ -84,16 +84,16 @@ Block variants and settings are stored as authoring state in block meta, but pub
 ]
 ```
 
-Public Blade must not query the database, lazy-load relationships, resolve block contracts, expose raw meta, or include authoring selectors, signed URLs, diagnostics, package internals, schema, labels, or preview/admin view names.
+Public Blade must not query the database, lazy-load relationships, resolve widget contracts, expose raw meta, or include authoring selectors, signed URLs, diagnostics, package internals, schema, labels, or preview/admin view names.
 
 ## Layout Areas
 
-Layout areas let a theme expose named places where normal Layout Builder blocks can render outside the main page-body loop. The storage model stays unchanged: blocks still live inside layout containers, and containers may set `meta.area`.
+Layout areas let a theme expose named places where normal Layout Builder widgets can render outside the main page-body loop. The storage model stays unchanged: widgets still live inside layout containers, and containers may set `meta.area`.
 
 - Missing `meta.area` is treated as `main` for backwards compatibility.
 - `main` is built in and rendered by the normal main-content hook.
 - Themes and packages can register extra areas through `Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry`.
-- The Foundation Theme registers `header`, so editors can place normal blocks into the site header without hidden containers or a separate data model.
+- The Foundation Theme registers `header`, so editors can place normal widgets into the site header without hidden containers or a separate data model.
 
 Register areas from a package service provider after the registry resolves:
 
@@ -127,35 +127,35 @@ Public area rendering should use the package renderer rather than querying from 
 <x-capell::layout.area area="header" />
 ```
 
-The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` block instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
+The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` widget instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
 
-Apps and package seeders should use `AttachBlockToLayoutAreaAction` when placing blocks into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate block/occurrence pairs.
+Apps and package seeders should use `AttachWidgetToLayoutAreaAction` when placing widgets into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate widget/occurrence pairs.
 
 ```php
-use Capell\LayoutBuilder\Actions\AttachBlockToLayoutAreaAction;
+use Capell\LayoutBuilder\Actions\AttachWidgetToLayoutAreaAction;
 
-AttachBlockToLayoutAreaAction::run(
+AttachWidgetToLayoutAreaAction::run(
     layout: $layout,
     area: 'header',
-    blockKey: 'announcement-bar',
+    widgetKey: 'announcement-bar',
     containerKey: 'site-announcement',
     containerMeta: ['container' => 'full'],
 );
 ```
 
-For full-bleed sections, separate the two width settings deliberately. The layout container owns the section band and background, so set its container meta to `full`. The widget or block inside owns readable content, so keep its own `container` meta at the default contained width. This gives edge-to-edge backgrounds while text, media, and controls stay aligned with the site container.
+For full-bleed sections, separate the two width settings deliberately. The layout container owns the section band and background, so set its container meta to `full`. The widget or widget inside owns readable content, so keep its own `container` meta at the default contained width. This gives edge-to-edge backgrounds while text, media, and controls stay aligned with the site container.
 
-Avoid solving this in widget Blade with `w-screen`, negative margins, or translate hacks. Those make the widget fight the layout system and usually break once the same block is reused in another theme or container.
+Avoid solving this in widget Blade with `w-screen`, negative margins, or translate hacks. Those make the widget fight the layout system and usually break once the same widget is reused in another theme or container.
 
 ## Reusable Presets
 
-Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected block variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
+Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected widget variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
 
 The older in-session `LayoutPresetRepository` remains only for temporary editor fragments; package and agency presets should use `SaveLayoutPresetAction` and `ApplyLayoutPresetAction`.
 
 ## Visual Regression Manifests
 
-Use `capell:layout-builder-block-visual-regression capture` or `assert` to emit deterministic block/variant/viewport fixture entries for a screenshot runner. The command supports `--block`, `--theme`, `--variant`, `--changed`, `--concurrency`, and `--ci-limit`.
+Use `capell:layout-builder-widget-visual-regression capture` or `assert` to emit deterministic widget/variant/viewport fixture entries for a screenshot runner. The command supports `--widget`, `--theme`, `--variant`, `--changed`, `--concurrency`, and `--ci-limit`.
 
 The command does not authenticate, generate signed routes, query tenant content, or use live media. Browser capture/compare remains the responsibility of the runner.
 
@@ -167,11 +167,11 @@ The command does not authenticate, generate signed routes, query tenant content,
 
 ## Editor Modes
 
-`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned block assets without navigating the full layout canvas.
+`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned widget assets without navigating the full layout canvas.
 
 `layout_first` opens the drag/drop layout builder directly. Keep it available for designers and implementers who need placement and structure control.
 
-Both modes write through the same `BlockAsset` persistence path.
+Both modes write through the same `WidgetAsset` persistence path.
 
 ## Tests
 

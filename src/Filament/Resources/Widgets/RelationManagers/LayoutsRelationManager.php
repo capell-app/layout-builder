@@ -49,7 +49,7 @@ class LayoutsRelationManager extends RelationManager
                 ])
                     ->withCount('pages'),
             )
-            ->description(__('capell-layout-builder::generic.block_layouts_info'))
+            ->description(__('capell-layout-builder::generic.widget_layouts_info'))
             ->columns([
                 NameColumn::make('name')
                     ->defaultBadge(),

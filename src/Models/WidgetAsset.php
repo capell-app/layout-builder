@@ -77,14 +77,6 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
     }
 
     /**
-     * @return BelongsTo<Widget, $this>
-     */
-    public function block(): BelongsTo
-    {
-        return $this->widget();
-    }
-
-    /**
      * @return MorphTo<Model, $this>
      */
     public function pageable(): MorphTo
@@ -106,16 +98,6 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
     public function linkedPage(): MorphTo
     {
         return $this->morphTo('meta->linked_pageable_type', 'meta->linked_pageable_id');
-    }
-
-    protected function getBlockIdAttribute(): ?int
-    {
-        return $this->getWidgetIdAttribute();
-    }
-
-    protected function setBlockIdAttribute(mixed $value): void
-    {
-        $this->setWidgetIdAttribute($value);
     }
 
     protected function getWidgetIdAttribute(): ?int

@@ -6,40 +6,40 @@
     "outputDirectory": "packages/layout-builder/docs/screenshots",
     "entries": [
         {
-            "id": "blocks-admin-index",
-            "title": "Blocks admin index.",
+            "id": "widgets-admin-index",
+            "title": "Widgets admin index.",
             "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "WidgetResource",
             "required": true,
-            "notes": "Shows reusable blocks, component/search columns, filters, and table actions.",
-            "useCase": "An administrator scans reusable blocks by component, usage, status, and search/filter state.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/blocks-admin-index.png"
+            "notes": "Shows reusable widgets, component/search columns, filters, and table actions.",
+            "useCase": "An administrator scans reusable widgets by component, usage, status, and search/filter state.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/widgets-admin-index.png"
         },
         {
-            "id": "create-edit-block-form",
-            "title": "Create/edit block form with block assets.",
+            "id": "create-edit-widget-form",
+            "title": "Create/edit widget form with widget assets.",
             "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "WidgetResource",
             "required": true,
             "notes": "Capture the component, display, settings, translations, and asset configuration tabs.",
-            "useCase": "An editor configures a reusable block, its display settings, translations, and block assets.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/create-edit-block-form.png"
+            "useCase": "An editor configures a reusable widget, its display settings, translations, and widget assets.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/create-edit-widget-form.png"
         },
         {
-            "id": "block-layouts-relation-manager",
-            "title": "Block layouts relation manager.",
+            "id": "widget-layouts-relation-manager",
+            "title": "Widget layouts relation manager.",
             "package": "layout-builder",
             "surface": "admin",
             "targetType": "admin-surface",
             "target": "WidgetResource",
             "required": true,
-            "notes": "Shows which layouts currently use a reusable block.",
-            "useCase": "An editor checks which layouts use a reusable block before editing or deleting it.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/block-layouts-relation-manager.png"
+            "notes": "Shows which layouts currently use a reusable widget.",
+            "useCase": "An editor checks which layouts use a reusable widget before editing or deleting it.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/widget-layouts-relation-manager.png"
         },
         {
             "id": "layouts-admin-index",
@@ -61,8 +61,8 @@
             "targetType": "admin-surface",
             "target": "PageSchemaExtender",
             "required": true,
-            "notes": "Requires a seeded page and layout with editable block assets.",
-            "useCase": "An editor manages page content through the content-first layout editor for seeded block assets.",
+            "notes": "Requires a seeded page and layout with editable widget assets.",
+            "useCase": "An editor manages page content through the content-first layout editor for seeded widget assets.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/page-layout-content-first-editor.png"
         },
         {
@@ -85,8 +85,8 @@
             "targetType": "frontend-url",
             "target": null,
             "required": true,
-            "notes": "Anonymous public page render with seeded blocks; must expose no admin/editor state.",
-            "useCase": "An anonymous visitor sees seeded layout blocks rendered as safe public HTML.",
+            "notes": "Anonymous public page render with seeded widgets; must expose no admin/editor state.",
+            "useCase": "An anonymous visitor sees seeded layout widgets rendered as safe public HTML.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/public-main-content-render.png"
         },
         {

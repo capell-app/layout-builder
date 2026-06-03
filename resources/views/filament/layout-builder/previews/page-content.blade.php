@@ -1,14 +1,14 @@
 @props([
     'previewData',
     'assetsToggleAction' => null,
-    'blockActions' => null,
+    'widgetActions' => null,
 ])
 @php
     use Capell\Core\Enums\MediaConversionEnum;
 @endphp
 
 <div
-    class="layout-builder-block-preview relative rounded-lg bg-white shadow-sm transition-shadow focus-within:shadow-md hover:shadow-md dark:bg-gray-950"
+    class="layout-builder-widget-preview relative rounded-lg bg-white shadow-sm transition-shadow focus-within:shadow-md hover:shadow-md dark:bg-gray-950"
 >
     @if ($previewData->image)
         <div class="absolute inset-0 overflow-hidden rounded-lg">
@@ -16,16 +16,16 @@
         </div>
     @endif
 
-    @if ($assetsToggleAction || $blockActions)
+    @if ($assetsToggleAction || $widgetActions)
         <div
-            class="layout-block-preview-actions absolute top-5 right-5 z-10 flex items-center justify-end gap-1"
+            class="layout-widget-preview-actions absolute top-5 right-5 z-10 flex items-center justify-end gap-1"
         >
             @if ($assetsToggleAction)
                 {{ $assetsToggleAction }}
             @endif
 
-            @if ($blockActions)
-                {{ $blockActions }}
+            @if ($widgetActions)
+                {{ $widgetActions }}
             @endif
         </div>
     @endif
@@ -35,7 +35,7 @@
             <div
                 class="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400"
             >
-                {{ __('capell-layout-builder::generic.page_content_block') }}
+                {{ __('capell-layout-builder::generic.page_content_widget') }}
             </div>
         </div>
 

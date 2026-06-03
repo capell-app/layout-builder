@@ -13,7 +13,7 @@ use Capell\Core\Data\AssetData;
 use Capell\Core\Enums\BlueprintGroupEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Contracts\Extenders\BlockAssetSchemaExtender;
+use Capell\LayoutBuilder\Contracts\Extenders\WidgetAssetSchemaExtender;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Hidden;
@@ -203,8 +203,8 @@ class AssetsRepeater extends Repeater
                 }),
         ];
 
-        foreach (app()->tagged(BlockAssetSchemaExtender::TAG) as $extender) {
-            if ($extender instanceof BlockAssetSchemaExtender) {
+        foreach (app()->tagged(WidgetAssetSchemaExtender::TAG) as $extender) {
+            if ($extender instanceof WidgetAssetSchemaExtender) {
                 $components = $extender->extendRepeaterComponents($components);
             }
         }

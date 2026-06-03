@@ -44,7 +44,7 @@ abstract class BaseDemoCreator
     /**
      * @var class-string<Widget>
      */
-    protected string $blockModel;
+    protected string $widgetModel;
 
     /**
      * @var class-string<Blueprint>
@@ -90,10 +90,10 @@ abstract class BaseDemoCreator
         return $page->translation->title ?? $page->name;
     }
 
-    protected function createPageBlockAsset(Widget $block, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
+    protected function createPageWidgetAsset(Widget $widget, Pageable $page, string $container, int $occurrence, Model $asset): WidgetAsset
     {
-        $blockAsset = DB::transaction(
-            fn (): Model => $block->assets()->createOrFirst([
+        $widgetAsset = DB::transaction(
+            fn (): Model => $widget->assets()->createOrFirst([
                 'pageable_id' => $page->getKey(),
                 'pageable_type' => $page->getMorphClass(),
                 'container' => $container,
@@ -104,9 +104,9 @@ abstract class BaseDemoCreator
             attempts: 5,
         );
 
-        throw_unless($blockAsset instanceof WidgetAsset, RuntimeException::class, 'Layout block asset creation must return a block asset model.');
+        throw_unless($widgetAsset instanceof WidgetAsset, RuntimeException::class, 'Layout widget asset creation must return a widget asset model.');
 
-        return $blockAsset;
+        return $widgetAsset;
     }
 
     protected function requiredWidgetType(BackedEnum|string $key, BackedEnum|string|null $fallback = null): Blueprint
@@ -139,7 +139,7 @@ abstract class BaseDemoCreator
     {
         $site = Site::getDefault();
 
-        throw_unless($site instanceof Site, RuntimeException::class, 'A default site is required to create demo blocks.');
+        throw_unless($site instanceof Site, RuntimeException::class, 'A default site is required to create demo widgets.');
 
         return $site;
     }
@@ -159,7 +159,7 @@ abstract class BaseDemoCreator
             [
                 'icon' => 'heroicon-o-light-bulb',
                 'title' => 'Reusable CMS Patterns',
-                'content' => '<p>We use Laravel packages, Filament resources, and reusable blocks to keep CMS implementations maintainable.</p>',
+                'content' => '<p>We use Laravel packages, Filament resources, and reusable widgets to keep CMS implementations maintainable.</p>',
             ],
             [
                 'icon' => 'heroicon-o-academic-cap',
@@ -503,11 +503,11 @@ abstract class BaseDemoCreator
         }
 
         if ($model instanceof Widget) {
-            $this->createBlockMedia($model, $name, $type, $collection);
+            $this->createWidgetMedia($model, $name, $type, $collection);
         }
     }
 
-    protected function createBlockMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
+    protected function createWidgetMedia(Widget $model, ?string $name = null, string $type = 'image', BackedEnum|string $collection = MediaCollectionEnum::Image): Media
     {
         // Normalize input name and derive extension if provided
         $inputName = in_array($name, [null, '', '0'], true) ? null : $name;

@@ -791,7 +791,7 @@ var c,
                 : 'horizontal'
         }
         return r &&
-            (s.display === 'block' ||
+            (s.display === 'widget' ||
                 s.display === 'flex' ||
                 s.display === 'table' ||
                 s.display === 'grid' ||
@@ -2373,11 +2373,11 @@ function pn() {
         isReorderingResources: [],
         isLoading: !1,
         layoutMutationQueue: Promise.resolve(),
-        isBlockActionSuppressed: !1,
-        blockActionSuppressionTimeout: null,
+        isWidgetActionSuppressed: !1,
+        widgetActionSuppressionTimeout: null,
         isContainersAllCollapsed: null,
         collapsedContainers: new Map(),
-        collapsedBlocks: {},
+        collapsedWidgets: {},
         selectedRecords: this.$wire.$entangle('selectedRecords'),
         init() {
             ;((this.activeBreakpoint = this.normaliseBreakpoint(
@@ -2389,14 +2389,14 @@ function pn() {
                     ;((this.mode = 'view'),
                         (this.selectedItem = null),
                         (this.isReorderingResources = []),
-                        this.releaseBlockActions())
+                        this.releaseWidgetActions())
                 }),
                 window.addEventListener('keydown', (n) => {
                     n.key === 'Escape' &&
                         ((this.mode = 'view'),
                         (this.selectedItem = null),
                         (this.isReorderingResources = []),
-                        this.releaseBlockActions())
+                        this.releaseWidgetActions())
                 }))
             let e = (n) => {
                 ;(this.collapsedContainers.set(
@@ -2409,12 +2409,12 @@ function pn() {
                 window.addEventListener('container-collapsed-changed', e))
             let t = (n) => {
                 let i = n.detail.containerKey
-                ;(this.collapsedBlocks[i] || (this.collapsedBlocks[i] = {}),
-                    (this.collapsedBlocks[i][n.detail.id] =
+                ;(this.collapsedWidgets[i] || (this.collapsedWidgets[i] = {}),
+                    (this.collapsedWidgets[i][n.detail.id] =
                         !!n.detail.isCollapsed))
             }
-            ;(window.addEventListener('block-collapsed-register', t),
-                window.addEventListener('block-collapsed-changed', t),
+            ;(window.addEventListener('widget-collapsed-register', t),
+                window.addEventListener('widget-collapsed-changed', t),
                 this.$el.addEventListener(
                     'layout-builder-resize-container',
                     (n) => {
@@ -2426,8 +2426,8 @@ function pn() {
                     },
                 ),
                 this.$el.addEventListener(
-                    'layout-builder-suppress-block-actions',
-                    () => this.suppressBlockActions(),
+                    'layout-builder-suppress-widget-actions',
+                    () => this.suppressWidgetActions(),
                 ))
         },
         normaliseBreakpoint: function (e) {
@@ -2452,22 +2452,22 @@ function pn() {
                 ['mobile', 'tablet'].includes(this.activeBreakpoint)
             )
         },
-        suppressBlockActions: function () {
-            ;(this.blockActionSuppressionTimeout &&
-                clearTimeout(this.blockActionSuppressionTimeout),
-                (this.isBlockActionSuppressed = !0))
+        suppressWidgetActions: function () {
+            ;(this.widgetActionSuppressionTimeout &&
+                clearTimeout(this.widgetActionSuppressionTimeout),
+                (this.isWidgetActionSuppressed = !0))
         },
-        releaseBlockActions: function () {
-            this.isBlockActionSuppressed &&
-                (this.blockActionSuppressionTimeout &&
-                    clearTimeout(this.blockActionSuppressionTimeout),
-                (this.blockActionSuppressionTimeout = setTimeout(() => {
-                    ;((this.isBlockActionSuppressed = !1),
-                        (this.blockActionSuppressionTimeout = null))
+        releaseWidgetActions: function () {
+            this.isWidgetActionSuppressed &&
+                (this.widgetActionSuppressionTimeout &&
+                    clearTimeout(this.widgetActionSuppressionTimeout),
+                (this.widgetActionSuppressionTimeout = setTimeout(() => {
+                    ;((this.isWidgetActionSuppressed = !1),
+                        (this.widgetActionSuppressionTimeout = null))
                 }, 150)))
         },
-        shouldSuppressBlockActions: function () {
-            return this.isBlockActionSuppressed
+        shouldSuppressWidgetActions: function () {
+            return this.isWidgetActionSuppressed
         },
         queueLayoutMutation: function (e) {
             this.isLoading = !0
@@ -2489,9 +2489,9 @@ function pn() {
                 this.$wire.reorderContainers(e, t),
             )
         },
-        reorderBlock: function (e, t, n) {
+        reorderWidget: function (e, t, n) {
             return this.queueLayoutMutation(() =>
-                this.$wire.reorderBlocks(e, t, n),
+                this.$wire.reorderWidgets(e, t, n),
             )
         },
         selectAllRecords: async function (e, t) {
@@ -2507,18 +2507,18 @@ function pn() {
         },
         setMode: function (e) {
             ;((this.mode = e),
-                e === 'edit' && this.collapseAllBlocks(!0),
+                e === 'edit' && this.collapseAllWidgets(!0),
                 e === 'view' && (this.selectedItem = null))
         },
         selectContainer: function (e) {
             ;((this.selectedItem = { type: 'container', containerKey: e }),
                 (this.mode = 'details'))
         },
-        selectBlock: function (e, t) {
+        selectWidget: function (e, t) {
             ;((this.selectedItem = {
                 type: 'widget',
                 containerKey: e,
-                blockIndex: t,
+                widgetIndex: t,
             }),
                 (this.mode = 'details'))
         },
@@ -2529,12 +2529,12 @@ function pn() {
                 this.selectedItem.containerKey === e
             )
         },
-        isSelectedBlock: function (e, t) {
+        isSelectedWidget: function (e, t) {
             return (
                 this.selectedItem &&
                 this.selectedItem.type === 'widget' &&
                 this.selectedItem.containerKey === e &&
-                this.selectedItem.blockIndex === t
+                this.selectedItem.widgetIndex === t
             )
         },
         shouldShowInsertTargets: function () {
@@ -2550,11 +2550,11 @@ function pn() {
             this.collapseAllComponents(this.isContainersAllCollapsed !== !0)
         },
         collapseAllComponents: function (e) {
-            ;(this.collapseAllBlocks(e), this.collapseAllContainers(e))
+            ;(this.collapseAllWidgets(e), this.collapseAllContainers(e))
         },
-        collapseAllContainerBlocks: function (e, t) {
+        collapseAllContainerWidgets: function (e, t) {
             ;(t || this.collapseContainer(e, t),
-                this.$dispatch('collapse-block', {
+                this.$dispatch('collapse-widget', {
                     containerKey: e,
                     isCollapsed: t,
                 }))
@@ -2562,8 +2562,8 @@ function pn() {
         collapseContainer: function (e, t) {
             this.$dispatch('collapse-container', { id: e, isCollapsed: t })
         },
-        collapseAllBlocks: function (e) {
-            this.$dispatch('collapse-block', { isCollapsed: e })
+        collapseAllWidgets: function (e) {
+            this.$dispatch('collapse-widget', { isCollapsed: e })
         },
         collapseAllContainers: function (e) {
             this.$dispatch('collapse-container', { isCollapsed: e })
@@ -2578,9 +2578,9 @@ function pn() {
                     ? (this.isContainersAllCollapsed = !1)
                     : (this.isContainersAllCollapsed = null)
         },
-        isAllBlocksCollapsed: function (e) {
-            if (!this.collapsedBlocks[e]) return null
-            let t = Object.values(this.collapsedBlocks[e])
+        isAllWidgetsCollapsed: function (e) {
+            if (!this.collapsedWidgets[e]) return null
+            let t = Object.values(this.collapsedWidgets[e])
             return t.length === 0
                 ? null
                 : t.every((n) => n === !0)
@@ -2601,7 +2601,7 @@ function pn() {
                       this.isReorderingResources[e][t])
             )
         },
-        isBlockReorderingResources: function (e, t) {
+        isWidgetReorderingResources: function (e, t) {
             return this.isReorderingResources[e]
                 ? this.isReorderingResources[e][t]
                 : !1

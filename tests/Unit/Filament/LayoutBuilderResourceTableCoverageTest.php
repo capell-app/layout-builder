@@ -45,46 +45,46 @@ function createEnglishLayoutBuilderLanguage(): Language
     ]);
 }
 
-it('exposes block resource metadata search details and soft-deleted query scope', function (): void {
+it('exposes widget resource metadata search details and soft-deleted query scope', function (): void {
     $language = createEnglishLayoutBuilderLanguage();
-    $block = Widget::factory()->create(['name' => 'Hero Widget', 'key' => 'hero-block']);
-    $block->translations()->create([
+    $widget = Widget::factory()->create(['name' => 'Hero Widget', 'key' => 'hero-widget']);
+    $widget->translations()->create([
         'language_id' => $language->getKey(),
         'title' => 'Promo Hero',
     ]);
-    $block->load('translation');
+    $widget->load('translation');
 
     expect(WidgetResource::getModel())->toBe(Widget::class)
         ->and(WidgetResource::getResourceType())->toBe(ConfiguratorTypeEnum::Widget)
-        ->and(WidgetResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
+        ->and(WidgetResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
         ->and(WidgetResource::getNavigationGroup())->toBe(__('capell-admin::navigation.group_layouts'))
         ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
         ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')
         ->and(WidgetResource::getSlug())->toBe('widgets')
-        ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.block'))
-        ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.blocks'))
+        ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.widget'))
+        ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
         ->and(WidgetResource::shouldRegisterNavigation())->toBeTrue()
         ->and(WidgetResource::getGloballySearchableAttributes())->toContain('translations.title')
-        ->and(WidgetResource::getGlobalSearchResultDetails($block))->toBe([
+        ->and(WidgetResource::getGlobalSearchResultDetails($widget))->toBe([
             __('capell-admin::generic.title') => 'Promo Hero',
         ])
         ->and(LayoutResource::getModel())->toBe(Layout::class);
 
-    $block->delete();
+    $widget->delete();
 
-    expect(WidgetResource::getEloquentQuery()->whereKey($block->getKey())->exists())->toBeTrue()
+    expect(WidgetResource::getEloquentQuery()->whereKey($widget->getKey())->exists())->toBeTrue()
         ->and(WidgetResource::getRelations())->toBe([])
         ->and(WidgetResource::getPages())->toHaveKeys(['index', 'edit', 'create']);
 });
 
-it('builds block table columns filters and search query branches', function (): void {
+it('builds widget table columns filters and search query branches', function (): void {
     $language = createEnglishLayoutBuilderLanguage();
-    $block = Widget::factory()->create([
+    $widget = Widget::factory()->create([
         'component' => 'hero-card',
         'component_item' => 'hero-card-item',
-        'view_file' => 'blocks.hero-card',
+        'view_file' => 'widgets.hero-card',
     ]);
-    $block->translations()->create([
+    $widget->translations()->create([
         'language_id' => $language->getKey(),
         'title' => 'Hero',
         'content' => 'Needle content',
@@ -110,12 +110,12 @@ it('builds block table columns filters and search query branches', function (): 
 
     expect($columns)->toContainOnlyInstancesOf(Column::class)
         ->and($filters)->toHaveCount(5)
-        ->and($contentSearchQuery->whereKey($block->getKey())->exists())->toBeTrue()
-        ->and($componentSearchQuery->whereKey($block->getKey())->exists())->toBeTrue()
+        ->and($contentSearchQuery->whereKey($widget->getKey())->exists())->toBeTrue()
+        ->and($componentSearchQuery->whereKey($widget->getKey())->exists())->toBeTrue()
         ->and($languageFilter)->not->toBeNull();
 });
 
-it('covers block asset table lookup and type helper branches', function (): void {
+it('covers widget asset table lookup and type helper branches', function (): void {
     $pageType = Blueprint::factory()->create([
         'name' => 'Article',
         'type' => 'page',
@@ -148,9 +148,9 @@ it('filters indicates and creates widget assets through the widget assets table 
         'blueprint_id' => $pageType->getKey(),
     ]);
     $secondPage = Page::factory()->create(['name' => 'Secondary Landing Page']);
-    $block = Widget::factory()->create(['name' => 'Campaign Hero']);
+    $widget = Widget::factory()->create(['name' => 'Campaign Hero']);
     $existingAsset = WidgetAsset::factory()
-        ->block($block)
+        ->widget($widget)
         ->asset($page)
         ->page($page, 'main', 1)
         ->create();
@@ -199,7 +199,7 @@ it('filters indicates and creates widget assets through the widget assets table 
     expect($createAction)->toBeInstanceOf(CreateAction::class);
 
     $relationManager = new RelationManager;
-    $relationManager->ownerRecord = $block;
+    $relationManager->ownerRecord = $widget;
 
     $createdAsset = $createAction->process(null, [
         'data' => [
@@ -213,11 +213,11 @@ it('filters indicates and creates widget assets through the widget assets table 
         ->and($filteredQuery->toSql())->toContain('asset_type', 'blueprint_id', 'pageable_type', 'pageable_id')
         ->and($indicators)->toHaveKeys(['asset_type', 'blueprint_id', 'page'])
         ->and($createdAsset)->toBeInstanceOf(WidgetAsset::class)
-        ->and(WidgetAsset::query()->where('widget_id', $block->getKey())->count())->toBe(3);
+        ->and(WidgetAsset::query()->where('widget_id', $widget->getKey())->count())->toBe(3);
 });
 
 it('adds layout-builder specific layout table filters columns and query relations', function (): void {
-    $block = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero']);
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero']);
 
     $filters = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableFilters');
     $columns = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableColumns');
@@ -227,13 +227,13 @@ it('adds layout-builder specific layout table filters columns and query relation
         Layout::query(),
     );
 
-    $blockFilter = firstLayoutBuilderTableComponent($filters, 'widget_key', SelectFilter::class);
+    $widgetFilter = firstLayoutBuilderTableComponent($filters, 'widget_key', SelectFilter::class);
 
-    expect($blockFilter)->not->toBeNull()
+    expect($widgetFilter)->not->toBeNull()
         ->and($columns)->not->toBeEmpty()
         ->and($query)->toBeInstanceOf(Builder::class)
-        ->and($block->exists)->toBeTrue()
-        ->and(layoutBuilderTableContainsColumn($columns, ['layoutBlocks.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
+        ->and($widget->exists)->toBeTrue()
+        ->and(layoutBuilderTableContainsColumn($columns, ['layoutWidgets.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
 });
 
 /**

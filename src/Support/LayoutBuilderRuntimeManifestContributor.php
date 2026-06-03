@@ -31,7 +31,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
         $manifest->usesAlpine = true;
         $manifest->modules['layout-builder'] = true;
 
-        if (! $this->layoutUsesLivewireBlocks($widgetKeys)) {
+        if (! $this->layoutUsesLivewireWidgets($widgetKeys)) {
             return;
         }
 
@@ -57,14 +57,14 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
                     continue;
                 }
 
-                $blocks = $container['widgets'] ?? [];
+                $widgets = $container['widgets'] ?? [];
 
-                if (! is_array($blocks)) {
+                if (! is_array($widgets)) {
                     continue;
                 }
 
-                $widgetKeys = $widgetKeys->merge(collect($blocks)->map(
-                    fn (mixed $block): mixed => is_array($block) ? ($block['widget_key'] ?? $block['key'] ?? null) : $block,
+                $widgetKeys = $widgetKeys->merge(collect($widgets)->map(
+                    fn (mixed $widget): mixed => is_array($widget) ? ($widget['widget_key'] ?? $widget['key'] ?? null) : $widget,
                 ));
             }
         }
@@ -80,7 +80,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
     /**
      * @param  list<string>  $widgetKeys
      */
-    private function layoutUsesLivewireBlocks(array $widgetKeys): bool
+    private function layoutUsesLivewireWidgets(array $widgetKeys): bool
     {
         return Widget::query()
             ->with('type')
@@ -89,6 +89,6 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
             ->enabled()
             ->publishedDate()
             ->get()
-            ->contains(fn (Model $block): bool => $block->getMetaComponentType() === 'livewire');
+            ->contains(fn (Model $widget): bool => $widget->getMetaComponentType() === 'livewire');
     }
 }

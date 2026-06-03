@@ -9,7 +9,7 @@ use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\Configurators\ConfiguratorResolver;
 use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Configurators\Blocks\DefaultBlockConfigurator;
+use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Arrayable;
@@ -40,8 +40,8 @@ class WidgetForm implements FormConfigurator
         }
 
         $adminType = $type instanceof Blueprint
-            ? $resolver->resolveForType($type, ConfiguratorTypeEnum::Widget, DefaultBlockConfigurator::getKey())
-            : DefaultBlockConfigurator::class;
+            ? $resolver->resolveForType($type, ConfiguratorTypeEnum::Widget, DefaultWidgetConfigurator::getKey())
+            : DefaultWidgetConfigurator::class;
 
         return $adminType::configure($configurator)->columns();
     }

@@ -9,7 +9,7 @@ use Spatie\LaravelData\Data;
 final class AdminLayoutPreviewData extends Data
 {
     /**
-     * @param  array<string, array{type: string, containerKey: string, blockIndex?: int}>  $nodeMap
+     * @param  array<string, array{type: string, containerKey: string, widgetIndex?: int}>  $nodeMap
      */
     public function __construct(
         public string $html,

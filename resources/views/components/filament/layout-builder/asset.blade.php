@@ -7,9 +7,9 @@
     'name' => null,
     'occurrence',
     'pageId' => $this->page?->getKey(),
-    'block',
-    'blockAsset',
-    'blockIndex',
+    'widget',
+    'widgetAsset',
+    'widgetIndex',
 ])
 {{-- format-ignore-start --}}
 @php
@@ -27,38 +27,38 @@
     use Illuminate\Support\Str;
     use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-    $editBlockAssetArguments = [
+    $editWidgetAssetArguments = [
         'containerKey' => $containerKey,
-        'blockIndex' => $blockIndex,
+        'widgetIndex' => $widgetIndex,
         'index' => $index,
-        'type' => $blockAsset->asset_type,
+        'type' => $widgetAsset->asset_type,
     ];
-    $editBlockAssetClickHandler = '$wire.mountAction(\'editBlockAsset\', ' . Js::from($editBlockAssetArguments) . ')';
+    $editWidgetAssetClickHandler = '$wire.mountAction(\'editWidgetAsset\', ' . Js::from($editWidgetAssetArguments) . ')';
 
-    if (! $blockAsset->asset) {
-        throw new \RuntimeException("Asset of type [{$blockAsset->asset_type}] with ID [{$blockAsset->asset_id}] not found.");
+    if (! $widgetAsset->asset) {
+        throw new \RuntimeException("Asset of type [{$widgetAsset->asset_type}] with ID [{$widgetAsset->asset_id}] not found.");
     }
 
-    $assetKey = "{$blockAsset->asset_type}.{$blockAsset->asset_id}";
+    $assetKey = "{$widgetAsset->asset_type}.{$widgetAsset->asset_id}";
 
     if (! $image) {
-        $image = match (get_class($blockAsset->asset)) {
-            Page::class => $blockAsset->asset->image,
-            Media::class => $blockAsset->asset,
-            default => $blockAsset->asset->image ?? null,
+        $image = match (get_class($widgetAsset->asset)) {
+            Page::class => $widgetAsset->asset->image,
+            Media::class => $widgetAsset->asset,
+            default => $widgetAsset->asset->image ?? null,
         };
     }
 
-    $mediaCount = $blockAsset->asset->media?->count();
+    $mediaCount = $widgetAsset->asset->media?->count();
 
-    $relatedCount = $blockAsset->asset->related?->count();
+    $relatedCount = $widgetAsset->asset->related?->count();
 
-    $actionsCount = isset($blockAsset->asset->actions) ? count($blockAsset->asset->actions) : null;
+    $actionsCount = isset($widgetAsset->asset->actions) ? count($widgetAsset->asset->actions) : null;
 
     $label = '';
 
     if (! $name) {
-        $name = $blockAsset->asset->name;
+        $name = $widgetAsset->asset->name;
     }
 
     $label .= $name;
@@ -66,16 +66,16 @@
     if (! $description) {
         $description = '';
 
-        if ($blockAsset->asset instanceof Page && $blockAsset->asset->ancestors?->isNotEmpty()) {
-            $description .= $blockAsset->asset->ancestors->pluck('name')
+        if ($widgetAsset->asset instanceof Page && $widgetAsset->asset->ancestors?->isNotEmpty()) {
+            $description .= $widgetAsset->asset->ancestors->pluck('name')
                 ->map(fn (string $name): string => Str::limit($name, 30))
                 ->implode(' &raquo; ');
         }
 
-        $description .= match (get_class($blockAsset->asset)) {
-            Page::class, Section::class => $blockAsset->asset->translation?->title &&
-            $blockAsset->asset->translation->title !== $blockAsset->asset->name
-                ? $blockAsset->asset->translation->title
+        $description .= match (get_class($widgetAsset->asset)) {
+            Page::class, Section::class => $widgetAsset->asset->translation?->title &&
+            $widgetAsset->asset->translation->title !== $widgetAsset->asset->name
+                ? $widgetAsset->asset->translation->title
                 : null,
             default => null,
         };
@@ -85,26 +85,26 @@
     $model = Site::class;
 
     if ($model::totalSites() > 1) {
-        if ($blockAsset->asset->hasAttribute('site_id') && $blockAsset->asset->site_id) {
-            $description = $blockAsset->asset->site?->name . ($description ? ' - ' . $description : '');
+        if ($widgetAsset->asset->hasAttribute('site_id') && $widgetAsset->asset->site_id) {
+            $description = $widgetAsset->asset->site?->name . ($description ? ' - ' . $description : '');
         }
     }
 
     $plainLabel = trim(strip_tags((string) $label));
     $plainDescription = trim(strip_tags(str_replace('&raquo;', ' > ', (string) $description)));
-    $editBlockAssetTooltip = __('capell-layout-builder::button.edit_asset_type', ['type' => $blockAsset->asset_type]);
+    $editWidgetAssetTooltip = __('capell-layout-builder::button.edit_asset_type', ['type' => $widgetAsset->asset_type]);
     $moveAssetUpAction = ($this->moveAssetUpAction)([
         'containerKey' => $containerKey,
-        'blockIndex' => $blockIndex,
+        'widgetIndex' => $widgetIndex,
         'assetIndex' => $index,
     ]);
     $moveAssetDownAction = ($this->moveAssetDownAction)([
         'containerKey' => $containerKey,
-        'blockIndex' => $blockIndex,
+        'widgetIndex' => $widgetIndex,
         'assetIndex' => $index,
     ]);
 
-    $icon = CapellCore::getAsset($blockAsset->asset_type)->getIcon();
+    $icon = CapellCore::getAsset($widgetAsset->asset_type)->getIcon();
     if ($icon instanceof ScalableIcon) {
         $icon = $icon->getIconForSize(IconSize::Small);
     } elseif ($icon instanceof BackedEnum) {
@@ -127,9 +127,9 @@
                 class="group-hover/asset:border-primary-500 group/asset-focus:border-primary-500 text-primary-600 focus:border-primary-500 focus:ring-primary-500 dark:checked:bg-primary-500 ml-1 h-4 w-4 cursor-pointer rounded border-gray-600 shadow-sm transition duration-75 focus:ring-2 disabled:opacity-70 dark:border-gray-400 dark:bg-gray-700"
                 value="{{ $assetKey }}"
                 aria-label="{{ __('capell-layout-builder::button.select_asset_record', ['asset' => $plainLabel]) }}"
-                wire:key="{{ 'selectedRecords' . $containerKey . '-' . $blockIndex . '-' . $assetKey }}"
-                x-model="selectedRecords['{{ $containerKey }}'][{{ $blockIndex }}]"
-                x-show="! isBlockReorderingResources('{{ $containerKey }}', {{ $blockIndex }})"
+                wire:key="{{ 'selectedRecords' . $containerKey . '-' . $widgetIndex . '-' . $assetKey }}"
+                x-model="selectedRecords['{{ $containerKey }}'][{{ $widgetIndex }}]"
+                x-show="! isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
                 wire:loading.remove
                 wire:target="mountAction"
             />
@@ -146,7 +146,7 @@
                 class="hover:text-primary-600 dark:hover:text-primary-400 focus:text-primary-600 dark:focus:text-primary-400 cursor-pointer text-gray-400 transition dark:text-gray-500"
                 wire:loading.class="pointer-events-none opacity-40"
                 x-sort:handle
-                x-show="isBlockReorderingResources('{{ $containerKey }}', {{ $blockIndex }})"
+                x-show="isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
                 x-cloak
                 tabindex="-1"
                 aria-hidden="true"
@@ -157,8 +157,8 @@
 
         <button
             type="button"
-            data-layout-asset-action="editBlockAsset"
-            x-on:click="{{ $editBlockAssetClickHandler }}"
+            data-layout-asset-action="editWidgetAsset"
+            x-on:click="{{ $editWidgetAssetClickHandler }}"
             @class([
                 'group/asset flex w-full cursor-pointer items-center gap-x-4 text-left',
                 'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
@@ -173,7 +173,7 @@
                     @svg($icon,
                         [
                             'class' => 'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500',
-                            'x-tooltip.raw' => $editBlockAssetTooltip,
+                            'x-tooltip.raw' => $editWidgetAssetTooltip,
                         ])
                 </div>
 
@@ -272,7 +272,7 @@
                 @endif
 
                 @php
-                    $resource = GetResourceFromBlueprintAction::run(ucfirst($blockAsset->asset_type), $blockAsset->asset->type);
+                    $resource = GetResourceFromBlueprintAction::run(ucfirst($widgetAsset->asset_type), $widgetAsset->asset->type);
                 @endphp
 
                 @if ($resource)
@@ -280,9 +280,9 @@
                         icon="heroicon-o-arrow-top-right-on-square"
                         target="_blank"
                         tag="a"
-                        :href="$resource::getUrl('edit', ['record' => $blockAsset->asset->getKey()])"
+                        :href="$resource::getUrl('edit', ['record' => $widgetAsset->asset->getKey()])"
                     >
-                        {{ __('capell-layout-builder::button.edit_asset_type', ['type' => $blockAsset->asset_type]) }}
+                        {{ __('capell-layout-builder::button.edit_asset_type', ['type' => $widgetAsset->asset_type]) }}
                     </x-filament::dropdown.list.item>
                 @endif
             </x-filament::dropdown.list>

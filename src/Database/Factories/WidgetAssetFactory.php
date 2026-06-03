@@ -74,26 +74,26 @@ class WidgetAssetFactory extends Factory
         ]);
     }
 
-    public function block(Widget $block): self
+    public function widget(Widget $widget): self
     {
         return $this->state(fn (array $attributes): array => [
-            'widget_id' => $block->id,
+            'widget_id' => $widget->id,
         ]);
     }
 
-    public function widget(Widget $block): self
+    public function block(Widget $block): self
     {
-        return $this->block($block);
+        return $this->widget($block);
     }
 
     public function assetHavingMedia(int $mediaCount = 1, MediaCollectionEnum $collection = MediaCollectionEnum::Image): self
     {
-        return $this->afterCreating(function (WidgetAsset $blockAsset) use ($mediaCount, $collection): void {
+        return $this->afterCreating(function (WidgetAsset $widgetAsset) use ($mediaCount, $collection): void {
             Media::factory()
                 ->count($mediaCount)
                 ->state(fn (array $attributes): array => [
-                    'model_type' => $blockAsset->asset_type,
-                    'model_id' => $blockAsset->asset_id,
+                    'model_type' => $widgetAsset->asset_type,
+                    'model_id' => $widgetAsset->asset_id,
                 ])
                 ->collection($collection)
                 ->create();

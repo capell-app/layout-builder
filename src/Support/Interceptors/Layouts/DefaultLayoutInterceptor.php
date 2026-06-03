@@ -10,16 +10,26 @@ use Capell\Core\Support\Database\RuntimeSchemaState;
 
 final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
 {
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     public function beforeCreate(array $data): array
     {
         return $data;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function afterCreated(Layout $layout, array $data): void
     {
         $this->ensureStarterContainers($layout);
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function afterCreatedOrUpdated(Layout $layout, array $data): void
     {
         $this->ensureStarterContainers($layout);

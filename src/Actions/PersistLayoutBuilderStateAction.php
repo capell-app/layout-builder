@@ -17,9 +17,9 @@ final class PersistLayoutBuilderStateAction
     /**
      * @param  array<array-key, mixed>  $containers
      */
-    public function handle(Layout $layout, ?Model $page, array $containers, Closure $persistBlockAssets): void
+    public function handle(Layout $layout, ?Model $page, array $containers, Closure $persistWidgetAssets): void
     {
-        DB::transaction(function () use ($layout, $page, $containers, $persistBlockAssets): void {
+        DB::transaction(function () use ($layout, $page, $containers, $persistWidgetAssets): void {
             $layout->update([
                 'containers' => $containers,
             ]);
@@ -30,7 +30,7 @@ final class PersistLayoutBuilderStateAction
                 ]);
             }
 
-            $persistBlockAssets();
+            $persistWidgetAssets();
         });
 
         InvalidateLayoutPreviewImageAction::run($layout);

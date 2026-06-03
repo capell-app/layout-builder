@@ -60,6 +60,7 @@ class SettingsSchema
                 ->schema([
                     Grid::make()
                         ->columnSpan(1)
+                        ->columns(1)
                         ->schema([
                             StatusToggle::make('status'),
                             DateTimePicker::make('visible_from')

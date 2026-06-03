@@ -15,5 +15,5 @@ Start at the [package README](../README.md) when deciding whether to install thi
 | Related doc                                                 | Why                                                   |
 | ----------------------------------------------------------- | ----------------------------------------------------- |
 | [Repository package docs](../../../docs/README.md)          | Cross-package workflow index and install-order notes. |
-| [Block Library](../../block-library/docs/overview.md)       | Neighboring package in the same Capell workflow.      |
+| [Widget Library](../../widget-library/docs/overview.md)     | Neighboring package in the same Capell workflow.      |
 | [Foundation Theme](../../foundation-theme/docs/overview.md) | Neighboring package in the same Capell workflow.      |

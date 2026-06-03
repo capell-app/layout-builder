@@ -10,11 +10,11 @@ class PublicLayoutContainerData extends Data
 {
     /**
      * @param  array<string, mixed>  $meta
-     * @param  array<int, PublicLayoutBlockData>  $blocks
+     * @param  array<int, PublicLayoutWidgetData>  $widgets
      */
     public function __construct(
         public string $key,
         public array $meta,
-        public array $blocks,
+        public array $widgets,
     ) {}
 }

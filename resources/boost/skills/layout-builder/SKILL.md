@@ -15,7 +15,7 @@ Layout Builder owns admin layout composition, widgets, assets, presets, and publ
 
 ## Rules
 
-- Authorize Livewire mutations and validate container keys, block indices, and asset IDs server-side.
+- Authorize Livewire mutations and validate container keys, widget indices, and asset IDs server-side.
 - Keep business logic in Actions/Data/support classes, not Blade or Livewire callbacks.
 - Public Blade must consume prepared data and avoid queries or lazy-loaded relationships.
 - Run `vendor/bin/pest packages/layout-builder/tests`.

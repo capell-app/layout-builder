@@ -28,9 +28,9 @@ use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\AuthorizesLayoutBuilderAccess;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
-use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesBlocks;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesLayoutBuilderState;
+use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesWidgets;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
@@ -60,8 +60,8 @@ use Throwable;
  * @property-read mixed $changeLayoutAction
  * @property-read mixed $cloneLayoutForPageAction
  * @property-read mixed $duplicateLayoutAction
- * @property-read mixed $addBlockAction
- * @property-read mixed $editBlockAssetAction
+ * @property-read mixed $addWidgetAction
+ * @property-read mixed $editWidgetAssetAction
  */
 class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
 {
@@ -70,9 +70,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     use InteractsWithActions;
     use InteractsWithForms;
     use ManagesAssets;
-    use ManagesBlocks;
     use ManagesContainers;
     use ManagesLayoutBuilderState;
+    use ManagesWidgets;
 
     #[Locked]
     public ?Pageable $page = null;
@@ -145,7 +145,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public ?string $selectedContainerKey = null;
 
-    public ?int $selectedBlockIndex = null;
+    public ?int $selectedWidgetIndex = null;
 
     public ?string $selectedPreviewNodeHandle = null;
 
@@ -156,14 +156,14 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public string $visualPreviewStatus = 'stale';
 
     /**
-     * @var array<string, array{type: string, containerKey: string, blockIndex?: int}>
+     * @var array<string, array{type: string, containerKey: string, widgetIndex?: int}>
      */
     public array $visualPreviewNodeMap = [];
 
     /**
      * @var array<array-key, mixed>
      */
-    protected array $containerBlocks;
+    protected array $containerWidgets;
 
     protected ?LayoutClipboard $layoutClipboard = null;
 
@@ -180,7 +180,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         ?int $pageId = null,
         ?string $pageClass = null,
         ?string $initialContainerKey = null,
-        ?int $initialBlockIndex = null,
+        ?int $initialWidgetIndex = null,
     ): void {
         $this->resolveMountModels($layoutId, $siteId, $pageId, $pageClass);
         $this->assertLayoutMatchesPageSite();
@@ -189,7 +189,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanUseLayoutBuilder();
 
         $this->loadNew();
-        $this->initializeVisualEditor($initialContainerKey, $initialBlockIndex);
+        $this->initializeVisualEditor($initialContainerKey, $initialWidgetIndex);
     }
 
     public function boot(): void
@@ -270,8 +270,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             layout: $this->layout,
             page: $this->page instanceof Model ? $this->page : null,
             containers: $this->containers,
-            persistBlockAssets: function (): void {
-                $this->persistBlockAssets();
+            persistWidgetAssets: function (): void {
+                $this->persistWidgetAssets();
             },
         );
 
@@ -298,17 +298,17 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     /**
-     * @param  array<int, int|string>  $blocks
+     * @param  array<int, int|string>  $widgets
      */
-    #[On('add-blocks-to-container')]
-    public function addBlocksToContainer(string $containerKey, array $blocks, ?string $actionModalId = null, ?int $position = null): void
+    #[On('add-widgets-to-container')]
+    public function addWidgetsToContainer(string $containerKey, array $widgets, ?string $actionModalId = null, ?int $position = null): void
     {
         $this->assertCanUpdateLayout();
         $this->assertValidContainerKey($containerKey);
 
-        if ($blocks === []) {
-            Notification::make('no-blocks-selected')
-                ->body(__('capell-layout-builder::message.no_blocks_selected'))
+        if ($widgets === []) {
+            Notification::make('no-widgets-selected')
+                ->body(__('capell-layout-builder::message.no_widgets_selected'))
                 ->warning()
                 ->send();
 
@@ -319,20 +319,20 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $targetPosition = $position;
 
-        foreach ($blocks as $blockId) {
-            $block = $this->getBlock($blockId);
+        foreach ($widgets as $widgetId) {
+            $widget = $this->getWidget($widgetId);
 
-            $blockIndex = $this->addBlockToContainerAtPosition($block, $containerKey, $targetPosition);
+            $widgetIndex = $this->addWidgetToContainerAtPosition($widget, $containerKey, $targetPosition);
 
             if ($targetPosition !== null) {
                 $targetPosition++;
             }
 
-            $block = $this->loadBlock($containerKey, $blockIndex);
+            $widget = $this->loadWidget($containerKey, $widgetIndex);
 
-            $this->assets[$containerKey][$blockIndex] = $this->mapBlockAssets($block, $containerKey);
+            $this->assets[$containerKey][$widgetIndex] = $this->mapWidgetAssets($widget, $containerKey);
 
-            $this->updatePageAssets($containerKey, $blockIndex);
+            $this->updatePageAssets($containerKey, $widgetIndex);
         }
 
         session(['layout-builder.container' => $containerKey]);
@@ -347,21 +347,21 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     /**
-     * @param  array{containerKey: string, blockIndex: int, hasPageAssets?: bool}  $arguments
+     * @param  array{containerKey: string, widgetIndex: int, hasPageAssets?: bool}  $arguments
      * @param  array<int, int|string>  $assets
      */
     #[On('sync-selected-assets')]
-    public function addAssetsToBlock(array $arguments, string $type, array $assets): void
+    public function addAssetsToWidget(array $arguments, string $type, array $assets): void
     {
         $this->assertCanUpdateLayout();
 
         $this->ensureLoaded();
 
         $containerKey = $arguments['containerKey'];
-        $blockIndex = $arguments['blockIndex'];
+        $widgetIndex = $arguments['widgetIndex'];
         $hasPageAssets = $arguments['hasPageAssets'] ?? false;
 
-        $this->addAssets($containerKey, $blockIndex, $hasPageAssets, $type, $assets);
+        $this->addAssets($containerKey, $widgetIndex, $hasPageAssets, $type, $assets);
 
         $this->layoutUpdated();
     }
@@ -422,22 +422,22 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         return BuildLayoutBuilderTreeAction::run(
             containers: $this->containers ?? [],
-            containerBlocks: $this->containerBlocks ?? [],
+            containerWidgets: $this->containerWidgets ?? [],
             assets: $this->assets,
             page: $this->page,
             selectedContainerKey: $this->selectedContainerKey,
-            selectedBlockIndex: $this->selectedBlockIndex,
+            selectedWidgetIndex: $this->selectedWidgetIndex,
         );
     }
 
     #[Computed]
-    public function selectedBlock(): ?Widget
+    public function selectedWidget(): ?Widget
     {
-        if ($this->selectedContainerKey === null || $this->selectedBlockIndex === null) {
+        if ($this->selectedContainerKey === null || $this->selectedWidgetIndex === null) {
             return null;
         }
 
-        return $this->containerBlocks[$this->selectedContainerKey][$this->selectedBlockIndex] ?? null;
+        return $this->containerWidgets[$this->selectedContainerKey][$this->selectedWidgetIndex] ?? null;
     }
 
     public function selectContainer(string $containerKey): void
@@ -449,21 +449,21 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         $this->selectedContainerKey = $containerKey;
-        $this->selectedBlockIndex = null;
+        $this->selectedWidgetIndex = null;
         $this->selectedPreviewNodeHandle = $this->handleForContainer($containerKey);
     }
 
-    public function selectBlock(string $containerKey, int $blockIndex): void
+    public function selectWidget(string $containerKey, int $widgetIndex): void
     {
         $this->ensureLoaded();
 
-        if (! isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
+        if (! isset($this->containers[$containerKey]['widgets'][$widgetIndex])) {
             return;
         }
 
         $this->selectedContainerKey = $containerKey;
-        $this->selectedBlockIndex = $blockIndex;
-        $this->selectedPreviewNodeHandle = $this->handleForBlock($containerKey, $blockIndex);
+        $this->selectedWidgetIndex = $widgetIndex;
+        $this->selectedPreviewNodeHandle = $this->handleForWidget($containerKey, $widgetIndex);
     }
 
     public function selectPreviewNode(string $handle): void
@@ -474,8 +474,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        if (($node['type'] ?? null) === 'block' && isset($node['containerKey'], $node['blockIndex'])) {
-            $this->selectBlock($node['containerKey'], $node['blockIndex']);
+        if (($node['type'] ?? null) === 'widget' && isset($node['containerKey'], $node['widgetIndex'])) {
+            $this->selectWidget($node['containerKey'], $node['widgetIndex']);
 
             return;
         }
@@ -499,7 +499,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         try {
             $preview = RenderAdminLayoutPreviewAction::run(
                 containers: $this->containers ?? [],
-                containerBlocks: $this->containerBlocks ?? [],
+                containerWidgets: $this->containerWidgets ?? [],
                 assets: $this->assets,
                 page: $this->page,
                 pageFormState: $pageFormState,
@@ -659,16 +659,16 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, null));
     }
 
-    public function copyLayoutBlock(string $containerKey, int $blockIndex): void
+    public function copyLayoutWidget(string $containerKey, int $widgetIndex): void
     {
         $this->assertCanUpdateLayout();
         $this->ensureLoaded();
 
-        if (! isset($this->containers[$containerKey]['widgets'][$blockIndex])) {
+        if (! isset($this->containers[$containerKey]['widgets'][$widgetIndex])) {
             return;
         }
 
-        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $blockIndex));
+        $this->clipboard()->copy(CreateLayoutFragmentAction::run($this->layoutState(), $containerKey, $widgetIndex));
     }
 
     public function pasteLayoutFragment(string $targetContainerKey, ?int $targetIndex = null): void
@@ -815,9 +815,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $fragment = new LayoutFragmentData(
             sourceContainerKey: $sourceContainerKey,
-            sourceBlockIndex: null,
+            sourceWidgetIndex: null,
             container: $container,
-            block: null,
+            widget: null,
         );
 
         $knownContainerKeys = array_keys($this->containers ?? []);
@@ -832,20 +832,20 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->trackNewContainerKeysSince($knownContainerKeys);
     }
 
-    protected function initializeVisualEditor(?string $initialContainerKey = null, ?int $initialBlockIndex = null): void
+    protected function initializeVisualEditor(?string $initialContainerKey = null, ?int $initialWidgetIndex = null): void
     {
         if (
             $initialContainerKey !== null
-            && $initialBlockIndex !== null
-            && isset($this->containers[$initialContainerKey]['widgets'][$initialBlockIndex])
+            && $initialWidgetIndex !== null
+            && isset($this->containers[$initialContainerKey]['widgets'][$initialWidgetIndex])
         ) {
             $this->selectedContainerKey = $initialContainerKey;
-            $this->selectedBlockIndex = $initialBlockIndex;
-            $this->selectedPreviewNodeHandle = $this->handleForBlock($initialContainerKey, $initialBlockIndex);
+            $this->selectedWidgetIndex = $initialWidgetIndex;
+            $this->selectedPreviewNodeHandle = $this->handleForWidget($initialContainerKey, $initialWidgetIndex);
         } else {
             $firstContainerKey = array_key_first($this->containers ?? []);
             $this->selectedContainerKey ??= is_string($firstContainerKey) ? $firstContainerKey : null;
-            $this->selectedBlockIndex = null;
+            $this->selectedWidgetIndex = null;
             $this->selectedPreviewNodeHandle = $this->selectedContainerKey === null
                 ? null
                 : $this->handleForContainer($this->selectedContainerKey);
@@ -856,8 +856,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     private function defaultPreviewNodeHandle(): ?string
     {
-        if ($this->selectedContainerKey !== null && $this->selectedBlockIndex !== null) {
-            return $this->handleForBlock($this->selectedContainerKey, $this->selectedBlockIndex);
+        if ($this->selectedContainerKey !== null && $this->selectedWidgetIndex !== null) {
+            return $this->handleForWidget($this->selectedContainerKey, $this->selectedWidgetIndex);
         }
 
         if ($this->selectedContainerKey !== null) {
@@ -872,13 +872,13 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return hash('xxh128', 'container:' . $containerKey);
     }
 
-    private function handleForBlock(string $containerKey, int $blockIndex): string
+    private function handleForWidget(string $containerKey, int $widgetIndex): string
     {
-        return hash('xxh128', 'block:' . $containerKey . ':' . $blockIndex);
+        return hash('xxh128', 'widget:' . $containerKey . ':' . $widgetIndex);
     }
 
     /**
-     * @return array{type: string, containerKey: string, blockIndex?: int}|null
+     * @return array{type: string, containerKey: string, widgetIndex?: int}|null
      */
     private function resolvePreviewNodeHandle(string $handle): ?array
     {
@@ -896,21 +896,21 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 ? $container['widgets']
                 : [];
 
-            foreach (array_keys($widgets) as $blockIndex) {
-                if (! is_int($blockIndex) && ! ctype_digit($blockIndex)) {
+            foreach (array_keys($widgets) as $widgetIndex) {
+                if (! is_int($widgetIndex) && ! ctype_digit($widgetIndex)) {
                     continue;
                 }
 
-                $normalizedBlockIndex = (int) $blockIndex;
+                $normalizedWidgetIndex = (int) $widgetIndex;
 
-                if ($this->handleForBlock($normalizedContainerKey, $normalizedBlockIndex) !== $handle) {
+                if ($this->handleForWidget($normalizedContainerKey, $normalizedWidgetIndex) !== $handle) {
                     continue;
                 }
 
                 return [
-                    'type' => 'block',
+                    'type' => 'widget',
                     'containerKey' => $normalizedContainerKey,
-                    'blockIndex' => $normalizedBlockIndex,
+                    'widgetIndex' => $normalizedWidgetIndex,
                 ];
             }
         }

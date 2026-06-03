@@ -18,12 +18,12 @@ beforeEach(function (): void {
 
 it('saves the selected container as a layout preset from the builder', function (): void {
     $site = Site::factory()->create();
-    $block = Widget::factory()->create(['key' => 'hero']);
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => [
                 'widgets' => [
-                    ['widget_key' => $block->key, 'occurrence' => 1],
+                    ['widget_key' => $widget->key, 'occurrence' => 1],
                 ],
             ],
         ],
@@ -49,20 +49,20 @@ it('saves the selected container as a layout preset from the builder', function 
 
 it('inserts a layout preset into the builder state', function (): void {
     $site = Site::factory()->create();
-    $block = Widget::factory()->create(['key' => 'feature']);
+    $widget = Widget::factory()->create(['key' => 'feature']);
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'main' => ['widgets' => []],
         ],
     ]);
     LayoutPreset::factory()->for($site, 'site')->create([
-        'name' => 'Feature block',
-        'key' => 'feature-block',
+        'name' => 'Feature widget',
+        'key' => 'feature-widget',
         'snapshot' => [
             'containers' => [
                 'preset' => [
                     'widgets' => [
-                        ['widget_key' => $block->key, 'occurrence' => 1],
+                        ['widget_key' => $widget->key, 'occurrence' => 1],
                     ],
                 ],
             ],
@@ -70,6 +70,6 @@ it('inserts a layout preset into the builder state', function (): void {
     ]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout, 'site' => $site])
-        ->call('insertLayoutPreset', 'Feature block', 'main')
+        ->call('insertLayoutPreset', 'Feature widget', 'main')
         ->assertSet('containers.preset-copy.widgets.0.widget_key', 'feature');
 });

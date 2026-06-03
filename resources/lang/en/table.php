@@ -18,7 +18,7 @@ return [
     'colors' => 'Colors',
     'component' => 'Section',
     'configurator' => 'Configurator',
-    'container_blocks' => 'Container Blocks',
+    'container_widgets' => 'Container Widgets',
     'content' => 'Content',
     'certification' => 'Certification',
     'contributions' => 'Contributions',

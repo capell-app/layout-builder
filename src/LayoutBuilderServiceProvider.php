@@ -14,32 +14,32 @@ use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
-use Capell\LayoutBuilder\Console\Commands\BlockVisualRegressionCommand;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
+use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
-use Capell\LayoutBuilder\Contracts\LayoutSidebarBlockContributor;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
-use Capell\LayoutBuilder\Support\BlockPresentationPublicBlockPayloadContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
-use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockAssetContentGraphExtractor;
-use Capell\LayoutBuilder\Support\ContentGraph\Extractors\BlockContentGraphExtractor;
-use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutBlockContentGraphExtractor;
-use Capell\LayoutBuilder\Support\DefaultPublicBlockPayloadResolver;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutWidgetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\WidgetAssetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\WidgetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\DefaultPublicWidgetPayloadResolver;
 use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditableRegionContributor;
 use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
-use Capell\LayoutBuilder\Support\LayoutBlockWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
+use Capell\LayoutBuilder\Support\LayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\WidgetPresentationPublicWidgetPayloadContributor;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Override;
@@ -69,25 +69,25 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         $this->app->singleton(LayoutAreaRegistry::class, fn (): LayoutAreaRegistry => new LayoutAreaRegistry);
         $this->app->tag([], LayoutContentGroupContributor::TAG);
-        $this->app->tag([], LayoutSidebarBlockContributor::TAG);
+        $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
-        $this->app->scoped(PublicBlockPayloadResolver::class, DefaultPublicBlockPayloadResolver::class);
+        $this->app->scoped(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
-        $this->app->tag([BlockPresentationPublicBlockPayloadContributor::class], PublicBlockPayloadContributor::TAG);
+        $this->app->tag([WidgetPresentationPublicWidgetPayloadContributor::class], PublicWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
-        $this->app->tag([LayoutBlockWidgetResourceUsageContributor::class], WidgetResourceUsageContributor::TAG);
+        $this->app->tag([LayoutWidgetResourceUsageContributor::class], WidgetResourceUsageContributor::TAG);
         $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
-            BlockAssetContentGraphExtractor::class,
-            BlockContentGraphExtractor::class,
-            LayoutBlockContentGraphExtractor::class,
+            WidgetAssetContentGraphExtractor::class,
+            WidgetContentGraphExtractor::class,
+            LayoutWidgetContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
         $this->registerPageTypes();
 
         if ($this->app->runningInConsole()) {
             $this->commands([
-                BlockVisualRegressionCommand::class,
+                WidgetVisualRegressionCommand::class,
                 InstallCommand::class,
             ]);
         }

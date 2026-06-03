@@ -13,10 +13,10 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Data\DemoSitePlanData;
-use Capell\LayoutBuilder\Support\Creator\BlockCreator;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -85,7 +85,7 @@ class CreateLayoutBuilderDemoSiteAction
         $this->populateMainContainer($containers, $page);
         $this->populateFaqContainers($containers, $languages, $page);
         $this->populateSecondaryContainer($containers, $languages, $page);
-        $this->populateAPBlocksContainer($containers);
+        $this->populateAPWidgetsContainer($containers);
         $this->populateSplitTwoContainer($containers, $languages);
         $this->addSplitTwoBackgroundMedia($layout);
 
@@ -97,22 +97,22 @@ class CreateLayoutBuilderDemoSiteAction
      */
     private function populateMainContainer(array &$containers, Pageable $page): void
     {
-        $pageCardsBlock = $this->demoCreator->createPageCardsBlock($page);
-        $galleryBlock = $this->demoCreator->createGalleryBlock();
-        $secondPageCardsBlock = $this->demoCreator->createPageCardsBlock($page, occurrence: 2);
-        $mediaCarouselBlock = $this->demoCreator->createMediaCarouselBlock();
+        $pageCardsWidget = $this->demoCreator->createPageCardsWidget($page);
+        $galleryWidget = $this->demoCreator->createGalleryWidget();
+        $secondPageCardsWidget = $this->demoCreator->createPageCardsWidget($page, occurrence: 2);
+        $mediaCarouselWidget = $this->demoCreator->createMediaCarouselWidget();
 
         $containers['main']['widgets'] = [
             [
-                'widget_key' => $pageCardsBlock->key,
+                'widget_key' => $pageCardsWidget->key,
                 'occurrence' => 1,
             ],
-            ['widget_key' => $galleryBlock->key],
+            ['widget_key' => $galleryWidget->key],
             [
-                'widget_key' => $secondPageCardsBlock->key,
+                'widget_key' => $secondPageCardsWidget->key,
                 'occurrence' => 2,
             ],
-            ['widget_key' => $mediaCarouselBlock->key],
+            ['widget_key' => $mediaCarouselWidget->key],
         ];
     }
 
@@ -122,7 +122,7 @@ class CreateLayoutBuilderDemoSiteAction
      */
     private function populateFaqContainers(array &$containers, EloquentCollection $languages, Pageable $page): void
     {
-        $faqBlock = $this->demoCreator->createFaqBlock($languages);
+        $faqWidget = $this->demoCreator->createFaqWidget($languages);
         $site = $page->site;
 
         throw_unless($site instanceof Site, Exception::class, 'Demo page requires a site.');
@@ -132,11 +132,11 @@ class CreateLayoutBuilderDemoSiteAction
                 'colspan' => 8,
             ],
             'widgets' => [
-                ['widget_key' => $faqBlock->key],
+                ['widget_key' => $faqWidget->key],
             ],
         ];
 
-        $faqColumnBlock = $this->demoCreator->createStaticNavigationBlock($languages, $site);
+        $faqColumnWidget = $this->demoCreator->createStaticNavigationWidget($languages, $site);
 
         $containers['faq-col'] = [
             'meta' => [
@@ -144,7 +144,7 @@ class CreateLayoutBuilderDemoSiteAction
                 'container' => ContainerWidthEnum::Full,
             ],
             'widgets' => [
-                ['widget_key' => $faqColumnBlock->key],
+                ['widget_key' => $faqColumnWidget->key],
             ],
         ];
     }
@@ -159,65 +159,65 @@ class CreateLayoutBuilderDemoSiteAction
 
         throw_unless($site instanceof Site, Exception::class, 'Demo page requires a site.');
 
-        $featureListBlock = $this->demoCreator->createModernFeatureListBlock();
-        $teamPortfolioBlock = $this->demoCreator->createTeamPortfolioBlock($languages);
-        $modernTeamBlock = $this->demoCreator->createModernTeamMembersBlock();
-        $bannerImageBlock = $this->demoCreator->createBannerImageBlock($languages);
-        $contentBlock = $this->demoCreator->createContentBlock($languages);
-        $statisticsBlock = $this->demoCreator->createStatisticsBlock();
-        $pricingBlock = $this->demoCreator->createModernPricingTableBlock();
-        $businessFeaturesBlock = $this->demoCreator->createBusinessFeaturesBlock($site);
-        $bannersBlock = $this->demoCreator->createBannersBlock();
-        $clientLogosBlock = $this->demoCreator->createClientLogosBlock($languages);
-        $testimonialsBlock = $this->demoCreator->createModernTestimonialsBlock();
-        $faqBlock = $this->demoCreator->createModernFaqBlock();
-        $statsBlock = $this->demoCreator->createModernStatsSectionBlock();
-        $alternatingBlock = $this->demoCreator->createModernAlternatingContentBlock();
-        $processBlock = $this->demoCreator->createModernProcessStepsBlock();
-        $galleryBlock = $this->demoCreator->createModernImageGalleryBlock();
+        $featureListWidget = $this->demoCreator->createModernFeatureListWidget();
+        $teamPortfolioWidget = $this->demoCreator->createTeamPortfolioWidget($languages);
+        $modernTeamWidget = $this->demoCreator->createModernTeamMembersWidget();
+        $bannerImageWidget = $this->demoCreator->createBannerImageWidget($languages);
+        $contentWidget = $this->demoCreator->createContentWidget($languages);
+        $statisticsWidget = $this->demoCreator->createStatisticsWidget();
+        $pricingWidget = $this->demoCreator->createModernPricingTableWidget();
+        $businessFeaturesWidget = $this->demoCreator->createBusinessFeaturesWidget($site);
+        $bannersWidget = $this->demoCreator->createBannersWidget();
+        $clientLogosWidget = $this->demoCreator->createClientLogosWidget($languages);
+        $testimonialsWidget = $this->demoCreator->createModernTestimonialsWidget();
+        $faqWidget = $this->demoCreator->createModernFaqWidget();
+        $statsWidget = $this->demoCreator->createModernStatsSectionWidget();
+        $alternatingWidget = $this->demoCreator->createModernAlternatingContentWidget();
+        $processWidget = $this->demoCreator->createModernProcessStepsWidget();
+        $galleryWidget = $this->demoCreator->createModernImageGalleryWidget();
 
-        $blockCreator = resolve(BlockCreator::class);
+        $widgetCreator = resolve(WidgetCreator::class);
 
-        $apHeroBannerBlock = $blockCreator->apHeroBannerBlock();
-        $apCardGridBlock = $blockCreator->apCardGridBlock();
-        $apFeatureListBlock = $blockCreator->apFeatureListBlock();
-        $apCtaSectionBlock = $blockCreator->apCtaSectionBlock();
-        $apImageGalleryBlock = $blockCreator->apImageGalleryBlock();
+        $apHeroBannerWidget = $widgetCreator->apHeroBannerWidget();
+        $apCardGridWidget = $widgetCreator->apCardGridWidget();
+        $apFeatureListWidget = $widgetCreator->apFeatureListWidget();
+        $apCtaSectionWidget = $widgetCreator->apCtaSectionWidget();
+        $apImageGalleryWidget = $widgetCreator->apImageGalleryWidget();
 
         $containers['secondary'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $featureListBlock->key],
-                ['widget_key' => $teamPortfolioBlock->key],
-                ['widget_key' => $modernTeamBlock->key],
-                ['widget_key' => $bannerImageBlock->key],
-                ['widget_key' => $contentBlock->key],
-                ['widget_key' => $statisticsBlock->key],
-                ['widget_key' => $pricingBlock->key],
-                ['widget_key' => $businessFeaturesBlock->key],
-                ['widget_key' => $bannersBlock->key],
-                ['widget_key' => $clientLogosBlock->key],
-                ['widget_key' => $testimonialsBlock->key],
-                ['widget_key' => $faqBlock->key],
-                ['widget_key' => $statsBlock->key],
-                ['widget_key' => $alternatingBlock->key],
-                ['widget_key' => $processBlock->key],
-                ['widget_key' => $galleryBlock->key],
+                ['widget_key' => $featureListWidget->key],
+                ['widget_key' => $teamPortfolioWidget->key],
+                ['widget_key' => $modernTeamWidget->key],
+                ['widget_key' => $bannerImageWidget->key],
+                ['widget_key' => $contentWidget->key],
+                ['widget_key' => $statisticsWidget->key],
+                ['widget_key' => $pricingWidget->key],
+                ['widget_key' => $businessFeaturesWidget->key],
+                ['widget_key' => $bannersWidget->key],
+                ['widget_key' => $clientLogosWidget->key],
+                ['widget_key' => $testimonialsWidget->key],
+                ['widget_key' => $faqWidget->key],
+                ['widget_key' => $statsWidget->key],
+                ['widget_key' => $alternatingWidget->key],
+                ['widget_key' => $processWidget->key],
+                ['widget_key' => $galleryWidget->key],
             ],
         ];
 
-        $containers['ap-blocks'] = [
+        $containers['ap-widgets'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $apHeroBannerBlock->key],
-                ['widget_key' => $apCardGridBlock->key],
-                ['widget_key' => $apFeatureListBlock->key],
-                ['widget_key' => $apCtaSectionBlock->key],
-                ['widget_key' => $apImageGalleryBlock->key],
+                ['widget_key' => $apHeroBannerWidget->key],
+                ['widget_key' => $apCardGridWidget->key],
+                ['widget_key' => $apFeatureListWidget->key],
+                ['widget_key' => $apCtaSectionWidget->key],
+                ['widget_key' => $apImageGalleryWidget->key],
             ],
         ];
     }
@@ -225,24 +225,24 @@ class CreateLayoutBuilderDemoSiteAction
     /**
      * @param  array<array-key, mixed>  $containers
      */
-    private function populateAPBlocksContainer(array &$containers): void
+    private function populateAPWidgetsContainer(array &$containers): void
     {
-        $heroBannerBlock = $this->demoCreator->createApHeroBannerBlock();
-        $cardGridBlock = $this->demoCreator->createApCardGridBlock();
-        $featureListBlock = $this->demoCreator->createApFeatureListBlock();
-        $ctaSectionBlock = $this->demoCreator->createApCtaSectionBlock();
-        $imageGalleryBlock = $this->demoCreator->createApImageGalleryBlock();
+        $heroBannerWidget = $this->demoCreator->createApHeroBannerWidget();
+        $cardGridWidget = $this->demoCreator->createApCardGridWidget();
+        $featureListWidget = $this->demoCreator->createApFeatureListWidget();
+        $ctaSectionWidget = $this->demoCreator->createApCtaSectionWidget();
+        $imageGalleryWidget = $this->demoCreator->createApImageGalleryWidget();
 
-        $containers['ap-blocks'] = [
+        $containers['ap-widgets'] = [
             'meta' => [
                 'colspan' => 12,
             ],
             'widgets' => [
-                ['widget_key' => $heroBannerBlock->key],
-                ['widget_key' => $cardGridBlock->key],
-                ['widget_key' => $featureListBlock->key],
-                ['widget_key' => $ctaSectionBlock->key],
-                ['widget_key' => $imageGalleryBlock->key],
+                ['widget_key' => $heroBannerWidget->key],
+                ['widget_key' => $cardGridWidget->key],
+                ['widget_key' => $featureListWidget->key],
+                ['widget_key' => $ctaSectionWidget->key],
+                ['widget_key' => $imageGalleryWidget->key],
             ],
         ];
     }
@@ -253,7 +253,7 @@ class CreateLayoutBuilderDemoSiteAction
      */
     private function populateSplitTwoContainer(array &$containers, EloquentCollection $languages): void
     {
-        $splitContentBlock = $this->demoCreator->createSplitContentBlock($languages);
+        $splitContentWidget = $this->demoCreator->createSplitContentWidget($languages);
 
         $containers['split-two'] = [
             'meta' => [
@@ -264,7 +264,7 @@ class CreateLayoutBuilderDemoSiteAction
                 'background_color' => 'light-gray',
             ],
             'widgets' => [
-                ['widget_key' => $splitContentBlock->key],
+                ['widget_key' => $splitContentWidget->key],
             ],
         ];
     }

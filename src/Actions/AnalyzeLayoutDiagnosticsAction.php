@@ -9,7 +9,7 @@ use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\LayoutBlockData;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class AnalyzeLayoutDiagnosticsAction
@@ -30,16 +30,16 @@ final class AnalyzeLayoutDiagnosticsAction
         $diagnostics = [];
 
         foreach ($state->containers as $containerKey => $container) {
-            foreach (LayoutBlockData::fromContainer($container) as $blockIndex => $block) {
-                $widgetKey = LayoutBlockData::key($block);
+            foreach (LayoutWidgetData::fromContainer($container) as $widgetIndex => $widget) {
+                $widgetKey = LayoutWidgetData::key($widget);
 
                 if (! is_string($widgetKey) || ! in_array($widgetKey, $knownWidgetKeys, true)) {
                     $diagnostics[] = new LayoutDiagnosticData(
                         severity: LayoutDiagnosticSeverity::Blocking,
-                        code: 'unknown_block',
-                        message: __('capell-admin::message.unknown_block', ['block' => (string) $widgetKey]),
+                        code: 'unknown_widget',
+                        message: __('capell-admin::message.unknown_widget', ['widget' => (string) $widgetKey]),
                         containerKey: (string) $containerKey,
-                        blockIndex: $blockIndex,
+                        widgetIndex: $widgetIndex,
                     );
                 }
             }
@@ -56,7 +56,7 @@ final class AnalyzeLayoutDiagnosticsAction
                         code: 'invalid_responsive_colspan',
                         message: __('capell-admin::message.invalid_responsive_colspan', ['container' => (string) $containerKey]),
                         containerKey: (string) $containerKey,
-                        blockIndex: null,
+                        widgetIndex: null,
                     );
                 }
             }
@@ -71,8 +71,8 @@ final class AnalyzeLayoutDiagnosticsAction
     private function knownWidgetKeys(LayoutBuilderStateData $state): array
     {
         $layoutWidgetKeys = collect($state->containers)
-            ->flatMap(fn (array $container): array => LayoutBlockData::fromContainer($container))
-            ->map(static fn (array $block): ?string => LayoutBlockData::key($block))
+            ->flatMap(fn (array $container): array => LayoutWidgetData::fromContainer($container))
+            ->map(static fn (array $widget): ?string => LayoutWidgetData::key($widget))
             ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()

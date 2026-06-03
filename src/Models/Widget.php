@@ -93,7 +93,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('block')
+            ->useLogName('widget')
             ->logAll()
             ->logExcept(['updated_at', 'created_at', 'deleted_at'])
             ->logOnlyDirty()
@@ -152,8 +152,8 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     public function getComponent(): ?string
     {
         return ResolveRenderableComponentAction::run(
-            'layout-block',
-            $this->getMetaComponent() ?? config('capell-layout-builder.default_block', 'capell.block.default'),
+            'layout-widget',
+            $this->getMetaComponent() ?? config('capell-layout-builder.default_widget', 'capell.widget.default'),
             $this->getMetaComponentType(),
         );
     }
@@ -220,7 +220,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     }
 
     /** @return HasMany<WidgetAsset, $this> */
-    public function layoutBlockAssets(): HasMany
+    public function layoutWidgetAssets(): HasMany
     {
         return $this->assets()
             ->whereNull('pageable_type')
@@ -228,23 +228,23 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     }
 
     /** @return HasMany<WidgetAsset, $this> */
-    public function blockAssets(): HasMany
+    public function widgetAssets(): HasMany
     {
-        return $this->layoutBlockAssets();
+        return $this->layoutWidgetAssets();
     }
 
     /** @return HasMany<WidgetAsset, $this> */
-    public function blockPageAssets(): HasMany
+    public function widgetPageAssets(): HasMany
     {
         return $this->assets()
             ->whereNotNull('pageable_type')
             ->whereNotNull('pageable_id');
     }
 
-    /** @return HasMany<WidgetBlock, $this> */
-    public function blocks(): HasMany
+    /** @return HasMany<WidgetWidget, $this> */
+    public function widgets(): HasMany
     {
-        return $this->hasMany(WidgetBlock::class)
+        return $this->hasMany(WidgetWidget::class)
             ->ordered()
             ->chaperone();
     }
