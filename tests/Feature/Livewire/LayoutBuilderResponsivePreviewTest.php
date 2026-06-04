@@ -46,7 +46,16 @@ it('renders responsive preview switching as an alpine interaction from the packa
     config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
 
     $layout = Layout::factory()->create(['containers' => [
-        'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
+        'main' => [
+            'widgets' => [],
+            'meta' => [
+                'colspan' => 8,
+                'responsive' => [
+                    'mobile' => ['colspan' => 12],
+                    'tablet' => ['colspan' => 6],
+                ],
+            ],
+        ],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -56,14 +65,30 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertSeeHtml('syncPanelLayout')
         ->assertSeeHtml('actionLoading')
         ->assertSeeHtml('selectNode')
+        ->assertSeeHtml('applyPreviewBreakpoint')
+        ->assertSeeHtml('dispatchPreviewAction')
+        ->assertSeeHtml('duplicateWidget')
+        ->assertSeeHtml('removeWidget')
         ->assertSeeHtml('--layout-builder-preview-max-width')
         ->assertSeeHtml('--layout-builder-preview-min-width')
-        ->assertElementExists('.layout-builder-preview-actions')
+        ->assertSeeHtml('--clb-preview-tablet-colspan: 6')
+        ->assertSeeHtml('--clb-preview-mobile-colspan: 12')
+        ->assertElementExists('.layout-builder-visual-toolbar')
+        ->assertElementExists('.layout-builder-command-group')
+        ->assertElementExists('.layout-builder-command-save')
+        ->assertElementExists('.layout-builder-preview-command-label')
+        ->assertElementExists('.layout-builder-history-actions')
+        ->assertElementExists('.layout-builder-panel-collapse-toggle')
+        ->assertElementExists('.layout-builder-tree-header-actions')
         ->assertElementExists('[data-match-frontend-container-layout="true"]')
         ->assertElementExists('[x-bind\\:data-active-breakpoint]')
+        ->assertElementExists('[x-ref="previewCanvas"]')
         ->assertSeeHtml('shouldStackContainersForActiveBreakpoint')
         ->assertElementExists('.layout-builder-canvas-scroll')
         ->assertElementExists('[x-bind\\:aria-pressed]')
+        ->assertDontSeeHtml('requestPreviewRefresh')
+        ->assertDontSeeHtml('layout-builder-preview-status-row')
+        ->assertDontSeeHtml('capell-layout-builder::generic.preview')
         ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[wire\\:click^="setActiveBreakpoint"]'));
 });
 

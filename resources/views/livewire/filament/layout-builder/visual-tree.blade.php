@@ -15,6 +15,41 @@
                 {{ trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->widgetCount, ['containers' => $tree->containerCount, 'widgets' => $tree->widgetCount]) }}
             </p>
         </div>
+
+        <div class="layout-builder-tree-header-actions">
+            <button
+                type="button"
+                class="layout-builder-tree-collapse-button"
+                x-on:click="toggleTreeCollapsed()"
+                title="{{ __('capell-layout-builder::button.collapse') }}"
+            >
+                @svg('heroicon-o-chevron-left', 'h-4 w-4')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::button.collapse') }}
+                </span>
+            </button>
+
+            @if ($this->canEditLayout())
+                <x-filament::dropdown
+                    placement="bottom-end"
+                    width="!w-auto"
+                >
+                    <x-slot name="trigger">
+                        <x-filament::icon-button
+                            color="gray"
+                            icon="heroicon-o-plus"
+                            size="sm"
+                            :label="__('capell-layout-builder::button.layout_actions')"
+                        />
+                    </x-slot>
+
+                    <x-filament::dropdown.list>
+                        {{ $this->addContainerAction }}
+                        {{ $this->addWidgetAction }}
+                    </x-filament::dropdown.list>
+                </x-filament::dropdown>
+            @endif
+        </div>
     </div>
 
     <label class="layout-builder-tree-search">
@@ -35,6 +70,7 @@
                 x-data="{ open: true }"
                 x-show="itemMatches($el)"
                 data-layout-builder-tree-search="{{ $container->label }} {{ $container->areaLabel }} {{ collect($container->widgets)->pluck('label')->implode(' ') }}"
+                data-layout-builder-tree-node="{{ $container->nodeId }}"
                 class="layout-builder-tree-container"
                 role="treeitem"
                 aria-expanded="true"
@@ -78,6 +114,7 @@
                                 'layout-builder-tree-row layout-builder-tree-row-widget',
                                 'layout-builder-tree-row-selected' => $widget->isSelected,
                             ])
+                            data-layout-builder-tree-node="{{ $widget->nodeId }}"
                             x-on:click="selectFromTree(@js($widget->nodeId), () => $wire.selectWidget(@js($widget->containerKey), @js($widget->widgetIndex)))"
                         >
                             <span class="layout-builder-tree-row-icon">
@@ -104,11 +141,4 @@
             </section>
         @endforeach
     </div>
-
-    @if ($this->canEditLayout())
-        <div class="layout-builder-tree-footer">
-            {{ $this->addContainerAction }}
-            {{ $this->addWidgetAction }}
-        </div>
-    @endif
 </div>

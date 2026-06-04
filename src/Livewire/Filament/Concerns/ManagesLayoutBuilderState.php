@@ -19,6 +19,7 @@ use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
+use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use LogicException;
@@ -116,12 +117,23 @@ trait ManagesLayoutBuilderState
 
     public function layoutUpdated(bool $modified = true): void
     {
+        $wasModified = $this->layoutModified;
+
         $this->layoutModified = $modified;
 
         $this->visualPreviewStatus = $modified ? 'stale' : 'current';
 
         if ($modified) {
             $this->dispatch('capell-layout-builder-authoring-dirty');
+
+            if (! $wasModified) {
+                Notification::make('layout-unsaved')
+                    ->title(__('capell-layout-builder::message.layout_unsaved'))
+                    ->warning()
+                    ->send();
+            }
+
+            $this->refreshVisualPreview();
         }
 
         if (! $this->inPageContext()) {

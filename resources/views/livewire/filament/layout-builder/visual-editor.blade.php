@@ -57,6 +57,7 @@
     <script data-navigate-once>
         window.capellLayoutBuilderVisualEditor = (config = {}) => ({
             treeOpen: false,
+            treeCollapsed: false,
             compactPanels: false,
             actionLoading: false,
             search: '',
@@ -85,6 +86,7 @@
                 )
                 this.previewResizeObserver.observe(this.$el)
                 this.renderPreview()
+                this.applyPreviewBreakpoint()
             },
             destroy() {
                 this.previewResizeObserver?.disconnect()
@@ -98,14 +100,13 @@
                     :host { all: initial; color: #111827; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
                     *, *::before, *::after { box-sizing: border-box; }
                     a, button, input, select, textarea, form { pointer-events: none !important; }
-                    .clb-preview-page { min-height: 100%; background: #f8fafc; color: #111827; }
-                    .clb-preview-header { display: flex; align-items: end; justify-content: space-between; gap: 1rem; padding: 1.5rem clamp(1rem, 2.5vw, 2rem); border-bottom: 1px solid #e5e7eb; background: #fff; }
-                    .clb-preview-kicker { margin-bottom: .35rem; color: #64748b; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-                    .clb-preview-header h1 { margin: 0; font-size: clamp(1.875rem, 4vw, 3.5rem); line-height: 1.05; font-weight: 750; letter-spacing: 0; }
-                    .clb-preview-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; padding: clamp(.875rem, 2vw, 1.5rem); }
-                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border: 1px solid rgba(148, 163, 184, .55); border-radius: .75rem; background: rgba(255,255,255,.7); padding: 1rem; transition: box-shadow .15s ease, outline-color .15s ease; }
-                    .clb-preview-container-label { display: inline-flex; margin-bottom: .75rem; border-radius: 999px; background: #f1f5f9; padding: .25rem .625rem; color: #475569; font-size: .75rem; font-weight: 650; }
-                    .clb-preview-widgets { display: grid; gap: .875rem; }
+                    .clb-preview-page { min-height: 100%; background: #fff; color: #111827; }
+                    .clb-preview-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .75rem; padding: .75rem; }
+                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border: 1px solid rgba(148, 163, 184, .42); border-radius: .5rem; background: #fff; padding: .625rem; transition: box-shadow .15s ease, outline-color .15s ease; }
+                    :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
+                    :host([data-active-breakpoint="mobile"]) .clb-preview-container { grid-column: 1 / -1; }
+                    .clb-preview-container-label { display: inline-flex; margin-bottom: .5rem; border-radius: 999px; background: #f1f5f9; padding: .1875rem .5rem; color: #475569; font-size: .6875rem; font-weight: 650; }
+                    .clb-preview-widgets { display: grid; gap: .625rem; }
                     .clb-preview-widget { position: relative; border-radius: .625rem; outline: 2px solid transparent; outline-offset: 3px; transition: outline-color .15s ease, box-shadow .15s ease; }
                     .clb-preview-widget, .layout-builder-widget-preview { overflow: hidden; border: 1px solid #e5e7eb; border-radius: .625rem; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.06); }
                     .clb-preview-widget-body { display: flex; gap: .875rem; padding: 1rem; }
@@ -113,7 +114,7 @@
                     .clb-preview-widget-type { margin-bottom: .25rem; color: #64748b; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
                     .clb-preview-widget h2, .layout-builder-widget-preview h2 { margin: 0; font-size: 1rem; line-height: 1.35; font-weight: 700; letter-spacing: 0; }
                     .clb-preview-widget p { margin: .375rem 0 0; color: #475569; font-size: .875rem; line-height: 1.5; }
-                    .layout-builder-widget-preview { padding: 1rem; }
+                    .layout-builder-widget-preview { padding: .75rem; }
                     .layout-widget-preview-actions, .layout-widget-assets-toggle { display: none !important; }
                     .clb-preview-empty { width: 100%; border: 1px dashed #cbd5e1; border-radius: .625rem; padding: 1rem; color: #64748b; text-align: center; }
                     .clb-preview-empty-page { grid-column: 1 / -1; }
@@ -156,6 +157,7 @@
                 const template = this.$refs.previewTemplate
                 const html = template ? template.innerHTML : ''
 
+                host.dataset.activeBreakpoint = this.activeBreakpoint
                 root.innerHTML = `<style>${this.shadowStyles()}</style>${html}`
                 this.bindPreviewRootEvents(root)
                 root.querySelectorAll('[data-clb-preview-node]').forEach(
@@ -582,47 +584,31 @@
                     },
                 )
             },
-            requestPreviewRefresh() {
-                const token =
-                    window.crypto?.randomUUID?.() ||
-                    `${Date.now()}-${Math.random()}`
-                let handled = false
-
-                const consumePageState = (event) => {
-                    if (event.detail?.token !== token) return
-
-                    handled = true
-                    window.removeEventListener(
-                        'capell-layout-builder:page-state',
-                        consumePageState,
-                    )
-                    this.$wire.refreshVisualPreview(event.detail?.state || {})
-                }
-
-                window.addEventListener(
-                    'capell-layout-builder:page-state',
-                    consumePageState,
-                )
-                window.dispatchEvent(
-                    new CustomEvent(
-                        'capell-layout-builder:request-page-state',
-                        { detail: { token } },
-                    ),
-                )
-
-                window.setTimeout(() => {
-                    if (handled) return
-
-                    window.removeEventListener(
-                        'capell-layout-builder:page-state',
-                        consumePageState,
-                    )
-                    this.$wire.refreshVisualPreview({})
-                }, 75)
-            },
             setActiveBreakpointPreview(breakpoint) {
                 this.activeBreakpoint = breakpoint || 'desktop'
+                this.applyPreviewBreakpoint()
                 this.$wire.setActiveBreakpoint(this.activeBreakpoint)
+            },
+            applyPreviewBreakpoint() {
+                const maxWidth = this.activeBreakpointMaxCanvasWidth()
+                const minWidth = this.activeBreakpointMinCanvasWidth()
+                const canvas = this.$refs.previewCanvas
+                const host = this.$refs.previewHost
+
+                canvas?.style.setProperty(
+                    '--layout-builder-preview-max-width',
+                    maxWidth,
+                )
+                canvas?.style.setProperty(
+                    '--layout-builder-preview-min-width',
+                    minWidth,
+                )
+
+                if (!host) return
+
+                host.dataset.activeBreakpoint = this.activeBreakpoint
+                host.style.maxWidth = maxWidth
+                host.style.minWidth = minWidth
             },
             activeBreakpointMaxCanvasWidth() {
                 return this.breakpointWidths[this.activeBreakpoint] || '100%'
@@ -649,6 +635,13 @@
             closeTree() {
                 this.treeOpen = false
                 this.$nextTick(() => this.$refs.treeToggle?.focus())
+            },
+            toggleTreeCollapsed() {
+                this.treeCollapsed = !this.treeCollapsed
+
+                if (!this.treeCollapsed) {
+                    this.$nextTick(() => this.scrollSelectedTreeNodeIntoView())
+                }
             },
             openWidgetEditor(node) {
                 const action = this.previewWidgetActions[node]
@@ -692,12 +685,22 @@
                     throw error
                 }
 
-                Promise.resolve(result).then(() =>
-                    this.markSelectedPreviewNode(),
-                )
+                Promise.resolve(result).then(() => {
+                    this.markSelectedPreviewNode()
+                    this.scrollSelectedTreeNodeIntoView()
+                })
             },
             selectFromTree(node, callback) {
                 this.selectNode(node, callback)
+            },
+            scrollSelectedTreeNodeIntoView() {
+                if (!this.selectedNode) return
+
+                this.$refs.treePanel
+                    ?.querySelector(
+                        `[data-layout-builder-tree-node="${this.selectedNode}"]`,
+                    )
+                    ?.scrollIntoView({ block: 'nearest' })
             },
             runPreviewAction(actionName, action, extra = {}) {
                 const args = {}
@@ -722,7 +725,36 @@
                     args.types = extra.types
                 }
 
+                return this.dispatchPreviewAction(actionName, args)
+            },
+            dispatchPreviewAction(actionName, args) {
                 this.actionLoading = true
+
+                const directActions = {
+                    duplicateContainer: () =>
+                        this.$wire.duplicateContainer(args.containerKey),
+                    removeContainer: () =>
+                        this.$wire.removeContainer(args.containerKey),
+                    duplicateWidget: () =>
+                        this.$wire.duplicateWidget(
+                            args.containerKey,
+                            args.widgetIndex,
+                        ),
+                    removeWidget: () =>
+                        this.$wire.removeWidget(
+                            args.containerKey,
+                            args.widgetIndex,
+                        ),
+                }
+
+                if (directActions[actionName]) {
+                    return Promise.resolve(directActions[actionName]())
+                        .then(() => this.$wire.refreshVisualPreview({}))
+                        .then(() => this.$nextTick(() => this.renderPreview()))
+                        .finally(() => {
+                            this.actionLoading = false
+                        })
+                }
 
                 return Promise.resolve(
                     this.$wire.mountAction(actionName, args),
@@ -760,87 +792,74 @@
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
             })"
     x-on:keydown.escape.window="treeOpen ? closeTree() : null"
+    x-bind:data-tree-collapsed="treeCollapsed ? 'true' : 'false'"
     @class([
         'layout-builder-visual-editor',
         'layout-builder-visual-editor-empty' => $tree->widgetCount === 0,
     ])
 >
     <div class="layout-builder-visual-toolbar">
-        <div class="layout-builder-visual-toolbar-start">
-            <button
-                x-ref="treeToggle"
-                type="button"
-                class="layout-builder-panel-toggle"
-                x-on:click="openTree()"
-            >
-                @svg('heroicon-o-bars-3-bottom-left', 'h-5 w-5')
-                <span>
-                    {{ __('capell-layout-builder::button.structure') }}
-                </span>
-            </button>
+        <div
+            class="layout-builder-visual-toolbar-start layout-builder-command-group"
+        >
+            <div class="layout-builder-command-save">
+                @if ($this->saveLayoutAction->isVisible())
+                    {{ $this->saveLayoutAction }}
+                @endif
+            </div>
+
+            <div class="layout-builder-command-divider"></div>
+
+            <div class="layout-builder-command-structure">
+                <button
+                    type="button"
+                    class="layout-builder-panel-collapse-toggle"
+                    x-on:click="toggleTreeCollapsed()"
+                    x-bind:aria-pressed="treeCollapsed"
+                    title="{{ __('capell-layout-builder::button.structure') }}"
+                >
+                    <span x-show="!treeCollapsed">
+                        @svg('heroicon-o-chevron-left', 'h-4 w-4')
+                    </span>
+                    <span
+                        x-show="treeCollapsed"
+                        x-cloak
+                    >
+                        @svg('heroicon-o-chevron-right', 'h-4 w-4')
+                    </span>
+                    <span class="sr-only">
+                        {{ __('capell-layout-builder::button.structure') }}
+                    </span>
+                </button>
+
+                <button
+                    x-ref="treeToggle"
+                    type="button"
+                    class="layout-builder-panel-toggle"
+                    x-on:click="openTree()"
+                >
+                    @svg('heroicon-o-bars-3-bottom-left', 'h-5 w-5')
+                    <span>
+                        {{ __('capell-layout-builder::button.structure') }}
+                    </span>
+                </button>
+            </div>
         </div>
 
-        <div class="layout-builder-visual-actions">
-            <div
-                x-show="actionLoading"
-                x-cloak
-                class="layout-builder-action-inline-loading"
-            >
-                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')
+        <div
+            class="layout-builder-breakpoint-controls layout-builder-command-group"
+            aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
+        >
+            <div class="layout-builder-preview-command-label">
+                @svg('heroicon-o-eye', 'h-4 w-4')
                 <span>
-                    {{ __('capell-layout-builder::message.editor_loading') }}
+                    {{ __('capell-layout-builder::button.preview_changes') }}
                 </span>
             </div>
 
-            {{ $this->undoLayoutMutationAction }}
-            {{ $this->redoLayoutMutationAction }}
+            <div class="layout-builder-command-divider"></div>
 
-            <x-filament::button
-                color="gray"
-                icon="heroicon-o-arrow-path"
-                size="sm"
-                type="button"
-                x-on:click="requestPreviewRefresh()"
-                wire:loading.attr="disabled"
-                wire:target="refreshVisualPreview"
-            >
-                {{ __('capell-layout-builder::button.refresh_preview') }}
-            </x-filament::button>
-        </div>
-    </div>
-
-    <div
-        @class([
-            'layout-builder-visual-grid',
-            'layout-builder-visual-grid-empty' => $tree->widgetCount === 0,
-        ])
-    >
-        <aside
-            class="layout-builder-visual-panel layout-builder-visual-panel-tree"
-        >
-            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree])
-        </aside>
-
-        <div
-            class="layout-builder-visual-canvas layout-builder-canvas-scroll"
-            data-match-frontend-container-layout="{{ config('capell-layout-builder.preview.match_frontend_container_layout', true) ? 'true' : 'false' }}"
-            x-bind:data-active-breakpoint="activeBreakpoint"
-            x-bind:data-stack-containers="shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'"
-            x-bind:style="{
-                '--layout-builder-preview-max-width': activeBreakpointMaxCanvasWidth(),
-                '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
-            }"
-        >
-            @if ($this->saveLayoutAction->isVisible())
-                <div class="layout-builder-preview-actions">
-                    {{ $this->saveLayoutAction }}
-                </div>
-            @endif
-
-            <div
-                class="layout-builder-breakpoint-controls"
-                aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
-            >
+            <div class="layout-builder-breakpoint-segment">
                 @foreach (LayoutBreakpoint::cases() as $breakpoint)
                     <button
                         type="button"
@@ -859,7 +878,51 @@
                     </button>
                 @endforeach
             </div>
+        </div>
 
+        <div class="layout-builder-visual-actions layout-builder-command-group">
+            <div
+                x-show="actionLoading"
+                x-cloak
+                class="layout-builder-action-inline-loading"
+            >
+                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')
+                <span>
+                    {{ __('capell-layout-builder::message.editor_loading') }}
+                </span>
+            </div>
+
+            <div class="layout-builder-history-actions">
+                {{ $this->undoLayoutMutationAction }}
+                {{ $this->redoLayoutMutationAction }}
+            </div>
+        </div>
+    </div>
+
+    <div
+        @class([
+            'layout-builder-visual-grid',
+            'layout-builder-visual-grid-empty' => $tree->widgetCount === 0,
+        ])
+    >
+        <aside
+            x-ref="treePanel"
+            class="layout-builder-visual-panel layout-builder-visual-panel-tree"
+        >
+            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree])
+        </aside>
+
+        <div
+            class="layout-builder-visual-canvas layout-builder-canvas-scroll"
+            x-ref="previewCanvas"
+            data-match-frontend-container-layout="{{ config('capell-layout-builder.preview.match_frontend_container_layout', true) ? 'true' : 'false' }}"
+            x-bind:data-active-breakpoint="activeBreakpoint"
+            x-bind:data-stack-containers="shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'"
+            x-bind:style="{
+                '--layout-builder-preview-max-width': activeBreakpointMaxCanvasWidth(),
+                '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
+            }"
+        >
             <template x-ref="previewTemplate">
                 {!! $this->visualPreviewHtml !!}
             </template>
@@ -873,18 +936,6 @@
                     'layout-builder-shadow-preview-empty' => $tree->widgetCount === 0,
                 ])
             ></div>
-
-            <div class="layout-builder-preview-status-row">
-                <span
-                    @class([
-                        'layout-builder-preview-status',
-                        'layout-builder-preview-status-stale' => $visualPreviewStatus === 'stale',
-                        'layout-builder-preview-status-error' => $visualPreviewStatus === 'error',
-                    ])
-                >
-                    {{ __('capell-layout-builder::message.preview_status_' . $visualPreviewStatus) }}
-                </span>
-            </div>
         </div>
     </div>
 

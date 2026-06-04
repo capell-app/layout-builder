@@ -147,14 +147,14 @@ class RenderPublicFragmentAction
         $site->loadMissing('theme');
         $layout->loadMissing('theme');
 
-        $theme = $site->theme instanceof Theme ? $site->theme : $layout->theme;
+        $theme = $this->frontendTheme($site, $layout);
+
+        $page->setRelation('site', $site);
+        $page->setRelation('layout', $layout);
 
         if (! $theme instanceof Theme) {
             return;
         }
-
-        $page->setRelation('site', $site);
-        $page->setRelation('layout', $layout);
 
         Frontend::clearResolvedInstance(CapellFrontendContext::class);
         app()->instance(
@@ -168,6 +168,15 @@ class RenderPublicFragmentAction
                     ->withTheme($theme),
             ),
         );
+    }
+
+    private function frontendTheme(Site $site, Layout $layout): ?Theme
+    {
+        if ($site->theme instanceof Theme) {
+            return $site->theme;
+        }
+
+        return $layout->theme instanceof Theme ? $layout->theme : null;
     }
 
     private function stringValue(mixed $value): ?string

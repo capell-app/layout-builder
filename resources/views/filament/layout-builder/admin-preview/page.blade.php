@@ -1,37 +1,32 @@
 @php
+    use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
     use Capell\LayoutBuilder\Models\Widget;
     use Illuminate\Support\Str;
-
-    $pageTitle = $page?->translation?->title ?: $page?->name;
 @endphp
 
 <div
     class="clb-preview-page"
     data-capell-layout-builder-admin-preview="true"
 >
-    <header class="clb-preview-header">
-        <div>
-            <div class="clb-preview-kicker">
-                {{ __('capell-layout-builder::generic.preview') }}
-            </div>
-            <h1>
-                {{ $pageTitle ?: __('capell-layout-builder::generic.untitled_page') }}
-            </h1>
-        </div>
-    </header>
-
     <main class="clb-preview-main">
         @forelse ($containers as $containerKey => $container)
             @php
                 $containerHandle = $handleForContainer((string) $containerKey);
                 $containerTitle = (string) ($container['meta']['name'] ?? Str::of((string) $containerKey)->headline());
                 $colspan = min(12, max(1, (int) data_get($container, 'meta.colspan', 12)));
+                $responsiveStyles = collect(LayoutBreakpoint::cases())
+                    ->map(function (LayoutBreakpoint $breakpoint) use ($container, $colspan): string {
+                        $responsiveColspan = min(12, max(1, (int) data_get($container, 'meta.responsive.' . $breakpoint->value . '.colspan', $colspan)));
+
+                        return '--clb-preview-' . $breakpoint->value . '-colspan: ' . $responsiveColspan;
+                    })
+                    ->implode('; ');
                 $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
             @endphp
 
             <section
                 class="clb-preview-container"
-                style="--clb-preview-colspan: {{ $colspan }}"
+                style="--clb-preview-colspan: {{ $colspan }}; {{ $responsiveStyles }}"
                 data-clb-preview-node="{{ $containerHandle }}"
                 data-clb-preview-node-type="container"
                 aria-label="{{ __('capell-layout-builder::button.select_container', ['container' => $containerTitle]) }}"

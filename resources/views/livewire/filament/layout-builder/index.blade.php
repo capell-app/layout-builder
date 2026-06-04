@@ -69,36 +69,6 @@
             </x-filament::callout>
         @endif
 
-        @if ($this->layoutModified)
-            <x-filament::callout
-                icon="heroicon-o-exclamation-triangle"
-                color="warning"
-                class="mb-5"
-            >
-                <x-slot name="heading">
-                    {{ __('capell-layout-builder::message.layout_unsaved') }}
-                </x-slot>
-
-                @error('layoutDiagnostics')
-                    <p
-                        class="text-danger-600 dark:text-danger-400 mt-2 text-sm font-medium"
-                    >
-                        {{ $message }}
-                    </p>
-                @enderror
-
-                @if ($this->layoutDiagnostics !== [])
-                    <ul class="mt-2 list-disc space-y-1 ps-5 text-sm">
-                        @foreach ($this->layoutDiagnostics as $diagnostic)
-                            <li>
-                                {{ $diagnostic['message'] ?? __('capell-admin::message.unknown_widget', ['widget' => __('capell-admin::generic.unknown')]) }}
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </x-filament::callout>
-        @endif
-
         @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor')
     </div>
 

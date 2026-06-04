@@ -62,13 +62,21 @@ it('renders the visual layout builder by default from the package namespace', fu
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
         ->assertDontSee('Inspector')
-        ->assertSee(__('capell-layout-builder::message.preview_status_current'))
         ->assertSee(__('capell-layout-builder::message.container_empty'))
+        ->assertElementExists('.layout-builder-visual-toolbar')
+        ->assertElementExists('.layout-builder-command-group')
+        ->assertElementExists('.layout-builder-command-save')
+        ->assertElementExists('.layout-builder-preview-command-label')
+        ->assertElementExists('.layout-builder-history-actions')
+        ->assertElementExists('.layout-builder-panel-collapse-toggle')
+        ->assertElementExists('.layout-builder-breakpoint-controls')
         ->assertElementExists('.layout-builder-visual-editor-empty')
         ->assertElementExists('.layout-builder-visual-grid-empty')
         ->assertElementExists('.layout-builder-shadow-preview-empty')
         ->assertElementExists('[data-capell-layout-builder-admin-preview="true"]')
-        ->assertSeeHtml('capell-layout-builder:request-page-state');
+        ->assertSeeHtml('applyPreviewBreakpoint')
+        ->assertDontSeeHtml('layout-builder-preview-status-row')
+        ->assertDontSeeHtml('capell-layout-builder:request-page-state');
 });
 
 it('renders a full width empty page preview when a layout has no containers', function (): void {
@@ -159,6 +167,7 @@ it('dispatches frontend authoring dirty and saved lifecycle events', function ()
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->call('layoutUpdated')
         ->assertDispatched('capell-layout-builder-authoring-dirty')
+        ->assertNotified(__('capell-layout-builder::message.layout_unsaved'))
         ->call('saveLayout')
         ->assertDispatched('capell-layout-builder-authoring-saved');
 });
