@@ -12,12 +12,12 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\RecordSwitcher\Concerns\HasRecordSwitcher;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Resources\Resource;
-use Howdu\FilamentRecordSwitcher\Filament\Concerns\HasRecordSwitcher;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -30,7 +30,7 @@ class EditWidget extends EditRecord
 {
     use HasBlueprintRelationManagers;
     use HasConfigurableFormActionPosition;
-    use HasRecordSwitcher{
+    use HasRecordSwitcher {
         afterSave as recordSwitcherAfterSave;
     }
 
