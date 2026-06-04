@@ -11,9 +11,14 @@
             <h2>
                 {{ __('capell-layout-builder::heading.layout_structure') }}
             </h2>
-            <p>
-                {{ trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->widgetCount, ['containers' => $tree->containerCount, 'widgets' => $tree->widgetCount]) }}
-            </p>
+            <div class="layout-builder-tree-counts">
+                <span>
+                    {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
+                </span>
+                <span>
+                    {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
+                </span>
+            </div>
         </div>
 
         <div class="layout-builder-tree-header-actions">

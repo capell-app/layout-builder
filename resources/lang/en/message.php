@@ -57,6 +57,7 @@ return [
     'layout_count_on_pages' => '{0} This layout is not used by other pages. View: <a href=":url">Pages using this layout</a>.|{1} This layout is shared with 1 other page. View <a href=":url">pages using this layout</a>.|[2,*] This layout is shared with :count other pages. View <a href=":url">pages using this layout</a>.',
     'layout_empty' => 'This layout is empty.',
     'layout_has_blocking_diagnostics' => 'Fix the blocking layout issues before saving.',
+    'layout_tree_container_count' => '{0} No containers|{1} 1 container|[2,*] :count containers',
     'layout_tree_widget_count' => '{0} No widgets|{1} 1 widget|[2,*] :count widgets',
     'layout_tree_summary' => '{0} :containers containers, no widgets|{1} :containers containers, 1 widget|[2,*] :containers containers, :widgets widgets',
     'duplicate_widget_anchor' => 'Anchor ":anchor" is used more than once on this layout.',
