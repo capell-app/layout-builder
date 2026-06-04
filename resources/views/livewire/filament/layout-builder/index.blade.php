@@ -96,12 +96,6 @@
                         @endforeach
                     </ul>
                 @endif
-
-                @if ($this->saveLayoutAction->isVisible())
-                    <x-slot name="controls">
-                        {{ $this->saveLayoutAction }}
-                    </x-slot>
-                @endif
             </x-filament::callout>
         @endif
 

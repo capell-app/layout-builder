@@ -70,6 +70,10 @@ Use widget interactions when the target is a reusable Capell widget, such as a v
 
 Public previews and page output must not expose widget keys, layout IDs, page IDs, model IDs, component names, package namespaces, field paths, or editor metadata. Preview chips are admin-only and show human labels such as `Play video -> widget`; public triggers use generic runtime data and encrypted target URLs.
 
+## Visual Preview
+
+The visual editor preview uses breakpoint-aware canvas width variables for desktop, tablet, and mobile frames. The preview tree compresses at narrower admin widths, and save controls stay in a sticky preview action bar so editors can save without losing their position in the canvas.
+
 ## Screenshot Plan
 
 - Widgets admin index.

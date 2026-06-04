@@ -34,8 +34,10 @@ Configuration lives in `config/capell-layout-builder.php`.
 | `editor_mode.default`                     | Default editor mode. Defaults to `content_first`.                     |
 | `editor_mode.allowed`                     | Allowed modes. Current values are `content_first` and `layout_first`. |
 | `preview.match_frontend_container_layout` | Match admin preview container layout to frontend columns.             |
-| `widget.skip_render_empty`                | Skip empty widgets in public rendering.                               |
-| `default_widget`                          | Default renderable key for new widgets.                               |
+
+The visual editor preview uses breakpoint-aware canvas width variables and keeps save controls in a sticky preview action bar so desktop, tablet, and mobile frames stay usable inside narrower admin panels.
+| `widget.skip_render_empty` | Skip empty widgets in public rendering. |
+| `default_widget` | Default renderable key for new widgets. |
 
 ## Main Surfaces
 

@@ -138,8 +138,8 @@
                     .clb-preview-insert:hover, .clb-preview-insert:focus-within { opacity: 1; }
                     .clb-preview-insert-button { position: relative; z-index: 1; display: inline-flex; width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border: 1px solid rgba(37, 99, 235, .28); border-radius: 999px; background: #fff; color: #2563eb; cursor: pointer; pointer-events: auto !important; box-shadow: 0 4px 12px rgba(15, 23, 42, .12); }
                     .clb-preview-insert-button:hover, .clb-preview-insert-button:focus-visible { border-color: rgba(37, 99, 235, .5); outline: none; }
-                    .clb-preview-container-insert { grid-column: 1 / -1; margin-widget: -.5rem; }
-                    .clb-preview-widgets > .clb-preview-insert { margin-widget: -.4375rem; }
+                    .clb-preview-container-insert { grid-column: 1 / -1; margin-block: -.5rem; }
+                    .clb-preview-widgets > .clb-preview-insert { margin-block: -.4375rem; }
                     @media (max-width: 720px) { .clb-preview-main { grid-template-columns: 1fr; } .clb-preview-container { grid-column: 1 / -1; } }
                 `
             },
@@ -806,8 +806,6 @@
             >
                 {{ __('capell-layout-builder::button.refresh_preview') }}
             </x-filament::button>
-
-            {{ $this->saveLayoutAction }}
         </div>
     </div>
 
@@ -826,8 +824,19 @@
         <div
             class="layout-builder-visual-canvas layout-builder-canvas-scroll"
             data-match-frontend-container-layout="{{ config('capell-layout-builder.preview.match_frontend_container_layout', true) ? 'true' : 'false' }}"
+            x-bind:data-active-breakpoint="activeBreakpoint"
             x-bind:data-stack-containers="shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'"
+            x-bind:style="{
+                '--layout-builder-preview-max-width': activeBreakpointMaxCanvasWidth(),
+                '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
+            }"
         >
+            @if ($this->saveLayoutAction->isVisible())
+                <div class="layout-builder-preview-actions">
+                    {{ $this->saveLayoutAction }}
+                </div>
+            @endif
+
             <div
                 class="layout-builder-breakpoint-controls"
                 aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
@@ -863,10 +872,6 @@
                     'layout-builder-shadow-preview',
                     'layout-builder-shadow-preview-empty' => $tree->widgetCount === 0,
                 ])
-                x-bind:style="{
-                    maxWidth: activeBreakpointMaxCanvasWidth(),
-                    minWidth: activeBreakpointMinCanvasWidth(),
-                }"
             ></div>
 
             <div class="layout-builder-preview-status-row">
