@@ -941,14 +941,14 @@
 
 .layout-builder-visual-editor {
     position: relative;
+    isolation: isolate;
     min-width: 0;
     container-type: inline-size;
 }
 
 .layout-builder-visual-toolbar {
-    position: sticky;
-    top: 0;
-    z-index: 30;
+    position: relative;
+    z-index: 10;
     display: grid;
     grid-template-columns: minmax(0, auto) minmax(0, 1fr);
     align-items: center;
