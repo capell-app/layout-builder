@@ -136,7 +136,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
         }
 
         try {
-            $resolved = app(PublicLayoutGraphBuilder::class);
+            $resolved = resolve(PublicLayoutGraphBuilder::class);
         } catch (Throwable) {
             return false;
         }
@@ -147,8 +147,11 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
     public function editorComponentIsRegistered(): bool
     {
         try {
-            return Livewire::exists(self::EDITOR_LIVEWIRE_ALIAS)
-                || Livewire::exists(LayoutBuilder::class);
+            if (Livewire::exists(self::EDITOR_LIVEWIRE_ALIAS)) {
+                return true;
+            }
+
+            return (bool) Livewire::exists(LayoutBuilder::class);
         } catch (Throwable) {
             return false;
         }
