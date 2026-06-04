@@ -71,4 +71,12 @@ final class LayoutBuilderResidualEditWidgetPage extends EditWidget
     {
         return $this->selectChangerItemLabel($widget);
     }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    protected static function getRecordSwitcherSearchColumns(): array
+    {
+        return ['name', '`key`', 'admin->notes'];
+    }
 }
