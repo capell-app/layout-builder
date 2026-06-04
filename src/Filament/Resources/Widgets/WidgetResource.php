@@ -33,6 +33,8 @@ class WidgetResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static bool $isGloballySearchable = true;
+
     protected static string $formConfigurator = WidgetForm::class;
 
     protected static string $tableConfigurator = WidgetsTable::class;

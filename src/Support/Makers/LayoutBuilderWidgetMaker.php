@@ -13,6 +13,7 @@ use Capell\Core\Support\Makers\AbstractFileMaker;
 use Capell\LayoutBuilder\Actions\MakeWidgetAction;
 use Illuminate\Support\Str;
 use Override;
+use Spatie\LaravelData\DataCollection;
 
 class LayoutBuilderWidgetMaker extends AbstractFileMaker
 {
@@ -31,10 +32,13 @@ class LayoutBuilderWidgetMaker extends AbstractFileMaker
             (bool) ($input->values['livewire'] ?? false),
             $input->force,
         );
+        $previewFiles = $preview->files instanceof DataCollection
+            ? collect($preview->files->items())
+            : $preview->files;
 
         return new MakerResultData(
             maker: $input->maker,
-            files: $preview->files->map(fn (MakerFileData $file): MakerFileData => new MakerFileData($file->path, $file->operation, file_exists($file->path), is_writable($file->path), $file->contents)),
+            files: $previewFiles->map(fn (MakerFileData $file): MakerFileData => new MakerFileData($file->path, $file->operation, file_exists($file->path), is_writable($file->path), $file->contents)),
             databaseRecords: collect(),
             commands: $preview->commands,
             notes: collect([$result->seederSnippet]),
