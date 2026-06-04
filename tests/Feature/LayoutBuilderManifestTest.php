@@ -39,3 +39,49 @@ it('advertises package-owned layout builder admin classes in its manifest', func
             ConfiguratorTypeEnum::class,
         );
 });
+
+it('keeps manifest hard dependencies aligned with composer requirements', function (): void {
+    $manifest = layoutBuilderJson('capell.json');
+    $composer = layoutBuilderJson('composer.json');
+
+    $manifestRequires = $manifest['dependencies']['requires'] ?? [];
+    $composerRequires = array_keys($composer['require'] ?? []);
+
+    expect($manifestRequires)->toContain(
+        'capell-app/admin',
+        'capell-app/block-library',
+        'capell-app/core',
+        'capell-app/frontend',
+    );
+
+    foreach ($manifestRequires as $requiredPackage) {
+        expect($composerRequires)->toContain($requiredPackage);
+    }
+});
+
+it('references committed marketplace and screenshot manifest images', function (): void {
+    $manifest = layoutBuilderJson('capell.json');
+    $screenshots = layoutBuilderJson('docs/screenshots.json');
+    $packageRoot = dirname(__DIR__, 2);
+    $repositoryRoot = dirname(__DIR__, 4);
+
+    foreach ($manifest['marketplace']['screenshots'] ?? [] as $screenshot) {
+        expect($screenshot)->toHaveKey('path')
+            ->and(is_file($packageRoot . '/' . $screenshot['path']))->toBeTrue();
+    }
+
+    foreach ($screenshots['entries'] ?? [] as $entry) {
+        expect($entry)->toHaveKey('screenshotPath')
+            ->and(is_file($repositoryRoot . '/' . $entry['screenshotPath']))->toBeTrue();
+    }
+});
+
+/**
+ * @return array<string, mixed>
+ */
+function layoutBuilderJson(string $path): array
+{
+    $contents = file_get_contents(dirname(__DIR__, 2) . '/' . $path);
+
+    return json_decode($contents !== false ? $contents : '[]', true, flags: JSON_THROW_ON_ERROR);
+}

@@ -90,6 +90,6 @@ Public previews and page output must not expose widget keys, layout IDs, page ID
 
 ## Known Risks
 
-- `capell.json` lists core/frontend as hard dependencies, but Composer also requires `capell-app/admin` and `capell-app/block-library`; align the manifest before package catalog publication.
-- Frontend screenshots need seeded layouts and widgets to prove public rendering coverage.
-- Content-first and layout-first editor screenshots should be captured separately because they exercise different editor states.
+- Public render performance still needs an explicit query/time budget regression test for larger widget graphs.
+- Content-first and layout-first editor screenshots should continue to be captured separately because they exercise different editor states.
+- Layout health and recent activity dashboard widget screenshots should be added when the host admin dashboard enables those widgets.
