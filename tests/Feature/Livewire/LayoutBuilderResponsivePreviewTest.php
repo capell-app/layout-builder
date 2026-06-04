@@ -63,12 +63,21 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertSeeHtml('activeBreakpointMaxCanvasWidth')
         ->assertSeeHtml('activeBreakpointMinCanvasWidth')
         ->assertSeeHtml('syncPanelLayout')
+        ->assertSeeHtml('syncPreviewPayload')
         ->assertSeeHtml('actionLoading')
         ->assertSeeHtml('selectNode')
         ->assertSeeHtml('applyPreviewBreakpoint')
         ->assertSeeHtml('dispatchPreviewAction')
+        ->assertSeeHtml('afterLivewirePreviewMutation')
+        ->assertSeeHtml('markPreviewActionLoading')
+        ->assertSeeHtml('callback(event.currentTarget)')
         ->assertSeeHtml('duplicateWidget')
         ->assertSeeHtml('removeWidget')
+        ->assertSeeHtml('previewWidgetActionsPayload')
+        ->assertSeeHtml('previewContainerActionsPayload')
+        ->assertSeeHtml('is-loading')
+        ->assertSeeHtml('clb-preview-insert-button.is-loading')
+        ->assertSeeHtml('aria-busy')
         ->assertSeeHtml('--layout-builder-preview-max-width')
         ->assertSeeHtml('--layout-builder-preview-min-width')
         ->assertSeeHtml('--clb-preview-tablet-colspan: 6')
@@ -90,6 +99,22 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertDontSeeHtml('layout-builder-preview-status-row')
         ->assertDontSeeHtml('capell-layout-builder::generic.preview')
         ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[wire\\:click^="setActiveBreakpoint"]'));
+
+    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php');
+
+    expect($visualEditorBlade)
+        ->toContain('callback(event.currentTarget)')
+        ->toContain('(trigger) =>');
+
+    $previewActionTriggerPattern = static fn (string $actionName): string => sprintf(
+        "/this\\.runPreviewAction\\(\\s*'%s',[\\s\\S]*?\\{\\},\\s*trigger,\\s*\\)/",
+        preg_quote($actionName, '/'),
+    );
+
+    expect((bool) preg_match($previewActionTriggerPattern('addWidget'), $visualEditorBlade))
+        ->toBeTrue();
+    expect((bool) preg_match($previewActionTriggerPattern('addContainer'), $visualEditorBlade))
+        ->toBeTrue();
 });
 
 it('can opt out of frontend container stacking in the admin preview from the package namespace', function (): void {

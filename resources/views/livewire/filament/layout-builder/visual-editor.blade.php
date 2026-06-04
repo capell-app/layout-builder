@@ -127,7 +127,11 @@
                     .clb-preview-action-button { display: inline-flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: #fff; cursor: pointer; padding: 0; transition: background-color .15s ease, color .15s ease; }
                     .clb-preview-action-button:hover, .clb-preview-action-button:focus-visible { background: rgba(255, 255, 255, .14); outline: none; }
                     .clb-preview-action-button-danger:hover, .clb-preview-action-button-danger:focus-visible { background: rgba(239, 68, 68, .18); color: #fecaca; }
+                    .clb-preview-action-button:disabled { cursor: wait; opacity: .78; }
+                    .clb-preview-action-button.is-loading { color: transparent; position: relative; }
+                    .clb-preview-action-button.is-loading::after { position: absolute; inset: .45rem; border: 2px solid rgba(255, 255, 255, .42); border-top-color: #fff; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
                     .clb-preview-action-button svg { width: 1rem; height: 1rem; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+                    @keyframes clb-preview-spin { to { transform: rotate(360deg); } }
                     .clb-preview-more { position: relative; }
                     .clb-preview-menu { position: absolute; top: calc(100% + .5rem); right: 0; display: none; min-width: 15rem; border: 1px solid rgba(148, 163, 184, .25); border-radius: .625rem; background: #fff; padding: .35rem; color: #111827; box-shadow: 0 20px 45px rgba(15, 23, 42, .24); }
                     .clb-preview-menu.is-open { display: grid; gap: .125rem; }
@@ -139,6 +143,9 @@
                     .clb-preview-insert:hover, .clb-preview-insert:focus-within { opacity: 1; }
                     .clb-preview-insert-button { position: relative; z-index: 1; display: inline-flex; width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border: 1px solid rgba(37, 99, 235, .28); border-radius: 999px; background: #fff; color: #2563eb; cursor: pointer; pointer-events: auto !important; box-shadow: 0 4px 12px rgba(15, 23, 42, .12); }
                     .clb-preview-insert-button:hover, .clb-preview-insert-button:focus-visible { border-color: rgba(37, 99, 235, .5); outline: none; }
+                    .clb-preview-insert-button:disabled { cursor: wait; opacity: .82; }
+                    .clb-preview-insert-button.is-loading { color: transparent; }
+                    .clb-preview-insert-button.is-loading::after { position: absolute; inset: .38rem; border: 2px solid rgba(37, 99, 235, .25); border-top-color: #2563eb; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
                     .clb-preview-container-insert { grid-column: 1 / -1; margin-block: -.5rem; }
                     .clb-preview-widgets > .clb-preview-insert { margin-block: -.4375rem; }
                     @media (max-width: 720px) { .clb-preview-main { grid-template-columns: 1fr; } .clb-preview-container { grid-column: 1 / -1; } }
@@ -148,13 +155,15 @@
                 this.compactPanels = this.$el.offsetWidth <= 1152
             },
             renderPreview() {
+                this.syncPreviewPayload()
+
                 const host = this.$refs.previewHost
 
                 if (!host) return
 
                 const root =
                     host.shadowRoot || host.attachShadow({ mode: 'open' })
-                const template = this.$refs.previewTemplate
+                const template = this.previewTemplateElement()
                 const html = template ? template.innerHTML : ''
 
                 host.dataset.activeBreakpoint = this.activeBreakpoint
@@ -207,6 +216,39 @@
                     },
                 )
                 this.attachContainerInsertControls(root)
+            },
+            syncPreviewPayload() {
+                this.previewWidgetActions = this.parsePreviewPayload(
+                    this.previewPayloadElement('previewWidgetActionsPayload'),
+                    this.previewWidgetActions,
+                )
+                this.previewContainerActions = this.parsePreviewPayload(
+                    this.previewPayloadElement(
+                        'previewContainerActionsPayload',
+                    ),
+                    this.previewContainerActions,
+                )
+            },
+            previewTemplateElement() {
+                return (
+                    this.$el.querySelector('[x-ref="previewTemplate"]') ||
+                    this.$refs.previewTemplate
+                )
+            },
+            previewPayloadElement(reference) {
+                return (
+                    this.$el.querySelector(`[x-ref="${reference}"]`) ||
+                    this.$refs[reference]
+                )
+            },
+            parsePreviewPayload(element, fallback) {
+                if (!element?.textContent) return fallback
+
+                try {
+                    return JSON.parse(element.textContent)
+                } catch (error) {
+                    return fallback
+                }
             },
             bindPreviewRootEvents(root) {
                 if (root.clbPreviewEventsBound) return
@@ -306,6 +348,8 @@
                             this.runPreviewAction(
                                 button.dataset.clbAction,
                                 action,
+                                {},
+                                button,
                             )
                         })
                     })
@@ -340,15 +384,20 @@
                             event.preventDefault()
                             event.stopPropagation()
                             this.closePreviewMenus()
+                            const assetTypes = Array.isArray(action.assetTypes)
+                                ? action.assetTypes
+                                : []
+
                             this.runPreviewAction(
                                 button.dataset.clbAction,
                                 action,
                                 {
                                     type: button.dataset.clbAssetType,
-                                    types: action.assetTypes.map(
+                                    types: assetTypes.map(
                                         (assetType) => assetType.type,
                                     ),
                                 },
+                                button,
                             )
                         })
                     })
@@ -383,12 +432,17 @@
                     widgets.insertBefore(
                         this.makeInsertControl(
                             this.actionLabels.addWidgetHere,
-                            () =>
-                                this.runPreviewAction('addWidget', {
-                                    ...action,
-                                    widgetIndex: 0,
-                                    position: index,
-                                }),
+                            (trigger) =>
+                                this.runPreviewAction(
+                                    'addWidget',
+                                    {
+                                        ...action,
+                                        widgetIndex: 0,
+                                        position: index,
+                                    },
+                                    {},
+                                    trigger,
+                                ),
                         ),
                         widgetNode,
                     )
@@ -397,12 +451,17 @@
                 widgets.appendChild(
                     this.makeInsertControl(
                         this.actionLabels.addWidgetHere,
-                        () =>
-                            this.runPreviewAction('addWidget', {
-                                ...action,
-                                widgetIndex: 0,
-                                position: widgetNodes.length,
-                            }),
+                        (trigger) =>
+                            this.runPreviewAction(
+                                'addWidget',
+                                {
+                                    ...action,
+                                    widgetIndex: 0,
+                                    position: widgetNodes.length,
+                                },
+                                {},
+                                trigger,
+                            ),
                     ),
                 )
             },
@@ -419,13 +478,18 @@
                     main.insertBefore(
                         this.makeInsertControl(
                             this.actionLabels.addContainerHere,
-                            () =>
-                                this.runPreviewAction('addContainer', {
-                                    type: 'container',
-                                    containerKey: '',
-                                    widgetIndex: 0,
-                                    position: index,
-                                }),
+                            (trigger) =>
+                                this.runPreviewAction(
+                                    'addContainer',
+                                    {
+                                        type: 'container',
+                                        containerKey: '',
+                                        widgetIndex: 0,
+                                        position: index,
+                                    },
+                                    {},
+                                    trigger,
+                                ),
                             'clb-preview-container-insert',
                         ),
                         containerNode,
@@ -435,13 +499,18 @@
                 main.appendChild(
                     this.makeInsertControl(
                         this.actionLabels.addContainerHere,
-                        () =>
-                            this.runPreviewAction('addContainer', {
-                                type: 'container',
-                                containerKey: '',
-                                widgetIndex: 0,
-                                position: containerNodes.length,
-                            }),
+                        (trigger) =>
+                            this.runPreviewAction(
+                                'addContainer',
+                                {
+                                    type: 'container',
+                                    containerKey: '',
+                                    widgetIndex: 0,
+                                    position: containerNodes.length,
+                                },
+                                {},
+                                trigger,
+                            ),
                         'clb-preview-container-insert',
                     ),
                 )
@@ -455,7 +524,7 @@
                     .addEventListener('click', (event) => {
                         event.preventDefault()
                         event.stopPropagation()
-                        callback()
+                        callback(event.currentTarget)
                     })
 
                 return control
@@ -702,7 +771,7 @@
                     )
                     ?.scrollIntoView({ block: 'nearest' })
             },
-            runPreviewAction(actionName, action, extra = {}) {
+            runPreviewAction(actionName, action, extra = {}, trigger = null) {
                 const args = {}
 
                 if (action.containerKey !== undefined) {
@@ -725,33 +794,42 @@
                     args.types = extra.types
                 }
 
-                return this.dispatchPreviewAction(actionName, args)
+                return this.dispatchPreviewAction(actionName, args, trigger)
             },
-            dispatchPreviewAction(actionName, args) {
+            dispatchPreviewAction(actionName, args, trigger = null) {
                 this.actionLoading = true
+                this.markPreviewActionLoading(trigger, true)
 
                 const directActions = {
-                    duplicateContainer: () =>
-                        this.$wire.duplicateContainer(args.containerKey),
-                    removeContainer: () =>
-                        this.$wire.removeContainer(args.containerKey),
-                    duplicateWidget: () =>
-                        this.$wire.duplicateWidget(
+                    duplicateContainer: async () => {
+                        await this.$wire.duplicateContainer(args.containerKey)
+                        await this.$wire.refreshVisualPreview()
+                    },
+                    removeContainer: async () => {
+                        await this.$wire.removeContainer(args.containerKey)
+                        await this.$wire.refreshVisualPreview()
+                    },
+                    duplicateWidget: async () => {
+                        await this.$wire.duplicateWidget(
                             args.containerKey,
                             args.widgetIndex,
-                        ),
-                    removeWidget: () =>
-                        this.$wire.removeWidget(
+                        )
+                        await this.$wire.refreshVisualPreview()
+                    },
+                    removeWidget: async () => {
+                        await this.$wire.removeWidget(
                             args.containerKey,
                             args.widgetIndex,
-                        ),
+                        )
+                        await this.$wire.refreshVisualPreview()
+                    },
                 }
 
                 if (directActions[actionName]) {
                     return Promise.resolve(directActions[actionName]())
-                        .then(() => this.$wire.refreshVisualPreview({}))
-                        .then(() => this.$nextTick(() => this.renderPreview()))
+                        .then(() => this.afterLivewirePreviewMutation())
                         .finally(() => {
+                            this.markPreviewActionLoading(trigger, false)
                             this.actionLoading = false
                         })
                 }
@@ -759,8 +837,29 @@
                 return Promise.resolve(
                     this.$wire.mountAction(actionName, args),
                 ).finally(() => {
+                    this.markPreviewActionLoading(trigger, false)
                     this.actionLoading = false
                 })
+            },
+            afterLivewirePreviewMutation() {
+                return new Promise((resolve) => {
+                    this.$nextTick(() => {
+                        window.requestAnimationFrame(() => {
+                            window.setTimeout(() => {
+                                this.renderPreview()
+                                this.scrollSelectedTreeNodeIntoView()
+                                resolve()
+                            }, 50)
+                        })
+                    })
+                })
+            },
+            markPreviewActionLoading(trigger, loading) {
+                if (!(trigger instanceof HTMLElement)) return
+
+                trigger.classList.toggle('is-loading', loading)
+                trigger.toggleAttribute('disabled', loading)
+                trigger.setAttribute('aria-busy', loading ? 'true' : 'false')
             },
         })
     </script>
@@ -923,9 +1022,28 @@
                 '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
             }"
         >
-            <template x-ref="previewTemplate">
+            <script
+                type="application/json"
+                x-ref="previewWidgetActionsPayload"
+            >
+                {!! json_encode($previewWidgetActions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}
+            </script>
+
+            <script
+                type="application/json"
+                x-ref="previewContainerActionsPayload"
+            >
+                {!! json_encode($previewContainerActions, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}
+            </script>
+
+            <div
+                hidden
+                aria-hidden="true"
+                x-ref="previewTemplate"
+                wire:key="layout-builder-preview-template-{{ $this->visualPreviewSignature }}"
+            >
                 {!! $this->visualPreviewHtml !!}
-            </template>
+            </div>
 
             <div
                 wire:key="layout-builder-shadow-preview-{{ $this->visualPreviewSignature }}"
