@@ -8,11 +8,11 @@ use Capell\Admin\Filament\Actions\DeleteAction;
 use Capell\Admin\Filament\Actions\ReplicateAction;
 use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
+use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\RecordSwitcher\Concerns\HasRecordSwitcher;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -30,9 +30,7 @@ class EditWidget extends EditRecord
 {
     use HasBlueprintRelationManagers;
     use HasConfigurableFormActionPosition;
-    use HasRecordSwitcher {
-        afterSave as recordSwitcherAfterSave;
-    }
+    use HasExtensibleRecordHeading;
 
     /** @return class-string<resource> */
     #[Override]
@@ -79,14 +77,6 @@ class EditWidget extends EditRecord
     }
 
     /**
-     * @return array<array-key, mixed>
-     */
-    protected static function getRecordSwitcherSearchColumns(): array
-    {
-        return ['name', '`key`', 'admin->notes'];
-    }
-
-    /**
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
@@ -118,7 +108,7 @@ class EditWidget extends EditRecord
             );
         }
 
-        $this->recordSwitcherAfterSave();
+        $this->notifyEditRecordHeadingSaved();
     }
 
     /**
