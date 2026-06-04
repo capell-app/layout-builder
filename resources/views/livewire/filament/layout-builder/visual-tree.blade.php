@@ -73,7 +73,7 @@
                 data-layout-builder-tree-node="{{ $container->nodeId }}"
                 class="layout-builder-tree-container"
                 role="treeitem"
-                aria-expanded="true"
+                x-bind:aria-expanded="open ? 'true' : 'false'"
             >
                 <button
                     type="button"
