@@ -59,6 +59,7 @@ return [
     'layout_has_blocking_diagnostics' => 'Fix the blocking layout issues before saving.',
     'layout_tree_container_count' => '{0} No containers|{1} 1 container|[2,*] :count containers',
     'layout_tree_widget_count' => '{0} No widgets|{1} 1 widget|[2,*] :count widgets',
+    'layout_tree_asset_count' => '{0} No assets|{1} 1 asset|[2,*] :count assets',
     'layout_tree_summary' => '{0} :containers containers, no widgets|{1} :containers containers, 1 widget|[2,*] :containers containers, :widgets widgets',
     'duplicate_widget_anchor' => 'Anchor ":anchor" is used more than once on this layout.',
     'empty_widget_cta' => 'This widget is missing its call to action.',

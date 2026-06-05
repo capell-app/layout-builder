@@ -12,10 +12,21 @@
     $previewWidgetActions = [];
 
     foreach ($tree->containers as $containerPosition => $treeContainer) {
+        $container = $this->containers[$treeContainer->key] ?? [];
+        $containerMeta = is_array($container['meta'] ?? null) ? $container['meta'] : [];
+        $containerColspan = min(12, max(1, (int) ($containerMeta['colspan'] ?? 12)));
+        $containerArea = $this->layoutAreaForContainer(is_array($container) ? $container : []);
+
         $previewContainerActions[$treeContainer->nodeId] = [
             'type' => 'container',
             'containerKey' => $treeContainer->key,
             'label' => $treeContainer->label,
+            'area' => $containerArea,
+            'areaLabel' => $this->layoutAreaLabel($containerArea),
+            'widgetCount' => $treeContainer->widgetCount,
+            'widgetCountLabel' => trans_choice('capell-layout-builder::message.layout_tree_widget_count', $treeContainer->widgetCount, ['count' => $treeContainer->widgetCount]),
+            'colspan' => $containerColspan,
+            'colspanLabel' => __('capell-layout-builder::message.container_colspan_value', ['columns' => $containerColspan]),
             'position' => $containerPosition,
             'canEditLayout' => $this->canEditLayout(),
         ];
@@ -38,6 +49,12 @@
                 'containerKey' => $treeWidget->containerKey,
                 'widgetIndex' => $treeWidget->widgetIndex,
                 'label' => $treeWidget->label,
+                'containerLabel' => $treeContainer->label,
+                'areaLabel' => $previewContainerActions[$treeContainer->nodeId]['areaLabel'],
+                'typeLabel' => $treeWidget->typeLabel,
+                'assetCount' => $treeWidget->assetCount,
+                'assetCountLabel' => trans_choice('capell-layout-builder::message.layout_tree_asset_count', $treeWidget->assetCount, ['count' => $treeWidget->assetCount]),
+                'usesPageContent' => $treeWidget->usesPageContent,
                 'assetTypes' => $assetTypes,
                 'canEditContent' => $this->canEditContent(),
                 'canEditLayout' => $this->canEditLayout(),
@@ -101,28 +118,38 @@
                     *, *::before, *::after { box-sizing: border-box; }
                     a, button, input, select, textarea, form { pointer-events: none !important; }
                     .clb-preview-page { min-height: 100%; background: #fff; color: #111827; }
-                    .clb-preview-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; padding: 1.35rem; }
-                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border: 1px dashed rgba(129, 140, 248, .5); border-radius: .5rem; background: rgba(255, 255, 255, .76); padding: 1rem; transition: border-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
-                    .clb-preview-container:hover { border-color: rgba(79,70,229,.8); box-shadow: inset 0 0 0 4px rgba(79,70,229,.06), 0 12px 26px rgba(79,70,229,.08); }
+                    .clb-preview-main { display: grid; gap: 1.25rem; padding: 1.5rem; }
+                    .clb-preview-content-layout { display: grid; gap: 1rem; align-items: start; }
+                    .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem); }
+                    .clb-preview-region { display: grid; min-width: 0; gap: .75rem; align-self: start; border-radius: 1rem; background: #f8fafc; padding: .875rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 1px 2px rgba(15,23,42,.05); }
+                    .clb-preview-region-sidebar { background: #f6f7fb; }
+                    .clb-preview-region-area { background: #fafafa; }
+                    .clb-preview-region-label { color: #64748b; font-size: .6875rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
+                    .clb-preview-container-list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .75rem; }
+                    .clb-preview-region-sidebar .clb-preview-container-list { grid-template-columns: minmax(0, 1fr); }
+                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .875rem; background: rgba(255, 255, 255, .86); padding: .875rem; box-shadow: inset 3px 0 0 rgba(148, 163, 184, .24); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
+                    .clb-preview-region-sidebar .clb-preview-container { grid-column: 1 / -1; }
+                    .clb-preview-container:hover { background: #fff; box-shadow: inset 3px 0 0 rgba(79,70,229,.42), 0 10px 24px rgba(15,23,42,.08); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
+                    :host([data-active-breakpoint="mobile"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container-label { display: inline-flex; margin-bottom: .75rem; border-radius: .375rem; background: #eef2ff; padding: .1875rem .5rem; color: #4f46e5; font-size: .625rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-                    .clb-preview-widgets { display: grid; gap: .75rem; }
-                    .clb-preview-widget { position: relative; border-radius: .375rem; outline: 2px solid transparent; outline-offset: 0; transition: outline-color .15s ease, box-shadow .15s ease; }
-                    .clb-preview-widget, .layout-builder-widget-preview { overflow: hidden; border: 1px solid rgba(15,23,42,.1); border-radius: .375rem; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 18px rgba(15,23,42,.05); }
-                    .clb-preview-widget:hover, .layout-builder-widget-preview:hover { box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 12px 24px rgba(79,70,229,.09); }
+                    .clb-preview-container-label { display: inline-flex; margin-bottom: .625rem; border-radius: 999px; background: #eef2ff; padding: .1875rem .5rem; color: #4f46e5; font-size: .625rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
+                    .clb-preview-widgets { display: grid; gap: .625rem; }
+                    .clb-preview-widget { position: relative; border-radius: .75rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.06); transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+                    .layout-builder-widget-preview { overflow: hidden; border-radius: .75rem; background: transparent; box-shadow: none; }
+                    .clb-preview-widget:hover { box-shadow: 0 10px 24px rgba(15,23,42,.08); transform: translateY(-1px); }
                     .clb-preview-widget-body { display: flex; gap: .75rem; padding: .875rem; }
                     .clb-preview-widget-icon { display: inline-flex; width: 2rem; height: 2rem; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: .5rem; background: #eff6ff; color: #2563eb; }
-                    .clb-preview-widget-type { margin-bottom: .25rem; color: #64748b; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+                    .clb-preview-widget-type { margin-bottom: .25rem; color: #64748b; font-size: .72rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
                     .clb-preview-widget h2, .layout-builder-widget-preview h2 { margin: 0; font-size: 1rem; line-height: 1.35; font-weight: 700; letter-spacing: 0; }
                     .clb-preview-widget p { margin: .375rem 0 0; color: #475569; font-size: .875rem; line-height: 1.5; }
                     .layout-builder-widget-preview { padding: .75rem; }
                     .layout-widget-preview-actions, .layout-widget-assets-toggle { display: none !important; }
-                    .clb-preview-empty { width: 100%; border: 1px dashed #d4d4d8; border-radius: .5rem; padding: .75rem; color: #71717a; text-align: center; }
+                    .clb-preview-empty { width: 100%; border-radius: .75rem; background: rgba(255,255,255,.7); padding: .75rem; color: #71717a; text-align: center; }
                     .clb-preview-empty-page { grid-column: 1 / -1; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
-                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 2px solid rgba(79,70,229,.55); outline-offset: 0; }
-                    [data-clb-preview-node].is-selected { outline: 2px solid #4f46e5; outline-offset: 0; box-shadow: 0 0 0 5px rgba(79,70,229,.1), 0 14px 32px rgba(79,70,229,.12); }
+                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 2px solid rgba(79,70,229,.38); outline-offset: 0; }
+                    [data-clb-preview-node].is-selected { outline: 2px solid #4f46e5; outline-offset: 0; box-shadow: inset 3px 0 0 #4f46e5, 0 14px 32px rgba(79,70,229,.14); }
                     .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; background: rgba(24, 24, 27, .94); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 14px 32px rgba(15, 23, 42, .28); }
                     [data-clb-preview-node-type="widget"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="container"]:hover > .clb-preview-actionbar, [data-clb-preview-node].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
                     .clb-preview-actionbar button { pointer-events: auto !important; }
@@ -148,9 +175,9 @@
                     .clb-preview-insert-button:disabled { cursor: wait; opacity: .82; }
                     .clb-preview-insert-button.is-loading { color: transparent; }
                     .clb-preview-insert-button.is-loading::after { position: absolute; inset: .38rem; border: 2px solid rgba(37, 99, 235, .25); border-top-color: #2563eb; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
-                    .clb-preview-container-insert { grid-column: 1 / -1; margin-block: -.5rem; }
+                    .clb-preview-container-insert { grid-column: 1 / -1; margin-block: -.375rem; }
                     .clb-preview-widgets > .clb-preview-insert { margin-block: -.4375rem; }
-                    @media (max-width: 720px) { .clb-preview-main { grid-template-columns: 1fr; } .clb-preview-container { grid-column: 1 / -1; } }
+                    @media (max-width: 720px) { .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); } .clb-preview-container { grid-column: 1 / -1; } }
                 `
             },
             syncPanelLayout() {
@@ -458,16 +485,56 @@
                 )
             },
             attachContainerInsertControls(root) {
-                const main = root.querySelector('.clb-preview-main')
+                root.querySelectorAll(
+                    '[data-clb-preview-container-list]',
+                ).forEach((containerList) => {
+                    const containerNodes = Array.from(
+                        containerList.querySelectorAll(
+                            ':scope > .clb-preview-container',
+                        ),
+                    )
 
-                if (!main) return
+                    containerNodes.forEach((containerNode) => {
+                        const position = Number.parseInt(
+                            containerNode.dataset.clbPreviewContainerPosition ||
+                                '0',
+                            10,
+                        )
 
-                const containerNodes = Array.from(
-                    main.querySelectorAll(':scope > .clb-preview-container'),
-                )
+                        containerList.insertBefore(
+                            this.makeInsertControl(
+                                this.actionLabels.addContainerHere,
+                                (trigger) =>
+                                    this.runPreviewAction(
+                                        'addContainer',
+                                        {
+                                            type: 'container',
+                                            containerKey: '',
+                                            widgetIndex: 0,
+                                            position,
+                                        },
+                                        {},
+                                        trigger,
+                                    ),
+                                'clb-preview-container-insert',
+                            ),
+                            containerNode,
+                        )
+                    })
 
-                containerNodes.forEach((containerNode, index) => {
-                    main.insertBefore(
+                    const lastPosition =
+                        Math.max(
+                            -1,
+                            ...containerNodes.map((containerNode) =>
+                                Number.parseInt(
+                                    containerNode.dataset
+                                        .clbPreviewContainerPosition || '0',
+                                    10,
+                                ),
+                            ),
+                        ) + 1
+
+                    containerList.appendChild(
                         this.makeInsertControl(
                             this.actionLabels.addContainerHere,
                             (trigger) =>
@@ -477,35 +544,15 @@
                                         type: 'container',
                                         containerKey: '',
                                         widgetIndex: 0,
-                                        position: index,
+                                        position: lastPosition,
                                     },
                                     {},
                                     trigger,
                                 ),
                             'clb-preview-container-insert',
                         ),
-                        containerNode,
                     )
                 })
-
-                main.appendChild(
-                    this.makeInsertControl(
-                        this.actionLabels.addContainerHere,
-                        (trigger) =>
-                            this.runPreviewAction(
-                                'addContainer',
-                                {
-                                    type: 'container',
-                                    containerKey: '',
-                                    widgetIndex: 0,
-                                    position: containerNodes.length,
-                                },
-                                {},
-                                trigger,
-                            ),
-                        'clb-preview-container-insert',
-                    ),
-                )
             },
             makeInsertControl(label, callback, className = '') {
                 const control = document.createElement('div')
@@ -863,6 +910,9 @@
                         window.requestAnimationFrame(() => {
                             window.setTimeout(() => {
                                 this.renderPreview()
+                                this.syncSelectedPreviewNode()
+                                this.markSelectedPreviewNode()
+                                this.markSelectedTreeNode()
                                 this.scrollSelectedTreeNodeIntoView()
                                 resolve()
                             }, 50)
@@ -884,6 +934,14 @@
                     null
                 )
             },
+            syncSelectedPreviewNode() {
+                if (this.selectedPreviewAction()) return
+
+                this.selectedNode =
+                    Object.keys(this.previewContainerActions)[0] ||
+                    Object.keys(this.previewWidgetActions)[0] ||
+                    null
+            },
             selectedPreviewLabel() {
                 return (
                     this.selectedPreviewAction()?.label ||
@@ -895,6 +953,76 @@
                 return (
                     this.actionLabels[this.selectedPreviewAction()?.type] ||
                     this.actionLabels.layout
+                )
+            },
+            selectedPreviewMetaRows() {
+                const action = this.selectedPreviewAction()
+
+                if (!action) return []
+
+                if (action.type === 'container') {
+                    return [
+                        {
+                            label: this.actionLabels.area,
+                            value: action.areaLabel || this.actionLabels.layout,
+                        },
+                        {
+                            label: this.actionLabels.widgets,
+                            value: action.widgetCountLabel || '',
+                        },
+                        {
+                            label: this.actionLabels.width,
+                            value: action.colspanLabel || '',
+                        },
+                    ].filter((row) => row.value)
+                }
+
+                return [
+                    {
+                        label: this.actionLabels.type,
+                        value: action.typeLabel || this.actionLabels.widget,
+                    },
+                    {
+                        label: this.actionLabels.placement,
+                        value: [action.areaLabel, action.containerLabel]
+                            .filter(Boolean)
+                            .join(' / '),
+                    },
+                    {
+                        label: this.actionLabels.assets,
+                        value: action.assetCountLabel || '',
+                    },
+                ].filter((row) => row.value)
+            },
+            selectedPreviewAssetType() {
+                const action = this.selectedPreviewAction()
+                const assetTypes = Array.isArray(action?.assetTypes)
+                    ? action.assetTypes
+                    : []
+
+                return assetTypes[0]?.type || ''
+            },
+            selectedPreviewAssetTypes() {
+                const action = this.selectedPreviewAction()
+                const assetTypes = Array.isArray(action?.assetTypes)
+                    ? action.assetTypes
+                    : []
+
+                return assetTypes.map((assetType) => assetType.type)
+            },
+            runSelectedPreviewAction(actionName, trigger = null) {
+                const action = this.selectedPreviewAction()
+
+                if (!action) return
+
+                this.runPreviewAction(
+                    actionName,
+                    action,
+                    {
+                        type: this.selectedPreviewAssetType(),
+                        types: this.selectedPreviewAssetTypes(),
+                    },
+                    trigger,
                 )
             },
         })
@@ -913,10 +1041,12 @@
                     Js::from([
                         'addWidgetHere' => __('capell-layout-builder::button.add_widget_here'),
                         'addContainerHere' => __('capell-layout-builder::button.add_container_here'),
+                        'area' => __('capell-layout-builder::form.area'),
                         'assets' => __('capell-layout-builder::heading.assets'),
                         'appearance' => __('capell-layout-builder::generic.appearance'),
                         'canvas' => __('capell-layout-builder::generic.canvas'),
                         'container' => __('capell-layout-builder::button.container'),
+                        'emptySelection' => __('capell-layout-builder::message.select_layout_item'),
                         'widgetSettings' => __('capell-layout-builder::button.edit_layout_widget'),
                         'controls' => __('capell-layout-builder::button.controls'),
                         'duplicateContainer' => __('capell-layout-builder::button.duplicate_container'),
@@ -927,10 +1057,14 @@
                         'layout' => __('capell-layout-builder::generic.layout'),
                         'page' => __('capell-layout-builder::generic.page'),
                         'placement' => __('capell-layout-builder::generic.placement'),
+                        'properties' => __('capell-layout-builder::generic.properties'),
                         'removeContainer' => __('capell-layout-builder::button.remove_container'),
                         'remove' => __('capell-layout-builder::button.remove_widget'),
                         'selected' => __('capell-layout-builder::generic.selected'),
+                        'type' => __('capell-layout-builder::generic.type'),
                         'widget' => __('capell-layout-builder::button.widget'),
+                        'widgets' => __('capell-layout-builder::generic.widgets'),
+                        'width' => __('capell-layout-builder::generic.width'),
                     ])
                 }},
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
@@ -1068,17 +1202,30 @@
                 </span>
             </button>
 
-            <button
-                type="button"
-                class="layout-builder-studio-rail-button"
-                title="{{ __('capell-layout-builder::button.add_container') }}"
-                x-on:click="$refs.treePanel?.scrollTo({ top: 0, behavior: 'smooth' })"
-            >
-                @svg('heroicon-o-plus', 'h-5 w-5')
-                <span class="sr-only">
-                    {{ __('capell-layout-builder::button.add_container') }}
-                </span>
-            </button>
+            @if ($this->canEditLayout())
+                <x-filament::dropdown
+                    placement="right-start"
+                    width="!w-auto"
+                >
+                    <x-slot name="trigger">
+                        <button
+                            type="button"
+                            class="layout-builder-studio-rail-button"
+                            title="{{ __('capell-layout-builder::button.layout_actions') }}"
+                        >
+                            @svg('heroicon-o-plus', 'h-5 w-5')
+                            <span class="sr-only">
+                                {{ __('capell-layout-builder::button.layout_actions') }}
+                            </span>
+                        </button>
+                    </x-slot>
+
+                    <x-filament::dropdown.list>
+                        {{ $this->addContainerAction }}
+                        {{ $this->addWidgetAction }}
+                    </x-filament::dropdown.list>
+                </x-filament::dropdown>
+            @endif
 
             <button
                 type="button"
@@ -1158,61 +1305,116 @@
         </div>
 
         <aside class="layout-builder-inspector-panel">
-            <div class="layout-builder-inspector-header">
-                <div>
-                    <p x-text="actionLabels.selected"></p>
-                    <h3 x-text="selectedPreviewLabel()"></h3>
-                </div>
-
-                <span x-text="selectedPreviewKind()"></span>
+            <div
+                class="layout-builder-inspector-empty"
+                x-show="! selectedPreviewAction()"
+            >
+                @svg('heroicon-o-cursor-arrow-rays', 'h-5 w-5')
+                <p x-text="actionLabels.emptySelection"></p>
             </div>
 
-            <div class="layout-builder-inspector-card">
-                <h4>
-                    {{ __('capell-layout-builder::generic.appearance') }}
-                </h4>
+            <template x-if="selectedPreviewAction()">
+                <div class="layout-builder-inspector-stack">
+                    <div class="layout-builder-inspector-header">
+                        <div>
+                            <p x-text="actionLabels.selected"></p>
+                            <h3 x-text="selectedPreviewLabel()"></h3>
+                        </div>
 
-                <div class="layout-builder-inspector-field">
-                    <span>
-                        {{ __('capell-layout-builder::generic.canvas') }}
-                    </span>
-                    <strong x-text="activeBreakpoint"></strong>
-                </div>
+                        <span x-text="selectedPreviewKind()"></span>
+                    </div>
 
-                <div class="layout-builder-inspector-segment">
-                    @foreach (LayoutBreakpoint::cases() as $breakpoint)
-                        <button
-                            type="button"
-                            x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
-                            x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
+                    <div class="layout-builder-inspector-card">
+                        <h4 x-text="actionLabels.properties"></h4>
+
+                        <template
+                            x-for="row in selectedPreviewMetaRows()"
+                            :key="row.label"
                         >
-                            {{ __('capell-layout-builder::button.' . $breakpoint->value) }}
-                        </button>
-                    @endforeach
+                            <div class="layout-builder-inspector-field">
+                                <span x-text="row.label"></span>
+                                <strong x-text="row.value"></strong>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="layout-builder-inspector-card">
+                        <h4 x-text="actionLabels.controls"></h4>
+
+                        <div class="layout-builder-inspector-actions-grid">
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-action"
+                                x-on:click="
+                                    selectedPreviewAction()?.type === 'container'
+                                        ? openContainerEditor(selectedNode)
+                                        : openWidgetEditor(selectedNode)
+                                "
+                            >
+                                @svg('heroicon-o-pencil-square', 'h-4 w-4')
+                                <span>
+                                    {{ __('capell-layout-builder::button.edit') }}
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-action layout-builder-inspector-action-secondary"
+                                x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
+                                x-on:click="
+                                    runSelectedPreviewAction(
+                                        selectedPreviewAction()?.type === 'container'
+                                            ? 'duplicateContainer'
+                                            : 'duplicateWidget',
+                                        $event.currentTarget,
+                                    )
+                                "
+                            >
+                                @svg('heroicon-o-square-2-stack', 'h-4 w-4')
+                                <span
+                                    x-text="
+                                        selectedPreviewAction()?.type === 'container'
+                                            ? actionLabels.duplicateContainer
+                                            : actionLabels.duplicate
+                                    "
+                                ></span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-action layout-builder-inspector-action-secondary"
+                                x-show="selectedPreviewAction()?.type === 'widget'"
+                                x-bind:disabled="selectedPreviewAssetTypes().length === 0"
+                                x-on:click="runSelectedPreviewAction('selectAsset', $event.currentTarget)"
+                            >
+                                @svg('heroicon-o-photo', 'h-4 w-4')
+                                <span>
+                                    {{ __('capell-layout-builder::heading.assets') }}
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-action layout-builder-inspector-action-danger"
+                                x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
+                                x-on:click="
+                                    runSelectedPreviewAction(
+                                        selectedPreviewAction()?.type === 'container'
+                                            ? 'removeContainer'
+                                            : 'removeWidget',
+                                        $event.currentTarget,
+                                    )
+                                "
+                            >
+                                @svg('heroicon-o-trash', 'h-4 w-4')
+                                <span>
+                                    {{ __('capell-layout-builder::button.remove') }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="layout-builder-inspector-card">
-                <h4>
-                    {{ __('capell-layout-builder::generic.placement') }}
-                </h4>
-
-                <button
-                    type="button"
-                    class="layout-builder-inspector-action"
-                    x-bind:disabled="! selectedPreviewAction()"
-                    x-on:click="
-                        selectedPreviewAction()?.type === 'container'
-                            ? openContainerEditor(selectedNode)
-                            : openWidgetEditor(selectedNode)
-                    "
-                >
-                    @svg('heroicon-o-pencil-square', 'h-4 w-4')
-                    <span>
-                        {{ __('capell-layout-builder::button.edit') }}
-                    </span>
-                </button>
-            </div>
+            </template>
         </aside>
     </div>
 

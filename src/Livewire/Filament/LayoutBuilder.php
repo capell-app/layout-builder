@@ -590,6 +590,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->applyLayoutState($state, markModified: true);
         $this->refreshLayoutChanges();
         $this->refreshLayoutDiagnostics();
+        $this->refreshVisualPreview();
     }
 
     public function redoLayoutMutation(): void
@@ -617,6 +618,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->applyLayoutState($state, markModified: true);
         $this->refreshLayoutChanges();
         $this->refreshLayoutDiagnostics();
+        $this->refreshVisualPreview();
     }
 
     public function setActiveBreakpoint(?string $breakpoint): void

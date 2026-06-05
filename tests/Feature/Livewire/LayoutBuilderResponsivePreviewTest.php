@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Livewire\Livewire;
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
@@ -69,6 +70,9 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertSeeHtml('applyPreviewBreakpoint')
         ->assertSeeHtml('dispatchPreviewAction')
         ->assertSeeHtml('afterLivewirePreviewMutation')
+        ->assertSeeHtml('syncSelectedPreviewNode')
+        ->assertSeeHtml('selectedPreviewMetaRows')
+        ->assertSeeHtml('runSelectedPreviewAction')
         ->assertSeeHtml('markPreviewActionLoading')
         ->assertSeeHtml('callback(event.currentTarget)')
         ->assertSeeHtml('duplicateWidget')
@@ -88,6 +92,9 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('.layout-builder-preview-command-label')
         ->assertElementExists('.layout-builder-history-actions')
         ->assertElementExists('.layout-builder-panel-collapse-toggle')
+        ->assertElementExists('.layout-builder-inspector-panel')
+        ->assertElementExists('.layout-builder-inspector-actions-grid')
+        ->assertElementExists('.layout-builder-inspector-empty')
         ->assertElementExists('.layout-builder-tree-header-actions')
         ->assertElementExists('[data-match-frontend-container-layout="true"]')
         ->assertElementExists('[x-bind\\:data-active-breakpoint]')
@@ -108,6 +115,8 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain('treeCollapsed: true')
         ->toContain('markSelectedTreeNode()')
         ->toContain("selectPreviewNode(node) {\n                this.selectedNode = node")
+        ->toContain('selectedPreviewMetaRows()')
+        ->toContain('runSelectedPreviewAction(actionName, trigger = null)')
         ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
         ->not->toContain("selectPreviewNode(node) {\n                this.selectNode(node, () => this.\$wire.selectPreviewNode(node))");
 
@@ -120,6 +129,57 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toBeTrue();
     expect((bool) preg_match($previewActionTriggerPattern('addContainer'), $visualEditorBlade))
         ->toBeTrue();
+});
+
+it('groups the visual preview into main sidebar and custom area regions from the package namespace', function (): void {
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => [], 'meta' => ['area' => 'main', 'name' => 'Main', 'colspan' => 8]],
+        'sidebar' => ['widgets' => [], 'meta' => ['area' => 'sidebar', 'name' => 'Sidebar', 'colspan' => 4]],
+        'latest' => ['widgets' => [], 'meta' => ['area' => 'latest', 'name' => 'Latest', 'colspan' => 12]],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSeeHtml('clb-preview-content-layout-with-sidebar')
+        ->assertSeeHtml('data-clb-preview-area="main"')
+        ->assertSeeHtml('data-clb-preview-area="sidebar"')
+        ->assertSeeHtml('data-clb-preview-area="latest"')
+        ->assertSeeHtml('data-clb-preview-container-list')
+        ->assertSeeHtml('data-clb-preview-container-position="0"')
+        ->assertSeeHtml('data-clb-preview-container-position="1"')
+        ->assertSeeHtml('data-clb-preview-container-position="2"');
+
+    expect($component->get('visualPreviewHtml'))
+        ->toContain('clb-preview-region-main')
+        ->toContain('clb-preview-region-sidebar')
+        ->toContain('clb-preview-region-area');
+});
+
+it('hydrates inspector metadata for selected containers and widgets from the package namespace', function (): void {
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+
+    $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => [
+            'widgets' => [
+                ['widget_key' => $widget->key, 'occurrence' => 1],
+            ],
+            'meta' => ['area' => 'main', 'name' => 'Main', 'colspan' => 8],
+        ],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSeeHtml('previewContainerActionsPayload')
+        ->assertSeeHtml('previewWidgetActionsPayload')
+        ->assertSeeHtml('areaLabel')
+        ->assertSeeHtml('widgetCountLabel')
+        ->assertSeeHtml('colspanLabel')
+        ->assertSeeHtml('containerLabel')
+        ->assertSeeHtml('assetCountLabel')
+        ->assertSeeHtml(__('capell-layout-builder::message.container_colspan_value', ['columns' => 8]))
+        ->assertSeeHtml(trans_choice('capell-layout-builder::message.layout_tree_widget_count', 1, ['count' => 1]))
+        ->assertSeeHtml(trans_choice('capell-layout-builder::message.layout_tree_asset_count', 0, ['count' => 0]));
 });
 
 it('can opt out of frontend container stacking in the admin preview from the package namespace', function (): void {
