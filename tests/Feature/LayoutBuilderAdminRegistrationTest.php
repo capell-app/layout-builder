@@ -7,6 +7,7 @@ use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Data\LayoutAssetBridgeData;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Support\Assets\FileVersionedCss;
 use Capell\LayoutBuilder\Support\LayoutAssetBridgeRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAdminRegistrationActionable;
@@ -46,11 +47,15 @@ it('registers the layout builder admin stylesheet through Filament assets', func
     $style = collect(FilamentAsset::getStyles(['capell-layout-builder']))
         ->first(fn (Css $asset): bool => $asset->getId() === 'capell-layout-builder-filament');
 
-    expect($style)->toBeInstanceOf(Css::class);
+    expect($style)->toBeInstanceOf(FileVersionedCss::class);
 
     /** @var Css $style */
+    $expectedVersion = (string) filemtime($style->getPath());
+
     expect($style->getPath())->toEndWith('resources/css/layout-builder/admin/capell-layout-filament.css')
         ->and($style->getRelativePublicPath())->toBe('css/capell-layout-builder/capell-layout-builder-filament.css')
+        ->and($style->getVersion())->toBe($expectedVersion)
+        ->and($style->getHref())->toBe(asset($style->getRelativePublicPath()) . '?v=' . $style->getVersion())
         ->and($style->getHtml()->toHtml())->toBe("<link
             href=\"{$style->getHref()}\"
             rel=\"stylesheet\"

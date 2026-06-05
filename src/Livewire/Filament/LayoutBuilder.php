@@ -20,6 +20,7 @@ use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
 use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
+use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
@@ -47,6 +48,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session as SessionFacade;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -73,6 +75,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     use ManagesContainers;
     use ManagesLayoutBuilderState;
     use ManagesWidgets;
+
+    private const int SERVER_SIDE_STATE_THRESHOLD_BYTES = 131072;
 
     #[Locked]
     public ?Pageable $page = null;
@@ -108,7 +112,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     /**
      * @var array<array-key, mixed>
      */
-    public array $selectedRecords;
+    public array $selectedRecords = [];
 
     public bool $layoutModified = false;
 
@@ -149,11 +153,11 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     public ?string $selectedPreviewNodeHandle = null;
 
-    public string $visualPreviewHtml = '';
-
     public string $visualPreviewSignature = '';
 
     public string $visualPreviewStatus = 'stale';
+
+    public bool $layoutStateStoredServerSide = false;
 
     /**
      * @var array<string, array{type: string, containerKey: string, widgetIndex?: int}>
@@ -166,6 +170,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     protected array $containerWidgets;
 
     protected ?LayoutClipboard $layoutClipboard = null;
+
+    protected ?AdminLayoutPreviewData $visualPreview = null;
 
     protected string $view = 'capell-layout-builder::livewire.filament.layout-builder.index';
 
@@ -195,6 +201,47 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function boot(): void
     {
         throw_if(! Filament::auth()->check(), AuthenticationException::class);
+    }
+
+    public function hydrate(): void
+    {
+        if (! $this->layoutStateStoredServerSide) {
+            return;
+        }
+
+        $state = SessionFacade::get($this->serverSideLayoutStateKey());
+
+        if (! is_array($state)) {
+            $this->loadFromStore();
+            $this->layoutStateStoredServerSide = false;
+
+            return;
+        }
+
+        $this->restoreServerSideLayoutState($state);
+    }
+
+    public function dehydrate(): void
+    {
+        if (! $this->shouldStoreLayoutStateServerSide()) {
+            $this->layoutStateStoredServerSide = false;
+
+            return;
+        }
+
+        SessionFacade::put($this->serverSideLayoutStateKey(), $this->serverSideLayoutStatePayload());
+
+        $this->layoutStateStoredServerSide = true;
+        $this->containers = [];
+        $this->assets = [];
+        $this->originalAssets = [];
+        $this->selectedRecords = [];
+        $this->savedBaselineSnapshot = [];
+        $this->layoutUndoSnapshots = [];
+        $this->layoutRedoSnapshots = [];
+        $this->layoutDiagnostics = [];
+        $this->layoutChanges = [];
+        $this->visualPreviewNodeMap = [];
     }
 
     #[Computed]
@@ -411,6 +458,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function render(): View
     {
         $this->ensureLoaded();
+        $this->prepareVisualPreview();
 
         return resolve(Factory::class)->make($this->view);
     }
@@ -491,34 +539,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     #[On('refresh-layout-builder-visual-preview')]
     public function refreshVisualPreview(array $pageFormState = []): void
     {
-        $this->assertCanUseLayoutBuilder();
-        $this->ensureLoaded();
+        $this->prepareVisualPreview($pageFormState);
+    }
 
-        $this->visualPreviewStatus = 'refreshing';
-
-        try {
-            $preview = RenderAdminLayoutPreviewAction::run(
-                containers: $this->containers ?? [],
-                containerWidgets: $this->containerWidgets ?? [],
-                assets: $this->assets,
-                page: $this->page,
-                pageFormState: $pageFormState,
-            );
-        } catch (Throwable $throwable) {
-            report($throwable);
-            $this->visualPreviewStatus = 'error';
-
-            return;
-        }
-
-        $this->visualPreviewHtml = $preview->html;
-        $this->visualPreviewSignature = $preview->signature;
-        $this->visualPreviewNodeMap = $preview->nodeMap;
-        $this->selectedPreviewNodeHandle = $this->selectedPreviewNodeHandle !== null
-            && array_key_exists($this->selectedPreviewNodeHandle, $this->visualPreviewNodeMap)
-                ? $this->selectedPreviewNodeHandle
-                : $this->defaultPreviewNodeHandle();
-        $this->visualPreviewStatus = 'current';
+    public function visualPreviewHtml(): string
+    {
+        return $this->prepareVisualPreview()->html;
     }
 
     public function showAdvancedLayout(?string $returnToContentItemKey = null): void
@@ -854,6 +880,101 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         $this->refreshVisualPreview();
+    }
+
+    /**
+     * @param  array<string, mixed>  $pageFormState
+     */
+    private function prepareVisualPreview(array $pageFormState = []): AdminLayoutPreviewData
+    {
+        $this->assertCanUseLayoutBuilder();
+        $this->ensureLoaded();
+
+        if ($this->visualPreview instanceof AdminLayoutPreviewData && $pageFormState === []) {
+            return $this->visualPreview;
+        }
+
+        $this->visualPreviewStatus = 'refreshing';
+
+        try {
+            $this->visualPreview = RenderAdminLayoutPreviewAction::run(
+                containers: $this->containers ?? [],
+                containerWidgets: $this->containerWidgets ?? [],
+                assets: $this->assets,
+                page: $this->page,
+                pageFormState: $pageFormState,
+            );
+        } catch (Throwable $throwable) {
+            report($throwable);
+            $this->visualPreviewStatus = 'error';
+
+            return new AdminLayoutPreviewData(
+                html: '',
+                signature: $this->visualPreviewSignature,
+                nodeMap: $this->visualPreviewNodeMap,
+            );
+        }
+
+        $this->visualPreviewSignature = $this->visualPreview->signature;
+        $this->visualPreviewNodeMap = $this->visualPreview->nodeMap;
+        $this->selectedPreviewNodeHandle = $this->selectedPreviewNodeHandle !== null
+            && array_key_exists($this->selectedPreviewNodeHandle, $this->visualPreviewNodeMap)
+                ? $this->selectedPreviewNodeHandle
+                : $this->defaultPreviewNodeHandle();
+        $this->visualPreviewStatus = 'current';
+
+        return $this->visualPreview;
+    }
+
+    private function shouldStoreLayoutStateServerSide(): bool
+    {
+        $encodedState = json_encode($this->serverSideLayoutStatePayload());
+
+        return is_string($encodedState)
+            && strlen($encodedState) >= self::SERVER_SIDE_STATE_THRESHOLD_BYTES;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function serverSideLayoutStatePayload(): array
+    {
+        return [
+            'containers' => $this->containers ?? [],
+            'assets' => $this->assets,
+            'originalAssets' => $this->originalAssets ?? [],
+            'selectedRecords' => $this->selectedRecords,
+            'savedBaselineSnapshot' => $this->savedBaselineSnapshot ?? [],
+            'layoutUndoSnapshots' => $this->layoutUndoSnapshots,
+            'layoutRedoSnapshots' => $this->layoutRedoSnapshots,
+            'layoutDiagnostics' => $this->layoutDiagnostics,
+            'layoutChanges' => $this->layoutChanges,
+            'visualPreviewNodeMap' => $this->visualPreviewNodeMap,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $state
+     */
+    private function restoreServerSideLayoutState(array $state): void
+    {
+        $this->containers = is_array($state['containers'] ?? null) ? $state['containers'] : [];
+        $this->assets = is_array($state['assets'] ?? null) ? $state['assets'] : [];
+        $this->originalAssets = is_array($state['originalAssets'] ?? null) ? $state['originalAssets'] : [];
+        $this->selectedRecords = is_array($state['selectedRecords'] ?? null) ? $state['selectedRecords'] : [];
+        $this->savedBaselineSnapshot = is_array($state['savedBaselineSnapshot'] ?? null) ? $state['savedBaselineSnapshot'] : [];
+        $this->layoutUndoSnapshots = is_array($state['layoutUndoSnapshots'] ?? null) ? $state['layoutUndoSnapshots'] : [];
+        $this->layoutRedoSnapshots = is_array($state['layoutRedoSnapshots'] ?? null) ? $state['layoutRedoSnapshots'] : [];
+        $this->layoutDiagnostics = is_array($state['layoutDiagnostics'] ?? null) ? $state['layoutDiagnostics'] : [];
+        $this->layoutChanges = is_array($state['layoutChanges'] ?? null) ? $state['layoutChanges'] : [];
+        $this->visualPreviewNodeMap = is_array($state['visualPreviewNodeMap'] ?? null) ? $state['visualPreviewNodeMap'] : [];
+
+        $this->rebuildLoadedContainerWidgets();
+    }
+
+    private function serverSideLayoutStateKey(): string
+    {
+        return sprintf('capell-layout-builder:%s:layout-state', $this->getId());
     }
 
     private function defaultPreviewNodeHandle(): ?string

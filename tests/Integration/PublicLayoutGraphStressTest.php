@@ -153,6 +153,7 @@ function storePublicLayoutWidgets(array $fixture): void
     $page = $fixture['page'];
     $containers = $layout->getAttribute('containers');
     $containers = is_array($containers) ? $containers : [];
+
     $loader = resolve(LayoutLoader::class);
 
     $loader->preloadLayoutWidgets($layout, $language, $page);
@@ -196,7 +197,7 @@ function layoutBuilderManifest(): array
         return [];
     }
 
-    return array_filter($manifest, static fn (mixed $key): bool => is_string($key), ARRAY_FILTER_USE_KEY);
+    return array_filter($manifest, is_string(...), ARRAY_FILTER_USE_KEY);
 }
 
 /**

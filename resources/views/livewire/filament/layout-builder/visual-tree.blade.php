@@ -22,18 +22,6 @@
         </div>
 
         <div class="layout-builder-tree-header-actions">
-            <button
-                type="button"
-                class="layout-builder-tree-collapse-button"
-                x-on:click="toggleTreeCollapsed()"
-                title="{{ __('capell-layout-builder::button.collapse') }}"
-            >
-                @svg('heroicon-o-chevron-left', 'h-4 w-4')
-                <span class="sr-only">
-                    {{ __('capell-layout-builder::button.collapse') }}
-                </span>
-            </button>
-
             @if ($this->canEditLayout())
                 <x-filament::dropdown
                     placement="bottom-end"

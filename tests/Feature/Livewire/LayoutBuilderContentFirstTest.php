@@ -669,13 +669,10 @@ it('renders widget copy in the visual preview from the package namespace', funct
         ]],
     ]]);
 
-    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee('Every section can be rebuilt in the layout builder')
+        ->assertSeeHtml('Widget-owned support copy.')
         ->assertElementExists('[data-clb-preview-node-type="widget"]');
-
-    expect($component->get('visualPreviewHtml'))
-        ->toContain('Every section can be rebuilt in the layout builder')
-        ->toContain('Widget-owned support copy.');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {

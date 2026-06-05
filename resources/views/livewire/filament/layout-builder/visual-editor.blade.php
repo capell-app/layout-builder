@@ -129,7 +129,7 @@
                     .clb-preview-region-sidebar .clb-preview-container-list { grid-template-columns: minmax(0, 1fr); }
                     .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .25rem; background: rgba(255, 255, 255, .9); padding: .75rem; box-shadow: inset 2px 0 0 rgba(148, 163, 184, .18); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
                     .clb-preview-region-sidebar .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container:hover { background: #fff; box-shadow: inset 2px 0 0 rgba(37,99,235,.42), 0 8px 20px rgba(15,23,42,.07); }
+                    .clb-preview-container:hover { background: #fff; box-shadow: inset 2px 0 0 rgba(100,116,139,.34), 0 4px 12px rgba(15,23,42,.05); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
@@ -150,17 +150,17 @@
                     .clb-preview-empty-page { grid-column: 1 / -1; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
                     [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 1px dashed rgba(37,99,235,.34); outline-offset: 3px; }
-                    [data-clb-preview-node].is-selected { border-radius: 0 !important; outline: 1.5px dashed rgba(37,99,235,.82); outline-offset: 3px; box-shadow: 0 14px 30px rgba(37,99,235,.11); }
+                    [data-clb-preview-node].is-selected { border-radius: 0 !important; outline: 1.5px dashed rgba(71,85,105,.72); outline-offset: 3px; box-shadow: 0 8px 18px rgba(15,23,42,.06); }
                     [data-clb-preview-node].is-selected :where(.layout-builder-widget-preview) { border-radius: 0 !important; }
-                    .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(255, 255, 255, .14); border-radius: .5rem; background: rgba(24, 24, 27, .94); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 14px 32px rgba(15, 23, 42, .28); }
+                    .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(148, 163, 184, .28); border-radius: .5rem; background: rgba(255, 255, 255, .96); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 8px 18px rgba(15, 23, 42, .12); }
                     [data-clb-preview-node-type="widget"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="container"]:hover > .clb-preview-actionbar, [data-clb-preview-node].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
                     .clb-preview-actionbar button { pointer-events: auto !important; }
-                    .clb-preview-action-button { display: inline-flex; width: 1.625rem; height: 1.625rem; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: #fff; cursor: pointer; padding: 0; transition: background-color .15s ease, color .15s ease; }
-                    .clb-preview-action-button:hover, .clb-preview-action-button:focus-visible { background: rgba(255, 255, 255, .14); outline: none; }
-                    .clb-preview-action-button-danger:hover, .clb-preview-action-button-danger:focus-visible { background: rgba(239, 68, 68, .18); color: #fecaca; }
+                    .clb-preview-action-button { display: inline-flex; width: 1.625rem; height: 1.625rem; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: #475569; cursor: pointer; padding: 0; transition: background-color .15s ease, color .15s ease; }
+                    .clb-preview-action-button:hover, .clb-preview-action-button:focus-visible { background: #f1f5f9; color: #0f172a; outline: none; }
+                    .clb-preview-action-button-danger:hover, .clb-preview-action-button-danger:focus-visible { background: #fee2e2; color: #b91c1c; }
                     .clb-preview-action-button:disabled { cursor: wait; opacity: .78; }
                     .clb-preview-action-button.is-loading { color: transparent; position: relative; }
-                    .clb-preview-action-button.is-loading::after { position: absolute; inset: .45rem; border: 2px solid rgba(255, 255, 255, .42); border-top-color: #fff; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
+                    .clb-preview-action-button.is-loading::after { position: absolute; inset: .45rem; border: 2px solid rgba(100, 116, 139, .28); border-top-color: #475569; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
                     .clb-preview-action-button svg { width: 1rem; height: 1rem; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
                     @keyframes clb-preview-spin { to { transform: rotate(360deg); } }
                     .clb-preview-more { position: relative; }
@@ -853,18 +853,40 @@
                 this.treeOpen = false
                 this.$nextTick(() => this.$refs.treeToggle?.focus())
             },
-            toggleTreeCollapsed() {
-                this.treeCollapsed = !this.treeCollapsed
+            handleEscape() {
+                if (this.closePreviewMenus()) return
+
+                if (this.selectedNode) {
+                    this.clearSelectedPreviewNode()
+
+                    return
+                }
+
+                if (this.treeOpen) {
+                    this.closeTree()
+
+                    return
+                }
 
                 if (!this.treeCollapsed) {
-                    this.$nextTick(() => this.scrollSelectedTreeNodeIntoView())
+                    this.treeCollapsed = true
+
+                    return
                 }
+            },
+            toggleTreeCollapsed() {
+                this.treeCollapsed = !this.treeCollapsed
             },
             selectPreviewNode(node) {
                 this.selectedNode = node
                 this.markSelectedPreviewNode()
                 this.markSelectedTreeNode()
                 this.scrollSelectedTreeNodeIntoView()
+            },
+            clearSelectedPreviewNode() {
+                this.selectedNode = null
+                this.markSelectedPreviewNode()
+                this.markSelectedTreeNode()
             },
             openWidgetEditor(node) {
                 const action = this.previewWidgetActions[node]
@@ -921,11 +943,21 @@
             scrollSelectedTreeNodeIntoView() {
                 if (!this.selectedNode) return
 
-                this.$refs.treePanel
-                    ?.querySelector(
-                        `[data-layout-builder-tree-node="${this.selectedNode}"]`,
-                    )
-                    ?.scrollIntoView({ block: 'nearest' })
+                const panel = this.$refs.treePanel
+                const node = panel?.querySelector(
+                    `[data-layout-builder-tree-node="${this.selectedNode}"]`,
+                )
+
+                if (!panel || !node) return
+
+                const panelRect = panel.getBoundingClientRect()
+                const nodeRect = node.getBoundingClientRect()
+
+                if (nodeRect.top < panelRect.top) {
+                    panel.scrollTop -= panelRect.top - nodeRect.top + 12
+                } else if (nodeRect.bottom > panelRect.bottom) {
+                    panel.scrollTop += nodeRect.bottom - panelRect.bottom + 12
+                }
             },
             runPreviewAction(actionName, action, extra = {}, trigger = null) {
                 const args = {}
@@ -1172,8 +1204,9 @@
                 }},
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
             })"
-    x-on:keydown.escape.window="treeOpen ? closeTree() : null"
+    x-on:keydown.escape.window.prevent="handleEscape()"
     x-bind:data-tree-collapsed="treeCollapsed ? 'true' : 'false'"
+    x-bind:data-inspector-open="selectedPreviewAction() ? 'true' : 'false'"
     @class([
         'layout-builder-visual-editor',
         'layout-builder-visual-editor-empty' => $tree->widgetCount === 0,
@@ -1187,43 +1220,6 @@
                 @if ($this->saveLayoutAction->isVisible())
                     {{ $this->saveLayoutAction }}
                 @endif
-            </div>
-
-            <div class="layout-builder-command-divider"></div>
-
-            <div class="layout-builder-command-structure">
-                <button
-                    type="button"
-                    class="layout-builder-panel-collapse-toggle"
-                    x-on:click="toggleTreeCollapsed()"
-                    x-bind:aria-pressed="treeCollapsed"
-                    title="{{ __('capell-layout-builder::button.structure') }}"
-                >
-                    <span x-show="!treeCollapsed">
-                        @svg('heroicon-o-chevron-left', 'h-4 w-4')
-                    </span>
-                    <span
-                        x-show="treeCollapsed"
-                        x-cloak
-                    >
-                        @svg('heroicon-o-chevron-right', 'h-4 w-4')
-                    </span>
-                    <span class="sr-only">
-                        {{ __('capell-layout-builder::button.structure') }}
-                    </span>
-                </button>
-
-                <button
-                    x-ref="treeToggle"
-                    type="button"
-                    class="layout-builder-panel-toggle"
-                    x-on:click="openTree()"
-                >
-                    @svg('heroicon-o-bars-3-bottom-left', 'h-5 w-5')
-                    <span>
-                        {{ __('capell-layout-builder::button.structure') }}
-                    </span>
-                </button>
             </div>
         </div>
 
@@ -1294,6 +1290,7 @@
                 type="button"
                 class="layout-builder-studio-rail-button layout-builder-studio-rail-button-active"
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
+                x-ref="treeToggle"
                 x-on:click="
                     treeCollapsed = false
                     $nextTick(() => scrollSelectedTreeNodeIntoView())
@@ -1302,6 +1299,27 @@
                 @svg('heroicon-o-rectangle-stack', 'h-5 w-5')
                 <span class="sr-only">
                     {{ __('capell-layout-builder::heading.layout_structure') }}
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="layout-builder-studio-rail-button"
+                x-on:click="toggleTreeCollapsed()"
+                x-bind:aria-pressed="treeCollapsed"
+                title="{{ __('capell-layout-builder::button.structure') }}"
+            >
+                <span x-show="!treeCollapsed">
+                    @svg('heroicon-o-chevron-left', 'h-5 w-5')
+                </span>
+                <span
+                    x-show="treeCollapsed"
+                    x-cloak
+                >
+                    @svg('heroicon-o-chevron-right', 'h-5 w-5')
+                </span>
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::button.structure') }}
                 </span>
             </button>
 
@@ -1393,7 +1411,7 @@
                 x-ref="previewTemplate"
                 wire:key="layout-builder-preview-template-{{ $this->visualPreviewSignature }}"
             >
-                {!! $this->visualPreviewHtml !!}
+                {!! $this->visualPreviewHtml() !!}
             </div>
 
             <div
@@ -1432,7 +1450,18 @@
                             <h3 x-text="selectedPreviewLabel()"></h3>
                         </div>
 
-                        <span x-text="selectedPreviewKind()"></span>
+                        <div class="layout-builder-inspector-header-actions">
+                            <span x-text="selectedPreviewKind()"></span>
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-close"
+                                x-on:click="clearSelectedPreviewNode()"
+                                title="{{ __('capell-layout-builder::button.close') }}"
+                                aria-label="{{ __('capell-layout-builder::button.close') }}"
+                            >
+                                @svg('heroicon-o-x-mark', 'h-4 w-4')
+                            </button>
+                        </div>
                     </div>
 
                     <div class="layout-builder-inspector-card">

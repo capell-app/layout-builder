@@ -523,7 +523,7 @@
     right: 1.625rem;
     min-width: 1.375rem;
     border-radius: 9999px;
-    background: rgb(15, 23, 42);
+    background: var(--primary-600);
     color: rgb(255, 255, 255);
     font-size: 0.6875rem;
     font-weight: 700;
@@ -954,13 +954,11 @@
     overflow: hidden;
     border: 0;
     border-radius: 0.75rem;
-    background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.88), transparent 32%),
-        linear-gradient(180deg, rgb(238, 242, 247), rgb(226, 232, 240));
+    background: rgb(248, 250, 252);
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.95) inset,
-        0 30px 90px rgba(15, 23, 42, 0.18),
-        0 8px 24px rgba(15, 23, 42, 0.08);
+        0 18px 42px rgba(15, 23, 42, 0.09),
+        0 4px 12px rgba(15, 23, 42, 0.05);
     container-type: inline-size;
 }
 
@@ -986,7 +984,7 @@
     padding: 0.625rem 0.75rem;
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.86) inset,
-        0 14px 34px rgba(15, 23, 42, 0.08);
+        0 8px 20px rgba(15, 23, 42, 0.05);
     backdrop-filter: blur(18px) saturate(1.25);
 }
 
@@ -1022,11 +1020,9 @@
 .layout-builder-command-group {
     border: 0;
     border-radius: 0.625rem;
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.72);
     padding: 0.25rem;
-    box-shadow:
-        inset 0 0 0 1px rgba(15, 23, 42, 0.07),
-        0 8px 18px rgba(15, 23, 42, 0.05);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
 }
 
 .dark .layout-builder-command-group {
@@ -1140,31 +1136,6 @@
     color: rgb(15, 23, 42) !important;
 }
 
-.layout-builder-command-save :where(.fi-btn) {
-    border-color: rgba(15, 23, 42, 0.08) !important;
-    border-radius: 0.5rem !important;
-    background: linear-gradient(
-        180deg,
-        rgb(17, 24, 39),
-        rgb(2, 6, 23)
-    ) !important;
-    color: rgb(255, 255, 255) !important;
-    box-shadow:
-        0 1px 1px rgba(15, 23, 42, 0.2),
-        0 12px 24px rgba(15, 23, 42, 0.18);
-}
-
-.layout-builder-command-save :where(.fi-btn-label) {
-    color: rgb(255, 255, 255) !important;
-}
-
-.layout-builder-command-save :where(.fi-btn:hover, .fi-btn:focus-visible) {
-    transform: translateY(-1px);
-    box-shadow:
-        0 1px 1px rgba(15, 23, 42, 0.22),
-        0 16px 30px rgba(15, 23, 42, 0.22);
-}
-
 .layout-builder-command-group :where(.fi-btn.fi-size-sm) {
     padding-block: 0.3125rem;
 }
@@ -1172,8 +1143,17 @@
 .layout-builder-history-actions :where(.fi-btn) {
     width: 2rem;
     min-width: 2rem;
+    border: 0 !important;
+    background: transparent !important;
     justify-content: center;
     padding-inline: 0;
+    box-shadow: none !important;
+}
+
+.layout-builder-history-actions :where(.fi-btn:hover, .fi-btn:focus-visible) {
+    background: transparent !important;
+    color: var(--primary-700) !important;
+    transform: none;
 }
 
 .layout-builder-history-actions :where(.fi-btn-label) {
@@ -1257,8 +1237,18 @@
     grid-template-columns: 4.25rem minmax(0, 1fr) minmax(17rem, 20rem);
 }
 
+.layout-builder-visual-editor[data-tree-collapsed='true'][data-inspector-open='false']
+    .layout-builder-visual-grid {
+    grid-template-columns: 4.25rem minmax(0, 1fr);
+}
+
 .layout-builder-visual-editor[data-tree-collapsed='true']
     .layout-builder-visual-panel-tree {
+    display: none;
+}
+
+.layout-builder-visual-editor[data-tree-collapsed='true'][data-inspector-open='false']
+    .layout-builder-inspector-panel {
     display: none;
 }
 
@@ -1292,11 +1282,9 @@
     align-items: center;
     gap: 0.625rem;
     border-right: 0;
-    background: linear-gradient(180deg, rgb(15, 23, 42), rgb(30, 41, 59));
+    background: linear-gradient(180deg, rgb(248, 250, 252), rgb(241, 245, 249));
     padding: 1rem 0.625rem;
-    box-shadow:
-        1px 0 0 rgba(255, 255, 255, 0.08) inset,
-        14px 0 34px rgba(15, 23, 42, 0.18);
+    box-shadow: 1px 0 0 rgba(15, 23, 42, 0.08) inset;
 }
 
 .layout-builder-studio-rail-button {
@@ -1307,7 +1295,7 @@
     justify-content: center;
     border-radius: 0.5rem;
     background: transparent;
-    color: rgb(203, 213, 225);
+    color: rgb(71, 85, 105);
     transition:
         background-color 150ms ease,
         box-shadow 150ms ease,
@@ -1318,11 +1306,9 @@
 .layout-builder-studio-rail-button:hover,
 .layout-builder-studio-rail-button:focus-visible,
 .layout-builder-studio-rail-button-active {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgb(255, 255, 255);
-    box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.14),
-        0 12px 24px rgba(2, 6, 23, 0.22);
+    background: rgb(255, 255, 255);
+    color: var(--primary-700);
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.16);
     transform: translateY(-1px);
 }
 
@@ -1342,6 +1328,12 @@
     padding: clamp(1.125rem, 2vw, 2.25rem);
     --layout-builder-preview-max-width: 100%;
     --layout-builder-preview-min-width: 0;
+}
+
+.layout-builder-visual-canvas[data-active-breakpoint='tablet'],
+.layout-builder-visual-canvas[data-active-breakpoint='mobile'] {
+    display: flex;
+    justify-content: center;
 }
 
 .layout-builder-visual-canvas::before {
@@ -1395,13 +1387,29 @@
     background: rgb(255, 255, 255);
     box-shadow:
         0 1px 0 rgba(255, 255, 255, 0.96) inset,
-        0 36px 90px rgba(15, 23, 42, 0.2),
-        0 12px 26px rgba(15, 23, 42, 0.1);
+        0 18px 40px rgba(15, 23, 42, 0.1),
+        0 4px 12px rgba(15, 23, 42, 0.06);
     margin-inline: auto;
 }
 
 .layout-builder-shadow-preview[data-active-breakpoint='desktop'] {
     max-width: min(100%, 76rem);
+}
+
+.layout-builder-shadow-preview[data-active-breakpoint='tablet'],
+.layout-builder-shadow-preview[data-active-breakpoint='mobile'] {
+    border: 0.75rem solid rgb(30, 41, 59);
+    border-block-width: 1.875rem;
+    border-radius: 1.625rem;
+    box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.16),
+        0 18px 42px rgba(15, 23, 42, 0.14);
+}
+
+.layout-builder-shadow-preview[data-active-breakpoint='mobile'] {
+    border-inline-width: 0.5rem;
+    border-block-width: 1.625rem;
+    border-radius: 1.875rem;
 }
 
 .dark .layout-builder-shadow-preview {
@@ -1706,9 +1714,7 @@
     border-left: 0;
     background: rgba(248, 250, 252, 0.98);
     padding: 1rem;
-    box-shadow:
-        -1px 0 0 rgba(15, 23, 42, 0.06),
-        -14px 0 34px rgba(15, 23, 42, 0.05);
+    box-shadow: -1px 0 0 rgba(15, 23, 42, 0.06);
 }
 
 .layout-builder-inspector-stack {
@@ -1771,7 +1777,14 @@
     line-height: 1.2;
 }
 
-.layout-builder-inspector-header > span {
+.layout-builder-inspector-header-actions {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.layout-builder-inspector-header-actions > span {
     border-radius: 0.3125rem;
     background: rgb(241, 245, 255);
     padding: 0.25rem 0.5625rem;
@@ -1779,6 +1792,29 @@
     font-size: 0.6875rem;
     font-weight: 760;
     text-transform: capitalize;
+}
+
+.layout-builder-inspector-close {
+    display: inline-flex;
+    width: 1.875rem;
+    height: 1.875rem;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: rgb(100, 116, 139);
+    cursor: pointer;
+    transition:
+        background-color 150ms ease,
+        color 150ms ease;
+}
+
+.layout-builder-inspector-close:hover,
+.layout-builder-inspector-close:focus-visible {
+    background: rgb(226, 232, 240);
+    color: rgb(15, 23, 42);
+    outline: none;
 }
 
 .layout-builder-inspector-card {
@@ -1842,12 +1878,12 @@
     gap: 0.5rem;
     min-height: 2.25rem;
     border-radius: 0.5rem;
-    background: rgb(15, 23, 42);
+    background: var(--primary-600);
     padding: 0.5625rem 0.75rem;
     color: rgb(255, 255, 255);
     font-size: 0.8125rem;
     font-weight: 760;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 6px 12px rgba(37, 99, 235, 0.14);
     transition:
         background-color 150ms ease,
         box-shadow 150ms ease,
@@ -1863,7 +1899,7 @@
 .layout-builder-inspector-action:hover,
 .layout-builder-inspector-action:focus-visible {
     transform: translateY(-1px);
-    box-shadow: 0 14px 26px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 8px 16px rgba(37, 99, 235, 0.16);
 }
 
 .layout-builder-inspector-action-secondary {

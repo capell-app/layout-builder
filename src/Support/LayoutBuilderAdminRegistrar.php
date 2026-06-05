@@ -22,8 +22,8 @@ use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSche
 use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+use Capell\LayoutBuilder\Support\Assets\FileVersionedCss;
 use Filament\Support\Assets\AlpineComponent;
-use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\View\Factory as ViewFactory;
@@ -194,12 +194,14 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         $basePath = $this->packageBasePath();
         $publishDir = realpath($basePath . '/publishes');
         $cssSourcePath = $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css';
+        $cssRelativePublicPath = 'css/capell-layout-builder/capell-layout-builder-filament.css';
 
         throw_if(in_array($publishDir, ['', '0', false], true), RuntimeException::class, 'Publish directory not found.');
 
         FilamentAsset::register(
             [
-                Css::make('capell-layout-builder-filament', $cssSourcePath),
+                FileVersionedCss::make('capell-layout-builder-filament', $cssSourcePath)
+                    ->relativePublicPath($cssRelativePublicPath),
                 AlpineComponent::make('layout-builder', $publishDir . '/build/js/components/layout-builder/admin/layout-builder.js')
                     ->loadedOnRequest(),
             ],

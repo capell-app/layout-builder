@@ -72,6 +72,8 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertSeeHtml('afterLivewirePreviewMutation')
         ->assertSeeHtml('syncSelectedPreviewNode')
         ->assertSeeHtml('selectedPreviewMetaRows')
+        ->assertSeeHtml('handleEscape')
+        ->assertSeeHtml('clearSelectedPreviewNode')
         ->assertSeeHtml('treeSearchResultCount')
         ->assertSeeHtml('containerHasMatchingChild')
         ->assertSeeHtml('widgetMatches')
@@ -93,6 +95,7 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('.layout-builder-command-group')
         ->assertElementExists('.layout-builder-command-save')
         ->assertElementExists('.layout-builder-preview-command-label')
+        ->assertElementExists('[x-bind\\:data-inspector-open]')
         ->assertElementExists('.layout-builder-history-actions')
         ->assertElementExists('.layout-builder-panel-collapse-toggle')
         ->assertElementExists('.layout-builder-inspector-panel')
@@ -121,16 +124,21 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain('treeCollapsed: true')
         ->toContain('markSelectedTreeNode()')
         ->toContain("selectPreviewNode(node) {\n                this.selectedNode = node")
-        ->toContain('outline: 1.5px dashed rgba(37,99,235,.82)')
+        ->toContain('outline: 1.5px dashed rgba(71,85,105,.72)')
         ->toContain('border-radius: 0 !important')
         ->toContain(':host([data-active-breakpoint="tablet"]) .clb-preview-content-layout-with-sidebar')
         ->toContain('@container(max-width: 58rem)')
         ->toContain("return this.activeBreakpoint !== 'desktop'")
         ->toContain('selectedPreviewMetaRows()')
+        ->toContain('handleEscape()')
+        ->toContain('clearSelectedPreviewNode()')
+        ->toContain('{!! $this->visualPreviewHtml() !!}')
         ->toContain('runSelectedPreviewAction(actionName, trigger = null)')
         ->toContain("this.\$wire.\$call(\n                            'duplicateWidget'")
         ->toContain("this.\$wire.\$call('refreshVisualPreview')")
         ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
+        ->not->toContain('togglePreviewFocused')
+        ->not->toContain('{!! $this->visualPreviewHtml !!}')
         ->not->toContain("selectPreviewNode(node) {\n                this.selectNode(node, () => this.\$wire.selectPreviewNode(node))");
 
     $previewActionTriggerPattern = static fn (string $actionName): string => sprintf(
@@ -153,7 +161,7 @@ it('groups the visual preview into main sidebar and custom area regions from the
         'latest' => ['widgets' => [], 'meta' => ['area' => 'latest', 'name' => 'Latest', 'colspan' => 12]],
     ]]);
 
-    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSeeHtml('clb-preview-content-layout-with-sidebar')
         ->assertSeeHtml('data-clb-preview-area="main"')
         ->assertSeeHtml('data-clb-preview-area="sidebar"')
@@ -161,12 +169,10 @@ it('groups the visual preview into main sidebar and custom area regions from the
         ->assertSeeHtml('data-clb-preview-container-list')
         ->assertSeeHtml('data-clb-preview-container-position="0"')
         ->assertSeeHtml('data-clb-preview-container-position="1"')
-        ->assertSeeHtml('data-clb-preview-container-position="2"');
-
-    expect($component->get('visualPreviewHtml'))
-        ->toContain('clb-preview-region-main')
-        ->toContain('clb-preview-region-sidebar')
-        ->toContain('clb-preview-region-area');
+        ->assertSeeHtml('data-clb-preview-container-position="2"')
+        ->assertSeeHtml('clb-preview-region-main')
+        ->assertSeeHtml('clb-preview-region-sidebar')
+        ->assertSeeHtml('clb-preview-region-area');
 });
 
 it('hydrates inspector metadata for selected containers and widgets from the package namespace', function (): void {
