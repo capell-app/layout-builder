@@ -101,16 +101,16 @@
                     *, *::before, *::after { box-sizing: border-box; }
                     a, button, input, select, textarea, form { pointer-events: none !important; }
                     .clb-preview-page { min-height: 100%; background: #fff; color: #111827; }
-                    .clb-preview-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .75rem; padding: .875rem; }
-                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border: 1px dashed rgba(113, 113, 122, .34); border-radius: .75rem; background: rgba(255,255,255,.92); padding: .75rem; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 12px 30px rgba(15,23,42,.07); transition: border-color .15s ease, box-shadow .15s ease, outline-color .15s ease, transform .15s ease; }
-                    .clb-preview-container:hover { border-color: rgba(37,99,235,.4); box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 16px 36px rgba(15,23,42,.1); transform: translateY(-1px); }
+                    .clb-preview-main { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; padding: 1.35rem; }
+                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border: 1px dashed rgba(129, 140, 248, .5); border-radius: .5rem; background: rgba(255, 255, 255, .76); padding: 1rem; transition: border-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
+                    .clb-preview-container:hover { border-color: rgba(79,70,229,.8); box-shadow: inset 0 0 0 4px rgba(79,70,229,.06), 0 12px 26px rgba(79,70,229,.08); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container-label { display: inline-flex; margin-bottom: .625rem; border-radius: 999px; background: #f4f4f5; padding: .1875rem .5625rem; color: #52525b; font-size: .6875rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+                    .clb-preview-container-label { display: inline-flex; margin-bottom: .75rem; border-radius: .375rem; background: #eef2ff; padding: .1875rem .5rem; color: #4f46e5; font-size: .625rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
                     .clb-preview-widgets { display: grid; gap: .75rem; }
-                    .clb-preview-widget { position: relative; border-radius: .625rem; outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
-                    .clb-preview-widget:hover { transform: translateY(-1px); }
-                    .clb-preview-widget, .layout-builder-widget-preview { overflow: hidden; border: 1px solid #e4e4e7; border-radius: .625rem; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 20px rgba(15,23,42,.08); }
+                    .clb-preview-widget { position: relative; border-radius: .375rem; outline: 2px solid transparent; outline-offset: 0; transition: outline-color .15s ease, box-shadow .15s ease; }
+                    .clb-preview-widget, .layout-builder-widget-preview { overflow: hidden; border: 1px solid rgba(15,23,42,.1); border-radius: .375rem; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 18px rgba(15,23,42,.05); }
+                    .clb-preview-widget:hover, .layout-builder-widget-preview:hover { box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 12px 24px rgba(79,70,229,.09); }
                     .clb-preview-widget-body { display: flex; gap: .75rem; padding: .875rem; }
                     .clb-preview-widget-icon { display: inline-flex; width: 2rem; height: 2rem; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: .5rem; background: #eff6ff; color: #2563eb; }
                     .clb-preview-widget-type { margin-bottom: .25rem; color: #64748b; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
@@ -121,8 +121,8 @@
                     .clb-preview-empty { width: 100%; border: 1px dashed #d4d4d8; border-radius: .5rem; padding: .75rem; color: #71717a; text-align: center; }
                     .clb-preview-empty-page { grid-column: 1 / -1; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
-                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 2px solid rgba(59, 130, 246, .55); outline-offset: 4px; }
-                    [data-clb-preview-node].is-selected { outline: 3px solid #2563eb; outline-offset: 4px; box-shadow: 0 0 0 5px rgba(37, 99, 235, .14), 0 18px 42px rgba(37, 99, 235, .16); }
+                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 2px solid rgba(79,70,229,.55); outline-offset: 0; }
+                    [data-clb-preview-node].is-selected { outline: 2px solid #4f46e5; outline-offset: 0; box-shadow: 0 0 0 5px rgba(79,70,229,.1), 0 14px 32px rgba(79,70,229,.12); }
                     .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(255, 255, 255, .14); border-radius: 999px; background: rgba(24, 24, 27, .94); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 14px 32px rgba(15, 23, 42, .28); }
                     [data-clb-preview-node-type="widget"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="container"]:hover > .clb-preview-actionbar, [data-clb-preview-node].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
                     .clb-preview-actionbar button { pointer-events: auto !important; }
@@ -863,6 +863,26 @@
                 trigger.toggleAttribute('disabled', loading)
                 trigger.setAttribute('aria-busy', loading ? 'true' : 'false')
             },
+            selectedPreviewAction() {
+                return (
+                    this.previewWidgetActions[this.selectedNode] ||
+                    this.previewContainerActions[this.selectedNode] ||
+                    null
+                )
+            },
+            selectedPreviewLabel() {
+                return (
+                    this.selectedPreviewAction()?.label ||
+                    this.actionLabels.layout ||
+                    ''
+                )
+            },
+            selectedPreviewKind() {
+                return (
+                    this.actionLabels[this.selectedPreviewAction()?.type] ||
+                    this.actionLabels.layout
+                )
+            },
         })
     </script>
 @endscript
@@ -880,14 +900,23 @@
                         'addWidgetHere' => __('capell-layout-builder::button.add_widget_here'),
                         'addContainerHere' => __('capell-layout-builder::button.add_container_here'),
                         'assets' => __('capell-layout-builder::heading.assets'),
+                        'appearance' => __('capell-layout-builder::generic.appearance'),
+                        'canvas' => __('capell-layout-builder::generic.canvas'),
+                        'container' => __('capell-layout-builder::button.container'),
                         'widgetSettings' => __('capell-layout-builder::button.edit_layout_widget'),
                         'controls' => __('capell-layout-builder::button.controls'),
                         'duplicateContainer' => __('capell-layout-builder::button.duplicate_container'),
                         'duplicate' => __('capell-layout-builder::button.duplicate_widget'),
                         'edit' => __('capell-layout-builder::button.edit_widget'),
                         'editContainer' => __('capell-layout-builder::button.edit_container'),
+                        'inspector' => __('capell-layout-builder::generic.inspector'),
+                        'layout' => __('capell-layout-builder::generic.layout'),
+                        'page' => __('capell-layout-builder::generic.page'),
+                        'placement' => __('capell-layout-builder::generic.placement'),
                         'removeContainer' => __('capell-layout-builder::button.remove_container'),
                         'remove' => __('capell-layout-builder::button.remove_widget'),
+                        'selected' => __('capell-layout-builder::generic.selected'),
+                        'widget' => __('capell-layout-builder::button.widget'),
                     ])
                 }},
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
@@ -1006,6 +1035,58 @@
             'layout-builder-visual-grid-empty' => $tree->widgetCount === 0,
         ])
     >
+        <nav
+            class="layout-builder-studio-rail"
+            aria-label="{{ __('capell-layout-builder::generic.canvas') }}"
+        >
+            <button
+                type="button"
+                class="layout-builder-studio-rail-button layout-builder-studio-rail-button-active"
+                title="{{ __('capell-layout-builder::heading.layout_structure') }}"
+            >
+                @svg('heroicon-o-rectangle-stack', 'h-5 w-5')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::heading.layout_structure') }}
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="layout-builder-studio-rail-button"
+                title="{{ __('capell-layout-builder::button.add_container') }}"
+                x-on:click="$refs.treePanel?.scrollTo({ top: 0, behavior: 'smooth' })"
+            >
+                @svg('heroicon-o-plus', 'h-5 w-5')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::button.add_container') }}
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="layout-builder-studio-rail-button"
+                title="{{ __('capell-layout-builder::button.preview') }}"
+            >
+                @svg('heroicon-o-eye', 'h-5 w-5')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::button.preview') }}
+                </span>
+            </button>
+
+            <span class="layout-builder-studio-rail-spacer"></span>
+
+            <button
+                type="button"
+                class="layout-builder-studio-rail-button"
+                title="{{ __('capell-layout-builder::heading.settings') }}"
+            >
+                @svg('heroicon-o-cog-6-tooth', 'h-5 w-5')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::heading.settings') }}
+                </span>
+            </button>
+        </nav>
+
         <aside
             x-ref="treePanel"
             class="layout-builder-visual-panel layout-builder-visual-panel-tree"
@@ -1057,6 +1138,64 @@
                 ])
             ></div>
         </div>
+
+        <aside class="layout-builder-inspector-panel">
+            <div class="layout-builder-inspector-header">
+                <div>
+                    <p x-text="actionLabels.selected"></p>
+                    <h3 x-text="selectedPreviewLabel()"></h3>
+                </div>
+
+                <span x-text="selectedPreviewKind()"></span>
+            </div>
+
+            <div class="layout-builder-inspector-card">
+                <h4>
+                    {{ __('capell-layout-builder::generic.appearance') }}
+                </h4>
+
+                <div class="layout-builder-inspector-field">
+                    <span>
+                        {{ __('capell-layout-builder::generic.canvas') }}
+                    </span>
+                    <strong x-text="activeBreakpoint"></strong>
+                </div>
+
+                <div class="layout-builder-inspector-segment">
+                    @foreach (LayoutBreakpoint::cases() as $breakpoint)
+                        <button
+                            type="button"
+                            x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
+                            x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
+                        >
+                            {{ __('capell-layout-builder::button.' . $breakpoint->value) }}
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="layout-builder-inspector-card">
+                <h4>
+                    {{ __('capell-layout-builder::generic.placement') }}
+                </h4>
+
+                <button
+                    type="button"
+                    class="layout-builder-inspector-action"
+                    x-bind:disabled="! selectedPreviewAction()"
+                    x-on:click="
+                        selectedPreviewAction()?.type === 'container'
+                            ? openContainerEditor(selectedNode)
+                            : openWidgetEditor(selectedNode)
+                    "
+                >
+                    @svg('heroicon-o-pencil-square', 'h-4 w-4')
+                    <span>
+                        {{ __('capell-layout-builder::button.edit') }}
+                    </span>
+                </button>
+            </div>
+        </aside>
     </div>
 
     <div
