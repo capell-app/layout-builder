@@ -753,14 +753,90 @@
             shouldStackContainersForActiveBreakpoint() {
                 return this.activeBreakpoint !== 'desktop'
             },
-            itemMatches(element) {
-                const term = this.search.trim().toLowerCase()
+            normalizedTreeSearch() {
+                return this.search.trim().toLowerCase()
+            },
+            treeSearchActive() {
+                return this.normalizedTreeSearch() !== ''
+            },
+            treeItemMatches(element) {
+                const term = this.normalizedTreeSearch()
 
                 if (!term) return true
 
                 return (element.dataset.layoutBuilderTreeSearch || '')
                     .toLowerCase()
                     .includes(term)
+            },
+            containerHasMatchingChild(element) {
+                if (!this.treeSearchActive()) return false
+
+                return [
+                    ...element.querySelectorAll(
+                        '[data-layout-builder-tree-widget]',
+                    ),
+                ].some((widget) => this.treeItemMatches(widget))
+            },
+            containerMatches(element) {
+                if (!this.treeSearchActive()) return true
+
+                return (
+                    this.treeItemMatches(element) ||
+                    this.containerHasMatchingChild(element)
+                )
+            },
+            widgetMatches(element) {
+                return !this.treeSearchActive() || this.treeItemMatches(element)
+            },
+            treeSearchResultCount() {
+                if (!this.treeSearchActive()) return 0
+
+                const nodes = new Set()
+
+                ;[
+                    ...this.$el.querySelectorAll(
+                        '[data-layout-builder-tree-container]',
+                    ),
+                ]
+                    .filter((container) => this.treeItemMatches(container))
+                    .forEach((container) =>
+                        nodes.add(container.dataset.layoutBuilderTreeNode),
+                    )
+                ;[
+                    ...this.$el.querySelectorAll(
+                        '[data-layout-builder-tree-widget]',
+                    ),
+                ]
+                    .filter((widget) => this.treeItemMatches(widget))
+                    .forEach((widget) =>
+                        nodes.add(widget.dataset.layoutBuilderTreeNode),
+                    )
+
+                return nodes.size
+            },
+            treeSearchResultLabel() {
+                const count = this.treeSearchResultCount()
+
+                return count === 1
+                    ? this.actionLabels.treeSearchResult
+                    : (this.actionLabels.treeSearchResults || '').replace(
+                          ':count',
+                          count,
+                      )
+            },
+            hasTreeSearchResults() {
+                return (
+                    !this.treeSearchActive() || this.treeSearchResultCount() > 0
+                )
+            },
+            clearTreeSearch() {
+                this.search = ''
+                this.$nextTick(() => this.$refs.treeSearchInput?.focus())
+            },
+            treeContainerOpen(open, element) {
+                return this.treeSearchActive()
+                    ? this.containerMatches(element)
+                    : open
             },
             openTree() {
                 this.treeOpen = true
@@ -1079,6 +1155,8 @@
                         'removeContainer' => __('capell-layout-builder::button.remove_container'),
                         'remove' => __('capell-layout-builder::button.remove_widget'),
                         'selected' => __('capell-layout-builder::generic.selected'),
+                        'treeSearchResult' => __('capell-layout-builder::message.layout_tree_search_result'),
+                        'treeSearchResults' => __('capell-layout-builder::message.layout_tree_search_results'),
                         'type' => __('capell-layout-builder::generic.type'),
                         'widget' => __('capell-layout-builder::button.widget'),
                         'widgets' => __('capell-layout-builder::generic.widgets'),
@@ -1328,6 +1406,14 @@
                 x-show="! selectedPreviewAction()"
             >
                 @svg('heroicon-o-cursor-arrow-rays', 'h-5 w-5')
+                <strong>
+                    {{
+                        trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->widgetCount, [
+                            'containers' => $tree->containerCount,
+                            'widgets' => $tree->widgetCount,
+                        ])
+                    }}
+                </strong>
                 <p x-text="actionLabels.emptySelection"></p>
             </div>
 

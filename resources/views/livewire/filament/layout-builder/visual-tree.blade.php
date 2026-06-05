@@ -63,22 +63,49 @@
         </span>
         @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
         <input
+            x-ref="treeSearchInput"
             type="search"
             x-model.debounce.150ms="search"
             placeholder="{{ __('capell-layout-builder::form.search_layout_tree') }}"
         />
+        <button
+            type="button"
+            class="layout-builder-tree-search-clear"
+            x-show="treeSearchActive()"
+            x-on:click="clearTreeSearch()"
+            aria-label="{{ __('capell-layout-builder::button.clear_layout_tree_search') }}"
+        >
+            @svg('heroicon-o-x-mark', 'h-4 w-4')
+        </button>
     </label>
+
+    <div
+        class="layout-builder-tree-search-meta"
+        x-show="treeSearchActive()"
+    >
+        <span x-text="treeSearchResultLabel()"></span>
+    </div>
 
     <div class="layout-builder-tree-list">
         @foreach ($tree->containers as $container)
+            @php
+                $containerSearchText = collect([
+                    $container->label,
+                    $container->key,
+                    $container->areaLabel,
+                    trans_choice('capell-layout-builder::message.layout_tree_widget_count', $container->widgetCount, ['count' => $container->widgetCount]),
+                ])->filter()->implode(' ');
+            @endphp
+
             <section
                 x-data="{ open: true }"
-                x-show="itemMatches($el)"
-                data-layout-builder-tree-search="{{ $container->label }} {{ $container->areaLabel }} {{ collect($container->widgets)->pluck('label')->implode(' ') }}"
+                x-show="containerMatches($el)"
+                data-layout-builder-tree-container
+                data-layout-builder-tree-search="{{ $containerSearchText }}"
                 data-layout-builder-tree-node="{{ $container->nodeId }}"
                 class="layout-builder-tree-container"
                 role="treeitem"
-                x-bind:aria-expanded="open ? 'true' : 'false'"
+                x-bind:aria-expanded="treeContainerOpen(open, $el) ? 'true' : 'false'"
             >
                 <button
                     type="button"
@@ -100,25 +127,43 @@
                     <span
                         class="layout-builder-tree-chevron"
                         x-on:click.stop="open = ! open"
-                        x-bind:class="{ 'rotate-90': open }"
+                        x-bind:class="{
+                            'rotate-90': treeContainerOpen(
+                                open,
+                                $el.closest('[data-layout-builder-tree-container]'),
+                            ),
+                        }"
                     >
                         @svg('heroicon-o-chevron-right', 'h-4 w-4')
                     </span>
                 </button>
 
                 <div
-                    x-show="open"
+                    x-show="treeContainerOpen(open, $el.closest('[data-layout-builder-tree-container]'))"
                     x-collapse
                     class="layout-builder-tree-widgets"
                     role="group"
                 >
                     @forelse ($container->widgets as $widget)
+                        @php
+                            $widgetSearchText = collect([
+                                $widget->label,
+                                $widget->typeLabel,
+                                $widget->widgetKey,
+                                trans_choice('capell-layout-builder::message.layout_tree_asset_count', $widget->assetCount, ['count' => $widget->assetCount]),
+                                $widget->usesPageContent ? __('capell-layout-builder::generic.page_content_widget') : null,
+                            ])->filter()->implode(' ');
+                        @endphp
+
                         <button
                             type="button"
                             @class([
                                 'layout-builder-tree-row layout-builder-tree-row-widget',
                                 'layout-builder-tree-row-selected' => $widget->isSelected,
                             ])
+                            x-show="widgetMatches($el)"
+                            data-layout-builder-tree-widget
+                            data-layout-builder-tree-search="{{ $widgetSearchText }}"
                             data-layout-builder-tree-node="{{ $widget->nodeId }}"
                             x-on:click="selectFromTree(@js($widget->nodeId), () => $wire.selectWidget(@js($widget->containerKey), @js($widget->widgetIndex)))"
                         >
@@ -145,5 +190,15 @@
                 </div>
             </section>
         @endforeach
+
+        <div
+            class="layout-builder-tree-search-empty"
+            x-show="treeSearchActive() && ! hasTreeSearchResults()"
+        >
+            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+            <span>
+                {{ __('capell-layout-builder::message.layout_tree_search_empty') }}
+            </span>
+        </div>
     </div>
 </div>

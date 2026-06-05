@@ -36,6 +36,7 @@ return [
     'check_now' => 'Check now',
     'upload' => 'Upload',
     'clear_content_inventory_search' => 'Clear content search',
+    'clear_layout_tree_search' => 'Clear layout search',
     'clear_cache' => 'Clear cache',
     'clone' => 'Clone',
     'clone_layout_for_page' => 'Clone layout for this page',

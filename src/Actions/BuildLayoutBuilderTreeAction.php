@@ -44,6 +44,9 @@ final class BuildLayoutBuilderTreeAction
                                 nodeId: $this->widgetNodeId($containerKey, $widgetIndex),
                                 containerKey: $containerKey,
                                 widgetIndex: $widgetIndex,
+                                widgetKey: is_array($containerWidget) && is_string(data_get($containerWidget, 'widget_key'))
+                                    ? data_get($containerWidget, 'widget_key')
+                                    : null,
                                 label: (string) __('capell-admin::message.unknown_widget', ['widget' => data_get($containerWidget, 'widget_key', __('capell-admin::generic.unknown'))]),
                                 typeLabel: null,
                                 icon: 'heroicon-o-question-mark-circle',
@@ -65,6 +68,9 @@ final class BuildLayoutBuilderTreeAction
                             nodeId: $this->widgetNodeId($containerKey, $widgetIndex),
                             containerKey: $containerKey,
                             widgetIndex: $widgetIndex,
+                            widgetKey: is_array($containerWidget) && is_string(data_get($containerWidget, 'widget_key'))
+                                ? data_get($containerWidget, 'widget_key')
+                                : $widget->key,
                             label: $previewData->title ?: $previewData->label,
                             typeLabel: $previewData->typeLabel,
                             icon: $previewData->icon ?: 'heroicon-o-cube',
