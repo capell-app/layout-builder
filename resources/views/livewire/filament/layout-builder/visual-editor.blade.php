@@ -788,13 +788,20 @@
             widgetMatches(element) {
                 return !this.treeSearchActive() || this.treeItemMatches(element)
             },
+            treeSearchScope() {
+                return (
+                    this.$el.closest('.layout-builder-visual-editor') ||
+                    this.$el
+                )
+            },
             treeSearchResultCount() {
                 if (!this.treeSearchActive()) return 0
 
+                const scope = this.treeSearchScope()
                 const nodes = new Set()
 
                 ;[
-                    ...this.$el.querySelectorAll(
+                    ...scope.querySelectorAll(
                         '[data-layout-builder-tree-container]',
                     ),
                 ]
@@ -803,7 +810,7 @@
                         nodes.add(container.dataset.layoutBuilderTreeNode),
                     )
                 ;[
-                    ...this.$el.querySelectorAll(
+                    ...scope.querySelectorAll(
                         '[data-layout-builder-tree-widget]',
                     ),
                 ]

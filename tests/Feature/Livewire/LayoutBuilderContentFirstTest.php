@@ -630,6 +630,7 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->and($editorView)
         ->not->toContain('visual-inspector')
         ->toContain('treeSearchActive()')
+        ->toContain('treeSearchScope()')
         ->toContain('treeSearchResultCount()')
         ->toContain('containerHasMatchingChild(element)')
         ->toContain('containerMatches(element)')
