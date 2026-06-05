@@ -61,7 +61,7 @@ it('renders the visual layout builder by default from the package namespace', fu
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
-        ->assertDontSee('Inspector')
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.visual-inspector'))
         ->assertSee(__('capell-layout-builder::message.container_empty'))
         ->assertElementExists('.layout-builder-visual-toolbar')
         ->assertElementExists('.layout-builder-command-group')
@@ -443,8 +443,8 @@ it('lets content editors use content first without advanced layout access from t
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
-        ->assertDontSee(__('capell-layout-builder::button.add_container'))
-        ->assertDontSee(__('capell-layout-builder::button.add_widget'));
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.layout-builder-add-container-button'))
+        ->assertDontSeeHtml("mountAction('addWidget')");
 
     $component
         ->call('showAdvancedLayout')

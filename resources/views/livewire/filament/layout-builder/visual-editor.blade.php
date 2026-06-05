@@ -203,17 +203,7 @@
 
                             event.preventDefault()
                             event.stopPropagation()
-                            if (
-                                node.dataset.clbPreviewNodeType === 'container'
-                            ) {
-                                this.openContainerEditor(
-                                    node.dataset.clbPreviewNode,
-                                )
-
-                                return
-                            }
-
-                            this.openWidgetEditor(node.dataset.clbPreviewNode)
+                            this.selectPreviewNode(node.dataset.clbPreviewNode)
                         })
                     },
                 )
@@ -307,7 +297,7 @@
 
                     event.preventDefault()
                     event.stopPropagation()
-                    this.openContainerEditor(node.dataset.clbPreviewNode)
+                    this.selectPreviewNode(node.dataset.clbPreviewNode)
                 })
             },
             preparePreviewWidgetNode(node) {
@@ -326,7 +316,7 @@
 
                     event.preventDefault()
                     event.stopPropagation()
-                    this.openWidgetEditor(node.dataset.clbPreviewNode)
+                    this.selectPreviewNode(node.dataset.clbPreviewNode)
                 })
             },
             attachContainerActions(node) {
@@ -655,10 +645,26 @@
                     },
                 )
             },
+            markSelectedTreeNode() {
+                this.$el
+                    .querySelectorAll('[data-layout-builder-tree-node]')
+                    .forEach((node) => {
+                        const row = node.matches('.layout-builder-tree-row')
+                            ? node
+                            : node.querySelector(
+                                  ':scope > .layout-builder-tree-row',
+                              )
+
+                        row?.classList.toggle(
+                            'layout-builder-tree-row-selected',
+                            node.dataset.layoutBuilderTreeNode ===
+                                this.selectedNode,
+                        )
+                    })
+            },
             setActiveBreakpointPreview(breakpoint) {
                 this.activeBreakpoint = breakpoint || 'desktop'
                 this.applyPreviewBreakpoint()
-                this.$wire.setActiveBreakpoint(this.activeBreakpoint)
             },
             applyPreviewBreakpoint() {
                 const maxWidth = this.activeBreakpointMaxCanvasWidth()
@@ -714,6 +720,9 @@
                     this.$nextTick(() => this.scrollSelectedTreeNodeIntoView())
                 }
             },
+            selectPreviewNode(node) {
+                this.selectNode(node, () => this.$wire.selectPreviewNode(node))
+            },
             openWidgetEditor(node) {
                 const action = this.previewWidgetActions[node]
 
@@ -758,6 +767,7 @@
 
                 Promise.resolve(result).then(() => {
                     this.markSelectedPreviewNode()
+                    this.markSelectedTreeNode()
                     this.scrollSelectedTreeNodeIntoView()
                 })
             },
@@ -1043,6 +1053,10 @@
                 type="button"
                 class="layout-builder-studio-rail-button layout-builder-studio-rail-button-active"
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
+                x-on:click="
+                    treeCollapsed = false
+                    $nextTick(() => scrollSelectedTreeNodeIntoView())
+                "
             >
                 @svg('heroicon-o-rectangle-stack', 'h-5 w-5')
                 <span class="sr-only">
