@@ -75,13 +75,13 @@ This is correctly a **free / foundation** package — it is the composition engi
 
 | Item                                                                                                                    | Bucket | Effort | Impact | Section ref |
 | ----------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------ | ----------- |
-| Align `capell.json` deps with composer (add admin, block-library)                                                       | Now    | S      | High   | §2.3 / §4   |
-| Implement real package health check (tables, install, bindings)                                                         | Now    | S      | High   | §2.1 / §4   |
-| Remove dead `CapellLayoutCacheKeyEnum` (or wire it)                                                                     | Now    | S      | Med    | §2.2 / §4   |
-| Promote 3–5 screenshots into manifest marketplace block                                                                 | Now    | S      | High   | §2.5 / §5   |
-| Rewrite manifest `summary` + composer `description`                                                                     | Now    | S      | High   | §5          |
+| Align `capell.json` deps with composer (add admin, block-library)                                                       | Done   | S      | High   | §2.3 / §4 — closed 2026-06-05: manifest requirements now include core, admin, block-library, and frontend. |
+| Implement real package health check (tables, install, bindings)                                                         | Done   | S      | High   | §2.1 / §4 — closed 2026-06-05: `LayoutBuilderHealthCheck` now probes storage tables, public graph builder binding, and editor Livewire registration. |
+| Remove dead `CapellLayoutCacheKeyEnum` (or wire it)                                                                     | Done   | S      | Med    | §2.2 / §4 — closed 2026-06-05: the unused cache enum was removed instead of preserving an abandoned key scheme. |
+| Promote 3–5 screenshots into manifest marketplace block                                                                 | Done   | S      | High   | §2.5 / §5 — closed 2026-06-05: manifest marketplace media now includes five product screenshots from the committed screenshot set. |
+| Rewrite manifest `summary` + composer `description`                                                                     | Done   | S      | High   | §5 — closed 2026-06-05: manifest/composer copy now explains visual composition, content-first editing, and safe query-free public HTML. |
 | Add public render performance-budget test (20ms / 50 queries)                                                           | Now    | M      | High   | §4          |
-| Add fragment tamper/replay → 404 safety test                                                                            | Now    | M      | High   | §4          |
+| Add fragment tamper/replay → 404 safety test                                                                            | Done   | M      | High   | §4 — closed 2026-06-05: `PublicFragmentRenderingTest` covers invalid encrypted references, replayed references for another site/page, route 404s, and unsafe authoring HTML rejection. |
 | Audit & remove/cover orphan Actions (ApplyLayoutPlan, PreviewLayoutPlan, SaveFormComponentRelationship, InstallPackage) | Next   | M      | Med    | §2.7 / §4   |
 | Cover PersistLayoutBuilderStateAction + install path                                                                    | Next   | M      | High   | §4          |
 | Translate inline Livewire notifications                                                                                 | Next   | M      | Med    | §2.4 / §4   |
