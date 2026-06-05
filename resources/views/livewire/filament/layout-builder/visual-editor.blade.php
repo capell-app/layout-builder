@@ -57,7 +57,7 @@
     <script data-navigate-once>
         window.capellLayoutBuilderVisualEditor = (config = {}) => ({
             treeOpen: false,
-            treeCollapsed: false,
+            treeCollapsed: true,
             compactPanels: false,
             actionLoading: false,
             search: '',
@@ -721,7 +721,10 @@
                 }
             },
             selectPreviewNode(node) {
-                this.selectNode(node, () => this.$wire.selectPreviewNode(node))
+                this.selectedNode = node
+                this.markSelectedPreviewNode()
+                this.markSelectedTreeNode()
+                this.scrollSelectedTreeNodeIntoView()
             },
             openWidgetEditor(node) {
                 const action = this.previewWidgetActions[node]
@@ -756,6 +759,7 @@
             selectNode(node, callback) {
                 this.selectedNode = node
                 this.markSelectedPreviewNode()
+                this.markSelectedTreeNode()
 
                 let result
 

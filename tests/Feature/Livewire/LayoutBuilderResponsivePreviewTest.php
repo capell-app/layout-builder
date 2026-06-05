@@ -104,7 +104,12 @@ it('renders responsive preview switching as an alpine interaction from the packa
 
     expect($visualEditorBlade)
         ->toContain('callback(event.currentTarget)')
-        ->toContain('(trigger) =>');
+        ->toContain('(trigger) =>')
+        ->toContain('treeCollapsed: true')
+        ->toContain('markSelectedTreeNode()')
+        ->toContain("selectPreviewNode(node) {\n                this.selectedNode = node")
+        ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
+        ->not->toContain("selectPreviewNode(node) {\n                this.selectNode(node, () => this.\$wire.selectPreviewNode(node))");
 
     $previewActionTriggerPattern = static fn (string $actionName): string => sprintf(
         "/this\\.runPreviewAction\\(\\s*'%s',[\\s\\S]*?\\{\\},\\s*trigger,\\s*\\)/",
