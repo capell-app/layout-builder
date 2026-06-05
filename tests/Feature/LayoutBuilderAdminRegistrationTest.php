@@ -50,9 +50,11 @@ it('registers the layout builder admin stylesheet through Filament assets', func
     expect($style)->toBeInstanceOf(FileVersionedCss::class);
 
     /** @var Css $style */
-    $expectedVersion = (string) filemtime($style->getPath());
+    $stylePath = $style->getPath();
+    throw_unless(is_string($stylePath), RuntimeException::class, 'Expected layout builder stylesheet path.');
+    $expectedVersion = (string) filemtime($stylePath);
 
-    expect($style->getPath())->toEndWith('resources/css/layout-builder/admin/capell-layout-filament.css')
+    expect($stylePath)->toEndWith('resources/css/layout-builder/admin/capell-layout-filament.css')
         ->and($style->getRelativePublicPath())->toBe('css/capell-layout-builder/capell-layout-builder-filament.css')
         ->and($style->getVersion())->toBe($expectedVersion)
         ->and($style->getHref())->toBe(asset($style->getRelativePublicPath()) . '?v=' . $style->getVersion())

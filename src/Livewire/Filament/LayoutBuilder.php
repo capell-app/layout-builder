@@ -218,6 +218,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
+        /** @var array<string, mixed> $state */
         $this->restoreServerSideLayoutState($state);
     }
 
@@ -895,15 +896,22 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         $this->visualPreviewStatus = 'refreshing';
+        $containers = $this->containers ?? [];
+        $containerWidgets = $this->containerWidgets ?? [];
+        $assets = $this->assets;
 
+        /** @var array<string, array<string, mixed>> $containers */
+        /** @var array<string, array<int, Widget>> $containerWidgets */
+        /** @var array<string, array<int, array<int, array<string, mixed>>>> $assets */
         try {
-            $this->visualPreview = RenderAdminLayoutPreviewAction::run(
-                containers: $this->containers ?? [],
-                containerWidgets: $this->containerWidgets ?? [],
-                assets: $this->assets,
+            $preview = RenderAdminLayoutPreviewAction::run(
+                containers: $containers,
+                containerWidgets: $containerWidgets,
+                assets: $assets,
                 page: $this->page,
                 pageFormState: $pageFormState,
             );
+            $this->visualPreview = $preview;
         } catch (Throwable $throwable) {
             report($throwable);
             $this->visualPreviewStatus = 'error';
@@ -915,15 +923,15 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             );
         }
 
-        $this->visualPreviewSignature = $this->visualPreview->signature;
-        $this->visualPreviewNodeMap = $this->visualPreview->nodeMap;
+        $this->visualPreviewSignature = $preview->signature;
+        $this->visualPreviewNodeMap = $preview->nodeMap;
         $this->selectedPreviewNodeHandle = $this->selectedPreviewNodeHandle !== null
             && array_key_exists($this->selectedPreviewNodeHandle, $this->visualPreviewNodeMap)
                 ? $this->selectedPreviewNodeHandle
                 : $this->defaultPreviewNodeHandle();
         $this->visualPreviewStatus = 'current';
 
-        return $this->visualPreview;
+        return $preview;
     }
 
     private function shouldStoreLayoutStateServerSide(): bool
@@ -967,9 +975,50 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->layoutRedoSnapshots = is_array($state['layoutRedoSnapshots'] ?? null) ? $state['layoutRedoSnapshots'] : [];
         $this->layoutDiagnostics = is_array($state['layoutDiagnostics'] ?? null) ? $state['layoutDiagnostics'] : [];
         $this->layoutChanges = is_array($state['layoutChanges'] ?? null) ? $state['layoutChanges'] : [];
-        $this->visualPreviewNodeMap = is_array($state['visualPreviewNodeMap'] ?? null) ? $state['visualPreviewNodeMap'] : [];
+        $this->visualPreviewNodeMap = $this->normalizeVisualPreviewNodeMap($state['visualPreviewNodeMap'] ?? null);
 
         $this->rebuildLoadedContainerWidgets();
+    }
+
+    /**
+     * @return array<string, array{type: string, containerKey: string, widgetIndex?: int}>
+     */
+    private function normalizeVisualPreviewNodeMap(mixed $nodeMap): array
+    {
+        if (! is_array($nodeMap)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($nodeMap as $handle => $node) {
+            if (! is_string($handle)) {
+                continue;
+            }
+
+            if (! is_array($node)) {
+                continue;
+            }
+
+            if (! is_string($node['type'] ?? null)) {
+                continue;
+            }
+
+            if (! is_string($node['containerKey'] ?? null)) {
+                continue;
+            }
+
+            $normalized[$handle] = [
+                'type' => $node['type'],
+                'containerKey' => $node['containerKey'],
+            ];
+
+            if (is_int($node['widgetIndex'] ?? null)) {
+                $normalized[$handle]['widgetIndex'] = $node['widgetIndex'];
+            }
+        }
+
+        return $normalized;
     }
 
     private function serverSideLayoutStateKey(): string

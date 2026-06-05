@@ -1304,7 +1304,7 @@
 
             <button
                 type="button"
-                class="layout-builder-studio-rail-button"
+                class="layout-builder-studio-rail-button layout-builder-panel-collapse-toggle"
                 x-on:click="toggleTreeCollapsed()"
                 x-bind:aria-pressed="treeCollapsed"
                 title="{{ __('capell-layout-builder::button.structure') }}"
