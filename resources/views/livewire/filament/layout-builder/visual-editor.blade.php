@@ -865,26 +865,34 @@
 
                 const directActions = {
                     duplicateContainer: async () => {
-                        await this.$wire.duplicateContainer(args.containerKey)
-                        await this.$wire.refreshVisualPreview()
+                        await this.$wire.$call(
+                            'duplicateContainer',
+                            args.containerKey,
+                        )
+                        await this.$wire.$call('refreshVisualPreview')
                     },
                     removeContainer: async () => {
-                        await this.$wire.removeContainer(args.containerKey)
-                        await this.$wire.refreshVisualPreview()
+                        await this.$wire.$call(
+                            'removeContainer',
+                            args.containerKey,
+                        )
+                        await this.$wire.$call('refreshVisualPreview')
                     },
                     duplicateWidget: async () => {
-                        await this.$wire.duplicateWidget(
+                        await this.$wire.$call(
+                            'duplicateWidget',
                             args.containerKey,
                             args.widgetIndex,
                         )
-                        await this.$wire.refreshVisualPreview()
+                        await this.$wire.$call('refreshVisualPreview')
                     },
                     removeWidget: async () => {
-                        await this.$wire.removeWidget(
+                        await this.$wire.$call(
+                            'removeWidget',
                             args.containerKey,
                             args.widgetIndex,
                         )
-                        await this.$wire.refreshVisualPreview()
+                        await this.$wire.$call('refreshVisualPreview')
                     },
                 }
 

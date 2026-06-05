@@ -117,6 +117,8 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain("selectPreviewNode(node) {\n                this.selectedNode = node")
         ->toContain('selectedPreviewMetaRows()')
         ->toContain('runSelectedPreviewAction(actionName, trigger = null)')
+        ->toContain("this.\$wire.\$call(\n                            'duplicateWidget'")
+        ->toContain("this.\$wire.\$call('refreshVisualPreview')")
         ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
         ->not->toContain("selectPreviewNode(node) {\n                this.selectNode(node, () => this.\$wire.selectPreviewNode(node))");
 
