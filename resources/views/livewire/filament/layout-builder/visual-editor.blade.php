@@ -685,7 +685,7 @@
                 return this.breakpointWidths[this.activeBreakpoint] || '100%'
             },
             activeBreakpointMinCanvasWidth() {
-                return this.activeBreakpoint === 'desktop' ? '48rem' : '0'
+                return '0'
             },
             shouldStackContainersForActiveBreakpoint() {
                 return this.activeBreakpoint === 'mobile'
