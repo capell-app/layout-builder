@@ -279,7 +279,7 @@ it('lets package tagged contributors extend widget payload data and html', funct
 
 it('adds sanitized widget presentation data without exposing authoring metadata', function (): void {
     resolve(BlockRegistry::class)->register(new BlockDefinitionData(
-        key: 'hero',
+        key: 'test-hero',
         label: 'Hero',
         description: 'Hero widget.',
         category: 'marketing',
@@ -293,7 +293,7 @@ it('adds sanitized widget presentation data without exposing authoring metadata'
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
     $widget = Widget::factory()->create([
-        'key' => 'hero',
+        'key' => 'test-hero',
         'meta' => [
             'widget_variant' => 'default',
             'widget_settings' => [
