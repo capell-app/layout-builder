@@ -735,7 +735,13 @@
                 host.style.minWidth = minWidth
             },
             activeBreakpointMaxCanvasWidth() {
-                return this.breakpointWidths[this.activeBreakpoint] || '100%'
+                const width = this.breakpointWidths[this.activeBreakpoint] || '100%'
+
+                if (this.activeBreakpoint === 'desktop' && width === '100%') {
+                    return 'min(100%, 76rem)'
+                }
+
+                return width
             },
             activeBreakpointMinCanvasWidth() {
                 return '0'
