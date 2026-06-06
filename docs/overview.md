@@ -76,6 +76,8 @@ The visual editor preview uses breakpoint-aware canvas width variables for deskt
 
 ## Screenshot Plan
 
+Current committed screenshots need recapture before marketplace promotion: the existing files render a broken default shell/oversized black arc instead of usable Capell UI. Keep them as runner evidence only until the capture app loads the correct package assets and seeded states.
+
 - Widgets admin index.
 - Create/edit widget form, including widget assets.
 - Widget layouts relation manager.
