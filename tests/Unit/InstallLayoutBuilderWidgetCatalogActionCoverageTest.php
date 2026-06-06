@@ -8,6 +8,20 @@ use Capell\LayoutBuilder\Data\WidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 
+it('defines every extra widget with string labels', function (): void {
+    $definitions = WidgetDefinitionData::extraCatalog();
+
+    expect($definitions)->not->toBeEmpty();
+
+    foreach ($definitions as $definition) {
+        expect($definition->name)->toBeString();
+
+        if ($definition->hasNavigation()) {
+            expect($definition->navigationName)->toBeString();
+        }
+    }
+});
+
 it('installs the full widget catalog with normalized enum metadata and translations', function (): void {
     $language = Language::factory()->create(['code' => 'en']);
     Widget::query()->delete();
