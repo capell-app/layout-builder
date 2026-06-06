@@ -30,30 +30,6 @@
             "screenshotPath": "packages/layout-builder/docs/screenshots/create-edit-widget-form.png"
         },
         {
-            "id": "widgets-admin-index-dark",
-            "title": "Widgets admin index in dark mode.",
-            "package": "layout-builder",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "WidgetResource",
-            "required": true,
-            "notes": "Dark-mode companion capture for the reusable widgets admin index.",
-            "useCase": "An administrator scans reusable widgets by component, usage, status, and search/filter state in dark mode.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/widgets-admin-index-dark.png"
-        },
-        {
-            "id": "create-edit-widget-form-dark",
-            "title": "Create/edit widget form in dark mode.",
-            "package": "layout-builder",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "WidgetResource",
-            "required": true,
-            "notes": "Dark-mode companion capture for widget configuration and assets.",
-            "useCase": "An editor configures a reusable widget, its display settings, translations, and widget assets in dark mode.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/create-edit-widget-form-dark.png"
-        },
-        {
             "id": "layout-builder-screen",
             "title": "Layout Builder editor screen.",
             "package": "layout-builder",
@@ -64,18 +40,6 @@
             "notes": "Shows the dual-mode page composition screen with layout areas and widgets.",
             "useCase": "An editor composes a page visually with reusable widgets and named layout areas.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-screen.png"
-        },
-        {
-            "id": "layout-builder-screen-dark",
-            "title": "Layout Builder editor screen in dark mode.",
-            "package": "layout-builder",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "PageSchemaExtender",
-            "required": true,
-            "notes": "Dark-mode companion capture for the dual-mode page composition screen.",
-            "useCase": "An editor composes a page visually with reusable widgets and named layout areas in dark mode.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-screen-dark.png"
         },
         {
             "id": "sections-admin-index",
@@ -90,18 +54,6 @@
             "screenshotPath": "packages/layout-builder/docs/screenshots/sections-admin-index.png"
         },
         {
-            "id": "sections-admin-index-dark",
-            "title": "Sections admin index in dark mode.",
-            "package": "layout-builder",
-            "surface": "admin",
-            "targetType": "admin-surface",
-            "target": "LayoutResource",
-            "required": true,
-            "notes": "Dark-mode companion capture for package-specific section and layout table state.",
-            "useCase": "An administrator reviews layout sections and layout-builder managed records in dark mode.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/sections-admin-index-dark.png"
-        },
-        {
             "id": "frontend-page-rendering-layout-builder-widgets",
             "title": "Public page rendering Layout Builder widgets.",
             "package": "layout-builder",
@@ -112,18 +64,6 @@
             "notes": "Anonymous public page render with seeded widgets; must expose no admin/editor state.",
             "useCase": "An anonymous visitor sees seeded layout widgets rendered as safe public HTML.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/frontend-page-rendering-layout-builder-widgets.png"
-        },
-        {
-            "id": "frontend-page-rendering-layout-builder-widgets-dark",
-            "title": "Public page rendering Layout Builder widgets in dark mode.",
-            "package": "layout-builder",
-            "surface": "frontend",
-            "targetType": "frontend-url",
-            "target": null,
-            "required": true,
-            "notes": "Dark-mode companion capture for anonymous public page rendering with seeded widgets.",
-            "useCase": "An anonymous visitor sees seeded layout widgets rendered as safe public HTML in dark mode.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/frontend-page-rendering-layout-builder-widgets-dark.png"
         }
     ]
 }
