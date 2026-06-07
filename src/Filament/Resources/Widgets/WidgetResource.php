@@ -33,6 +33,8 @@ class WidgetResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static bool $isGloballySearchable = true;
+
     protected static string $formConfigurator = WidgetForm::class;
 
     protected static string $tableConfigurator = WidgetsTable::class;
@@ -41,7 +43,7 @@ class WidgetResource extends Resource
 
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::PuzzlePiece;
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $slug = 'widgets';
 
@@ -80,7 +82,13 @@ class WidgetResource extends Resource
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_layouts'));
+        return null;
+    }
+
+    #[Override]
+    public static function getNavigationParentItem(): ?string
+    {
+        return (string) __('capell-admin::navigation.website');
     }
 
     #[Override]

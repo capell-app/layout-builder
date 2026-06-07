@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+    <title id="title">Approved bulk layout change run</title>
+    <desc id="desc">A Capell Layout Builder completion state showing applied, skipped, and drifted layout results.</desc>
+    <rect width="1440" height="900" fill="#f7f6f2"/>
+    <rect x="0" y="0" width="1440" height="66" fill="#ffffff" stroke="#ddd8cf"/>
+    <text x="64" y="42" font-family="Georgia, serif" font-size="34" fill="#0b2845">CAPELL</text>
+    <rect x="0" y="66" width="96" height="834" fill="#ffffff" stroke="#ddd8cf"/>
+    <rect x="32" y="194" width="32" height="32" rx="8" fill="#2f7d4a"/>
+    <text x="154" y="122" font-family="Inter, Arial, sans-serif" font-size="15" fill="#706a62">Layouts / Bulk change</text>
+    <text x="154" y="166" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#171512">Approved run results</text>
+    <rect x="154" y="206" width="386" height="170" rx="16" fill="#ffffff" stroke="#ddd8cf"/>
+    <text x="184" y="252" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#706a62">APPLIED</text>
+    <text x="184" y="316" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="800" fill="#2f7d4a">46</text>
+    <text x="184" y="348" font-family="Inter, Arial, sans-serif" font-size="15" fill="#706a62">layouts updated from the stored preview</text>
+    <rect x="568" y="206" width="386" height="170" rx="16" fill="#ffffff" stroke="#ddd8cf"/>
+    <text x="598" y="252" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#706a62">DRIFTED</text>
+    <text x="598" y="316" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="800" fill="#a56a16">2</text>
+    <text x="598" y="348" font-family="Inter, Arial, sans-serif" font-size="15" fill="#706a62">layouts skipped because content changed after preview</text>
+    <rect x="982" y="206" width="384" height="170" rx="16" fill="#ffffff" stroke="#ddd8cf"/>
+    <text x="1012" y="252" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#706a62">PAGE ASSETS</text>
+    <text x="1012" y="316" font-family="Inter, Arial, sans-serif" font-size="62" font-weight="800" fill="#17466f">312</text>
+    <text x="1012" y="348" font-family="Inter, Arial, sans-serif" font-size="15" fill="#706a62">page-scoped widget assets followed moved widgets</text>
+    <rect x="154" y="418" width="1212" height="382" rx="16" fill="#ffffff" stroke="#ddd8cf"/>
+    <text x="184" y="466" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#171512">Hash guarded apply log</text>
+    <g font-family="Inter, Arial, sans-serif" font-size="15">
+        <rect x="184" y="502" width="1136" height="54" rx="10" fill="#f1faf3"/>
+        <text x="210" y="536" fill="#2f7d4a">Applied</text>
+        <text x="330" y="536" fill="#171512">Marketing default</text>
+        <text x="596" y="536" fill="#706a62">breadcrumb moved after hero</text>
+        <text x="1048" y="536" fill="#706a62">104 pages</text>
+        <rect x="184" y="574" width="1136" height="54" rx="10" fill="#f1faf3"/>
+        <text x="210" y="608" fill="#2f7d4a">Applied</text>
+        <text x="330" y="608" fill="#171512">Product landing</text>
+        <text x="596" y="608" fill="#706a62">page assets migrated to new occurrence</text>
+        <text x="1048" y="608" fill="#706a62">68 pages</text>
+        <rect x="184" y="646" width="1136" height="54" rx="10" fill="#fff7e8"/>
+        <text x="210" y="680" fill="#a56a16">Drifted</text>
+        <text x="330" y="680" fill="#171512">Campaign split</text>
+        <text x="596" y="680" fill="#706a62">current container hash no longer matches preview</text>
+        <text x="1048" y="680" fill="#706a62">49 pages</text>
+        <rect x="184" y="718" width="1136" height="54" rx="10" fill="#fbefef"/>
+        <text x="210" y="752" fill="#8a2727">Skipped</text>
+        <text x="330" y="752" fill="#171512">Legacy custom</text>
+        <text x="596" y="752" fill="#706a62">target widget missing in layout</text>
+        <text x="1048" y="752" fill="#706a62">12 pages</text>
+    </g>
+    <rect x="154" y="828" width="408" height="42" rx="21" fill="#eef3f8" stroke="#d7dde5"/>
+    <text x="184" y="855" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#17466f">Stored original containers make future revert practical</text>
+</svg>

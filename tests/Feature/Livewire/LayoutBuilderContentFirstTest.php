@@ -14,6 +14,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Translation;
 use Capell\Frontend\Contracts\AdminAccessCheckerInterface;
+use Capell\FrontendAuthoring\Enums\EditableRegionSurface;
 use Capell\FrontendAuthoring\Http\Controllers\EditRegionController;
 use Capell\FrontendAuthoring\Support\EditableRegionSigner;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
@@ -61,14 +62,23 @@ it('renders the visual layout builder by default from the package namespace', fu
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
-        ->assertDontSee('Inspector')
-        ->assertSee(__('capell-layout-builder::message.preview_status_current'))
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.visual-inspector'))
         ->assertSee(__('capell-layout-builder::message.container_empty'))
+        ->assertElementExists('.layout-builder-visual-toolbar')
+        ->assertElementExists('.layout-builder-command-group')
+        ->assertElementExists('.layout-builder-command-save')
+        ->assertElementExists('.layout-builder-preview-command-label')
+        ->assertElementExists('.layout-builder-history-actions')
+        ->assertElementExists('[x-ref="treeToggle"]')
+        ->assertElementExists('.layout-builder-tree-collapse-button')
+        ->assertElementExists('.layout-builder-breakpoint-controls')
         ->assertElementExists('.layout-builder-visual-editor-empty')
         ->assertElementExists('.layout-builder-visual-grid-empty')
         ->assertElementExists('.layout-builder-shadow-preview-empty')
         ->assertElementExists('[data-capell-layout-builder-admin-preview="true"]')
-        ->assertSeeHtml('capell-layout-builder:request-page-state');
+        ->assertSeeHtml('applyPreviewBreakpoint')
+        ->assertDontSeeHtml('layout-builder-preview-status-row')
+        ->assertDontSeeHtml('capell-layout-builder:request-page-state');
 });
 
 it('renders a full width empty page preview when a layout has no containers', function (): void {
@@ -159,6 +169,7 @@ it('dispatches frontend authoring dirty and saved lifecycle events', function ()
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->call('layoutUpdated')
         ->assertDispatched('capell-layout-builder-authoring-dirty')
+        ->assertNotified(__('capell-layout-builder::message.layout_unsaved'))
         ->call('saveLayout')
         ->assertDispatched('capell-layout-builder-authoring-saved');
 });
@@ -294,7 +305,7 @@ it('contributes frontend authoring regions for page layout widgets and widget as
     $regions = (new LayoutBuilderEditableRegionContributor)($pageUrl);
 
     expect($regions)->toHaveCount(3)
-        ->and(collect($regions)->pluck('surface')->unique()->values()->all())->toBe(['layout-builder'])
+        ->and(collect($regions)->pluck('surface')->unique()->values()->all())->toBe([EditableRegionSurface::LayoutBuilder])
         ->and(collect($regions)->pluck('field')->all())->toBe(['layout', 'widget', 'assets'])
         ->and($regions[1]->selector)->toBe(LayoutBuilderEditableRegionContributor::widgetSelector((int) $layout->getKey(), 'main', 0))
         ->and($regions[1]->context)->toMatchArray([
@@ -308,7 +319,7 @@ it('contributes frontend authoring regions for page layout widgets and widget as
 
     $payload = resolve(EditableRegionSigner::class)->decode(resolve(EditableRegionSigner::class)->encode($regions[1]));
 
-    expect($payload->surface)->toBe('layout-builder')
+    expect($payload->surface)->toBe(EditableRegionSurface::LayoutBuilder)
         ->and($payload->target)->toBe('layout.widget.main.0');
 });
 
@@ -434,8 +445,8 @@ it('lets content editors use content first without advanced layout access from t
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertSee(__('capell-layout-builder::heading.layout_structure'))
-        ->assertDontSee(__('capell-layout-builder::button.add_container'))
-        ->assertDontSee(__('capell-layout-builder::button.add_widget'));
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.layout-builder-add-container-button'))
+        ->assertDontSeeHtml("mountAction('addWidget')");
 
     $component
         ->call('showAdvancedLayout')
@@ -580,8 +591,13 @@ it('renders widget rows in the structure tree and wires preview widget actions f
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee(__('capell-layout-builder::form.search_layout_tree'))
+        ->assertSee(__('capell-layout-builder::button.clear_layout_tree_search'))
+        ->assertSee(__('capell-layout-builder::message.layout_tree_search_empty'))
+        ->assertSee(__('capell-layout-builder::message.layout_tree_search_result'))
         ->assertSee('Featured')
         ->assertElementExists('[data-layout-builder-tree-search]')
+        ->assertElementExists('[data-layout-builder-tree-container]')
+        ->assertElementExists('[data-layout-builder-tree-widget]')
         ->assertElementExists('[data-clb-preview-node]')
         ->assertSeeHtml('previewWidgetActions')
         ->assertSeeHtml('runPreviewAction')
@@ -607,8 +623,20 @@ it('renders widget rows in the structure tree and wires preview widget actions f
 
     expect($treeView)
         ->not->toContain('$this->editWidgetAssetAction')
+        ->toContain('x-show="containerMatches($el)"')
+        ->toContain('x-show="widgetMatches($el)"')
+        ->toContain('treeContainerOpen(open, $el.closest')
+        ->toContain('treeSearchResultLabel()')
+        ->toContain('clearTreeSearch()')
+        ->toContain('data-layout-builder-tree-widget')
         ->and($editorView)
         ->not->toContain('visual-inspector')
+        ->toContain('treeSearchActive()')
+        ->toContain('treeSearchScope()')
+        ->toContain('treeSearchResultCount()')
+        ->toContain('containerHasMatchingChild(element)')
+        ->toContain('containerMatches(element)')
+        ->toContain('widgetMatches(element)')
         ->toContain('mountAction(actionName, args)')
         ->toContain("node.setAttribute('role', 'button')")
         ->toContain("node.setAttribute('aria-label', label)")
@@ -643,13 +671,10 @@ it('renders widget copy in the visual preview from the package namespace', funct
         ]],
     ]]);
 
-    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee('Every section can be rebuilt in the layout builder')
+        ->assertSeeHtml('Widget-owned support copy.')
         ->assertElementExists('[data-clb-preview-node-type="widget"]');
-
-    expect($component->get('visualPreviewHtml'))
-        ->toContain('Every section can be rebuilt in the layout builder')
-        ->toContain('Widget-owned support copy.');
 });
 
 it('sends layout only editors straight to the advanced layout editor from the package namespace', function (): void {

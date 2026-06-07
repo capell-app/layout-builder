@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -57,7 +58,8 @@ it('exposes widget resource metadata search details and soft-deleted query scope
     expect(WidgetResource::getModel())->toBe(Widget::class)
         ->and(WidgetResource::getResourceType())->toBe(ConfiguratorTypeEnum::Widget)
         ->and(WidgetResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
-        ->and(WidgetResource::getNavigationGroup())->toBe(__('capell-admin::navigation.group_layouts'))
+        ->and(WidgetResource::getNavigationGroup())->toBeNull()
+        ->and(WidgetResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
         ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
         ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')
         ->and(WidgetResource::getSlug())->toBe('widgets')
@@ -92,6 +94,7 @@ it('builds widget table columns filters and search query branches', function ():
 
     $columns = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableColumns');
     $filters = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters');
+    $tableSource = file_get_contents(__DIR__ . '/../../../src/Filament/Resources/Widgets/Tables/WidgetsTable.php');
 
     $contentSearchQuery = invokeLayoutBuilderTableMethod(
         WidgetsTable::class,
@@ -112,7 +115,10 @@ it('builds widget table columns filters and search query branches', function ():
         ->and($filters)->toHaveCount(5)
         ->and($contentSearchQuery->whereKey($widget->getKey())->exists())->toBeTrue()
         ->and($componentSearchQuery->whereKey($widget->getKey())->exists())->toBeTrue()
-        ->and($languageFilter)->not->toBeNull();
+        ->and($languageFilter)->not->toBeNull()
+        ->and($tableSource)->toContain('moveOrReplaceInLayouts')
+        ->and($tableSource)->toContain('filters[widget_key][value]')
+        ->and($tableSource)->not->toContain('filters[widget_id][value]');
 });
 
 it('covers widget asset table lookup and type helper branches', function (): void {
@@ -226,12 +232,15 @@ it('adds layout-builder specific layout table filters columns and query relation
         'getTableQueryModifier',
         Layout::query(),
     );
+    $bulkChangeAction = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getBulkChangeLayoutsAction');
 
     $widgetFilter = firstLayoutBuilderTableComponent($filters, 'widget_key', SelectFilter::class);
 
     expect($widgetFilter)->not->toBeNull()
         ->and($columns)->not->toBeEmpty()
         ->and($query)->toBeInstanceOf(Builder::class)
+        ->and($bulkChangeAction)->toBeInstanceOf(Action::class)
+        ->and($bulkChangeAction->getName())->toBe('bulkChangeLayouts')
         ->and($widget->exists)->toBeTrue()
         ->and(layoutBuilderTableContainsColumn($columns, ['layoutWidgets.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
 });

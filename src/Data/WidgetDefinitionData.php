@@ -331,24 +331,24 @@ class WidgetDefinitionData extends Data
             ),
             new self(
                 key: 'widget-navigation',
-                name: __('Navigation'),
+                name: __('capell-layout-builder::generic.navigation'),
                 typeCreatorMethod: 'navigationWidgetType',
                 meta: [
                     'margin' => ['lg'],
                 ],
                 navigationKey: 'navigation',
-                navigationName: 'Navigation',
+                navigationName: __('capell-layout-builder::generic.navigation'),
             ),
             new self(
                 key: 'widget-navigation-tabs',
-                name: __('Navigation'),
+                name: __('capell-layout-builder::generic.navigation'),
                 typeCreatorMethod: 'navigationWidgetType',
                 meta: [
                     'margin' => ['lg'],
                     'component' => WidgetComponentEnum::NavigationTabs,
                 ],
                 navigationKey: 'navigation-tabs',
-                navigationName: 'Tabs',
+                navigationName: __('capell-layout-builder::tab.navigation'),
             ),
             new self(
                 key: 'banner-image',

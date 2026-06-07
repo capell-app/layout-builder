@@ -1169,7 +1169,7 @@ it('drives layout editor action closures through a page editing workflow', funct
     callLayoutBuilderResidualAction($factory->changeLayoutAction(), $harness, ['layout_id' => $layout->getKey()]);
 
     expect($harness->saveLayout(withNotifications: true))->toBeTrue()
-        ->and($harness->visualPreviewHtml)->toContain('Preview title')
+        ->and($harness->visualPreviewHtml())->toContain('Preview title')
         ->and($harness->visualPreviewSignature)->toBe('workflow-preview-signature')
         ->and($harness->visualPreviewStatus)->toBe('current')
         ->and($harness->selectedContainerKey)->toBe('main')

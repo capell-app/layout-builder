@@ -13,6 +13,7 @@ it('registers package migrations in the layout builder manager', function (): vo
         '2026_05_10_190841_04_create_widget_widgets_table',
         '2026_05_10_190841_05_add_container_widgets_to_layouts_table',
         '2026_05_10_190841_06_create_layout_presets_table',
+        '2026_06_07_000001_create_layout_bulk_change_tables',
     ]);
 });
 
@@ -22,6 +23,8 @@ it('creates or recognises the existing layout builder tables', function (): void
         ->and(Schema::hasTable('widget_assets'))->toBeTrue()
         ->and(Schema::hasTable('widget_widgets'))->toBeTrue()
         ->and(Schema::hasTable('layout_presets'))->toBeTrue()
+        ->and(Schema::hasTable('layout_bulk_change_runs'))->toBeTrue()
+        ->and(Schema::hasTable('layout_bulk_change_results'))->toBeTrue()
         ->and(Schema::hasColumn('layouts', 'containers'))->toBeTrue()
         ->and(Schema::hasColumn('layouts', 'widgets'))->toBeFalse();
 });
@@ -39,6 +42,8 @@ it('keeps layout builder migrations idempotent for existing core installs', func
         ->and(Schema::hasTable('widget_assets'))->toBeTrue()
         ->and(Schema::hasTable('widget_widgets'))->toBeTrue()
         ->and(Schema::hasTable('layout_presets'))->toBeTrue()
+        ->and(Schema::hasTable('layout_bulk_change_runs'))->toBeTrue()
+        ->and(Schema::hasTable('layout_bulk_change_results'))->toBeTrue()
         ->and(Schema::hasColumn('layouts', 'containers'))->toBeTrue()
         ->and(Schema::hasColumn('layouts', 'widgets'))->toBeFalse();
 });

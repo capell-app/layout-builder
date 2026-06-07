@@ -20,6 +20,7 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\LayoutBuilder\Models\Widget;
 use Filament\Actions\ActionGroup;
@@ -66,6 +67,7 @@ class WidgetsTable implements TableConfigurator
             })
             ->recordActions([
                 EditAction::make('edit'),
+                LayoutsTable::getBulkChangeLayoutsAction('moveOrReplaceInLayouts'),
                 ActionGroup::make([
                     ReplicateAction::make('replicate'),
                     DeleteAction::make('delete'),
@@ -188,7 +190,7 @@ class WidgetsTable implements TableConfigurator
                                 'capell-admin::components.tables.url',
                                 [
                                     'state' => $state,
-                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_id][value]' => $record->key]),
+                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_key][value]' => $record->key]),
                                 ],
                             ),
                         );

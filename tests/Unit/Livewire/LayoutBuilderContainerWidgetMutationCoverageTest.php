@@ -6,6 +6,13 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderContainerWidgetMutationHarness;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
+
+uses(CreatesAdminUser::class);
+
+beforeEach(function (): void {
+    test()->actingAsAdmin();
+});
 
 function makeLayoutBuilderMutationHarness(Layout $layout): LayoutBuilderContainerWidgetMutationHarness
 {

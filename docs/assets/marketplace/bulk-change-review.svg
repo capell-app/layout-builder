@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+    <title id="title">Bulk layout change review</title>
+    <desc id="desc">A Capell Layout Builder review table showing changed layouts, affected pages, before and after widget order, warnings, and skipped rows.</desc>
+    <rect width="1440" height="900" fill="#f5f7fb"/>
+    <rect x="0" y="0" width="1440" height="66" fill="#ffffff" stroke="#d9dee8"/>
+    <text x="64" y="42" font-family="Georgia, serif" font-size="34" fill="#0b2845">CAPELL</text>
+    <rect x="0" y="66" width="96" height="834" fill="#ffffff" stroke="#d9dee8"/>
+    <g fill="#98a0ad">
+        <rect x="32" y="132" width="32" height="32" rx="8"/>
+        <rect x="32" y="194" width="32" height="32" rx="8" fill="#1e66a8"/>
+        <rect x="32" y="256" width="32" height="32" rx="8"/>
+        <rect x="32" y="318" width="32" height="32" rx="8"/>
+    </g>
+    <text x="154" y="122" font-family="Inter, Arial, sans-serif" font-size="15" fill="#687183">Layouts / Bulk change</text>
+    <text x="154" y="166" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#131821">Review preview</text>
+    <rect x="154" y="198" width="1212" height="104" rx="14" fill="#eaf5ff" stroke="#b7d8ef"/>
+    <text x="184" y="236" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#13527c">Preview run 7f3b-941c</text>
+    <text x="184" y="264" font-family="Inter, Arial, sans-serif" font-size="15" fill="#3f5f74">48 layouts will change, covering 312 pages. 3 layouts are skipped and 2 warnings need review.</text>
+    <rect x="1024" y="226" width="144" height="42" rx="21" fill="#ffffff" stroke="#b7d8ef"/>
+    <text x="1063" y="253" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#13527c">48 changed</text>
+    <rect x="1184" y="226" width="142" height="42" rx="21" fill="#ffffff" stroke="#b7d8ef"/>
+    <text x="1224" y="253" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#13527c">312 pages</text>
+    <rect x="154" y="334" width="1212" height="544" rx="16" fill="#ffffff" stroke="#d9dee8"/>
+    <rect x="154" y="334" width="1212" height="58" rx="16" fill="#f0f3f8"/>
+    <text x="184" y="369" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#687183">LAYOUT</text>
+    <text x="408" y="369" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#687183">PAGES</text>
+    <text x="514" y="369" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#687183">BEFORE</text>
+    <text x="856" y="369" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#687183">AFTER</text>
+    <text x="1190" y="369" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#687183">WARNINGS</text>
+    <g font-family="Inter, Arial, sans-serif" font-size="15" fill="#1a202c">
+        <text x="184" y="438">Marketing default</text>
+        <text x="426" y="438">104</text>
+        <text x="514" y="438">breadcrumb, hero, content, cta</text>
+        <text x="856" y="438">hero, breadcrumb, content, cta</text>
+        <text x="1190" y="438" fill="#2f7d4a">None</text>
+        <text x="184" y="516">Product landing</text>
+        <text x="426" y="516">68</text>
+        <text x="514" y="516">breadcrumb, hero, proof, pricing</text>
+        <text x="856" y="516">hero, breadcrumb, proof, pricing</text>
+        <text x="1190" y="516" fill="#8a5a12">Assets moved</text>
+        <text x="184" y="594">Article layout</text>
+        <text x="426" y="594">91</text>
+        <text x="514" y="594">breadcrumb, title, body</text>
+        <text x="856" y="594">title, breadcrumb, body</text>
+        <text x="1190" y="594" fill="#2f7d4a">None</text>
+        <text x="184" y="672">Campaign split</text>
+        <text x="426" y="672">49</text>
+        <text x="514" y="672">breadcrumb, hero, form</text>
+        <text x="856" y="672">hero, breadcrumb, form</text>
+        <text x="1190" y="672" fill="#8a5a12">Default asset</text>
+        <text x="184" y="750" fill="#8a2727">Legacy custom</text>
+        <text x="426" y="750">12</text>
+        <text x="514" y="750">breadcrumb, gallery</text>
+        <text x="856" y="750">Skipped: target hero missing</text>
+        <text x="1190" y="750" fill="#8a2727">Skipped</text>
+    </g>
+    <g stroke="#e1e6ef">
+        <line x1="154" y1="470" x2="1366" y2="470"/>
+        <line x1="154" y1="548" x2="1366" y2="548"/>
+        <line x1="154" y1="626" x2="1366" y2="626"/>
+        <line x1="154" y1="704" x2="1366" y2="704"/>
+    </g>
+    <rect x="1054" y="810" width="152" height="48" rx="10" fill="#ffffff" stroke="#c9d1df"/>
+    <text x="1101" y="840" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#344055">Back</text>
+    <rect x="1220" y="810" width="148" height="48" rx="10" fill="#152d4a"/>
+    <text x="1265" y="840" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Approve</text>
+</svg>

@@ -7,9 +7,17 @@ use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAssetHarness;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
+uses(CreatesAdminUser::class);
+
+beforeEach(function (): void {
+    test()->actingAsAdmin();
+});
+
 it('reorders selects and removes in-memory widget assets predictably', function (): void {
+    $widget = Widget::factory()->create(['key' => 'hero']);
     $harness = new LayoutBuilderAssetHarness;
     $harness->layout = Layout::factory()->create();
     $harness->containers = [
@@ -24,16 +32,17 @@ it('reorders selects and removes in-memory widget assets predictably', function 
             [
                 ['asset_type' => 'page', 'asset_id' => 10, 'order' => 1],
                 ['asset_type' => 'page', 'asset_id' => 20, 'order' => 2],
-                ['asset_type' => 'section', 'asset_id' => 'external-id', 'order' => 3],
+                ['asset_type' => 'page', 'asset_id' => 30, 'order' => 3],
             ],
         ],
     ];
     $harness->selectedRecords = ['main' => [[]]];
+    $harness->setContainerWidgets(['main' => [$widget]]);
 
     expect($harness->canMoveAssetUp('main', 0, 0))->toBeFalse()
         ->and($harness->canMoveAssetDown('main', 0, 0))->toBeTrue()
         ->and($harness->countWidgetAssets('main', 0))->toBe(3)
-        ->and($harness->getWidgetAssetsByType('main', 0, 'page'))->toBe([10, 20]);
+        ->and($harness->getWidgetAssetsByType('main', 0, 'page'))->toBe([10, 20, 30]);
 
     $harness->moveAssetDown('main', 0, 0);
 
@@ -47,9 +56,9 @@ it('reorders selects and removes in-memory widget assets predictably', function 
 
     $harness->selectAllAssets('main', 0);
 
-    expect($harness->getSelectedAssets('main', 0))->toBe(['page.20', 'page.10', 'section.external-id']);
+    expect($harness->getSelectedAssets('main', 0))->toBe(['page.20', 'page.10', 'page.30']);
 
-    $harness->selectedRecords['main'][0] = ['page.20', 'section.external-id'];
+    $harness->selectedRecords['main'][0] = ['page.20', 'page.30'];
     $harness->removeSelectedAssets('main', 0);
 
     $remainingAsset = capell_test_array($harness->getWidgetAsset('main', 0, 0));

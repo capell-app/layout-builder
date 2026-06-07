@@ -15,6 +15,7 @@ use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
+use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
@@ -89,6 +90,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             $this->commands([
                 WidgetVisualRegressionCommand::class,
                 InstallCommand::class,
+                LayoutBulkChangeCommand::class,
             ]);
         }
     }

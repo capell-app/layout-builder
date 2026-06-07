@@ -16,6 +16,9 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
+/**
+ * @method static AdminLayoutPreviewData run(array<string, array<string, mixed>> $containers, array<string, array<int, Widget>> $containerWidgets, array<string, array<int, array<int, array<string, mixed>>>> $assets, ?Pageable $page, array<string, mixed> $pageFormState = [])
+ */
 final class RenderAdminLayoutPreviewAction
 {
     use AsObject;

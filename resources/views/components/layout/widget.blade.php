@@ -16,20 +16,26 @@
         typeDefaults: is_array($widget->type?->meta['presentation'] ?? null) ? $widget->type->meta['presentation'] : [],
     );
     $isLazyFragment = $presentation->deliveryMode === PresentationDeliveryMode::LazyFragment;
-    $widgetReferenceData = [
-        'container_key' => $containerKey,
-        'widget_key' => $widgetData['widget_key'] ?? $widget->key,
-        'layout_id' => $layoutKey === 'global' ? null : $layoutKey,
-        'language_id' => Frontend::language()?->getKey(),
-        'occurrence' => $occurrence,
-        'page_id' => Frontend::page()?->getKey(),
-        'page_type' => Frontend::page()?->getMorphClass(),
-        'site_id' => Frontend::site()?->getKey(),
-        'widget_data' => $widgetData,
-        'widget_index' => $widgetIndex,
-    ];
-    $widgetReference = OpaqueWidgetReference::encode($widgetReferenceData);
-    $withCurrentWidgetFragment = function (array $trigger) use ($widgetReference): array {
+    $widgetReference = null;
+    $makeWidgetReference = function () use (&$widgetReference, $containerKey, $layoutKey, $occurrence, $widget, $widgetData, $widgetIndex): string {
+        if ($widgetReference === null) {
+            $widgetReference = OpaqueWidgetReference::encode([
+                'container_key' => $containerKey,
+                'widget_key' => $widgetData['widget_key'] ?? $widget->key,
+                'layout_id' => $layoutKey === 'global' ? null : $layoutKey,
+                'language_id' => Frontend::language()?->getKey(),
+                'occurrence' => $occurrence,
+                'page_id' => Frontend::page()?->getKey(),
+                'page_type' => Frontend::page()?->getMorphClass(),
+                'site_id' => Frontend::site()?->getKey(),
+                'widget_data' => $widgetData,
+                'widget_index' => $widgetIndex,
+            ]);
+        }
+
+        return $widgetReference;
+    };
+    $withCurrentWidgetFragment = function (array $trigger) use ($makeWidgetReference): array {
         if (($trigger['target_type'] ?? $trigger['target']['target_type'] ?? null) !== 'fragment') {
             return $trigger;
         }
@@ -38,7 +44,7 @@
             return $trigger;
         }
 
-        $trigger['fragment_reference'] = $widgetReference;
+        $trigger['fragment_reference'] = $makeWidgetReference();
 
         return $trigger;
     };
@@ -68,6 +74,10 @@
             (int) $occurrence,
         ))
         ->all();
+
+    if ($isLazyFragment || $type === 'livewire') {
+        $widgetReference = $makeWidgetReference();
+    }
 @endphp
 
 @if ($isLazyFragment)

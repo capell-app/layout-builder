@@ -9,7 +9,11 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
+use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Support\CapellFrontendContext;
+use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
@@ -66,6 +70,8 @@ class RenderPublicFragmentAction
         if ($layout->site_id !== null && (int) $layout->site_id !== (int) $site->getKey()) {
             return null;
         }
+
+        $this->bindFrontendContext($site, $layout, $language, $page);
 
         $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, [$containerKey], includeHtml: true);
         $container = null;
@@ -134,6 +140,43 @@ class RenderPublicFragmentAction
         $page = $pageClass::query()->find((int) $id);
 
         return $page instanceof Pageable ? $page : null;
+    }
+
+    private function bindFrontendContext(Site $site, Layout $layout, Language $language, Page $page): void
+    {
+        $site->loadMissing('theme');
+        $layout->loadMissing('theme');
+
+        $theme = $this->frontendTheme($site, $layout);
+
+        $page->setRelation('site', $site);
+        $page->setRelation('layout', $layout);
+
+        if (! $theme instanceof Theme) {
+            return;
+        }
+
+        Frontend::clearResolvedInstance(CapellFrontendContext::class);
+        app()->instance(
+            CapellFrontendContext::class,
+            new CapellFrontendContext(
+                (new FrontendState)
+                    ->withSite($site)
+                    ->withLanguage($language)
+                    ->withPage($page)
+                    ->withLayout($layout)
+                    ->withTheme($theme),
+            ),
+        );
+    }
+
+    private function frontendTheme(Site $site, Layout $layout): ?Theme
+    {
+        if ($site->theme instanceof Theme) {
+            return $site->theme;
+        }
+
+        return $layout->theme instanceof Theme ? $layout->theme : null;
     }
 
     private function stringValue(mixed $value): ?string

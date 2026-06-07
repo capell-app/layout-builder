@@ -13,6 +13,11 @@ final class LayoutBuilderPermissionRegistrar
 
     private const string SUBJECT = 'Layout';
 
+    public static function bulkMutateLayoutsPermission(): string
+    {
+        return self::permission('bulk_mutate', self::SUBJECT);
+    }
+
     /**
      * @return list<string>
      */
@@ -37,6 +42,7 @@ final class LayoutBuilderPermissionRegistrar
                 self::permission('force_delete', self::SUBJECT),
                 self::permission('replicate', self::SUBJECT),
                 self::permission('reorder', self::SUBJECT),
+                self::bulkMutateLayoutsPermission(),
             ],
             default => [],
         };

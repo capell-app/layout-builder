@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\ApplyLayoutPresetAction;
+use Capell\LayoutBuilder\Actions\ApplyStarterLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
@@ -305,6 +306,37 @@ it('can apply a site preset to a global layout', function (): void {
 
     expect($updatedLayout->containers)->toHaveKey('main');
 });
+
+it('materializes a registered starter layout preset into a complete builder state', function (): void {
+    $result = ApplyStarterLayoutPresetAction::run('landing');
+
+    expect($result->state->containers)->toHaveKey('main')
+        ->and($result->state->containers['main']['meta']['colspan'])->toBe(12)
+        ->and(capell_test_collect($result->state->containers['main']['widgets'])->pluck('widget_key')->all())->toBe([
+            'hero',
+            'proof',
+            'features',
+            'cta',
+        ])
+        ->and($result->state->assets['main'])->toHaveCount(4)
+        ->and($result->state->selectedRecords['main'])->toHaveCount(4);
+});
+
+it('applies starter layout responsive column hints for sidebar presets', function (): void {
+    $result = ApplyStarterLayoutPresetAction::run('sidebar-main-footer');
+
+    expect($result->state->containers['sidebar']['meta']['colspan'])->toBe(4)
+        ->and($result->state->containers['sidebar']['meta']['responsive']['tablet']['colspan'])->toBe(12)
+        ->and($result->state->containers['main']['meta']['colspan'])->toBe(8)
+        ->and($result->state->containers['footer']['meta']['colspan'])->toBe(12)
+        ->and($result->state->containers['sidebar']['widgets'][0]['widget_key'])->toBe('hero')
+        ->and($result->state->containers['main']['widgets'][0]['widget_key'])->toBe('content')
+        ->and($result->state->containers['footer']['widgets'][0]['widget_key'])->toBe('signup-footer');
+});
+
+it('rejects unknown starter layout preset keys', function (): void {
+    ApplyStarterLayoutPresetAction::run('missing-layout');
+})->throws(InvalidArgumentException::class, 'Unknown starter layout preset');
 
 it('strips unsafe metadata when applying stored preset snapshots', function (): void {
     $site = Site::factory()->create();

@@ -3,10 +3,15 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\Makers\MakerInputData;
+use Capell\Core\Enums\LayoutEnum;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Actions\InstallPackageAction;
 use Capell\LayoutBuilder\Actions\MakeWidgetAction;
 use Capell\LayoutBuilder\Actions\SaveFormComponentRelationshipAction;
+use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\Layout\LayoutTab;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
 use Capell\LayoutBuilder\Support\Makers\LayoutBuilderWidgetMaker;
@@ -62,6 +67,16 @@ it('previews and runs the layout builder widget maker with livewire files', func
         ->and($result->successful)->toBeTrue()
         ->and($result->files)->toHaveCount(3)
         ->and($result->notes->first())->toContain('maker-coverage-card');
+});
+
+it('keeps the compatibility install action wired for consuming package setup helpers', function (): void {
+    InstallPackageAction::run();
+
+    expect(Layout::query()->where('key', LayoutEnum::Default->value)->exists())->toBeTrue()
+        ->and(Blueprint::query()
+            ->where('type', LayoutTypeEnum::Widget->value)
+            ->where('key', WidgetTypeEnum::Hero->value)
+            ->exists())->toBeTrue();
 });
 
 it('builds the widget layouts relation manager table and layout tab schema', function (): void {

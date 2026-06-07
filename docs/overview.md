@@ -4,6 +4,8 @@ Status: **Available, schema-owning** · Kind: **package** · Tier: **free** · B
 
 Layout Builder owns Capell's visual composition layer: reusable layouts, widgets, widget assets, content-first editing, public layout rendering, layout areas, presets, and widget visual-regression manifests.
 
+It also gives admins a reviewed bulk change workflow for shared layout maintenance. Teams can define a typed operation, preview every affected layout and page, inspect before and after widget order, then approve the stored run only when the result is clear.
+
 ## Install
 
 ```bash
@@ -19,8 +21,34 @@ The package requires `capell-app/admin`, `capell-app/block-library`, `capell-app
 - `LayoutResource`, extending the core Layouts admin resource with package-specific table and editor behaviour.
 - Page schema extenders for layout/content-first editing and hero editing.
 - Layout schema extender for package layout fields.
+- A "Bulk change layouts" Filament action wizard with criteria, preview review, warnings, skipped layouts, and approval.
 - Livewire layout builder component and Filament assets.
 - Dashboard widgets for layout health and recent activity when enabled by the host admin surface.
+
+## Bulk Layout Change Review
+
+Bulk changes are designed for layout maintenance that would otherwise become a fragile manual pass across many pages:
+
+- move breadcrumbs below a hero widget;
+- remove a deprecated widget from all active layouts;
+- swap the order of two widgets;
+- move a widget from a sidebar container into the main container.
+
+The workflow is intentionally preview-first. `ResolveLayoutBulkChangeTargetsAction` finds candidate layouts. `PreviewLayoutBulkChangeAction` stores a run and per-layout result rows with original and proposed containers, hashes, page counts, structured diffs, warnings, and skipped reasons. `ApplyLayoutBulkChangeRunAction` only writes approved results whose current container hash still matches the preview.
+
+That hash guard matters for real editorial teams. If someone edits a layout after the preview is generated, the apply step reports that result as drifted and leaves it alone instead of overwriting newer work.
+
+Page-scoped `widget_assets` are migrated when a moved widget changes container or occurrence. Default widget assets are deliberately conservative in v1: previews warn or block when an occurrence change would make a default assignment ambiguous.
+
+The command surface uses the same Actions as the Filament wizard:
+
+```bash
+php artisan capell:layouts:bulk-change --spec=/path/change.json --preview
+php artisan capell:layouts:bulk-change --approve=run-uuid --json
+php artisan capell:layouts:bulk-change --revert=run-uuid
+```
+
+Use the marketplace screenshot set in `docs/assets/marketplace/` when explaining this feature publicly: the criteria wizard, review table, approved run state, content-first editor, layout areas, and public render output are all declared in `capell.json`.
 
 ## Frontend Surfaces
 
@@ -70,7 +98,13 @@ Use widget interactions when the target is a reusable Capell widget, such as a v
 
 Public previews and page output must not expose widget keys, layout IDs, page IDs, model IDs, component names, package namespaces, field paths, or editor metadata. Preview chips are admin-only and show human labels such as `Play video -> widget`; public triggers use generic runtime data and encrypted target URLs.
 
+## Visual Preview
+
+The visual editor preview uses breakpoint-aware canvas width variables for desktop, tablet, and mobile frames. The preview tree compresses at narrower admin widths, and save controls stay in a sticky preview action bar so editors can save without losing their position in the canvas.
+
 ## Screenshot Plan
+
+Current committed screenshots need recapture before marketplace promotion: the existing files render a broken default shell/oversized black arc instead of usable Capell UI. Keep them as runner evidence only until the capture app loads the correct package assets and seeded states.
 
 - Widgets admin index.
 - Create/edit widget form, including widget assets.
@@ -90,6 +124,6 @@ Public previews and page output must not expose widget keys, layout IDs, page ID
 
 ## Known Risks
 
-- `capell.json` lists core/frontend as hard dependencies, but Composer also requires `capell-app/admin` and `capell-app/block-library`; align the manifest before package catalog publication.
-- Frontend screenshots need seeded layouts and widgets to prove public rendering coverage.
-- Content-first and layout-first editor screenshots should be captured separately because they exercise different editor states.
+- Public render performance still needs an explicit query/time budget regression test for larger widget graphs.
+- Content-first and layout-first editor screenshots should continue to be captured separately because they exercise different editor states.
+- Layout health and recent activity dashboard widget screenshots should be added when the host admin dashboard enables those widgets.

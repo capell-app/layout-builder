@@ -12,6 +12,7 @@ final class LayoutBuilderTreeWidgetData extends Data
         public string $nodeId,
         public string $containerKey,
         public int $widgetIndex,
+        public ?string $widgetKey,
         public string $label,
         public ?string $typeLabel,
         public ?string $icon,

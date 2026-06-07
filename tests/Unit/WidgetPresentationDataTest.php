@@ -12,7 +12,7 @@ use Capell\LayoutBuilder\Models\Widget;
 
 it('projects only allowlisted widget presentation keys from widget meta', function (): void {
     resolve(BlockRegistry::class)->register(new BlockDefinitionData(
-        key: 'hero',
+        key: 'test-hero',
         label: 'Hero',
         description: 'Hero widget.',
         category: 'marketing',
@@ -24,7 +24,7 @@ it('projects only allowlisted widget presentation keys from widget meta', functi
     ));
 
     $widget = Widget::factory()->create([
-        'key' => 'hero',
+        'key' => 'test-hero',
         'meta' => [
             'widget_variant' => 'split-media',
             'widget_settings' => [

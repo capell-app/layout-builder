@@ -11,7 +11,6 @@ use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Illuminate\Database\Eloquent\Model;
@@ -39,11 +38,13 @@ class BackgroundSchema
                 ->columnSpan(['md' => 2])
                 ->when(
                     $backgroundCollectionUsing instanceof Closure,
-                    function (Field $component) use ($backgroundCollectionUsing): SpatieMediaLibraryFileUpload {
-                        throw_unless($component instanceof SpatieMediaLibraryFileUpload);
+                    function (Field $component) use ($backgroundCollectionUsing): Field {
+                        if (! method_exists($component, 'collection')) {
+                            return $component;
+                        }
 
                         return $component->collection(
-                            fn (SpatieMediaLibraryFileUpload $component): string => $component->evaluate($backgroundCollectionUsing),
+                            fn (Field $component): string => $component->evaluate($backgroundCollectionUsing),
                         );
                     },
                 ),
