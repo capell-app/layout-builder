@@ -9,6 +9,7 @@ Core still owns sites, pages, languages, URLs, themes, and base content models. 
 - Provides the visual composition layer for Capell: layouts, containers, widgets, assets, public render graphs, and editor mutations.
 - Helps editors assemble pages without storing theme-specific presentation markup in database content fields.
 - Gives developers Actions and registries for public-safe layout payloads, reusable presets, layout areas, and content-first editing.
+- Lets admins make reviewed bulk layout changes across many layouts, with a stored preview, exact per-layout diffs, page impact counts, warnings, approval, and hash-guarded apply.
 
 ## Best Used With
 
@@ -51,9 +52,36 @@ The visual editor preview uses breakpoint-aware canvas width variables and keeps
 | Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
 | Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                                |
 | Layout mutations               | `src/Actions/Mutations/`                                                                                           |
+| Bulk layout changes            | `src/Actions/BulkChanges/`, `src/Console/Commands/LayoutBulkChangeCommand.php`                                      |
 | Filament resources and schemas | `src/Filament/`                                                                                                    |
 | Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                          |
 | Admin views and components     | `resources/views/`                                                                                                 |
+
+## Bulk Layout Changes With Review Approval
+
+Large Capell sites often need a layout change that is simple in one page and risky across dozens of shared layouts: move breadcrumbs below the hero, remove a widget, swap two widgets, or move a widget from a sidebar container into the main container.
+
+Layout Builder handles that as a reviewed mutation workflow instead of a one-off script:
+
+1. Define criteria and a guided operation.
+2. Store a preview run with the exact target layouts, page counts, before and after container state, structured diffs, warnings, skipped records, and hashes.
+3. Review the preview in the Filament action or from the Artisan command.
+4. Approve the stored run when the result is correct.
+5. Apply with hash guards so layouts changed after preview are skipped as drifted instead of overwritten.
+
+The first typed operations are `move_widget`, `remove_widget`, `swap_widgets`, and `move_widget_to_container`. Criteria can filter by site, theme, group, layout key, active state, and required widget. Specific widget occurrences can be targeted when a repeated widget appears more than once.
+
+Page-scoped `widget_assets` follow moved widgets when container or occurrence changes. Remove operations can warn about page-scoped assets or delete them explicitly. Default widget assets are not rewritten globally; ambiguous default asset moves are blocked so editors do not accidentally change shared content assignments.
+
+The same Actions power both surfaces:
+
+```bash
+php artisan capell:layouts:bulk-change --spec=/path/change.json --preview
+php artisan capell:layouts:bulk-change --approve=run-uuid
+php artisan capell:layouts:bulk-change --revert=run-uuid
+```
+
+Marketplace screenshots for this workflow live in `docs/assets/marketplace/` and are declared in `capell.json` so the Capell website can show the criteria, review, approval, content-first editor, layout areas, and public output states.
 
 ## Public Rendering
 

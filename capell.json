@@ -155,6 +155,36 @@
                 "path": "docs/assets/marketplace/extension-card.jpg",
                 "alt": "Layout Builder extension preview image",
                 "caption": "Layout Builder extension preview"
+            },
+            {
+                "path": "docs/assets/marketplace/bulk-change-criteria.svg",
+                "alt": "Layout Builder bulk change criteria wizard screenshot",
+                "caption": "Define bulk layout changes with guided criteria before any layout is mutated."
+            },
+            {
+                "path": "docs/assets/marketplace/bulk-change-review.svg",
+                "alt": "Layout Builder bulk change review table screenshot",
+                "caption": "Review affected layouts, pages, before and after widget order, warnings, and skipped records before approving."
+            },
+            {
+                "path": "docs/assets/marketplace/bulk-change-approved.svg",
+                "alt": "Layout Builder approved bulk change run screenshot",
+                "caption": "Approved runs apply through hash-guarded actions and skip drifted layouts instead of overwriting newer edits."
+            },
+            {
+                "path": "docs/assets/marketplace/content-first-editor.svg",
+                "alt": "Layout Builder content first editor screenshot",
+                "caption": "Content-first editing lets teams update assigned widget assets without navigating the whole layout canvas."
+            },
+            {
+                "path": "docs/assets/marketplace/layout-areas.svg",
+                "alt": "Layout Builder named layout areas screenshot",
+                "caption": "Named layout areas keep header, sidebar, main, and footer widget placement explicit across themes."
+            },
+            {
+                "path": "docs/assets/marketplace/public-render-output.svg",
+                "alt": "Layout Builder public render output screenshot",
+                "caption": "Public rendering resolves widgets into clean visitor HTML without leaking editor metadata."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

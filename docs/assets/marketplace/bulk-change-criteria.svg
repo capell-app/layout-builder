@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+    <title id="title">Bulk layout change criteria</title>
+    <desc id="desc">A Capell Layout Builder admin wizard for choosing target layouts and a guided widget operation.</desc>
+    <rect width="1440" height="900" fill="#f7f5f0"/>
+    <rect x="0" y="0" width="1440" height="66" fill="#ffffff" stroke="#ded8cf"/>
+    <text x="64" y="42" font-family="Georgia, serif" font-size="34" fill="#0b2845">CAPELL</text>
+    <text x="1060" y="40" font-family="Inter, Arial, sans-serif" font-size="15" fill="#6f675e">Live site</text>
+    <rect x="1144" y="16" width="182" height="34" rx="10" fill="#ffffff" stroke="#d8d2c9"/>
+    <text x="1180" y="38" font-family="Inter, Arial, sans-serif" font-size="15" fill="#8b5a16">Preview</text>
+    <rect x="0" y="66" width="96" height="834" fill="#ffffff" stroke="#ded8cf"/>
+    <g fill="#9a948d">
+        <rect x="32" y="132" width="32" height="32" rx="8"/>
+        <rect x="32" y="194" width="32" height="32" rx="8" fill="#c78a25"/>
+        <rect x="32" y="256" width="32" height="32" rx="8"/>
+        <rect x="32" y="318" width="32" height="32" rx="8"/>
+        <rect x="32" y="380" width="32" height="32" rx="8"/>
+    </g>
+    <text x="154" y="122" font-family="Inter, Arial, sans-serif" font-size="15" fill="#777168">Layouts / Bulk change</text>
+    <text x="154" y="166" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#181614">Bulk change layouts</text>
+    <rect x="154" y="198" width="1212" height="78" rx="12" fill="#fffaf0" stroke="#e0c28b"/>
+    <text x="184" y="232" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#8a5a12">Step 1 of 2: Criteria and operation</text>
+    <text x="184" y="256" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Choose the layouts to scan and describe the widget mutation. Preview is stored before approval.</text>
+    <rect x="154" y="304" width="580" height="514" rx="16" fill="#ffffff" stroke="#ded8cf"/>
+    <text x="184" y="352" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1d1a17">Target layouts</text>
+    <text x="184" y="392" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Site</text>
+    <rect x="184" y="408" width="470" height="48" rx="10" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="206" y="438" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">Marketing site</text>
+    <text x="184" y="488" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Theme</text>
+    <rect x="184" y="504" width="470" height="48" rx="10" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="206" y="534" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">Foundation + child themes</text>
+    <text x="184" y="584" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Require widget</text>
+    <rect x="184" y="600" width="470" height="48" rx="10" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="206" y="630" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">breadcrumb</text>
+    <rect x="184" y="688" width="22" height="22" rx="5" fill="#c78a25"/>
+    <path d="M190 699l5 5 10-13" fill="none" stroke="#fff" stroke-width="3"/>
+    <text x="220" y="705" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">Active layouts only</text>
+    <rect x="768" y="304" width="598" height="514" rx="16" fill="#ffffff" stroke="#ded8cf"/>
+    <text x="798" y="352" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#1d1a17">Guided operation</text>
+    <text x="798" y="392" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Operation type</text>
+    <rect x="798" y="408" width="488" height="48" rx="10" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="820" y="438" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">Move widget</text>
+    <text x="798" y="488" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Source widget</text>
+    <rect x="798" y="504" width="488" height="48" rx="10" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="820" y="534" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">breadcrumb</text>
+    <text x="798" y="584" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Target widget</text>
+    <rect x="798" y="600" width="488" height="48" rx="10" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="820" y="630" font-family="Inter, Arial, sans-serif" font-size="15" fill="#24211e">hero</text>
+    <text x="798" y="680" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Placement</text>
+    <rect x="798" y="696" width="150" height="44" rx="22" fill="#c78a25"/>
+    <text x="844" y="724" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">After</text>
+    <rect x="960" y="696" width="164" height="44" rx="22" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="1004" y="724" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">Before</text>
+    <rect x="1136" y="696" width="150" height="44" rx="22" fill="#f9f7f3" stroke="#d8d2c9"/>
+    <text x="1183" y="724" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6f675e">End</text>
+    <rect x="1112" y="836" width="254" height="48" rx="10" fill="#152d4a"/>
+    <text x="1186" y="866" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Generate preview</text>
+</svg>
