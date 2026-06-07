@@ -73,3 +73,30 @@ it('inserts a layout preset into the builder state', function (): void {
         ->call('insertLayoutPreset', 'Feature widget', 'main')
         ->assertSet('containers.preset-copy.widgets.0.widget_key', 'feature');
 });
+
+it('applies a registered starter layout preset to the full builder state', function (): void {
+    $site = Site::factory()->create();
+    Widget::factory()->create(['key' => 'old-widget']);
+    Widget::factory()->create(['key' => 'hero']);
+    Widget::factory()->create(['key' => 'proof']);
+    Widget::factory()->create(['key' => 'features']);
+    Widget::factory()->create(['key' => 'cta']);
+    $layout = Layout::factory()->site($site)->create([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => 'old-widget', 'occurrence' => 1],
+                ],
+            ],
+        ],
+    ]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout, 'site' => $site])
+        ->call('applyStarterLayoutPreset', 'landing')
+        ->assertSet('containers.main.widgets.0.widget_key', 'hero')
+        ->assertSet('containers.main.widgets.1.widget_key', 'proof')
+        ->assertSet('containers.main.widgets.2.widget_key', 'features')
+        ->assertSet('containers.main.widgets.3.widget_key', 'cta')
+        ->assertSet('assets.main.0', [])
+        ->assertSet('selectedRecords.main.3', []);
+});

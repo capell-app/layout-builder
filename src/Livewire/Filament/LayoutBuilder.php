@@ -11,6 +11,7 @@ use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Actions\ApplyStarterLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutBuilderTreeAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
@@ -861,6 +862,32 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         ));
 
         $this->trackNewContainerKeysSince($knownContainerKeys);
+    }
+
+    public function applyStarterLayoutPreset(string $presetKey): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+
+        $knownContainerKeys = array_keys($this->containers ?? []);
+
+        try {
+            $this->applyLayoutMutationResult(ApplyStarterLayoutPresetAction::run($presetKey));
+        } catch (InvalidArgumentException) {
+            Notification::make('starter-layout-preset-missing')
+                ->body(__('capell-layout-builder::message.starter_layout_preset_not_found'))
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->trackNewContainerKeysSince($knownContainerKeys);
+
+        Notification::make('starter-layout-preset-applied')
+            ->body(__('capell-layout-builder::message.starter_layout_preset_applied'))
+            ->success()
+            ->send();
     }
 
     protected function initializeVisualEditor(?string $initialContainerKey = null, ?int $initialWidgetIndex = null): void

@@ -77,6 +77,8 @@ return [
     'layout_preset_not_found' => 'That layout preset could not be found for this site.',
     'layout_preset_save_failed' => 'The layout preset could not be saved.',
     'layout_preset_saved' => 'Layout preset saved.',
+    'starter_layout_preset_applied' => 'Starter layout applied.',
+    'starter_layout_preset_not_found' => 'That starter layout preset could not be found.',
     'layout_shared_with_other_pages_body' => '{1} Changes you make here will also affect that page. To change only this page, clone the layout first.|[2,*] Changes here will affect every other page using this layout. Clone it if this page needs its own version.',
     'layout_shared_with_other_pages_heading' => '{1} This layout is shared with 1 other page.|[2,*] This layout is shared with :count other pages.',
     'layout_not_accessible' => 'This layout is not accessible.',
