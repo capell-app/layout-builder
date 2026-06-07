@@ -14,6 +14,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Translation;
 use Capell\Frontend\Contracts\AdminAccessCheckerInterface;
+use Capell\FrontendAuthoring\Enums\EditableRegionSurface;
 use Capell\FrontendAuthoring\Http\Controllers\EditRegionController;
 use Capell\FrontendAuthoring\Support\EditableRegionSigner;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
@@ -304,7 +305,7 @@ it('contributes frontend authoring regions for page layout widgets and widget as
     $regions = (new LayoutBuilderEditableRegionContributor)($pageUrl);
 
     expect($regions)->toHaveCount(3)
-        ->and(collect($regions)->pluck('surface')->unique()->values()->all())->toBe(['layout-builder'])
+        ->and(collect($regions)->pluck('surface')->unique()->values()->all())->toBe([EditableRegionSurface::LayoutBuilder])
         ->and(collect($regions)->pluck('field')->all())->toBe(['layout', 'widget', 'assets'])
         ->and($regions[1]->selector)->toBe(LayoutBuilderEditableRegionContributor::widgetSelector((int) $layout->getKey(), 'main', 0))
         ->and($regions[1]->context)->toMatchArray([
@@ -318,7 +319,7 @@ it('contributes frontend authoring regions for page layout widgets and widget as
 
     $payload = resolve(EditableRegionSigner::class)->decode(resolve(EditableRegionSigner::class)->encode($regions[1]));
 
-    expect($payload->surface)->toBe('layout-builder')
+    expect($payload->surface)->toBe(EditableRegionSurface::LayoutBuilder)
         ->and($payload->target)->toBe('layout.widget.main.0');
 });
 

@@ -779,8 +779,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
             return;
         } catch (LogicException $exception) {
+            $isDuplicatePresetName = str_contains($exception->getMessage(), 'already exists');
+
             Notification::make('layout-preset-save-failed')
-                ->body(str_contains($exception->getMessage(), 'already exists')
+                ->body($isDuplicatePresetName
                     ? __('capell-layout-builder::message.layout_preset_duplicate')
                     : __('capell-layout-builder::message.layout_preset_save_failed'))
                 ->warning()

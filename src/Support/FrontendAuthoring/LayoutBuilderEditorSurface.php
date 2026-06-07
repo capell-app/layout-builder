@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Support\FrontendAuthoring;
 use Capell\Core\Contracts\Pageable;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Data\EditableRegionPayloadData;
+use Capell\FrontendAuthoring\Enums\EditableRegionSurface;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -14,9 +15,9 @@ use Illuminate\Database\Eloquent\Model;
 
 final class LayoutBuilderEditorSurface implements EditableRegionEditorSurface
 {
-    public function surface(): string
+    public function surface(): EditableRegionSurface
     {
-        return 'layout-builder';
+        return EditableRegionSurface::LayoutBuilder;
     }
 
     public function render(EditableRegionPayloadData $payload, AuthenticatableContract $user): View

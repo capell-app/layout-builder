@@ -8,6 +8,8 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
 use Capell\FrontendAuthoring\Data\EditableRegionPayloadData;
+use Capell\FrontendAuthoring\Enums\EditableRegionInputType;
+use Capell\FrontendAuthoring\Enums\EditableRegionSurface;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Database\Eloquent\Model;
@@ -154,14 +156,14 @@ final class LayoutBuilderEditableRegionContributor
             recordKey: $recordKey,
             field: $field,
             label: $label,
-            type: 'layout-builder',
+            type: EditableRegionInputType::Html,
             selector: $selector,
             currentUrl: $pageUrl->full_url,
             pageUrlId: (int) $pageUrl->getKey(),
             siteId: (int) $pageUrl->site_id,
             languageId: (int) $pageUrl->language_id,
             regionKey: $regionKey,
-            surface: 'layout-builder',
+            surface: EditableRegionSurface::LayoutBuilder,
             target: $target,
             description: $description,
             context: [

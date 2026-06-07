@@ -4,6 +4,7 @@ All notable changes to `capell-app/layout-builder` will be documented in this fi
 
 ## Unreleased
 
+- Split `BuildLayoutContentInventoryAction` into a coordinator plus focused content-inventory item projection and grouping collaborators.
 - Added direct coverage for `PersistLayoutBuilderStateAction`, including page assignment, preview invalidation, widget-asset callback execution, and transaction rollback.
 - Added a static notification translation guard so Layout Builder editor notifications cannot regress to inline English or raw exception messages.
 - Removed the unused no-op `ApplyLayoutPlanAction` and added package-local coverage for the compatibility `InstallPackageAction` used by consuming package setup helpers.

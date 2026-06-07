@@ -58,6 +58,7 @@ it('rolls back layout and page updates when widget asset persistence fails', fun
         ],
     ]);
     $page = Page::factory()->create(['layout_id' => null]);
+    $originalPageLayoutId = $page->layout_id;
 
     expect(function () use ($layout, $page): void {
         PersistLayoutBuilderStateAction::run(
@@ -79,5 +80,5 @@ it('rolls back layout and page updates when widget asset persistence fails', fun
     expect($layout->refresh()->containers)->toBe([
         'main' => ['widgets' => []],
     ])
-        ->and($page->refresh()->layout_id)->toBeNull();
+        ->and($page->refresh()->layout_id)->toBe($originalPageLayoutId);
 });
