@@ -157,34 +157,34 @@
                 "caption": "Layout Builder extension preview"
             },
             {
-                "path": "docs/assets/marketplace/bulk-change-criteria.svg",
-                "alt": "Layout Builder bulk change criteria wizard screenshot",
-                "caption": "Define bulk layout changes with guided criteria before any layout is mutated."
+                "path": "docs/screenshots/widgets-admin-index.png",
+                "alt": "Layout Builder widgets admin index in Capell",
+                "caption": "Review reusable widgets, filters, usage columns, and widget actions in the Capell admin."
             },
             {
-                "path": "docs/assets/marketplace/bulk-change-review.svg",
-                "alt": "Layout Builder bulk change review table screenshot",
-                "caption": "Review affected layouts, pages, before and after widget order, warnings, and skipped records before approving."
+                "path": "docs/screenshots/widgets-admin-index-dark.png",
+                "alt": "Layout Builder widgets admin index in dark mode",
+                "caption": "Dark-mode widget management keeps reusable layout blocks visible in the admin chrome."
             },
             {
-                "path": "docs/assets/marketplace/bulk-change-approved.svg",
-                "alt": "Layout Builder approved bulk change run screenshot",
-                "caption": "Approved runs apply through hash-guarded actions and skip drifted layouts instead of overwriting newer edits."
+                "path": "docs/screenshots/create-edit-widget-form.png",
+                "alt": "Layout Builder create widget form in Capell",
+                "caption": "Configure widget details, placement, items, appearance, background, rendering, and admin metadata."
             },
             {
-                "path": "docs/assets/marketplace/content-first-editor.svg",
-                "alt": "Layout Builder content first editor screenshot",
-                "caption": "Content-first editing lets teams update assigned widget assets without navigating the whole layout canvas."
+                "path": "docs/screenshots/create-edit-widget-form-dark.png",
+                "alt": "Layout Builder create widget form in dark mode",
+                "caption": "Create and edit reusable widgets with the same controls available in dark mode."
             },
             {
-                "path": "docs/assets/marketplace/layout-areas.svg",
-                "alt": "Layout Builder named layout areas screenshot",
-                "caption": "Named layout areas keep header, sidebar, main, and footer widget placement explicit across themes."
+                "path": "docs/screenshots/sections-admin-index.png",
+                "alt": "Layout Builder layouts admin index in Capell",
+                "caption": "Manage reusable layouts that connect page records to frontend rendering."
             },
             {
-                "path": "docs/assets/marketplace/public-render-output.svg",
-                "alt": "Layout Builder public render output screenshot",
-                "caption": "Public rendering resolves widgets into clean visitor HTML without leaking editor metadata."
+                "path": "docs/screenshots/sections-admin-index-dark.png",
+                "alt": "Layout Builder layouts admin index in dark mode",
+                "caption": "Manage layout records from the dark Capell admin interface."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]
