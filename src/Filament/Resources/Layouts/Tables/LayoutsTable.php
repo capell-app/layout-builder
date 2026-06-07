@@ -55,48 +55,16 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ]);
     }
 
-    #[Override]
-    protected static function getTableQueryModifier(Builder $query): Builder
+    public static function getBulkChangeLayoutsAction(string $name = 'bulkChangeLayouts', ?Widget $sourceWidget = null): Action
     {
-        return parent::getTableQueryModifier($query);
-    }
-
-    #[Override]
-    protected static function getTableActions(): array
-    {
-        return [
-            self::getLayoutInfoAction(),
-            ...parent::getTableActions(),
-        ];
-    }
-
-    protected static function getLayoutInfoAction(): Action
-    {
-        return Action::make('info')
-            ->label(__('capell-layout-builder::button.info'))
-            ->icon('heroicon-o-information-circle')
-            ->iconButton()
-            ->color('info')
-            ->schema(fn (Layout $record): array => [
-                ViewEntry::make('widgets')
-                    ->view(
-                        'capell-layout-builder::components.infolists.entries.layout-widgets',
-                        [
-                            'widgets' => self::widgetWidgetsForLayout($record),
-                        ],
-                    ),
-            ]);
-    }
-
-    protected static function getBulkChangeLayoutsAction(): Action
-    {
-        return Action::make('bulkChangeLayouts')
-            ->label(__('capell-layout-builder::button.bulk_change_layouts'))
+        return Action::make($name)
+            ->label(fn (?Widget $record = null): string => self::bulkChangeActionLabel($sourceWidget ?? $record))
             ->icon('heroicon-o-arrows-right-left')
             ->authorize(fn (): bool => auth()->user()?->can(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission()) === true)
             ->slideOver()
             ->modalWidth('7xl')
             ->modalSubmitActionLabel(__('capell-layout-builder::button.approve_bulk_change'))
+            ->fillForm(fn (?Widget $record = null): array => self::bulkChangeDefaultFormState($sourceWidget ?? $record))
             ->steps([
                 Step::make(__('capell-layout-builder::generic.bulk_change_criteria'))
                     ->description(__('capell-layout-builder::message.bulk_change_criteria_description'))
@@ -280,6 +248,39 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     }
 
     #[Override]
+    protected static function getTableQueryModifier(Builder $query): Builder
+    {
+        return parent::getTableQueryModifier($query);
+    }
+
+    #[Override]
+    protected static function getTableActions(): array
+    {
+        return [
+            self::getLayoutInfoAction(),
+            ...parent::getTableActions(),
+        ];
+    }
+
+    protected static function getLayoutInfoAction(): Action
+    {
+        return Action::make('info')
+            ->label(__('capell-layout-builder::button.info'))
+            ->icon('heroicon-o-information-circle')
+            ->iconButton()
+            ->color('info')
+            ->schema(fn (Layout $record): array => [
+                ViewEntry::make('widgets')
+                    ->view(
+                        'capell-layout-builder::components.infolists.entries.layout-widgets',
+                        [
+                            'widgets' => self::widgetWidgetsForLayout($record),
+                        ],
+                    ),
+            ]);
+    }
+
+    #[Override]
     protected static function getTableColumns(): array
     {
         $columns = parent::getTableColumns();
@@ -367,6 +368,40 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 ),
             ...parent::getTableFilters(),
         ];
+    }
+
+    /** @return array<string, mixed> */
+    private static function bulkChangeDefaultFormState(?Widget $widget): array
+    {
+        if (! $widget instanceof Widget) {
+            return [
+                'active_only' => true,
+                'placement' => 'after',
+                'occurrence_mode' => 'all',
+                'remove_widget_asset_mode' => 'warn',
+            ];
+        }
+
+        return [
+            'active_only' => true,
+            'require_widget_key' => $widget->key,
+            'operation_type' => LayoutBulkWidgetOperationType::MoveWidget->value,
+            'source_widget_key' => $widget->key,
+            'placement' => 'after',
+            'occurrence_mode' => 'all',
+            'remove_widget_asset_mode' => 'warn',
+        ];
+    }
+
+    private static function bulkChangeActionLabel(?Widget $widget): string
+    {
+        if ($widget instanceof Widget) {
+            return __('capell-layout-builder::button.move_or_replace_widget_in_layouts', [
+                'widget' => $widget->name,
+            ]);
+        }
+
+        return __('capell-layout-builder::button.move_or_replace_widgets');
     }
 
     /**

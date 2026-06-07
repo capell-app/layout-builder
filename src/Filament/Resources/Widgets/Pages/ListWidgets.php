@@ -10,6 +10,7 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Language;
 use Capell\LayoutBuilder\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Resource;
@@ -70,6 +71,7 @@ class ListWidgets extends ListRecords
         return [
             CreateWidgetAction::make('create')
                 ->redirectAfterCreate(),
+            LayoutsTable::getBulkChangeLayoutsAction(),
             Action::make('layouts')
                 ->url($layoutResource::getUrl())
                 ->label($layoutResource::getNavigationLabel())

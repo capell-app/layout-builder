@@ -12,6 +12,7 @@ use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Models\Widget;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ForceDeleteAction;
@@ -145,6 +146,7 @@ class EditWidget extends EditRecord
             RestoreAction::make('restore'),
             DeleteAction::make('delete'),
             ForceDeleteAction::make('forceDelete'),
+            LayoutsTable::getBulkChangeLayoutsAction(sourceWidget: $this->record),
             ActionGroup::make([
                 CreateWidgetAction::make('create')
                     ->redirectAfterCreate(),
