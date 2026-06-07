@@ -177,6 +177,16 @@
                 "caption": "Create and edit reusable widgets with the same controls available in dark mode."
             },
             {
+                "path": "docs/screenshots/layout-builder-screen.png",
+                "alt": "Layout Builder page editor screen in Capell",
+                "caption": "Edit page copy beside Layout Builder-powered page settings and reusable layout assignment controls."
+            },
+            {
+                "path": "docs/screenshots/layout-builder-screen-dark.png",
+                "alt": "Layout Builder page editor screen in dark mode",
+                "caption": "Work in the page editor with cached-page status, content fields, and layout controls in dark mode."
+            },
+            {
                 "path": "docs/screenshots/sections-admin-index.png",
                 "alt": "Layout Builder layouts admin index in Capell",
                 "caption": "Manage reusable layouts that connect page records to frontend rendering."
