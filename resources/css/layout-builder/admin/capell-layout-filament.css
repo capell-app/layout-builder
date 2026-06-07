@@ -1165,6 +1165,50 @@
     white-space: nowrap;
 }
 
+.layout-builder-command-save :where(.fi-btn) {
+    box-shadow: none !important;
+}
+
+.layout-builder-layout-actions-dropdown :where(.fi-dropdown-list) {
+    min-width: 11rem;
+    padding: 0.375rem;
+}
+
+.layout-builder-layout-actions-dropdown :where(.fi-dropdown-list .fi-btn) {
+    width: 100%;
+    justify-content: flex-start;
+    border: 0 !important;
+    border-radius: 0.375rem !important;
+    background: transparent !important;
+    color: rgb(51, 65, 85) !important;
+    box-shadow: none !important;
+}
+
+.layout-builder-layout-actions-dropdown
+    :where(
+        .fi-dropdown-list .fi-btn:hover,
+        .fi-dropdown-list .fi-btn:focus-visible
+    ) {
+    background: rgb(241, 245, 249) !important;
+    color: rgb(15, 23, 42) !important;
+}
+
+.dark
+    .layout-builder-layout-actions-dropdown
+    :where(.fi-dropdown-list .fi-btn) {
+    color: rgb(209, 213, 219) !important;
+}
+
+.dark
+    .layout-builder-layout-actions-dropdown
+    :where(
+        .fi-dropdown-list .fi-btn:hover,
+        .fi-dropdown-list .fi-btn:focus-visible
+    ) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgb(255, 255, 255) !important;
+}
+
 .layout-builder-panel-toggle:hover,
 .layout-builder-panel-toggle:focus-visible,
 .layout-builder-panel-collapse-toggle:hover,
@@ -1264,7 +1308,7 @@
     min-width: 0;
     overflow: auto;
     border-color: rgba(15, 23, 42, 0.06);
-    background: rgba(248, 250, 252, 0.96);
+    background: rgb(255, 255, 255);
     box-shadow:
         1px 0 0 rgba(255, 255, 255, 0.82) inset,
         8px 0 24px rgba(15, 23, 42, 0.035);
@@ -1443,7 +1487,7 @@
     justify-content: space-between;
     gap: 0.5rem;
     border-bottom: 0;
-    background: rgba(248, 250, 252, 0.96);
+    background: rgba(255, 255, 255, 0.96);
     padding: 0.875rem 1rem 0.5rem;
     backdrop-filter: blur(14px);
 }
@@ -1479,7 +1523,7 @@
     border-radius: 0.375rem;
     background: rgb(255, 255, 255);
     color: rgb(71, 85, 105);
-    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06);
+    box-shadow: none;
 }
 
 .layout-builder-tree-collapse-button:hover,
@@ -1490,6 +1534,7 @@
 
 .dark .layout-builder-tree-header {
     border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(17, 24, 39, 0.96);
 }
 
 .layout-builder-tree-header h2 {
@@ -1539,7 +1584,7 @@
     align-items: center;
     gap: 0.5rem;
     border-bottom: 0;
-    background: rgb(248, 250, 252);
+    background: rgb(255, 255, 255);
     margin: 0 0.625rem 0.375rem;
     border-radius: 0.375rem;
     padding: 0.5rem 0.625rem;
@@ -1587,6 +1632,7 @@
 
 .dark .layout-builder-tree-search {
     border-color: rgba(255, 255, 255, 0.1);
+    background: rgb(17, 24, 39);
 }
 
 .dark .layout-builder-tree-search input {

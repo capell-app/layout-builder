@@ -83,7 +83,6 @@ final class LayoutBuilderActionFactory
             ->color('primary')
             ->size(Size::Small)
             ->button()
-            ->outlined()
             ->action(function (Action $action, LayoutBuilder $livewire): void {
                 if (! $livewire->saveLayout(withNotifications: true)) {
                     $action->failure();

@@ -118,29 +118,31 @@
                     *, *::before, *::after { box-sizing: border-box; }
                     a, button, input, select, textarea, form { pointer-events: none !important; }
                     .clb-preview-page { min-height: 100%; container-type: inline-size; background: #fff; color: #111827; }
-                    .clb-preview-main { display: grid; gap: 1rem; padding: 1rem; }
-                    .clb-preview-content-layout { display: grid; gap: .875rem; align-items: start; }
+                    .clb-preview-main { display: grid; gap: 1rem; padding: 1.125rem; }
+                    .clb-preview-content-layout { display: grid; gap: 1rem; align-items: start; }
                     .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 18rem); }
-                    .clb-preview-region { display: grid; min-width: 0; gap: .625rem; align-self: start; border-radius: .375rem; background: #f8fafc; padding: .75rem; box-shadow: inset 0 1px 0 rgba(255,255,255,.8); }
-                    .clb-preview-region-sidebar { background: #f6f7fb; }
-                    .clb-preview-region-area { background: #fafafa; }
+                    .clb-preview-region { display: grid; min-width: 0; gap: .75rem; align-self: start; border-radius: .625rem; background: #f8fafc; padding: .75rem; box-shadow: inset 0 0 0 1px rgba(148,163,184,.12); }
+                    .clb-preview-region-main { background: transparent; padding: 0; box-shadow: none; }
+                    .clb-preview-region-sidebar { background: #f8fafc; }
+                    .clb-preview-region-area { background: #f8fafc; }
                     .clb-preview-region-label { color: #64748b; font-size: .6875rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
-                    .clb-preview-container-list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .625rem; }
+                    .clb-preview-region-main > .clb-preview-region-label { display: none; }
+                    .clb-preview-container-list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .875rem; }
                     .clb-preview-region-sidebar .clb-preview-container-list { grid-template-columns: minmax(0, 1fr); }
-                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .25rem; background: rgba(255, 255, 255, .9); padding: .75rem; box-shadow: inset 2px 0 0 rgba(148, 163, 184, .18); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
+                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .75rem; background: #fff; padding: .875rem; box-shadow: inset 0 0 0 1px rgba(148,163,184,.18), 0 10px 26px rgba(15,23,42,.06); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
                     .clb-preview-region-sidebar .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container:hover { background: #fff; box-shadow: inset 2px 0 0 rgba(100,116,139,.34), 0 4px 12px rgba(15,23,42,.05); }
+                    .clb-preview-container:hover { background: #fff; box-shadow: inset 0 0 0 1px rgba(37,99,235,.2), 0 14px 32px rgba(15,23,42,.09); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container-label { display: inline-flex; margin-bottom: .5rem; border-radius: .1875rem; background: #eef2ff; padding: .125rem .375rem; color: #2563eb; font-size: .625rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
-                    .clb-preview-widgets { display: grid; gap: .625rem; }
-                    .clb-preview-widget { position: relative; border-radius: .25rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05); transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+                    .clb-preview-container-label { display: inline-flex; margin-bottom: .625rem; border-radius: 999px; background: #eef2ff; padding: .1875rem .5rem; color: #2563eb; font-size: .625rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
+                    .clb-preview-widgets { display: grid; gap: .75rem; }
+                    .clb-preview-widget { position: relative; overflow: hidden; border-radius: .875rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16), 0 3px 10px rgba(15,23,42,.05); transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
                     .layout-builder-widget-preview { overflow: hidden; border-radius: .25rem; background: transparent; box-shadow: none; }
-                    .clb-preview-widget:hover { box-shadow: 0 10px 24px rgba(15,23,42,.08); transform: translateY(-1px); }
-                    .clb-preview-widget-body { display: flex; gap: .75rem; padding: .75rem; }
-                    .clb-preview-widget-icon { display: inline-flex; width: 2rem; height: 2rem; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: .25rem; background: #eff6ff; color: #2563eb; }
+                    .clb-preview-widget:hover { box-shadow: inset 0 0 0 1px rgba(37,99,235,.2), 0 12px 26px rgba(15,23,42,.09); transform: translateY(-1px); }
+                    .clb-preview-widget-body { display: flex; gap: .75rem; padding: .875rem; }
+                    .clb-preview-widget-icon { display: inline-flex; width: 2rem; height: 2rem; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #eff6ff; color: #2563eb; }
                     .clb-preview-widget-type { margin-bottom: .25rem; color: #64748b; font-size: .72rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
                     .clb-preview-widget h2, .layout-builder-widget-preview h2 { margin: 0; font-size: 1rem; line-height: 1.35; font-weight: 700; letter-spacing: 0; }
                     .clb-preview-widget p { margin: .375rem 0 0; color: #475569; font-size: .875rem; line-height: 1.5; }
@@ -1213,9 +1215,7 @@
     ])
 >
     <div class="layout-builder-visual-toolbar">
-        <div
-            class="layout-builder-visual-toolbar-start layout-builder-command-group"
-        >
+        <div class="layout-builder-visual-toolbar-start">
             <div class="layout-builder-command-save">
                 @if ($this->saveLayoutAction->isVisible())
                     {{ $this->saveLayoutAction }}
@@ -1257,7 +1257,7 @@
             </div>
         </div>
 
-        <div class="layout-builder-visual-actions layout-builder-command-group">
+        <div class="layout-builder-visual-actions">
             <div
                 x-show="actionLoading"
                 x-cloak
@@ -1288,11 +1288,13 @@
         >
             <button
                 type="button"
-                class="layout-builder-studio-rail-button layout-builder-studio-rail-button-active"
+                class="layout-builder-studio-rail-button"
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
                 x-ref="treeToggle"
+                x-bind:class="{ 'layout-builder-studio-rail-button-active': ! treeCollapsed }"
+                x-bind:aria-pressed="! treeCollapsed"
                 x-on:click="
-                    treeCollapsed = false
+                    toggleTreeCollapsed()
                     $nextTick(() => scrollSelectedTreeNodeIntoView())
                 "
             >
@@ -1302,29 +1304,9 @@
                 </span>
             </button>
 
-            <button
-                type="button"
-                class="layout-builder-studio-rail-button layout-builder-panel-collapse-toggle"
-                x-on:click="toggleTreeCollapsed()"
-                x-bind:aria-pressed="treeCollapsed"
-                title="{{ __('capell-layout-builder::button.structure') }}"
-            >
-                <span x-show="!treeCollapsed">
-                    @svg('heroicon-o-chevron-left', 'h-5 w-5')
-                </span>
-                <span
-                    x-show="treeCollapsed"
-                    x-cloak
-                >
-                    @svg('heroicon-o-chevron-right', 'h-5 w-5')
-                </span>
-                <span class="sr-only">
-                    {{ __('capell-layout-builder::button.structure') }}
-                </span>
-            </button>
-
             @if ($this->canEditLayout())
                 <x-filament::dropdown
+                    class="layout-builder-layout-actions-dropdown"
                     placement="right-start"
                     width="!w-auto"
                 >
@@ -1347,17 +1329,6 @@
                     </x-filament::dropdown.list>
                 </x-filament::dropdown>
             @endif
-
-            <button
-                type="button"
-                class="layout-builder-studio-rail-button"
-                title="{{ __('capell-layout-builder::button.preview') }}"
-            >
-                @svg('heroicon-o-eye', 'h-5 w-5')
-                <span class="sr-only">
-                    {{ __('capell-layout-builder::button.preview') }}
-                </span>
-            </button>
 
             <span class="layout-builder-studio-rail-spacer"></span>
 

@@ -24,6 +24,7 @@
         <div class="layout-builder-tree-header-actions">
             @if ($this->canEditLayout())
                 <x-filament::dropdown
+                    class="layout-builder-layout-actions-dropdown"
                     placement="bottom-end"
                     width="!w-auto"
                 >
@@ -42,6 +43,18 @@
                     </x-filament::dropdown.list>
                 </x-filament::dropdown>
             @endif
+
+            <button
+                type="button"
+                class="layout-builder-tree-collapse-button"
+                x-on:click="toggleTreeCollapsed()"
+                title="{{ __('capell-layout-builder::button.structure') }}"
+            >
+                @svg('heroicon-o-x-mark', 'h-4 w-4')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::button.structure') }}
+                </span>
+            </button>
         </div>
     </div>
 
