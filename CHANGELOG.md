@@ -4,6 +4,7 @@ All notable changes to `capell-app/layout-builder` will be documented in this fi
 
 ## Unreleased
 
+- Removed the unused no-op `ApplyLayoutPlanAction` and added package-local coverage for the compatibility `InstallPackageAction` used by consuming package setup helpers.
 - Removed the unused `CapellLayoutCacheKeyEnum` so future cache work follows the active `LayoutLoader` cache path.
 - Reconciled `docs/screenshots.json` with committed light/dark layout-builder screenshots and added manifest tests that require referenced screenshots to exist.
 
