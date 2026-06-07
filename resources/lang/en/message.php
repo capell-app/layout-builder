@@ -218,6 +218,7 @@ return [
     'bulk_change_applied_body' => ':count layouts were updated.',
     'bulk_change_criteria_description' => 'Select layouts and define the guided widget operation to preview.',
     'bulk_change_preview_missing' => 'The stored preview could not be found.',
+    'bulk_change_queued' => 'Bulk layout change queued.',
     'bulk_change_ready_to_apply' => 'Ready to apply.',
     'review_bulk_change_description' => 'Review the stored preview before approving. Blocked rows must be resolved before apply.',
 ];

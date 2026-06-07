@@ -16,6 +16,7 @@ it('contributes content and layout permissions for default roles', function (): 
             'EditLayout:Layout',
             'Update:Layout',
             'Delete:Layout',
+            'BulkMutate:Layout',
         )
         ->and(LayoutBuilderPermissionRegistrar::permissionsForRole('unknown'))->toBe([]);
 });

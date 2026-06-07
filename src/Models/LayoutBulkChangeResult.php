@@ -27,6 +27,7 @@ class LayoutBulkChangeResult extends Model
         'warnings',
         'skipped_reason',
         'applied_at',
+        'reverted_at',
     ];
 
     /** @return BelongsTo<LayoutBulkChangeRun, $this> */
@@ -53,6 +54,7 @@ class LayoutBulkChangeResult extends Model
             'changes' => 'array',
             'warnings' => 'array',
             'applied_at' => 'immutable_datetime',
+            'reverted_at' => 'immutable_datetime',
         ];
     }
 }

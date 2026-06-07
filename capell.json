@@ -112,7 +112,8 @@
         "Restore:Layout",
         "ForceDelete:Layout",
         "Replicate:Layout",
-        "Reorder:Layout"
+        "Reorder:Layout",
+        "BulkMutate:Layout"
     ],
     "capabilities": [
         "layout-builder",

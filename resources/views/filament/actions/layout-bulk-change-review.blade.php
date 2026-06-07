@@ -93,8 +93,9 @@
                         @php
                             $changes = $result->changes ?? [];
                             $warnings = $result->warnings ?? [];
-                            $formatContainers = fn (array $containers): string => collect($containers)
-                                ->map(fn (array $container, string $key): string => $key . ': ' . collect($container['widgets'] ?? [])->map(fn (mixed $widget): string => is_array($widget) ? (string) ($widget['widget_key'] ?? '') : (string) $widget)->filter()->implode(', '))
+                            $formatDiffSide = fn (string $side): string => collect($changes['container_diffs'] ?? [])
+                                ->map(fn (array $diff): string => (string) ($diff['container'] ?? '') . ': ' . implode(', ', $diff[$side] ?? []))
+                                ->filter()
                                 ->implode(' | ');
                         @endphp
 
@@ -124,12 +125,12 @@
                             <td
                                 class="max-w-xs px-3 py-3 align-top text-gray-700 dark:text-gray-300"
                             >
-                                {{ $formatContainers($result->original_containers ?? []) }}
+                                {{ $formatDiffSide('before') }}
                             </td>
                             <td
                                 class="max-w-xs px-3 py-3 align-top text-gray-700 dark:text-gray-300"
                             >
-                                {{ $formatContainers($result->proposed_containers ?? []) }}
+                                {{ $formatDiffSide('after') }}
                             </td>
                             <td
                                 class="px-3 py-3 align-top text-gray-700 dark:text-gray-300"

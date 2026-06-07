@@ -17,6 +17,8 @@ final readonly class LayoutBulkWidgetOperationData
         public ?string $targetContainerKey = null,
         public string $placement = 'after',
         public string $occurrenceMode = 'all',
+        public ?int $sourceOccurrenceNumber = null,
+        public string $removeWidgetAssetMode = 'warn',
     ) {
         if (LayoutBulkWidgetOperationType::tryFrom($type) === null) {
             throw new InvalidArgumentException(sprintf('Unsupported bulk layout operation [%s].', $type));
@@ -30,8 +32,16 @@ final readonly class LayoutBulkWidgetOperationData
             throw new InvalidArgumentException(sprintf('Unsupported placement [%s].', $placement));
         }
 
-        if (! in_array($occurrenceMode, ['first', 'all'], true)) {
+        if (! in_array($occurrenceMode, ['first', 'all', 'specific'], true)) {
             throw new InvalidArgumentException(sprintf('Unsupported occurrence mode [%s].', $occurrenceMode));
+        }
+
+        if ($occurrenceMode === 'specific' && ($sourceOccurrenceNumber === null || $sourceOccurrenceNumber < 1)) {
+            throw new InvalidArgumentException('A positive source occurrence number is required for specific occurrence operations.');
+        }
+
+        if (! in_array($removeWidgetAssetMode, ['warn', 'delete_page_scoped'], true)) {
+            throw new InvalidArgumentException(sprintf('Unsupported remove widget asset mode [%s].', $removeWidgetAssetMode));
         }
     }
 
@@ -46,6 +56,8 @@ final readonly class LayoutBulkWidgetOperationData
             targetContainerKey: self::nullableString($payload['target_container_key'] ?? null),
             placement: self::stringValue($payload['placement'] ?? 'after'),
             occurrenceMode: self::stringValue($payload['occurrence_mode'] ?? 'all'),
+            sourceOccurrenceNumber: self::nullableInteger($payload['source_occurrence_number'] ?? null),
+            removeWidgetAssetMode: self::stringValue($payload['remove_widget_asset_mode'] ?? 'warn'),
         );
     }
 
@@ -60,6 +72,8 @@ final readonly class LayoutBulkWidgetOperationData
             'target_container_key' => $this->targetContainerKey,
             'placement' => $this->placement,
             'occurrence_mode' => $this->occurrenceMode,
+            'source_occurrence_number' => $this->sourceOccurrenceNumber,
+            'remove_widget_asset_mode' => $this->removeWidgetAssetMode,
         ];
     }
 
@@ -78,5 +92,16 @@ final readonly class LayoutBulkWidgetOperationData
         $value = trim((string) $value);
 
         return $value === '' ? null : $value;
+    }
+
+    private static function nullableInteger(mixed $value): ?int
+    {
+        if (! is_numeric($value)) {
+            return null;
+        }
+
+        $value = (int) $value;
+
+        return $value > 0 ? $value : null;
     }
 }

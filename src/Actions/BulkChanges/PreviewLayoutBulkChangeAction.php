@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Data\LayoutBulkChangeCriteriaData;
 use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationData;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
+use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
@@ -46,7 +47,12 @@ final class PreviewLayoutBulkChangeAction
                 $operationResult = ApplyLayoutWidgetOperationToContainersAction::run($original, $operation);
                 $pageCount = $this->pageCountForLayout($layout);
                 $summary['target_pages'] += $pageCount;
-                $warnings = [...$operationResult->warnings, ...$this->defaultAssetWarnings($operationResult->assetMoves)];
+                $blockingWarnings = $this->defaultAssetWarnings($operationResult->assetMoves);
+                $warnings = [
+                    ...$operationResult->warnings,
+                    ...$blockingWarnings,
+                    ...$this->removedAssetWarnings($operation, $operationResult->assetRemovals),
+                ];
                 $status = $operationResult->changed ? LayoutBulkChangeResultStatus::Changed : LayoutBulkChangeResultStatus::Skipped;
 
                 if ($operationResult->changed) {
@@ -55,7 +61,7 @@ final class PreviewLayoutBulkChangeAction
                     $summary['skipped_layouts']++;
                 }
 
-                if ($warnings !== []) {
+                if ($blockingWarnings !== []) {
                     $status = LayoutBulkChangeResultStatus::Blocked;
                     $summary['blocked_layouts']++;
                     $summary['changed_layouts'] = max(0, $summary['changed_layouts'] - 1);
@@ -70,7 +76,12 @@ final class PreviewLayoutBulkChangeAction
                     'proposed_container_hash' => self::hashContainers($operationResult->containers),
                     'original_containers' => $original,
                     'proposed_containers' => $operationResult->containers,
-                    'changes' => ['messages' => $operationResult->changes, 'asset_moves' => $operationResult->assetMoves],
+                    'changes' => [
+                        'messages' => $operationResult->changes,
+                        'asset_moves' => $operationResult->assetMoves,
+                        'asset_removals' => $operationResult->assetRemovals,
+                        'container_diffs' => $operationResult->containerDiffs,
+                    ],
                     'warnings' => $warnings,
                     'skipped_reason' => $operationResult->skippedReason,
                 ]);
@@ -122,5 +133,47 @@ final class PreviewLayoutBulkChangeAction
         }
 
         return array_values(array_unique($warnings));
+    }
+
+    private function removedAssetWarnings(LayoutBulkWidgetOperationData $operation, array $assetRemovals): array
+    {
+        if ($operation->typeEnum() !== LayoutBulkWidgetOperationType::RemoveWidget || $operation->removeWidgetAssetMode !== 'warn') {
+            return [];
+        }
+
+        $assetCount = $this->pageScopedAssetCountForRemovals($assetRemovals);
+
+        if ($assetCount === 0) {
+            return [];
+        }
+
+        return [sprintf('Removing this widget will leave %d page-scoped widget asset%s unused. Select auto-delete page-scoped assets to remove them during apply.', $assetCount, $assetCount === 1 ? '' : 's')];
+    }
+
+    private function pageScopedAssetCountForRemovals(array $assetRemovals): int
+    {
+        $count = 0;
+
+        foreach ($assetRemovals as $assetRemoval) {
+            if (! is_array($assetRemoval)) {
+                continue;
+            }
+
+            $widget = Widget::query()->where('key', (string) ($assetRemoval['widget_key'] ?? ''))->first();
+
+            if (! $widget instanceof Widget) {
+                continue;
+            }
+
+            $count += WidgetAsset::query()
+                ->where('widget_id', $widget->id)
+                ->where('container', $assetRemoval['container'])
+                ->where('occurrence', (int) ($assetRemoval['occurrence'] ?? 1))
+                ->whereNotNull('pageable_type')
+                ->whereNotNull('pageable_id')
+                ->count();
+        }
+
+        return $count;
     }
 }

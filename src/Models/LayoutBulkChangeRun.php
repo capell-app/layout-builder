@@ -25,8 +25,12 @@ class LayoutBulkChangeRun extends Model
         'created_by',
         'approved_by',
         'applied_by',
+        'queued_by',
+        'reverted_by',
+        'queued_at',
         'approved_at',
         'applied_at',
+        'reverted_at',
     ];
 
     /** @return list<string> */
@@ -50,8 +54,10 @@ class LayoutBulkChangeRun extends Model
             'criteria' => 'array',
             'operation' => 'array',
             'summary' => 'array',
+            'queued_at' => 'immutable_datetime',
             'approved_at' => 'immutable_datetime',
             'applied_at' => 'immutable_datetime',
+            'reverted_at' => 'immutable_datetime',
         ];
     }
 }

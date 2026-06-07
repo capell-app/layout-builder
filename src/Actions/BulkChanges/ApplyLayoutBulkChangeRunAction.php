@@ -6,8 +6,10 @@ namespace Capell\LayoutBuilder\Actions\BulkChanges;
 
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationData;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
+use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
@@ -34,9 +36,14 @@ final class ApplyLayoutBulkChangeRunAction
         }
 
         return DB::transaction(function () use ($run, $actorId): array {
+            if ($run->status === LayoutBulkChangeRunStatus::Queued) {
+                $run->forceFill(['status' => LayoutBulkChangeRunStatus::Applying])->save();
+            }
+
             $applied = 0;
             $drifted = 0;
             $skipped = 0;
+            $operation = LayoutBulkWidgetOperationData::fromPayload($run->operation ?? []);
 
             $results = LayoutBulkChangeResult::query()->where('run_id', $run->id)->where('status', LayoutBulkChangeResultStatus::Changed)->lockForUpdate()->get();
 
@@ -62,6 +69,7 @@ final class ApplyLayoutBulkChangeRunAction
                 $layout->containers = $result->proposed_containers ?? [];
                 $layout->save();
                 $this->migratePageScopedAssets($layout, $result);
+                $this->deleteRemovedPageScopedAssets($operation, $result);
                 $applied++;
                 $result->update(['status' => LayoutBulkChangeResultStatus::Applied, 'applied_at' => Carbon::now()]);
             }
@@ -105,6 +113,35 @@ final class ApplyLayoutBulkChangeRunAction
                     ->where('pageable_id', $pageScope['id'])
                     ->update(['container' => $assetMove['to_container'], 'occurrence' => (int) ($assetMove['to_occurrence'] ?? 1)]);
             }
+        }
+    }
+
+    private function deleteRemovedPageScopedAssets(LayoutBulkWidgetOperationData $operation, LayoutBulkChangeResult $result): void
+    {
+        if ($operation->typeEnum() !== LayoutBulkWidgetOperationType::RemoveWidget || $operation->removeWidgetAssetMode !== 'delete_page_scoped') {
+            return;
+        }
+
+        $changes = $result->changes ?? [];
+
+        foreach ((array) ($changes['asset_removals'] ?? []) as $assetRemoval) {
+            if (! is_array($assetRemoval)) {
+                continue;
+            }
+
+            $widget = Widget::query()->where('key', (string) ($assetRemoval['widget_key'] ?? ''))->first();
+
+            if (! $widget instanceof Widget) {
+                continue;
+            }
+
+            WidgetAsset::query()
+                ->where('widget_id', $widget->id)
+                ->where('container', $assetRemoval['container'])
+                ->where('occurrence', (int) ($assetRemoval['occurrence'] ?? 1))
+                ->whereNotNull('pageable_type')
+                ->whereNotNull('pageable_id')
+                ->delete();
         }
     }
 

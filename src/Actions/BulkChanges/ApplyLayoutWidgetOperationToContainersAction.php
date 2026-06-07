@@ -21,11 +21,12 @@ final class ApplyLayoutWidgetOperationToContainersAction
         $original = $this->normaliseContainers($containers);
         $working = $original;
         $assetMoves = [];
+        $assetRemovals = [];
         $changes = [];
 
         $result = match ($operation->typeEnum()) {
             LayoutBulkWidgetOperationType::MoveWidget => $this->moveWidget($working, $operation, $assetMoves, $changes),
-            LayoutBulkWidgetOperationType::RemoveWidget => $this->removeWidget($working, $operation, $changes),
+            LayoutBulkWidgetOperationType::RemoveWidget => $this->removeWidget($working, $operation, $assetRemovals, $changes),
             LayoutBulkWidgetOperationType::SwapWidgets => $this->swapWidgets($working, $operation, $assetMoves, $changes),
             LayoutBulkWidgetOperationType::MoveWidgetToContainer => $this->moveWidgetToContainer($working, $operation, $assetMoves, $changes),
         };
@@ -40,7 +41,14 @@ final class ApplyLayoutWidgetOperationToContainersAction
             return new LayoutBulkWidgetOperationResultData($working, skippedReason: 'The operation did not change this layout.');
         }
 
-        return new LayoutBulkWidgetOperationResultData($working, true, changes: $changes, assetMoves: $assetMoves);
+        return new LayoutBulkWidgetOperationResultData(
+            containers: $working,
+            changed: true,
+            changes: $changes,
+            assetMoves: $assetMoves,
+            assetRemovals: $assetRemovals,
+            containerDiffs: $this->containerDiffs($original, $working),
+        );
     }
 
     /** @param array<string, mixed> $containers */
@@ -80,7 +88,7 @@ final class ApplyLayoutWidgetOperationToContainersAction
 
     private function moveWidget(array &$containers, LayoutBulkWidgetOperationData $operation, array &$assetMoves, array &$changes): ?LayoutBulkWidgetOperationResultData
     {
-        $source = $this->positionsForWidget($containers, $operation->sourceWidgetKey, $operation->sourceContainerKey, $operation->occurrenceMode);
+        $source = $this->positionsForWidget($containers, $operation);
         $target = $this->firstPositionForWidget($containers, $operation->targetWidgetKey);
 
         if ($source === []) {
@@ -106,15 +114,16 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return null;
     }
 
-    private function removeWidget(array &$containers, LayoutBulkWidgetOperationData $operation, array &$changes): ?LayoutBulkWidgetOperationResultData
+    private function removeWidget(array &$containers, LayoutBulkWidgetOperationData $operation, array &$assetRemovals, array &$changes): ?LayoutBulkWidgetOperationResultData
     {
-        $source = $this->positionsForWidget($containers, $operation->sourceWidgetKey, $operation->sourceContainerKey, $operation->occurrenceMode);
+        $source = $this->positionsForWidget($containers, $operation);
 
         if ($source === []) {
             return $this->skipped($containers, sprintf('Source widget [%s] was not found.', $operation->sourceWidgetKey));
         }
 
-        $this->removePositions($containers, $source);
+        $removed = $this->removePositions($containers, $source);
+        $this->captureAssetRemovals($removed, $assetRemovals);
         $changes[] = sprintf('Removed widget [%s].', $operation->sourceWidgetKey);
 
         return null;
@@ -154,7 +163,7 @@ final class ApplyLayoutWidgetOperationToContainersAction
             return $this->skipped($containers, sprintf('Target container [%s] was not found.', (string) $targetContainer));
         }
 
-        $source = $this->positionsForWidget($containers, $operation->sourceWidgetKey, $operation->sourceContainerKey, $operation->occurrenceMode);
+        $source = $this->positionsForWidget($containers, $operation);
 
         if ($source === []) {
             return $this->skipped($containers, sprintf('Source widget [%s] was not found.', $operation->sourceWidgetKey));
@@ -214,8 +223,12 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return $removed;
     }
 
-    private function positionsForWidget(array $containers, string $widgetKey, ?string $containerKey = null, string $occurrenceMode = 'all'): array
+    private function positionsForWidget(array $containers, LayoutBulkWidgetOperationData|string $operation, ?string $containerKey = null, string $occurrenceMode = 'all'): array
     {
+        $widgetKey = $operation instanceof LayoutBulkWidgetOperationData ? $operation->sourceWidgetKey : $operation;
+        $containerKey = $operation instanceof LayoutBulkWidgetOperationData ? $operation->sourceContainerKey : $containerKey;
+        $occurrenceMode = $operation instanceof LayoutBulkWidgetOperationData ? $operation->occurrenceMode : $occurrenceMode;
+        $specificOccurrence = $operation instanceof LayoutBulkWidgetOperationData ? $operation->sourceOccurrenceNumber : null;
         $positions = [];
 
         foreach ($containers as $currentContainerKey => $container) {
@@ -228,9 +241,13 @@ final class ApplyLayoutWidgetOperationToContainersAction
                     continue;
                 }
 
+                if ($occurrenceMode === 'specific' && (int) ($widget['occurrence'] ?? 0) !== $specificOccurrence) {
+                    continue;
+                }
+
                 $positions[] = ['container' => $currentContainerKey, 'index' => (int) $index];
 
-                if ($occurrenceMode === 'first') {
+                if ($occurrenceMode === 'first' || $occurrenceMode === 'specific') {
                     return $positions;
                 }
             }
@@ -259,6 +276,50 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 'to_occurrence' => 0,
             ];
         }
+    }
+
+    private function captureAssetRemovals(array $removedWidgets, array &$assetRemovals): void
+    {
+        foreach ($removedWidgets as $widget) {
+            $assetRemovals[] = [
+                'widget_key' => (string) $widget['widget_key'],
+                'container' => $widget['container'] ?? null,
+                'occurrence' => (int) ($widget['occurrence'] ?? 1),
+            ];
+        }
+    }
+
+    private function containerDiffs(array $original, array $proposed): array
+    {
+        $diffs = [];
+        $containerKeys = array_values(array_unique([...array_keys($original), ...array_keys($proposed)]));
+
+        foreach ($containerKeys as $containerKey) {
+            $before = $this->widgetOrder($original[$containerKey]['widgets'] ?? []);
+            $after = $this->widgetOrder($proposed[$containerKey]['widgets'] ?? []);
+
+            if ($before === $after) {
+                continue;
+            }
+
+            $diffs[] = [
+                'container' => (string) $containerKey,
+                'before' => $before,
+                'after' => $after,
+            ];
+        }
+
+        return $diffs;
+    }
+
+    private function widgetOrder(array $widgets): array
+    {
+        return array_values(array_filter(array_map(
+            fn (mixed $widget): ?string => is_array($widget) && is_string($widget['widget_key'] ?? null)
+                ? sprintf('%s#%d', $widget['widget_key'], (int) ($widget['occurrence'] ?? 1))
+                : null,
+            $widgets,
+        )));
     }
 
     private function renumberOccurrences(array $containers, array &$assetMoves): array

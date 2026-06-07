@@ -11,6 +11,8 @@ final readonly class LayoutBulkWidgetOperationResultData
      * @param  list<string>  $changes
      * @param  list<string>  $warnings
      * @param  list<array<string, mixed>>  $assetMoves
+     * @param  list<array<string, mixed>>  $assetRemovals
+     * @param  list<array<string, mixed>>  $containerDiffs
      */
     public function __construct(
         public array $containers,
@@ -20,5 +22,7 @@ final readonly class LayoutBulkWidgetOperationResultData
         public array $changes = [],
         public array $warnings = [],
         public array $assetMoves = [],
+        public array $assetRemovals = [],
+        public array $containerDiffs = [],
     ) {}
 }

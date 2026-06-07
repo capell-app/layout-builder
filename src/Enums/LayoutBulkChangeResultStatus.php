@@ -12,4 +12,6 @@ enum LayoutBulkChangeResultStatus: string
     case Blocked = 'blocked';
     case Applied = 'applied';
     case Drifted = 'drifted';
+    case Reverted = 'reverted';
+    case RevertDrifted = 'revert_drifted';
 }

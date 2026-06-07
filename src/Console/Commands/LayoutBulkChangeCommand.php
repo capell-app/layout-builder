@@ -6,8 +6,11 @@ namespace Capell\LayoutBuilder\Console\Commands;
 
 use Capell\LayoutBuilder\Actions\BulkChanges\ApplyLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Actions\BulkChanges\PreviewLayoutBulkChangeAction;
+use Capell\LayoutBuilder\Actions\BulkChanges\QueueLayoutBulkChangeRunAction;
+use Capell\LayoutBuilder\Actions\BulkChanges\RevertLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Data\LayoutBulkChangeCriteriaData;
 use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationData;
+use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -21,6 +24,8 @@ final class LayoutBulkChangeCommand extends Command
         {--spec= : Path to a JSON spec containing criteria and operation}
         {--preview : Create and store a preview run}
         {--approve= : Approve and apply an existing preview run UUID}
+        {--queue : Queue approval instead of applying synchronously}
+        {--revert= : Revert an applied preview run UUID}
         {--json : Output the result as JSON}';
 
     protected $description = 'Preview or approve guided bulk changes to stored layout containers.';
@@ -28,6 +33,10 @@ final class LayoutBulkChangeCommand extends Command
     public function handle(): int
     {
         try {
+            if (is_string($this->option('revert')) && $this->option('revert') !== '') {
+                return $this->revert((string) $this->option('revert'));
+            }
+
             if (is_string($this->option('approve')) && $this->option('approve') !== '') {
                 return $this->approve((string) $this->option('approve'));
             }
@@ -45,9 +54,12 @@ final class LayoutBulkChangeCommand extends Command
     private function preview(): int
     {
         $payload = $this->specPayload();
+        $operationPayload = $this->payloadSection($payload, 'operation');
+        $this->validateOperationPayload($operationPayload);
+
         $run = PreviewLayoutBulkChangeAction::run(
             LayoutBulkChangeCriteriaData::fromPayload($this->payloadSection($payload, 'criteria')),
-            LayoutBulkWidgetOperationData::fromPayload($this->payloadSection($payload, 'operation')),
+            LayoutBulkWidgetOperationData::fromPayload($operationPayload),
         );
 
         $this->render(['uuid' => $run->uuid, 'status' => $run->status->value, 'summary' => $run->summary]);
@@ -63,7 +75,29 @@ final class LayoutBulkChangeCommand extends Command
             throw new LogicException(sprintf('Bulk layout change run [%s] was not found.', $uuid));
         }
 
+        if ((bool) $this->option('queue')) {
+            $run = QueueLayoutBulkChangeRunAction::run($run);
+            $this->render(['uuid' => $run->uuid, 'status' => $run->status->value, 'summary' => $run->summary]);
+
+            return self::SUCCESS;
+        }
+
         $summary = ApplyLayoutBulkChangeRunAction::run($run);
+        $run->refresh();
+        $this->render(['uuid' => $run->uuid, 'status' => $run->status->value, 'summary' => $summary]);
+
+        return self::SUCCESS;
+    }
+
+    private function revert(string $uuid): int
+    {
+        $run = LayoutBulkChangeRun::query()->where('uuid', $uuid)->first();
+
+        if (! $run instanceof LayoutBulkChangeRun) {
+            throw new LogicException(sprintf('Bulk layout change run [%s] was not found.', $uuid));
+        }
+
+        $summary = RevertLayoutBulkChangeRunAction::run($run);
         $run->refresh();
         $this->render(['uuid' => $run->uuid, 'status' => $run->status->value, 'summary' => $summary]);
 
@@ -106,6 +140,42 @@ final class LayoutBulkChangeCommand extends Command
         }
 
         return $section;
+    }
+
+    /** @param array<string, mixed> $payload */
+    private function validateOperationPayload(array $payload): void
+    {
+        $type = LayoutBulkWidgetOperationType::tryFrom((string) ($payload['type'] ?? $payload['operation_type'] ?? ''));
+
+        if ($type === null) {
+            throw new LogicException('Operation type must be one of: move_widget, remove_widget, swap_widgets, move_widget_to_container.');
+        }
+
+        if (! is_string($payload['source_widget_key'] ?? null) || trim((string) $payload['source_widget_key']) === '') {
+            throw new LogicException('Operation source_widget_key is required.');
+        }
+
+        if (($payload['occurrence_mode'] ?? 'all') === 'specific' && ! is_numeric($payload['source_occurrence_number'] ?? null)) {
+            throw new LogicException('Operation source_occurrence_number is required when occurrence_mode is specific.');
+        }
+
+        if (in_array($type, [LayoutBulkWidgetOperationType::MoveWidget, LayoutBulkWidgetOperationType::SwapWidgets], true)
+            && (! is_string($payload['target_widget_key'] ?? null) || trim((string) $payload['target_widget_key']) === '')
+        ) {
+            throw new LogicException(sprintf('Operation target_widget_key is required for %s.', $type->value));
+        }
+
+        if ($type === LayoutBulkWidgetOperationType::MoveWidgetToContainer) {
+            if (! is_string($payload['target_container_key'] ?? null) || trim((string) $payload['target_container_key']) === '') {
+                throw new LogicException('Operation target_container_key is required for move_widget_to_container.');
+            }
+
+            if (in_array(($payload['placement'] ?? 'bottom'), ['before', 'after'], true)
+                && (! is_string($payload['target_widget_key'] ?? null) || trim((string) $payload['target_widget_key']) === '')
+            ) {
+                throw new LogicException('Operation target_widget_key is required for before/after container placement.');
+            }
+        }
     }
 
     /** @param array<string, mixed> $payload */

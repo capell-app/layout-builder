@@ -12,12 +12,14 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\LayoutBuilder\Actions\BulkChanges\ApplyLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Actions\BulkChanges\PreviewLayoutBulkChangeAction;
+use Capell\LayoutBuilder\Actions\BulkChanges\QueueLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Actions\GetLayoutPreviewImageUrlAction;
 use Capell\LayoutBuilder\Data\LayoutBulkChangeCriteriaData;
 use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationData;
 use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
@@ -91,6 +93,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
         return Action::make('bulkChangeLayouts')
             ->label(__('capell-layout-builder::button.bulk_change_layouts'))
             ->icon('heroicon-o-arrows-right-left')
+            ->authorize(fn (): bool => auth()->user()?->can(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission()) === true)
             ->slideOver()
             ->modalWidth('7xl')
             ->modalSubmitActionLabel(__('capell-layout-builder::button.approve_bulk_change'))
@@ -182,10 +185,26 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                         Select::make('occurrence_mode')
                             ->label(__('capell-layout-builder::form.occurrence_mode'))
                             ->default('all')
+                            ->live()
                             ->options([
                                 'all' => __('capell-layout-builder::form.occurrence_mode_all'),
                                 'first' => __('capell-layout-builder::form.occurrence_mode_first'),
+                                'specific' => __('capell-layout-builder::form.occurrence_mode_specific'),
                             ]),
+                        TextInput::make('source_occurrence_number')
+                            ->label(__('capell-layout-builder::form.source_occurrence_number'))
+                            ->numeric()
+                            ->minValue(1)
+                            ->visible(fn (Get $get): bool => $get('occurrence_mode') === 'specific')
+                            ->required(fn (Get $get): bool => $get('occurrence_mode') === 'specific'),
+                        Select::make('remove_widget_asset_mode')
+                            ->label(__('capell-layout-builder::form.remove_widget_asset_mode'))
+                            ->default('warn')
+                            ->options([
+                                'warn' => __('capell-layout-builder::form.remove_widget_asset_mode_warn'),
+                                'delete_page_scoped' => __('capell-layout-builder::form.remove_widget_asset_mode_delete_page_scoped'),
+                            ])
+                            ->visible(fn (Get $get): bool => $get('operation_type') === LayoutBulkWidgetOperationType::RemoveWidget->value),
                     ])
                     ->afterValidation(function (Get $get, Set $set): void {
                         $run = PreviewLayoutBulkChangeAction::run(
@@ -207,6 +226,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->action(function (array $data): void {
                 $uuid = is_string($data['preview_run_uuid'] ?? null) ? $data['preview_run_uuid'] : null;
                 $run = $uuid === null ? null : LayoutBulkChangeRun::query()->where('uuid', $uuid)->first();
+                $queued = false;
 
                 if (! $run instanceof LayoutBulkChangeRun) {
                     Notification::make()
@@ -218,10 +238,19 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 }
 
                 try {
-                    $summary = ApplyLayoutBulkChangeRunAction::run(
-                        run: $run,
-                        actorId: is_numeric(auth()->id()) ? (int) auth()->id() : null,
-                    );
+                    if (self::shouldQueueBulkChangeRun($run)) {
+                        QueueLayoutBulkChangeRunAction::run(
+                            run: $run,
+                            actorId: is_numeric(auth()->id()) ? (int) auth()->id() : null,
+                        );
+                        $queued = true;
+                        $summary = ['applied_layouts' => 0];
+                    } else {
+                        $summary = ApplyLayoutBulkChangeRunAction::run(
+                            run: $run,
+                            actorId: is_numeric(auth()->id()) ? (int) auth()->id() : null,
+                        );
+                    }
                 } catch (LogicException $exception) {
                     Notification::make()
                         ->title($exception->getMessage())
@@ -229,6 +258,15 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                         ->send();
 
                     throw new Halt;
+                }
+
+                if ($queued) {
+                    Notification::make()
+                        ->title(__('capell-layout-builder::message.bulk_change_queued'))
+                        ->success()
+                        ->send();
+
+                    return;
                 }
 
                 Notification::make()
@@ -398,7 +436,17 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             'target_container_key' => $get('target_container_key'),
             'placement' => $get('placement'),
             'occurrence_mode' => $get('occurrence_mode'),
+            'source_occurrence_number' => $get('source_occurrence_number'),
+            'remove_widget_asset_mode' => $get('remove_widget_asset_mode'),
         ]);
+    }
+
+    private static function shouldQueueBulkChangeRun(LayoutBulkChangeRun $run): bool
+    {
+        $summary = $run->summary ?? [];
+
+        return (int) ($summary['target_layouts'] ?? 0) >= 50
+            || (int) ($summary['target_pages'] ?? 0) >= 250;
     }
 
     private static function bulkChangePreviewHtml(Get $get): HtmlString

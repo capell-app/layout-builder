@@ -33,7 +33,12 @@ it('moves a widget relative to another widget', function (): void {
     expect($result->changed)->toBeTrue()
         ->and(layoutBulkWidgetKeys($result->containers, 'main'))->toBe(['hero', 'breadcrumbs', 'content'])
         ->and($result->containers['main']['meta'])->toBe(['width' => 'full'])
-        ->and($result->containers['main']['widgets'][1]['meta'])->toBe(['locked' => true]);
+        ->and($result->containers['main']['widgets'][1]['meta'])->toBe(['locked' => true])
+        ->and($result->containerDiffs[0])->toMatchArray([
+            'container' => 'main',
+            'before' => ['breadcrumbs#1', 'hero#1', 'content#1'],
+            'after' => ['hero#1', 'breadcrumbs#1', 'content#1'],
+        ]);
 });
 
 it('removes widgets without touching other containers', function (): void {
@@ -52,7 +57,12 @@ it('removes widgets without touching other containers', function (): void {
 
     expect($result->changed)->toBeTrue()
         ->and(layoutBulkWidgetKeys($result->containers, 'main'))->toBe(['hero'])
-        ->and(layoutBulkWidgetKeys($result->containers, 'sidebar'))->toBe(['cta']);
+        ->and(layoutBulkWidgetKeys($result->containers, 'sidebar'))->toBe(['cta'])
+        ->and($result->assetRemovals[0])->toMatchArray([
+            'widget_key' => 'breadcrumbs',
+            'container' => 'main',
+            'occurrence' => 1,
+        ]);
 });
 
 it('swaps two widgets across containers', function (): void {
@@ -106,4 +116,28 @@ it('skips layouts with missing targets instead of failing the operation', functi
 
     expect($result->changed)->toBeFalse()
         ->and($result->skippedReason)->toContain('Source widget [breadcrumbs] was not found');
+});
+
+it('targets a specific occurrence', function (): void {
+    $result = ApplyLayoutWidgetOperationToContainersAction::run([
+        'main' => ['widgets' => [
+            ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1],
+            ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1],
+            ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 2],
+            ['widget_key' => 'content', 'container' => 'main', 'occurrence' => 1],
+        ]],
+    ], layoutBulkOperation([
+        'type' => LayoutBulkWidgetOperationType::MoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'target_widget_key' => 'content',
+        'placement' => 'after',
+        'occurrence_mode' => 'specific',
+        'source_occurrence_number' => 2,
+    ]));
+
+    expect(layoutBulkWidgetKeys($result->containers, 'main'))->toBe(['breadcrumbs', 'hero', 'content', 'breadcrumbs'])
+        ->and($result->assetMoves[0])->toMatchArray([
+            'from_occurrence' => 2,
+            'to_occurrence' => 2,
+        ]);
 });

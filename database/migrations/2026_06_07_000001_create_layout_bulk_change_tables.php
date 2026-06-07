@@ -21,8 +21,12 @@ return new class extends Migration
                 $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
                 $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
                 $table->foreignId('applied_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('queued_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('reverted_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->timestamp('queued_at')->nullable();
                 $table->timestamp('approved_at')->nullable();
                 $table->timestamp('applied_at')->nullable();
+                $table->timestamp('reverted_at')->nullable();
                 $table->timestamps();
             });
         }
@@ -45,6 +49,7 @@ return new class extends Migration
             $table->json('warnings')->nullable();
             $table->text('skipped_reason')->nullable();
             $table->timestamp('applied_at')->nullable();
+            $table->timestamp('reverted_at')->nullable();
             $table->timestamps();
             $table->index(['run_id', 'status']);
         });
