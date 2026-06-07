@@ -43,7 +43,7 @@ class WidgetResource extends Resource
 
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::PuzzlePiece;
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $slug = 'widgets';
 
@@ -88,7 +88,7 @@ class WidgetResource extends Resource
     #[Override]
     public static function getNavigationParentItem(): ?string
     {
-        return (string) __('capell-admin::navigation.pages');
+        return (string) __('capell-admin::navigation.website');
     }
 
     #[Override]

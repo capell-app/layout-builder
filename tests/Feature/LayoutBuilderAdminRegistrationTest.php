@@ -29,11 +29,11 @@ it('registers the admin surface through the layout builder package registrar', f
 
 it('nests layout builder resources below pages navigation', function (): void {
     expect(LayoutResource::getNavigationGroup())->toBeNull()
-        ->and(LayoutResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.pages'))
-        ->and(LayoutResource::getNavigationSort())->toBe(2)
+        ->and(LayoutResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
+        ->and(LayoutResource::getNavigationSort())->toBe(3)
         ->and(WidgetResource::getNavigationGroup())->toBeNull()
-        ->and(WidgetResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.pages'))
-        ->and(WidgetResource::getNavigationSort())->toBe(1);
+        ->and(WidgetResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
+        ->and(WidgetResource::getNavigationSort())->toBe(2);
 });
 
 it('owns admin registration without delegating to the legacy admin registrar', function (): void {
