@@ -73,7 +73,7 @@
             "scenario": "frontend-page",
             "url": "/",
             "waitFor": "body",
-            "user": null,
+            "user": false,
             "targetType": "frontend-url",
             "target": null,
             "required": true,
