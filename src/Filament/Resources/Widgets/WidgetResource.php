@@ -82,7 +82,13 @@ class WidgetResource extends Resource
     #[Override]
     public static function getNavigationGroup(): ?string
     {
-        return (string) (__('capell-admin::navigation.group_layouts'));
+        return null;
+    }
+
+    #[Override]
+    public static function getNavigationParentItem(): ?string
+    {
+        return (string) __('capell-admin::navigation.pages');
     }
 
     #[Override]
