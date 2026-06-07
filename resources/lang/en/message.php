@@ -214,4 +214,10 @@ return [
     'preview_status_stale' => 'Preview needs refresh',
     'editor_loading' => 'Loading editor',
     'select_layout_item' => 'Select a container or widget from the structure panel or preview.',
+    'bulk_change_applied' => 'Bulk layout change applied.',
+    'bulk_change_applied_body' => ':count layouts were updated.',
+    'bulk_change_criteria_description' => 'Select layouts and define the guided widget operation to preview.',
+    'bulk_change_preview_missing' => 'The stored preview could not be found.',
+    'bulk_change_ready_to_apply' => 'Ready to apply.',
+    'review_bulk_change_description' => 'Review the stored preview before approving. Blocked rows must be resolved before apply.',
 ];

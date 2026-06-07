@@ -489,4 +489,12 @@ return [
     'untitled_content_area' => 'Content area',
     'untitled_content_widget' => 'Untitled content block',
     'untitled_page' => 'Untitled page',
+    'after' => 'After',
+    'before' => 'Before',
+    'blocked' => 'Blocked',
+    'bulk_change_criteria' => 'Criteria',
+    'changed' => 'Changed',
+    'notes' => 'Notes',
+    'review_bulk_change' => 'Review',
+    'skipped' => 'Skipped',
 ];

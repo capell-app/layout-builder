@@ -168,4 +168,6 @@ return [
     'widget' => 'Widget',
     'widget_actions' => 'Actions for :widget',
     'widget_asset_actions' => 'Add or select assets for :widget',
+    'approve_bulk_change' => 'Approve and apply',
+    'bulk_change_layouts' => 'Bulk change layouts',
 ];

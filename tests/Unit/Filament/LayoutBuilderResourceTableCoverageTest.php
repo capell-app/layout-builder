@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -226,12 +227,15 @@ it('adds layout-builder specific layout table filters columns and query relation
         'getTableQueryModifier',
         Layout::query(),
     );
+    $bulkChangeAction = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getBulkChangeLayoutsAction');
 
     $widgetFilter = firstLayoutBuilderTableComponent($filters, 'widget_key', SelectFilter::class);
 
     expect($widgetFilter)->not->toBeNull()
         ->and($columns)->not->toBeEmpty()
         ->and($query)->toBeInstanceOf(Builder::class)
+        ->and($bulkChangeAction)->toBeInstanceOf(Action::class)
+        ->and($bulkChangeAction->getName())->toBe('bulkChangeLayouts')
         ->and($widget->exists)->toBeTrue()
         ->and(layoutBuilderTableContainsColumn($columns, ['layoutWidgets.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
 });
