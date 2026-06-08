@@ -6,15 +6,23 @@ namespace Capell\LayoutBuilder\Models;
 
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Override;
 
+/**
+ * @property LayoutBulkChangeRunStatus $status
+ * @property array<string, mixed>|null $criteria
+ * @property array<string, mixed>|null $operation
+ * @property array<string, mixed>|null $summary
+ */
 class LayoutBulkChangeRun extends Model
 {
+    /** @use HasFactory<Factory<static>> */
     use HasFactory;
-    use HasFactory;
+
     use HasUuids;
 
     protected $table = 'layout_bulk_change_runs';

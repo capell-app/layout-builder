@@ -241,7 +241,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                 Notification::make()
                     ->title(__('capell-layout-builder::message.bulk_change_applied'))
                     ->body(__('capell-layout-builder::message.bulk_change_applied_body', [
-                        'count' => (int) ($summary['applied_layouts'] ?? 0),
+                        'count' => self::integerValue($summary['applied_layouts'] ?? null),
                     ]))
                     ->success()
                     ->send();
@@ -426,16 +426,27 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     /** @return array<string, string> */
     private static function widgetOptions(): array
     {
-        return Widget::query()
+        $options = [];
+
+        Widget::query()
             ->orderBy('name')
-            ->pluck('name', 'key')
-            ->all();
+            ->get(['key', 'name'])
+            ->each(function (Widget $widget) use (&$options): void {
+                $key = self::stringAttribute($widget, 'key');
+                $name = self::stringAttribute($widget, 'name');
+
+                if ($key !== '' && $name !== '') {
+                    $options[$key] = $name;
+                }
+            });
+
+        return $options;
     }
 
     /** @return list<string> */
     private static function containerKeyOptions(): array
     {
-        return Layout::query()
+        $keys = Layout::query()
             ->get(['containers'])
             ->flatMap(function (Layout $layout): array {
                 $containers = $layout->getAttribute('containers');
@@ -448,6 +459,8 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
             ->sort()
             ->values()
             ->all();
+
+        return array_values($keys);
     }
 
     private static function bulkChangeCriteriaFromForm(Get $get): LayoutBulkChangeCriteriaData
@@ -481,8 +494,8 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     {
         $summary = $run->summary ?? [];
 
-        return (int) ($summary['target_layouts'] ?? 0) >= 50
-            || (int) ($summary['target_pages'] ?? 0) >= 250;
+        return self::integerValue($summary['target_layouts'] ?? null) >= 50
+            || self::integerValue($summary['target_pages'] ?? null) >= 250;
     }
 
     private static function bulkChangePreviewHtml(Get $get): HtmlString
@@ -503,6 +516,30 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     private static function arrayState(mixed $state): array
     {
         return is_array($state) ? array_values($state) : [];
+    }
+
+    private static function integerValue(mixed $value, int $fallback = 0): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        if (is_float($value)) {
+            return (int) $value;
+        }
+
+        return is_string($value) && is_numeric($value)
+            ? (int) $value
+            : $fallback;
+    }
+
+    private static function stringAttribute(Widget $widget, string $attribute): string
+    {
+        $value = $widget->getAttribute($attribute);
+
+        return is_string($value) || is_numeric($value)
+            ? (string) $value
+            : '';
     }
 
     /**

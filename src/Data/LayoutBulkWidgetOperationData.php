@@ -80,12 +80,12 @@ final readonly class LayoutBulkWidgetOperationData
 
     private static function stringValue(mixed $value): string
     {
-        return trim((string) $value);
+        return is_string($value) || is_numeric($value) ? trim((string) $value) : '';
     }
 
     private static function nullableString(mixed $value): ?string
     {
-        $value = trim((string) $value);
+        $value = is_string($value) || is_numeric($value) ? trim((string) $value) : '';
 
         return $value === '' ? null : $value;
     }

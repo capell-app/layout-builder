@@ -240,7 +240,7 @@ it('adds layout-builder specific layout table filters columns and query relation
         ->and($columns)->not->toBeEmpty()
         ->and($query)->toBeInstanceOf(Builder::class)
         ->and($bulkChangeAction)->toBeInstanceOf(Action::class)
-        ->and($bulkChangeAction->getName())->toBe('bulkChangeLayouts')
+        ->and(layoutBuilderTableAction($bulkChangeAction)->getName())->toBe('bulkChangeLayouts')
         ->and($widget->exists)->toBeTrue()
         ->and(layoutBuilderTableContainsColumn($columns, ['layoutWidgets.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
 });
@@ -308,6 +308,13 @@ function layoutBuilderWidgetAssetsTableLivewire(Builder $query): HasTable
 function layoutBuilderTableObject(mixed $value): object
 {
     throw_unless(is_object($value), RuntimeException::class, 'Expected a table component object.');
+
+    return $value;
+}
+
+function layoutBuilderTableAction(mixed $value): Action
+{
+    throw_unless($value instanceof Action, RuntimeException::class, 'Expected a Filament table action.');
 
     return $value;
 }

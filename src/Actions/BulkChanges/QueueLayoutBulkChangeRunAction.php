@@ -10,7 +10,11 @@ use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Illuminate\Support\Facades\Date;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
+use RuntimeException;
 
+/**
+ * @method static LayoutBulkChangeRun run(LayoutBulkChangeRun $run, ?int $actorId = null)
+ */
 final class QueueLayoutBulkChangeRunAction
 {
     use AsAction;
@@ -27,8 +31,17 @@ final class QueueLayoutBulkChangeRunAction
             'approved_at' => Date::now(),
         ])->save();
 
-        dispatch(new ApplyLayoutBulkChangeRunJob((int) $run->getKey(), $actorId));
+        dispatch(new ApplyLayoutBulkChangeRunJob($this->runKey($run), $actorId));
 
         return $run->refresh();
+    }
+
+    private function runKey(LayoutBulkChangeRun $run): int
+    {
+        $key = $run->getKey();
+
+        throw_unless(is_numeric($key), RuntimeException::class, 'Expected bulk change run key to be numeric.');
+
+        return (int) $key;
     }
 }

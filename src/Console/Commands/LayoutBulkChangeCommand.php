@@ -123,10 +123,13 @@ final class LayoutBulkChangeCommand extends Command
 
         throw_unless(is_array($payload), LogicException::class, 'Spec file must decode to a JSON object.');
 
-        return $payload;
+        return $this->stringKeyedArray($payload);
     }
 
-    /** @param array<string, mixed> $payload */
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
     private function payloadSection(array $payload, string $key): array
     {
         $section = $payload[$key] ?? null;
@@ -135,13 +138,13 @@ final class LayoutBulkChangeCommand extends Command
             throw new LogicException(sprintf('Spec file must contain a [%s] object.', $key));
         }
 
-        return $section;
+        return $this->stringKeyedArray($section);
     }
 
     /** @param array<string, mixed> $payload */
     private function validateOperationPayload(array $payload): void
     {
-        $type = LayoutBulkWidgetOperationType::tryFrom((string) ($payload['type'] ?? $payload['operation_type'] ?? ''));
+        $type = LayoutBulkWidgetOperationType::tryFrom($this->stringValue($payload['type'] ?? $payload['operation_type'] ?? ''));
 
         throw_if($type === null, LogicException::class, 'Operation type must be one of: move_widget, remove_widget, swap_widgets, move_widget_to_container.');
 
@@ -171,13 +174,45 @@ final class LayoutBulkChangeCommand extends Command
             return;
         }
 
-        $this->info(sprintf('Bulk layout change [%s] is %s.', $payload['uuid'], $payload['status']));
+        $this->info(sprintf(
+            'Bulk layout change [%s] is %s.',
+            $this->stringValue($payload['uuid'] ?? ''),
+            $this->stringValue($payload['status'] ?? ''),
+        ));
 
-        foreach (($payload['summary'] ?? []) as $key => $value) {
+        $summary = $payload['summary'] ?? [];
+
+        if (! is_array($summary)) {
+            return;
+        }
+
+        foreach ($summary as $key => $value) {
             if (is_scalar($value)) {
-                $this->line(sprintf('  %s: %s', $key, (string) $value));
+                $this->line(sprintf('  %s: %s', $this->stringValue($key), (string) $value));
             }
         }
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function stringKeyedArray(array $payload): array
+    {
+        $normalized = [];
+
+        foreach ($payload as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        return is_string($value) || is_numeric($value) ? (string) $value : '';
     }
 
     private function failCommand(string $message): int

@@ -14,26 +14,169 @@ use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Capell\LayoutBuilder\Jobs\ApplyLayoutBulkChangeRunJob;
+use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
+use RuntimeException;
 
+/**
+ * @param  array<string, mixed>  $containers
+ * @param  array<string, mixed>  $attributes
+ */
 function bulkLayout(array $containers, array $attributes = []): Layout
 {
     return Layout::factory()->create(['status' => true, 'containers' => $containers, ...$attributes]);
 }
 
+/**
+ * @param  array<string, mixed>  $payload
+ */
 function bulkCriteria(array $payload = []): LayoutBulkChangeCriteriaData
 {
     return LayoutBulkChangeCriteriaData::fromPayload(['active_only' => true, ...$payload]);
 }
 
+/**
+ * @param  array<string, mixed>  $payload
+ */
 function bulkWidgetOperation(array $payload): LayoutBulkWidgetOperationData
 {
     return LayoutBulkWidgetOperationData::fromPayload($payload);
+}
+
+function bulkFreshLayout(Layout $layout): Layout
+{
+    $freshLayout = $layout->fresh();
+
+    if (! $freshLayout instanceof Layout) {
+        throw new RuntimeException('Expected the bulk-change test layout to exist.');
+    }
+
+    return $freshLayout;
+}
+
+function bulkFreshRun(LayoutBulkChangeRun $run): LayoutBulkChangeRun
+{
+    $freshRun = $run->fresh();
+
+    if (! $freshRun instanceof LayoutBulkChangeRun) {
+        throw new RuntimeException('Expected the bulk-change run to exist.');
+    }
+
+    return $freshRun;
+}
+
+function bulkFirstResult(LayoutBulkChangeRun $run): LayoutBulkChangeResult
+{
+    $result = $run->results()->first();
+
+    if (! $result instanceof LayoutBulkChangeResult) {
+        throw new RuntimeException('Expected the bulk-change run to have a result.');
+    }
+
+    return $result;
+}
+
+function bulkFreshResult(LayoutBulkChangeResult $result): LayoutBulkChangeResult
+{
+    $freshResult = $result->fresh();
+
+    if (! $freshResult instanceof LayoutBulkChangeResult) {
+        throw new RuntimeException('Expected the bulk-change result to exist.');
+    }
+
+    return $freshResult;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function bulkContainerWidgets(Layout $layout, string $containerKey): array
+{
+    $containers = bulkFreshLayout($layout)->containers ?? [];
+    $container = is_array($containers) ? ($containers[$containerKey] ?? []) : [];
+    $widgets = is_array($container) ? ($container['widgets'] ?? []) : [];
+
+    if (! is_array($widgets)) {
+        return [];
+    }
+
+    $normalizedWidgets = [];
+
+    foreach ($widgets as $widget) {
+        if (is_array($widget)) {
+            $normalizedWidgets[] = $widget;
+        }
+    }
+
+    return $normalizedWidgets;
+}
+
+/**
+ * @return list<string>
+ */
+function bulkWidgetKeys(Layout $layout, string $containerKey): array
+{
+    $keys = [];
+
+    foreach (bulkContainerWidgets($layout, $containerKey) as $widget) {
+        $key = $widget['widget_key'] ?? null;
+
+        if (is_string($key)) {
+            $keys[] = $key;
+        }
+    }
+
+    return $keys;
+}
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function bulkContainerDiffs(LayoutBulkChangeResult $result): array
+{
+    $changes = $result->changes ?? [];
+    $diffs = $changes['container_diffs'] ?? [];
+
+    if (! is_array($diffs)) {
+        return [];
+    }
+
+    $normalizedDiffs = [];
+
+    foreach ($diffs as $diff) {
+        if (is_array($diff)) {
+            $normalizedDiffs[] = $diff;
+        }
+    }
+
+    return $normalizedDiffs;
+}
+
+/**
+ * @return list<string>
+ */
+function bulkResultWarnings(LayoutBulkChangeResult $result): array
+{
+    $warnings = $result->warnings ?? [];
+
+    if (! is_array($warnings)) {
+        return [];
+    }
+
+    $normalizedWarnings = [];
+
+    foreach ($warnings as $warning) {
+        if (is_string($warning)) {
+            $normalizedWarnings[] = $warning;
+        }
+    }
+
+    return $normalizedWarnings;
 }
 
 it('creates a persisted preview without mutating layouts and records page counts', function (): void {
@@ -47,14 +190,12 @@ it('creates a persisted preview without mutating layouts and records page counts
         'placement' => 'after',
     ]));
 
-    $result = $run->results()->first();
-
-    expect($layout->fresh()->containers['main']['widgets'][0]['widget_key'])->toBe('breadcrumbs')
+    expect(bulkWidgetKeys($layout, 'main')[0] ?? null)->toBe('breadcrumbs')
         ->and($run->status)->toBe(LayoutBulkChangeRunStatus::Previewed)
         ->and($run->summary)->toMatchArray(['target_layouts' => 1, 'target_pages' => 2, 'changed_layouts' => 1])
-        ->and($result->page_count)->toBe(2)
-        ->and($result->status)->toBe(LayoutBulkChangeResultStatus::Changed)
-        ->and($result->changes['container_diffs'][0])->toMatchArray([
+        ->and(bulkFirstResult($run)->page_count)->toBe(2)
+        ->and(bulkFirstResult($run)->status)->toBe(LayoutBulkChangeResultStatus::Changed)
+        ->and(bulkContainerDiffs(bulkFirstResult($run))[0] ?? [])->toMatchArray([
             'container' => 'main',
             'before' => ['breadcrumbs#1', 'hero#1'],
             'after' => ['hero#1', 'breadcrumbs#1'],
@@ -75,8 +216,8 @@ it('applies only changed preview results and leaves skipped layouts untouched', 
     $summary = ApplyLayoutBulkChangeRunAction::run($run);
 
     expect($summary['applied_layouts'])->toBe(1)
-        ->and(array_column($changedLayout->fresh()->containers['main']['widgets'], 'widget_key'))->toBe(['hero', 'breadcrumbs'])
-        ->and(array_column($skippedLayout->fresh()->containers['main']['widgets'], 'widget_key'))->toBe(['breadcrumbs', 'content']);
+        ->and(bulkWidgetKeys($changedLayout, 'main'))->toBe(['hero', 'breadcrumbs'])
+        ->and(bulkWidgetKeys($skippedLayout, 'main'))->toBe(['breadcrumbs', 'content']);
 });
 
 it('reverts an applied run when the layout has not drifted', function (): void {
@@ -92,12 +233,12 @@ it('reverts an applied run when the layout has not drifted', function (): void {
     ]));
     ApplyLayoutBulkChangeRunAction::run($run);
 
-    $summary = RevertLayoutBulkChangeRunAction::run($run->fresh());
+    $summary = RevertLayoutBulkChangeRunAction::run(bulkFreshRun($run));
 
     expect($summary['reverted_layouts'])->toBe(1)
-        ->and(array_column($layout->fresh()->containers['main']['widgets'], 'widget_key'))->toBe(['breadcrumbs', 'hero'])
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe(['breadcrumbs', 'hero'])
         ->and($asset->fresh()->container)->toBe('main')
-        ->and($run->fresh()->status)->toBe(LayoutBulkChangeRunStatus::Reverted);
+        ->and(bulkFreshRun($run)->status)->toBe(LayoutBulkChangeRunStatus::Reverted);
 });
 
 it('skips drifted layouts on approval', function (): void {
@@ -114,7 +255,7 @@ it('skips drifted layouts on approval', function (): void {
 
     expect($summary['applied_layouts'])->toBe(0)
         ->and($summary['drifted_layouts'])->toBe(1)
-        ->and($run->results()->first()->fresh()->status)->toBe(LayoutBulkChangeResultStatus::Drifted);
+        ->and(bulkFreshResult(bulkFirstResult($run))->status)->toBe(LayoutBulkChangeResultStatus::Drifted);
 });
 
 it('migrates page-scoped widget assets when moved widgets change occurrence', function (): void {
@@ -167,7 +308,7 @@ it('warns about removed page-scoped assets unless auto delete is selected', func
     ]));
 
     expect($warningRun->status)->toBe(LayoutBulkChangeRunStatus::Previewed)
-        ->and($warningRun->results()->first()->warnings[0])->toContain('page-scoped widget asset');
+        ->and(bulkResultWarnings(bulkFirstResult($warningRun))[0] ?? null)->toContain('page-scoped widget asset');
 
     $deleteRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
         'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
@@ -208,7 +349,7 @@ it('previews and approves bulk changes through the artisan command with json out
     $run = LayoutBulkChangeRun::query()->latest('id')->firstOrFail();
     $this->artisan('capell:layouts:bulk-change', ['--approve' => $run->uuid, '--json' => true])->assertSuccessful();
 
-    expect(array_column($layout->fresh()->containers['main']['widgets'], 'widget_key'))->toBe(['hero', 'breadcrumbs']);
+    expect(bulkWidgetKeys($layout, 'main'))->toBe(['hero', 'breadcrumbs']);
 });
 
 it('rejects invalid artisan specs', function (): void {
