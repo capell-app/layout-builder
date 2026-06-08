@@ -23,6 +23,7 @@ return [
     'add_url_param' => 'Add URL parameter',
     'add_widget' => 'Add Widget',
     'all_languages' => 'All languages',
+    'apply_starter_layout' => 'Use layout',
     'asset_actions' => 'Actions for :asset',
     'assets' => 'Assets',
     'auto_translate' => 'Auto translate',

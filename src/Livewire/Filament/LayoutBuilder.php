@@ -13,6 +13,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\ApplyStarterLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutBuilderTreeAction;
+use Capell\LayoutBuilder\Actions\ListLayoutPresetsAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
@@ -25,6 +26,7 @@ use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
+use Capell\LayoutBuilder\Data\LayoutPresetData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\AuthorizesLayoutBuilderAccess;
@@ -475,6 +477,15 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             selectedContainerKey: $this->selectedContainerKey,
             selectedWidgetIndex: $this->selectedWidgetIndex,
         );
+    }
+
+    /**
+     * @return list<LayoutPresetData>
+     */
+    #[Computed]
+    public function starterLayoutPresets(): array
+    {
+        return ListLayoutPresetsAction::run();
     }
 
     #[Computed]

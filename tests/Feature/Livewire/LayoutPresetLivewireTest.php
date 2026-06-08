@@ -74,6 +74,21 @@ it('inserts a layout preset into the builder state', function (): void {
         ->assertSet('containers.preset-copy.widgets.0.widget_key', 'feature');
 });
 
+it('renders registered starter layout presets in the builder', function (): void {
+    $site = Site::factory()->create();
+    $layout = Layout::factory()->site($site)->create([
+        'containers' => [
+            'main' => ['widgets' => []],
+        ],
+    ]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout, 'site' => $site])
+        ->assertSee(__('capell-layout-builder::heading.starter_layouts'))
+        ->assertSee('Landing page')
+        ->assertSee('Sidebar, main, footer')
+        ->assertSee(__('capell-layout-builder::button.apply_starter_layout'));
+});
+
 it('applies a registered starter layout preset to the full builder state', function (): void {
     $site = Site::factory()->create();
     Widget::factory()->create(['key' => 'old-widget']);

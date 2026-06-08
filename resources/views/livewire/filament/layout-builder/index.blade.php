@@ -69,6 +69,87 @@
             </x-filament::callout>
         @endif
 
+        @php
+            $starterLayoutPresets = $this->starterLayoutPresets;
+        @endphp
+
+        @if ($this->canEditLayout() && $starterLayoutPresets !== [])
+            <section
+                class="mb-5 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                aria-labelledby="capell-layout-builder-starter-layouts-heading"
+            >
+                <div
+                    class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"
+                >
+                    <div>
+                        <h2
+                            id="capell-layout-builder-starter-layouts-heading"
+                            class="text-sm font-semibold text-gray-950 dark:text-white"
+                        >
+                            {{ __('capell-layout-builder::heading.starter_layouts') }}
+                        </h2>
+
+                        <p
+                            class="mt-1 max-w-3xl text-sm text-gray-600 dark:text-gray-400"
+                        >
+                            {{ __('capell-layout-builder::message.starter_layouts_description') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    @foreach ($starterLayoutPresets as $preset)
+                        <article
+                            wire:key="starter-layout-preset-{{ $preset->key }}"
+                            class="flex min-h-36 flex-col justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950"
+                        >
+                            <div>
+                                <h3
+                                    class="text-sm font-medium text-gray-950 dark:text-white"
+                                >
+                                    {{ $preset->label }}
+                                </h3>
+
+                                <p
+                                    class="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                                >
+                                    {{ $preset->description }}
+                                </p>
+                            </div>
+
+                            <div
+                                class="mt-4 flex flex-wrap items-center justify-between gap-3"
+                            >
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span
+                                        class="rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700"
+                                    >
+                                        {{ trans_choice('capell-layout-builder::message.starter_layout_container_count', count($preset->containers), ['count' => count($preset->containers)]) }}
+                                    </span>
+
+                                    <span
+                                        class="rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700"
+                                    >
+                                        {{ trans_choice('capell-layout-builder::message.starter_layout_section_count', count($preset->sections), ['count' => count($preset->sections)]) }}
+                                    </span>
+                                </div>
+
+                                <x-filament::button
+                                    icon="heroicon-o-sparkles"
+                                    size="xs"
+                                    wire:click="applyStarterLayoutPreset(@js($preset->key))"
+                                    wire:loading.attr="disabled"
+                                    wire:target="applyStarterLayoutPreset"
+                                >
+                                    {{ __('capell-layout-builder::button.apply_starter_layout') }}
+                                </x-filament::button>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
         @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor')
     </div>
 
