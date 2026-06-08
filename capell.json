@@ -21,7 +21,12 @@
             "capell-app/block-library",
             "capell-app/frontend"
         ],
-        "supports": [],
+        "supports": [
+            "capell-app/content-sections",
+            "capell-app/frontend-authoring",
+            "capell-app/publishing-studio",
+            "capell-app/structured-content-library"
+        ],
         "conflicts": []
     },
     "providers": {
