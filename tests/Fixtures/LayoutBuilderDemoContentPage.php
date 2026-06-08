@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Tests\Fixtures;
 use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Media\HasMediaContract;
 use Capell\Core\Models\Translation;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
@@ -16,6 +17,8 @@ use Spatie\MediaLibrary\HasMedia;
 final class LayoutBuilderDemoContentPage extends Model implements HasMedia, HasMediaContract
 {
     use HasCapellMedia;
+    use HasFactory;
+    use HasFactory;
 
     public static int $defaultSiteId;
 
@@ -67,6 +70,7 @@ final class LayoutBuilderDemoContentPage extends Model implements HasMedia, HasM
     /**
      * @return array<string, string>
      */
+    #[Override]
     protected function casts(): array
     {
         return [

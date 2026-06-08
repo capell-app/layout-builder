@@ -190,7 +190,10 @@ final class LayoutContentInventoryItemFactory
             }
 
             $value = $translation->getAttribute($attribute);
-            if (! is_string($value) || trim(strip_tags($value)) === '') {
+            if (! is_string($value)) {
+                continue;
+            }
+            if (trim(strip_tags((string) $value)) === '') {
                 continue;
             }
 

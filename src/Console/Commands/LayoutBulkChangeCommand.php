@@ -34,11 +34,11 @@ final class LayoutBulkChangeCommand extends Command
     {
         try {
             if (is_string($this->option('revert')) && $this->option('revert') !== '') {
-                return $this->revert((string) $this->option('revert'));
+                return $this->revert($this->option('revert'));
             }
 
             if (is_string($this->option('approve')) && $this->option('approve') !== '') {
-                return $this->approve((string) $this->option('approve'));
+                return $this->approve($this->option('approve'));
             }
 
             if ((bool) $this->option('preview')) {
@@ -109,9 +109,7 @@ final class LayoutBulkChangeCommand extends Command
     {
         $path = $this->option('spec');
 
-        if (! is_string($path) || $path === '') {
-            throw new LogicException('The --spec option is required when previewing a bulk layout change.');
-        }
+        throw_if(! is_string($path) || $path === '', LogicException::class, 'The --spec option is required when previewing a bulk layout change.');
 
         if (! File::exists($path)) {
             throw new LogicException(sprintf('Spec file [%s] does not exist.', $path));
@@ -119,13 +117,11 @@ final class LayoutBulkChangeCommand extends Command
 
         try {
             $payload = json_decode((string) File::get($path), true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new LogicException('Spec file must contain valid JSON: ' . $exception->getMessage(), previous: $exception);
+        } catch (JsonException $jsonException) {
+            throw new LogicException('Spec file must contain valid JSON: ' . $jsonException->getMessage(), $jsonException->getCode(), previous: $jsonException);
         }
 
-        if (! is_array($payload)) {
-            throw new LogicException('Spec file must decode to a JSON object.');
-        }
+        throw_unless(is_array($payload), LogicException::class, 'Spec file must decode to a JSON object.');
 
         return $payload;
     }
@@ -147,34 +143,22 @@ final class LayoutBulkChangeCommand extends Command
     {
         $type = LayoutBulkWidgetOperationType::tryFrom((string) ($payload['type'] ?? $payload['operation_type'] ?? ''));
 
-        if ($type === null) {
-            throw new LogicException('Operation type must be one of: move_widget, remove_widget, swap_widgets, move_widget_to_container.');
-        }
+        throw_if($type === null, LogicException::class, 'Operation type must be one of: move_widget, remove_widget, swap_widgets, move_widget_to_container.');
 
-        if (! is_string($payload['source_widget_key'] ?? null) || trim((string) $payload['source_widget_key']) === '') {
-            throw new LogicException('Operation source_widget_key is required.');
-        }
+        throw_if(! is_string($payload['source_widget_key'] ?? null) || trim($payload['source_widget_key']) === '', LogicException::class, 'Operation source_widget_key is required.');
 
-        if (($payload['occurrence_mode'] ?? 'all') === 'specific' && ! is_numeric($payload['source_occurrence_number'] ?? null)) {
-            throw new LogicException('Operation source_occurrence_number is required when occurrence_mode is specific.');
-        }
+        throw_if(($payload['occurrence_mode'] ?? 'all') === 'specific' && ! is_numeric($payload['source_occurrence_number'] ?? null), LogicException::class, 'Operation source_occurrence_number is required when occurrence_mode is specific.');
 
         if (in_array($type, [LayoutBulkWidgetOperationType::MoveWidget, LayoutBulkWidgetOperationType::SwapWidgets], true)
-            && (! is_string($payload['target_widget_key'] ?? null) || trim((string) $payload['target_widget_key']) === '')
+            && (! is_string($payload['target_widget_key'] ?? null) || trim($payload['target_widget_key']) === '')
         ) {
             throw new LogicException(sprintf('Operation target_widget_key is required for %s.', $type->value));
         }
 
         if ($type === LayoutBulkWidgetOperationType::MoveWidgetToContainer) {
-            if (! is_string($payload['target_container_key'] ?? null) || trim((string) $payload['target_container_key']) === '') {
-                throw new LogicException('Operation target_container_key is required for move_widget_to_container.');
-            }
-
-            if (in_array(($payload['placement'] ?? 'bottom'), ['before', 'after'], true)
-                && (! is_string($payload['target_widget_key'] ?? null) || trim((string) $payload['target_widget_key']) === '')
-            ) {
-                throw new LogicException('Operation target_widget_key is required for before/after container placement.');
-            }
+            throw_if(! is_string($payload['target_container_key'] ?? null) || trim($payload['target_container_key']) === '', LogicException::class, 'Operation target_container_key is required for move_widget_to_container.');
+            throw_if(in_array(($payload['placement'] ?? 'bottom'), ['before', 'after'], true)
+                && (! is_string($payload['target_widget_key'] ?? null) || trim($payload['target_widget_key']) === ''), LogicException::class, 'Operation target_widget_key is required for before/after container placement.');
         }
     }
 

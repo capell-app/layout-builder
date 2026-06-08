@@ -13,7 +13,7 @@ use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,9 +25,7 @@ final class RevertLayoutBulkChangeRunAction
     /** @return array<string, mixed> */
     public function handle(LayoutBulkChangeRun $run, ?int $actorId = null): array
     {
-        if (! in_array($run->status, [LayoutBulkChangeRunStatus::Applied, LayoutBulkChangeRunStatus::PartiallyApplied], true)) {
-            throw new LogicException('Only applied bulk layout changes can be reverted.');
-        }
+        throw_unless(in_array($run->status, [LayoutBulkChangeRunStatus::Applied, LayoutBulkChangeRunStatus::PartiallyApplied], true), LogicException::class, 'Only applied bulk layout changes can be reverted.');
 
         return DB::transaction(function () use ($run, $actorId): array {
             $reverted = 0;
@@ -73,7 +71,7 @@ final class RevertLayoutBulkChangeRunAction
                     $reverted++;
                     $result->update([
                         'status' => LayoutBulkChangeResultStatus::Reverted,
-                        'reverted_at' => Carbon::now(),
+                        'reverted_at' => Date::now(),
                     ]);
                 });
 
@@ -87,7 +85,7 @@ final class RevertLayoutBulkChangeRunAction
                 'status' => $drifted > 0 ? LayoutBulkChangeRunStatus::PartiallyReverted : LayoutBulkChangeRunStatus::Reverted,
                 'summary' => $summary,
                 'reverted_by' => $actorId,
-                'reverted_at' => Carbon::now(),
+                'reverted_at' => Date::now(),
             ])->save();
 
             return $summary;

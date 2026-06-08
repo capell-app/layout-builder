@@ -6,12 +6,15 @@ namespace Capell\LayoutBuilder\Models;
 
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 class LayoutBulkChangeResult extends Model
 {
+    use HasFactory;
+
     protected $table = 'layout_bulk_change_results';
 
     protected $fillable = [

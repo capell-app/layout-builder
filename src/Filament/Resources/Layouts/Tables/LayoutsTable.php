@@ -47,6 +47,7 @@ use Override;
 
 class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\LayoutsTable
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         return parent::configure($table)
@@ -219,13 +220,13 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
                             actorId: is_numeric(auth()->id()) ? (int) auth()->id() : null,
                         );
                     }
-                } catch (LogicException $exception) {
+                } catch (LogicException $logicException) {
                     Notification::make()
-                        ->title($exception->getMessage())
+                        ->title($logicException->getMessage())
                         ->danger()
                         ->send();
 
-                    throw new Halt;
+                    throw new Halt($logicException->getMessage(), $logicException->getCode(), $logicException);
                 }
 
                 if ($queued) {

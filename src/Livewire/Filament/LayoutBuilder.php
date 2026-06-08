@@ -271,10 +271,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return $this->layoutPagesCount();
         }
 
-        return $this->layout
-            ->pages()
-            ->whereKeyNot($this->pageContext()->getKey())
-            ->count();
+        return max(0, $this->layoutPagesCount() - 1);
     }
 
     #[Computed]

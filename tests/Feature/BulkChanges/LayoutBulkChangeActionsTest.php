@@ -151,7 +151,7 @@ it('blocks approval when default widget assets would become ambiguous', function
     ]));
 
     expect($run->status)->toBe(LayoutBulkChangeRunStatus::Blocked)
-        ->and(fn () => ApplyLayoutBulkChangeRunAction::run($run))->toThrow(LogicException::class);
+        ->and(fn (): mixed => ApplyLayoutBulkChangeRunAction::run($run))->toThrow(LogicException::class);
 });
 
 it('warns about removed page-scoped assets unless auto delete is selected', function (): void {

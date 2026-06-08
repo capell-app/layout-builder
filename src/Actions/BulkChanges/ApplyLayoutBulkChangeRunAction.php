@@ -15,7 +15,7 @@ use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,9 +27,7 @@ final class ApplyLayoutBulkChangeRunAction
     /** @return array<string, mixed> */
     public function handle(LayoutBulkChangeRun $run, ?int $actorId = null): array
     {
-        if ($run->status === LayoutBulkChangeRunStatus::Blocked) {
-            throw new LogicException('This bulk layout change is blocked by preview warnings and cannot be applied.');
-        }
+        throw_if($run->status === LayoutBulkChangeRunStatus::Blocked, LogicException::class, 'This bulk layout change is blocked by preview warnings and cannot be applied.');
 
         if (in_array($run->status, [LayoutBulkChangeRunStatus::Applied, LayoutBulkChangeRunStatus::PartiallyApplied], true)) {
             return $run->summary ?? [];
@@ -71,7 +69,7 @@ final class ApplyLayoutBulkChangeRunAction
                 $this->migratePageScopedAssets($layout, $result);
                 $this->deleteRemovedPageScopedAssets($operation, $result);
                 $applied++;
-                $result->update(['status' => LayoutBulkChangeResultStatus::Applied, 'applied_at' => Carbon::now()]);
+                $result->update(['status' => LayoutBulkChangeResultStatus::Applied, 'applied_at' => Date::now()]);
             }
 
             $summary = [...($run->summary ?? []), 'applied_layouts' => $applied, 'drifted_layouts' => $drifted, 'apply_skipped_layouts' => $skipped];
@@ -81,8 +79,8 @@ final class ApplyLayoutBulkChangeRunAction
                 'summary' => $summary,
                 'approved_by' => $actorId,
                 'applied_by' => $actorId,
-                'approved_at' => Carbon::now(),
-                'applied_at' => Carbon::now(),
+                'approved_at' => Date::now(),
+                'applied_at' => Date::now(),
             ])->save();
 
             return $summary;

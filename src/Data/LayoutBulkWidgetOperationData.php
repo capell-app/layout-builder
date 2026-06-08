@@ -24,9 +24,7 @@ final readonly class LayoutBulkWidgetOperationData
             throw new InvalidArgumentException(sprintf('Unsupported bulk layout operation [%s].', $type));
         }
 
-        if (trim($sourceWidgetKey) === '') {
-            throw new InvalidArgumentException('A source widget key is required.');
-        }
+        throw_if(trim($sourceWidgetKey) === '', InvalidArgumentException::class, 'A source widget key is required.');
 
         if (! in_array($placement, ['before', 'after', 'top', 'bottom'], true)) {
             throw new InvalidArgumentException(sprintf('Unsupported placement [%s].', $placement));
@@ -36,9 +34,7 @@ final readonly class LayoutBulkWidgetOperationData
             throw new InvalidArgumentException(sprintf('Unsupported occurrence mode [%s].', $occurrenceMode));
         }
 
-        if ($occurrenceMode === 'specific' && ($sourceOccurrenceNumber === null || $sourceOccurrenceNumber < 1)) {
-            throw new InvalidArgumentException('A positive source occurrence number is required for specific occurrence operations.');
-        }
+        throw_if($occurrenceMode === 'specific' && ($sourceOccurrenceNumber === null || $sourceOccurrenceNumber < 1), InvalidArgumentException::class, 'A positive source occurrence number is required for specific occurrence operations.');
 
         if (! in_array($removeWidgetAssetMode, ['warn', 'delete_page_scoped'], true)) {
             throw new InvalidArgumentException(sprintf('Unsupported remove widget asset mode [%s].', $removeWidgetAssetMode));

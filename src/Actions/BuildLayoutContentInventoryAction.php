@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\ContentInventory\LayoutContentInventoryGrouper;
 use Capell\LayoutBuilder\Support\ContentInventory\LayoutContentInventoryItemFactory;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -89,7 +90,7 @@ final class BuildLayoutContentInventoryAction
                 foreach (($assets[$containerKey][$widgetIndex] ?? []) as $assetIndex => $assetState) {
                     $widgetAsset = $this->itemFactory->resolveWidgetAsset($widget, $assetState, $assetIndex);
 
-                    if ($widgetAsset === null) {
+                    if (! $widgetAsset instanceof WidgetAsset) {
                         continue;
                     }
 
