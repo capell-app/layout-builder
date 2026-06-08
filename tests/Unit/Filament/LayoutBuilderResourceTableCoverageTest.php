@@ -62,7 +62,7 @@ it('exposes widget resource metadata search details and soft-deleted query scope
         ->and(WidgetResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
         ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
         ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')
-        ->and(WidgetResource::getSlug())->toBe('widgets')
+        ->and(WidgetResource::getSlug())->toBe('layout-builder/widgets')
         ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.widget'))
         ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
         ->and(WidgetResource::shouldRegisterNavigation())->toBeTrue()
