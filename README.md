@@ -52,7 +52,7 @@ The visual editor preview uses breakpoint-aware canvas width variables and keeps
 | Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
 | Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                                |
 | Layout mutations               | `src/Actions/Mutations/`                                                                                           |
-| Bulk layout changes            | `src/Actions/BulkChanges/`, `src/Console/Commands/LayoutBulkChangeCommand.php`                                      |
+| Bulk layout changes            | `src/Actions/BulkChanges/`, `src/Console/Commands/LayoutBulkChangeCommand.php`                                     |
 | Filament resources and schemas | `src/Filament/`                                                                                                    |
 | Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                          |
 | Admin views and components     | `resources/views/`                                                                                                 |

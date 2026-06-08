@@ -193,7 +193,8 @@ final class LayoutContentInventoryItemFactory
             if (! is_string($value)) {
                 continue;
             }
-            if (trim(strip_tags((string) $value)) === '') {
+
+            if (trim(strip_tags($value)) === '') {
                 continue;
             }
 

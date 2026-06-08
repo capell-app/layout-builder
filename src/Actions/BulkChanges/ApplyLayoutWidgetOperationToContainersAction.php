@@ -67,12 +67,15 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 if (is_string($widget) && $widget !== '') {
                     $widget = ['widget_key' => $widget];
                 }
+
                 if (! is_array($widget)) {
                     continue;
                 }
+
                 if (! is_string($widget['widget_key'] ?? null)) {
                     continue;
                 }
+
                 if ($widget['widget_key'] === '') {
                     continue;
                 }
@@ -245,9 +248,11 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 if (! is_array($widget)) {
                     continue;
                 }
+
                 if (($widget['widget_key'] ?? null) !== $widgetKey) {
                     continue;
                 }
+
                 if ($occurrenceMode === 'specific' && (int) ($widget['occurrence'] ?? 0) !== $specificOccurrence) {
                     continue;
                 }
@@ -338,9 +343,11 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 if (! is_array($widget)) {
                     continue;
                 }
+
                 if (! is_string($widget['widget_key'] ?? null)) {
                     continue;
                 }
+
                 $widgetKey = $widget['widget_key'];
                 $seen[$widgetKey] = ($seen[$widgetKey] ?? 0) + 1;
                 $occurrence = is_numeric($widget['occurrence'] ?? null) ? (int) $widget['occurrence'] : $seen[$widgetKey];
