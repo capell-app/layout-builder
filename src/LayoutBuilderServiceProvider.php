@@ -14,6 +14,7 @@ use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
+use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
@@ -21,6 +22,7 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Contracts\WidgetAssetReferenceRepointer;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Models\LayoutPreset;
@@ -73,6 +75,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
         $this->app->scoped(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
+        $this->app->scoped(WidgetAssetReferenceRepointer::class, RepointWidgetAssetReferencesAction::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
         $this->app->tag([WidgetPresentationPublicWidgetPayloadContributor::class], PublicWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
@@ -85,6 +88,14 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
         $this->registerPageTypes();
+
+        $this->app->booting(function (): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $this->app->make(LayoutBuilderAdminRegistrar::class)->registerResources();
+        });
 
         if ($this->app->runningInConsole()) {
             $this->commands([
