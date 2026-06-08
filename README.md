@@ -13,7 +13,7 @@ Core still owns sites, pages, languages, URLs, themes, and base content models. 
 
 ## Best Used With
 
-- [Widget Library](../widget-library/README.md)
+- [Block Library](../block-library/README.md)
 - [Content Sections](../content-sections/README.md)
 - [Foundation Theme](../foundation-theme/README.md)
 
