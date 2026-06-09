@@ -9,6 +9,9 @@ use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationResultData;
 use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @method static LayoutBulkWidgetOperationResultData run(array<string, mixed> $containers, LayoutBulkWidgetOperationData $operation)
+ */
 final class ApplyLayoutWidgetOperationToContainersAction
 {
     use AsAction;
@@ -20,9 +23,9 @@ final class ApplyLayoutWidgetOperationToContainersAction
     {
         $original = $this->normaliseContainers($containers);
         $working = $original;
-        $assetMoves = [];
-        $assetRemovals = [];
-        $changes = [];
+        $assetMoves = $this->emptyArrayList();
+        $assetRemovals = $this->emptyArrayList();
+        $changes = $this->emptyStringList();
 
         $result = match ($operation->typeEnum()) {
             LayoutBulkWidgetOperationType::MoveWidget => $this->moveWidget($working, $operation, $assetMoves, $changes),
@@ -51,7 +54,10 @@ final class ApplyLayoutWidgetOperationToContainersAction
         );
     }
 
-    /** @param array<string, mixed> $containers */
+    /**
+     * @param  array<string, mixed>  $containers
+     * @return array<string, array<string, mixed>>
+     */
     private function normaliseContainers(array $containers): array
     {
         $normalised = [];
@@ -62,13 +68,27 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 continue;
             }
 
-            $widgets = [];
-            foreach (($container['widgets'] ?? []) as $widget) {
+            $widgets = $this->emptyArrayList();
+            $configuredWidgets = $container['widgets'] ?? [];
+
+            if (! is_iterable($configuredWidgets)) {
+                $configuredWidgets = [];
+            }
+
+            foreach ($configuredWidgets as $widget) {
                 if (is_string($widget) && $widget !== '') {
                     $widget = ['widget_key' => $widget];
                 }
 
-                if (! is_array($widget) || ! is_string($widget['widget_key'] ?? null) || $widget['widget_key'] === '') {
+                if (! is_array($widget)) {
+                    continue;
+                }
+
+                if (! is_string($widget['widget_key'] ?? null)) {
+                    continue;
+                }
+
+                if ($widget['widget_key'] === '') {
                     continue;
                 }
 
@@ -79,13 +99,18 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 $widgets[] = $widget;
             }
 
-            $container['widgets'] = array_values($widgets);
+            $container['widgets'] = $widgets;
             $normalised[(string) $containerKey] = $container;
         }
 
         return $normalised;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array<string, mixed>>  $assetMoves
+     * @param  list<string>  $changes
+     */
     private function moveWidget(array &$containers, LayoutBulkWidgetOperationData $operation, array &$assetMoves, array &$changes): ?LayoutBulkWidgetOperationResultData
     {
         $source = $this->positionsForWidget($containers, $operation);
@@ -107,13 +132,18 @@ final class ApplyLayoutWidgetOperationToContainersAction
             return $this->skipped($containers, sprintf('Target widget [%s] was removed by the operation.', (string) $operation->targetWidgetKey));
         }
 
-        array_splice($containers[$target['container']]['widgets'], $target['index'] + ($operation->placement === 'before' ? 0 : 1), 0, $moved);
+        $this->insertWidgets($containers, $target['container'], $target['index'] + ($operation->placement === 'before' ? 0 : 1), $moved);
         $this->captureAssetMoves($moved, $target['container'], $assetMoves);
         $changes[] = sprintf('Moved widget [%s] %s widget [%s].', $operation->sourceWidgetKey, $operation->placement, (string) $operation->targetWidgetKey);
 
         return null;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array<string, mixed>>  $assetRemovals
+     * @param  list<string>  $changes
+     */
     private function removeWidget(array &$containers, LayoutBulkWidgetOperationData $operation, array &$assetRemovals, array &$changes): ?LayoutBulkWidgetOperationResultData
     {
         $source = $this->positionsForWidget($containers, $operation);
@@ -129,6 +159,11 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return null;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array<string, mixed>>  $assetMoves
+     * @param  list<string>  $changes
+     */
     private function swapWidgets(array &$containers, LayoutBulkWidgetOperationData $operation, array &$assetMoves, array &$changes): ?LayoutBulkWidgetOperationResultData
     {
         $source = $this->firstPositionForWidget($containers, $operation->sourceWidgetKey, $operation->sourceContainerKey);
@@ -142,12 +177,17 @@ final class ApplyLayoutWidgetOperationToContainersAction
             return $this->skipped($containers, sprintf('Target widget [%s] was not found.', (string) $operation->targetWidgetKey));
         }
 
-        $sourceWidget = $containers[$source['container']]['widgets'][$source['index']];
-        $targetWidget = $containers[$target['container']]['widgets'][$target['index']];
+        $sourceWidget = $this->widgetAt($containers, $source['container'], $source['index']);
+        $targetWidget = $this->widgetAt($containers, $target['container'], $target['index']);
+
+        if ($sourceWidget === null || $targetWidget === null) {
+            return $this->skipped($containers, 'The source or target widget was removed by the operation.');
+        }
+
         $sourceWidget[self::MOVE_ID] = bin2hex(random_bytes(6));
         $targetWidget[self::MOVE_ID] = bin2hex(random_bytes(6));
-        $containers[$source['container']]['widgets'][$source['index']] = $targetWidget;
-        $containers[$target['container']]['widgets'][$target['index']] = $sourceWidget;
+        $this->setWidgetAt($containers, $source['container'], $source['index'], $targetWidget);
+        $this->setWidgetAt($containers, $target['container'], $target['index'], $sourceWidget);
         $this->captureAssetMoves([$sourceWidget], $target['container'], $assetMoves);
         $this->captureAssetMoves([$targetWidget], $source['container'], $assetMoves);
         $changes[] = sprintf('Swapped widgets [%s] and [%s].', $operation->sourceWidgetKey, (string) $operation->targetWidgetKey);
@@ -155,6 +195,11 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return null;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array<string, mixed>>  $assetMoves
+     * @param  list<string>  $changes
+     */
     private function moveWidgetToContainer(array &$containers, LayoutBulkWidgetOperationData $operation, array &$assetMoves, array &$changes): ?LayoutBulkWidgetOperationResultData
     {
         $targetContainer = $operation->targetContainerKey;
@@ -177,13 +222,16 @@ final class ApplyLayoutWidgetOperationToContainersAction
             return $this->skipped($containers, sprintf('Target widget [%s] was not found in container [%s].', (string) $operation->targetWidgetKey, $targetContainer));
         }
 
-        array_splice($containers[$targetContainer]['widgets'], $insertIndex, 0, $moved);
+        $this->insertWidgets($containers, $targetContainer, $insertIndex, $moved);
         $this->captureAssetMoves($moved, $targetContainer, $assetMoves);
         $changes[] = sprintf('Moved widget [%s] to container [%s].', $operation->sourceWidgetKey, $targetContainer);
 
         return null;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     */
     private function containerInsertIndex(array $containers, string $targetContainer, LayoutBulkWidgetOperationData $operation): ?int
     {
         if ($operation->placement === 'top') {
@@ -191,7 +239,7 @@ final class ApplyLayoutWidgetOperationToContainersAction
         }
 
         if ($operation->placement === 'bottom') {
-            return count($containers[$targetContainer]['widgets'] ?? []);
+            return count($this->widgets($containers[$targetContainer] ?? []));
         }
 
         $target = $this->firstPositionForWidget($containers, $operation->targetWidgetKey, $targetContainer);
@@ -199,30 +247,50 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return $target === null ? null : $target['index'] + ($operation->placement === 'before' ? 0 : 1);
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array{container: string, index: int}>  $positions
+     */
     private function markMoved(array &$containers, array $positions): void
     {
         foreach ($positions as $position) {
-            $containers[$position['container']]['widgets'][$position['index']][self::MOVE_ID] = bin2hex(random_bytes(6));
+            $widget = $this->widgetAt($containers, $position['container'], $position['index']);
+
+            if ($widget === null) {
+                continue;
+            }
+
+            $widget[self::MOVE_ID] = bin2hex(random_bytes(6));
+            $this->setWidgetAt($containers, $position['container'], $position['index'], $widget);
         }
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array{container: string, index: int}>  $positions
+     * @return list<array<string, mixed>>
+     */
     private function removePositions(array &$containers, array $positions): array
     {
         usort($positions, fn (array $first, array $second): int => [$second['container'], $second['index']] <=> [$first['container'], $first['index']]);
         $removed = [];
 
         foreach ($positions as $position) {
-            $widget = $containers[$position['container']]['widgets'][$position['index']] ?? null;
+            $widget = $this->widgetAt($containers, $position['container'], $position['index']);
 
-            if (is_array($widget)) {
+            if ($widget !== null) {
                 array_unshift($removed, $widget);
-                array_splice($containers[$position['container']]['widgets'], $position['index'], 1);
+                $this->removeWidgetAt($containers, $position['container'], $position['index']);
             }
         }
 
         return $removed;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @return list<array{container: string, index: int}>
+     */
     private function positionsForWidget(array $containers, LayoutBulkWidgetOperationData|string $operation, ?string $containerKey = null, string $occurrenceMode = 'all'): array
     {
         $widgetKey = $operation instanceof LayoutBulkWidgetOperationData ? $operation->sourceWidgetKey : $operation;
@@ -236,12 +304,16 @@ final class ApplyLayoutWidgetOperationToContainersAction
                 continue;
             }
 
-            foreach (($container['widgets'] ?? []) as $index => $widget) {
-                if (! is_array($widget) || ($widget['widget_key'] ?? null) !== $widgetKey) {
+            foreach ($this->widgets($container) as $index => $widget) {
+                if (! is_array($widget)) {
                     continue;
                 }
 
-                if ($occurrenceMode === 'specific' && (int) ($widget['occurrence'] ?? 0) !== $specificOccurrence) {
+                if (($widget['widget_key'] ?? null) !== $widgetKey) {
+                    continue;
+                }
+
+                if ($occurrenceMode === 'specific' && $this->integerValue($widget['occurrence'] ?? null, 0) !== $specificOccurrence) {
                     continue;
                 }
 
@@ -256,6 +328,10 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return $positions;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @return array{container: string, index: int}|null
+     */
     private function firstPositionForWidget(array $containers, ?string $widgetKey, ?string $containerKey = null): ?array
     {
         if ($widgetKey === null || $widgetKey === '') {
@@ -265,38 +341,51 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return $this->positionsForWidget($containers, $widgetKey, $containerKey, 'first')[0] ?? null;
     }
 
+    /**
+     * @param  list<array<string, mixed>>  $movedWidgets
+     * @param  list<array<string, mixed>>  $assetMoves
+     */
     private function captureAssetMoves(array $movedWidgets, string $targetContainer, array &$assetMoves): void
     {
         foreach ($movedWidgets as $widget) {
             $assetMoves[] = [
-                'widget_key' => (string) $widget['widget_key'],
+                'widget_key' => $this->stringValue($widget['widget_key'] ?? null),
                 'from_container' => $widget['container'] ?? null,
-                'from_occurrence' => (int) ($widget['occurrence'] ?? 1),
+                'from_occurrence' => $this->integerValue($widget['occurrence'] ?? null, 1),
                 'to_container' => $targetContainer,
                 'to_occurrence' => 0,
             ];
         }
     }
 
+    /**
+     * @param  list<array<string, mixed>>  $removedWidgets
+     * @param  list<array<string, mixed>>  $assetRemovals
+     */
     private function captureAssetRemovals(array $removedWidgets, array &$assetRemovals): void
     {
         foreach ($removedWidgets as $widget) {
             $assetRemovals[] = [
-                'widget_key' => (string) $widget['widget_key'],
+                'widget_key' => $this->stringValue($widget['widget_key'] ?? null),
                 'container' => $widget['container'] ?? null,
-                'occurrence' => (int) ($widget['occurrence'] ?? 1),
+                'occurrence' => $this->integerValue($widget['occurrence'] ?? null, 1),
             ];
         }
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $original
+     * @param  array<string, array<string, mixed>>  $proposed
+     * @return list<array<string, mixed>>
+     */
     private function containerDiffs(array $original, array $proposed): array
     {
         $diffs = [];
         $containerKeys = array_values(array_unique([...array_keys($original), ...array_keys($proposed)]));
 
         foreach ($containerKeys as $containerKey) {
-            $before = $this->widgetOrder($original[$containerKey]['widgets'] ?? []);
-            $after = $this->widgetOrder($proposed[$containerKey]['widgets'] ?? []);
+            $before = $this->widgetOrder($this->widgets($original[$containerKey] ?? []));
+            $after = $this->widgetOrder($this->widgets($proposed[$containerKey] ?? []));
 
             if ($before === $after) {
                 continue;
@@ -312,23 +401,36 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return $diffs;
     }
 
+    /**
+     * @param  list<array<string, mixed>>  $widgets
+     * @return list<string>
+     */
     private function widgetOrder(array $widgets): array
     {
         return array_values(array_filter(array_map(
             fn (mixed $widget): ?string => is_array($widget) && is_string($widget['widget_key'] ?? null)
-                ? sprintf('%s#%d', $widget['widget_key'], (int) ($widget['occurrence'] ?? 1))
+                ? sprintf('%s#%d', $widget['widget_key'], $this->integerValue($widget['occurrence'] ?? null, 1))
                 : null,
             $widgets,
         )));
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array<string, mixed>>  $assetMoves
+     * @return array<string, array<string, mixed>>
+     */
     private function renumberOccurrences(array $containers, array &$assetMoves): array
     {
         $seen = [];
 
         foreach ($containers as $containerKey => $container) {
-            foreach (($container['widgets'] ?? []) as $index => $widget) {
-                if (! is_array($widget) || ! is_string($widget['widget_key'] ?? null)) {
+            foreach ($this->widgets($container) as $index => $widget) {
+                if (! is_array($widget)) {
+                    continue;
+                }
+
+                if (! is_string($widget['widget_key'] ?? null)) {
                     continue;
                 }
 
@@ -340,12 +442,13 @@ final class ApplyLayoutWidgetOperationToContainersAction
                     $occurrence = $seen[$widgetKey];
                 }
 
-                $containers[$containerKey]['widgets'][$index]['container'] = (string) $containerKey;
-                $containers[$containerKey]['widgets'][$index]['occurrence'] = $occurrence;
+                $widget['container'] = (string) $containerKey;
+                $widget['occurrence'] = $occurrence;
+                $this->setWidgetAt($containers, (string) $containerKey, (int) $index, $widget);
 
                 if (is_string($widget[self::MOVE_ID] ?? null)) {
                     foreach ($assetMoves as $moveIndex => $assetMove) {
-                        if ($assetMove['widget_key'] === $widgetKey && (int) $assetMove['to_occurrence'] === 0) {
+                        if (($assetMove['widget_key'] ?? null) === $widgetKey && $this->integerValue($assetMove['to_occurrence'] ?? null, 0) === 0) {
                             $assetMoves[$moveIndex]['to_container'] = (string) $containerKey;
                             $assetMoves[$moveIndex]['to_occurrence'] = $occurrence;
                             break;
@@ -358,10 +461,13 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return $containers;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     */
     private function occurrenceCollisionExists(array $containers, string $widgetKey, int $occurrence, string $currentContainer, int $currentIndex): bool
     {
         foreach ($containers as $containerKey => $container) {
-            foreach (($container['widgets'] ?? []) as $index => $widget) {
+            foreach ($this->widgets($container) as $index => $widget) {
                 if ($containerKey === $currentContainer && (int) $index === $currentIndex) {
                     continue;
                 }
@@ -375,22 +481,117 @@ final class ApplyLayoutWidgetOperationToContainersAction
         return false;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @return array<string, array<string, mixed>>
+     */
     private function stripInternalMoveIds(array $containers): array
     {
         foreach ($containers as $containerKey => $container) {
-            foreach (($container['widgets'] ?? []) as $index => $widget) {
-                if (is_array($widget)) {
-                    unset($widget[self::MOVE_ID]);
-                    $containers[$containerKey]['widgets'][$index] = $widget;
-                }
+            foreach ($this->widgets($container) as $index => $widget) {
+                unset($widget[self::MOVE_ID]);
+                $this->setWidgetAt($containers, (string) $containerKey, (int) $index, $widget);
             }
         }
 
         return $containers;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     */
     private function skipped(array $containers, string $reason): LayoutBulkWidgetOperationResultData
     {
         return new LayoutBulkWidgetOperationResultData($this->stripInternalMoveIds($containers), skippedReason: $reason);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function emptyArrayList(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function emptyStringList(): array
+    {
+        return [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $container
+     * @return list<array<string, mixed>>
+     */
+    private function widgets(array $container): array
+    {
+        $widgets = $container['widgets'] ?? [];
+
+        if (! is_array($widgets)) {
+            return [];
+        }
+
+        $normalised = [];
+
+        foreach ($widgets as $widget) {
+            if (is_array($widget)) {
+                $normalised[] = $widget;
+            }
+        }
+
+        return $normalised;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @return array<string, mixed>|null
+     */
+    private function widgetAt(array $containers, string $containerKey, int $index): ?array
+    {
+        return $this->widgets($containers[$containerKey] ?? [])[$index] ?? null;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  array<string, mixed>  $widget
+     */
+    private function setWidgetAt(array &$containers, string $containerKey, int $index, array $widget): void
+    {
+        $widgets = $this->widgets($containers[$containerKey] ?? []);
+        $widgets[$index] = $widget;
+        $containers[$containerKey]['widgets'] = array_values($widgets);
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     * @param  list<array<string, mixed>>  $widgetsToInsert
+     */
+    private function insertWidgets(array &$containers, string $containerKey, int $index, array $widgetsToInsert): void
+    {
+        $widgets = $this->widgets($containers[$containerKey] ?? []);
+        array_splice($widgets, $index, 0, $widgetsToInsert);
+        $containers[$containerKey]['widgets'] = $widgets;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
+     */
+    private function removeWidgetAt(array &$containers, string $containerKey, int $index): void
+    {
+        $widgets = $this->widgets($containers[$containerKey] ?? []);
+        array_splice($widgets, $index, 1);
+        $containers[$containerKey]['widgets'] = $widgets;
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        return is_string($value) || is_numeric($value) ? (string) $value : '';
+    }
+
+    private function integerValue(mixed $value, int $fallback): int
+    {
+        return is_numeric($value) ? (int) $value : $fallback;
     }
 }

@@ -50,6 +50,16 @@ beforeEach(function (): void {
     });
 });
 
+/**
+ * @return array<string, mixed>
+ */
+function publicLayoutGraphFirstWidgetPresentation(PublicLayoutGraphData $graph): array
+{
+    $presentation = $graph->containers[0]->widgets[0]->data['presentation'] ?? [];
+
+    return is_array($presentation) ? $presentation : [];
+}
+
 it('builds public layout data for selected containers only', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);
@@ -132,7 +142,7 @@ it('uses the site theme key for public widget compatibility even when the site r
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
 
-    expect($graph->containers[0]->widgets[0]->data['presentation']['variant'])->toBe('default');
+    expect(publicLayoutGraphFirstWidgetPresentation($graph)['variant'] ?? null)->toBe('default');
 });
 
 it('uses the layout theme before the site theme for public widget compatibility', function (): void {
@@ -169,7 +179,7 @@ it('uses the layout theme before the site theme for public widget compatibility'
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
 
-    expect($graph->containers[0]->widgets[0]->data['presentation']['variant'])->toBe('split-media');
+    expect(publicLayoutGraphFirstWidgetPresentation($graph)['variant'] ?? null)->toBe('split-media');
 });
 
 it('reuses public payload resolver contributor caches across page widgets', function (): void {

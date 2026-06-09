@@ -993,6 +993,76 @@
     background: rgba(3, 7, 18, 0.88);
 }
 
+.layout-builder-editor-summary {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(248, 250, 252, 0.88);
+    padding: 0.5rem 0.75rem;
+}
+
+.layout-builder-editor-summary-group {
+    display: flex;
+    min-width: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.layout-builder-editor-summary-item,
+.layout-builder-editor-summary-status {
+    display: inline-flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+    white-space: nowrap;
+}
+
+.layout-builder-editor-summary-item {
+    background: rgb(255, 255, 255);
+    color: rgb(71, 85, 105);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.layout-builder-editor-summary-status {
+    flex: 0 0 auto;
+    background: color-mix(in srgb, var(--warning-500) 14%, transparent);
+    color: var(--warning-700);
+    box-shadow: inset 0 0 0 1px
+        color-mix(in srgb, var(--warning-500) 24%, transparent);
+}
+
+.layout-builder-editor-summary-item svg,
+.layout-builder-editor-summary-status svg {
+    width: 1rem;
+    height: 1rem;
+    flex: 0 0 auto;
+}
+
+.dark .layout-builder-editor-summary {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(15, 23, 42, 0.88);
+}
+
+.dark .layout-builder-editor-summary-item {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgb(203, 213, 225);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.dark .layout-builder-editor-summary-status {
+    color: rgb(253, 224, 71);
+}
+
 .layout-builder-visual-toolbar-start,
 .layout-builder-visual-actions,
 .layout-builder-breakpoint-controls {
@@ -2146,6 +2216,11 @@
     .layout-builder-breakpoint-controls {
         grid-column: 1 / -1;
         grid-row: 2;
+    }
+
+    .layout-builder-editor-summary {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 

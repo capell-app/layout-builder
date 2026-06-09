@@ -12,6 +12,59 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 
+/**
+ * @param  array<string, mixed>  $containers
+ * @return array<string, mixed>
+ */
+function layoutPresetContainer(array $containers, string $containerKey): array
+{
+    $container = $containers[$containerKey] ?? [];
+
+    return is_array($container) ? $container : [];
+}
+
+/**
+ * @param  array<string, mixed>  $container
+ * @return array<string, mixed>
+ */
+function layoutPresetMeta(array $container): array
+{
+    $meta = $container['meta'] ?? [];
+
+    return is_array($meta) ? $meta : [];
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function layoutPresetArray(mixed $value): array
+{
+    return is_array($value) ? $value : [];
+}
+
+/**
+ * @param  array<string, mixed>  $container
+ * @return list<array<string, mixed>>
+ */
+function layoutPresetWidgets(array $container): array
+{
+    $widgets = $container['widgets'] ?? [];
+
+    if (! is_array($widgets)) {
+        return [];
+    }
+
+    $normalizedWidgets = [];
+
+    foreach ($widgets as $widget) {
+        if (is_array($widget)) {
+            $normalizedWidgets[] = $widget;
+        }
+    }
+
+    return $normalizedWidgets;
+}
+
 it('persists site-scoped layout presets as layout-only snapshots by default', function (): void {
     $site = Site::factory()->create();
     $layout = Layout::factory()->site($site)->create([
@@ -309,10 +362,11 @@ it('can apply a site preset to a global layout', function (): void {
 
 it('materializes a registered starter layout preset into a complete builder state', function (): void {
     $result = ApplyStarterLayoutPresetAction::run('landing');
+    $mainContainer = layoutPresetContainer($result->state->containers, 'main');
 
     expect($result->state->containers)->toHaveKey('main')
-        ->and($result->state->containers['main']['meta']['colspan'])->toBe(12)
-        ->and(capell_test_collect($result->state->containers['main']['widgets'])->pluck('widget_key')->all())->toBe([
+        ->and(layoutPresetMeta($mainContainer)['colspan'] ?? null)->toBe(12)
+        ->and(capell_test_collect(layoutPresetWidgets($mainContainer))->pluck('widget_key')->all())->toBe([
             'hero',
             'proof',
             'features',
@@ -324,14 +378,20 @@ it('materializes a registered starter layout preset into a complete builder stat
 
 it('applies starter layout responsive column hints for sidebar presets', function (): void {
     $result = ApplyStarterLayoutPresetAction::run('sidebar-main-footer');
+    $sidebarContainer = layoutPresetContainer($result->state->containers, 'sidebar');
+    $mainContainer = layoutPresetContainer($result->state->containers, 'main');
+    $footerContainer = layoutPresetContainer($result->state->containers, 'footer');
+    $sidebarMeta = layoutPresetMeta($sidebarContainer);
+    $sidebarResponsive = layoutPresetArray($sidebarMeta['responsive'] ?? null);
+    $sidebarTabletResponsive = layoutPresetArray($sidebarResponsive['tablet'] ?? null);
 
-    expect($result->state->containers['sidebar']['meta']['colspan'])->toBe(4)
-        ->and($result->state->containers['sidebar']['meta']['responsive']['tablet']['colspan'])->toBe(12)
-        ->and($result->state->containers['main']['meta']['colspan'])->toBe(8)
-        ->and($result->state->containers['footer']['meta']['colspan'])->toBe(12)
-        ->and($result->state->containers['sidebar']['widgets'][0]['widget_key'])->toBe('hero')
-        ->and($result->state->containers['main']['widgets'][0]['widget_key'])->toBe('content')
-        ->and($result->state->containers['footer']['widgets'][0]['widget_key'])->toBe('signup-footer');
+    expect($sidebarMeta['colspan'] ?? null)->toBe(4)
+        ->and($sidebarTabletResponsive['colspan'] ?? null)->toBe(12)
+        ->and(layoutPresetMeta($mainContainer)['colspan'] ?? null)->toBe(8)
+        ->and(layoutPresetMeta($footerContainer)['colspan'] ?? null)->toBe(12)
+        ->and(layoutPresetWidgets($sidebarContainer)[0]['widget_key'] ?? null)->toBe('hero')
+        ->and(layoutPresetWidgets($mainContainer)[0]['widget_key'] ?? null)->toBe('content')
+        ->and(layoutPresetWidgets($footerContainer)[0]['widget_key'] ?? null)->toBe('signup-footer');
 });
 
 it('rejects unknown starter layout preset keys', function (): void {

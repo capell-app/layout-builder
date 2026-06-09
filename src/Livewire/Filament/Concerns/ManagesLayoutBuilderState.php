@@ -8,6 +8,7 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\FilamentPeek\Actions\StoreLayoutBuilderPreviewStateAction;
+use Capell\FilamentPeek\Contracts\StoresLayoutBuilderPreviewState;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
@@ -148,10 +149,12 @@ trait ManagesLayoutBuilderState
 
         $action = resolve($actionClass);
 
+        if (! $action instanceof StoresLayoutBuilderPreviewState) {
+            return;
+        }
+
         if (! $modified) {
-            if (method_exists($action, 'clear')) {
-                $action->clear($this->page);
-            }
+            $action->clear($this->page);
 
             return;
         }

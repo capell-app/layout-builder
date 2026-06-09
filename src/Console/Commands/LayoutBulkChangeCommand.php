@@ -34,11 +34,11 @@ final class LayoutBulkChangeCommand extends Command
     {
         try {
             if (is_string($this->option('revert')) && $this->option('revert') !== '') {
-                return $this->revert((string) $this->option('revert'));
+                return $this->revert($this->option('revert'));
             }
 
             if (is_string($this->option('approve')) && $this->option('approve') !== '') {
-                return $this->approve((string) $this->option('approve'));
+                return $this->approve($this->option('approve'));
             }
 
             if ((bool) $this->option('preview')) {
@@ -109,9 +109,7 @@ final class LayoutBulkChangeCommand extends Command
     {
         $path = $this->option('spec');
 
-        if (! is_string($path) || $path === '') {
-            throw new LogicException('The --spec option is required when previewing a bulk layout change.');
-        }
+        throw_if(! is_string($path) || $path === '', LogicException::class, 'The --spec option is required when previewing a bulk layout change.');
 
         if (! File::exists($path)) {
             throw new LogicException(sprintf('Spec file [%s] does not exist.', $path));
@@ -119,18 +117,19 @@ final class LayoutBulkChangeCommand extends Command
 
         try {
             $payload = json_decode((string) File::get($path), true, flags: JSON_THROW_ON_ERROR);
-        } catch (JsonException $exception) {
-            throw new LogicException('Spec file must contain valid JSON: ' . $exception->getMessage(), previous: $exception);
+        } catch (JsonException $jsonException) {
+            throw new LogicException('Spec file must contain valid JSON: ' . $jsonException->getMessage(), $jsonException->getCode(), previous: $jsonException);
         }
 
-        if (! is_array($payload)) {
-            throw new LogicException('Spec file must decode to a JSON object.');
-        }
+        throw_unless(is_array($payload), LogicException::class, 'Spec file must decode to a JSON object.');
 
-        return $payload;
+        return $this->stringKeyedArray($payload);
     }
 
-    /** @param array<string, mixed> $payload */
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
     private function payloadSection(array $payload, string $key): array
     {
         $section = $payload[$key] ?? null;
@@ -139,42 +138,30 @@ final class LayoutBulkChangeCommand extends Command
             throw new LogicException(sprintf('Spec file must contain a [%s] object.', $key));
         }
 
-        return $section;
+        return $this->stringKeyedArray($section);
     }
 
     /** @param array<string, mixed> $payload */
     private function validateOperationPayload(array $payload): void
     {
-        $type = LayoutBulkWidgetOperationType::tryFrom((string) ($payload['type'] ?? $payload['operation_type'] ?? ''));
+        $type = LayoutBulkWidgetOperationType::tryFrom($this->stringValue($payload['type'] ?? $payload['operation_type'] ?? ''));
 
-        if ($type === null) {
-            throw new LogicException('Operation type must be one of: move_widget, remove_widget, swap_widgets, move_widget_to_container.');
-        }
+        throw_if($type === null, LogicException::class, 'Operation type must be one of: move_widget, remove_widget, swap_widgets, move_widget_to_container.');
 
-        if (! is_string($payload['source_widget_key'] ?? null) || trim((string) $payload['source_widget_key']) === '') {
-            throw new LogicException('Operation source_widget_key is required.');
-        }
+        throw_if(! is_string($payload['source_widget_key'] ?? null) || trim($payload['source_widget_key']) === '', LogicException::class, 'Operation source_widget_key is required.');
 
-        if (($payload['occurrence_mode'] ?? 'all') === 'specific' && ! is_numeric($payload['source_occurrence_number'] ?? null)) {
-            throw new LogicException('Operation source_occurrence_number is required when occurrence_mode is specific.');
-        }
+        throw_if(($payload['occurrence_mode'] ?? 'all') === 'specific' && ! is_numeric($payload['source_occurrence_number'] ?? null), LogicException::class, 'Operation source_occurrence_number is required when occurrence_mode is specific.');
 
         if (in_array($type, [LayoutBulkWidgetOperationType::MoveWidget, LayoutBulkWidgetOperationType::SwapWidgets], true)
-            && (! is_string($payload['target_widget_key'] ?? null) || trim((string) $payload['target_widget_key']) === '')
+            && (! is_string($payload['target_widget_key'] ?? null) || trim($payload['target_widget_key']) === '')
         ) {
             throw new LogicException(sprintf('Operation target_widget_key is required for %s.', $type->value));
         }
 
         if ($type === LayoutBulkWidgetOperationType::MoveWidgetToContainer) {
-            if (! is_string($payload['target_container_key'] ?? null) || trim((string) $payload['target_container_key']) === '') {
-                throw new LogicException('Operation target_container_key is required for move_widget_to_container.');
-            }
-
-            if (in_array(($payload['placement'] ?? 'bottom'), ['before', 'after'], true)
-                && (! is_string($payload['target_widget_key'] ?? null) || trim((string) $payload['target_widget_key']) === '')
-            ) {
-                throw new LogicException('Operation target_widget_key is required for before/after container placement.');
-            }
+            throw_if(! is_string($payload['target_container_key'] ?? null) || trim($payload['target_container_key']) === '', LogicException::class, 'Operation target_container_key is required for move_widget_to_container.');
+            throw_if(in_array(($payload['placement'] ?? 'bottom'), ['before', 'after'], true)
+                && (! is_string($payload['target_widget_key'] ?? null) || trim($payload['target_widget_key']) === ''), LogicException::class, 'Operation target_widget_key is required for before/after container placement.');
         }
     }
 
@@ -187,13 +174,45 @@ final class LayoutBulkChangeCommand extends Command
             return;
         }
 
-        $this->info(sprintf('Bulk layout change [%s] is %s.', $payload['uuid'], $payload['status']));
+        $this->info(sprintf(
+            'Bulk layout change [%s] is %s.',
+            $this->stringValue($payload['uuid'] ?? ''),
+            $this->stringValue($payload['status'] ?? ''),
+        ));
 
-        foreach (($payload['summary'] ?? []) as $key => $value) {
+        $summary = $payload['summary'] ?? [];
+
+        if (! is_array($summary)) {
+            return;
+        }
+
+        foreach ($summary as $key => $value) {
             if (is_scalar($value)) {
-                $this->line(sprintf('  %s: %s', $key, (string) $value));
+                $this->line(sprintf('  %s: %s', $this->stringValue($key), (string) $value));
             }
         }
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function stringKeyedArray(array $payload): array
+    {
+        $normalized = [];
+
+        foreach ($payload as $key => $value) {
+            if (is_string($key)) {
+                $normalized[$key] = $value;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        return is_string($value) || is_numeric($value) ? (string) $value : '';
     }
 
     private function failCommand(string $message): int

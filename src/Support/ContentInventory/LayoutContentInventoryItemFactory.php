@@ -81,7 +81,7 @@ final class LayoutContentInventoryItemFactory
             widgetLabel: $widgetLabel,
             assetIndex: -1,
             assetType: 'widget',
-            assetId: $widget->getKey(),
+            assetId: $this->assetId($widget->getKey()),
             canEditAsset: false,
             isReused: false,
             editActionArguments: [],
@@ -111,6 +111,8 @@ final class LayoutContentInventoryItemFactory
         bool $isReused,
         array $widgetCopy,
     ): LayoutContentItemData {
+        $assetType = $this->stringValue($assetState['asset_type'] ?? null);
+
         $ownershipGroup = $this->ownershipGroup($assetState);
         $source = $this->source($assetState);
 
@@ -131,15 +133,15 @@ final class LayoutContentInventoryItemFactory
             widgetIndex: $widgetIndex,
             widgetLabel: $widgetLabel,
             assetIndex: $assetIndex,
-            assetType: (string) ($assetState['asset_type'] ?? ''),
-            assetId: $assetState['asset_id'] ?? null,
+            assetType: $assetType,
+            assetId: $this->assetId($assetState['asset_id'] ?? null),
             canEditAsset: true,
             isReused: $isReused,
             editActionArguments: [
                 'containerKey' => $containerKey,
                 'widgetIndex' => $widgetIndex,
                 'index' => $assetIndex,
-                'type' => (string) ($assetState['asset_type'] ?? ''),
+                'type' => $assetType,
                 'contentInventorySignature' => $signature,
             ],
             widgetEditActionArguments: [
@@ -148,7 +150,7 @@ final class LayoutContentInventoryItemFactory
             ],
             hasWidgetCopySource: $widgetCopy['text'] !== null,
             warnings: $this->warnings($assetState, $isReused, $widgetCopy),
-            meta: $assetState['meta'] ?? [],
+            meta: $this->arrayValue($assetState['meta'] ?? null),
         );
     }
 
@@ -190,7 +192,11 @@ final class LayoutContentInventoryItemFactory
             }
 
             $value = $translation->getAttribute($attribute);
-            if (! is_string($value) || trim(strip_tags($value)) === '') {
+            if (! is_string($value)) {
+                continue;
+            }
+
+            if (trim(strip_tags($value)) === '') {
                 continue;
             }
 
@@ -212,7 +218,7 @@ final class LayoutContentInventoryItemFactory
      */
     public function assetKey(array $assetState): string
     {
-        return ($assetState['asset_type'] ?? '') . ':' . ($assetState['asset_id'] ?? '');
+        return $this->stringValue($assetState['asset_type'] ?? null) . ':' . $this->stringValue($assetState['asset_id'] ?? null);
     }
 
     public function ownershipGroupSummary(string $groupKey): ?string
@@ -274,7 +280,7 @@ final class LayoutContentInventoryItemFactory
      */
     private function assetTypeLabel(array $assetState): string
     {
-        $type = (string) ($assetState['asset_type'] ?? '');
+        $type = $this->stringValue($assetState['asset_type'] ?? null);
 
         if ($type === '') {
             return $this->translation('capell-layout-builder::generic.content');
@@ -293,7 +299,7 @@ final class LayoutContentInventoryItemFactory
      */
     private function ownershipGroup(array $assetState): array
     {
-        return match ((string) ($assetState['asset_type'] ?? '')) {
+        return match ($this->stringValue($assetState['asset_type'] ?? null)) {
             'page' => [
                 'key' => 'page-content',
                 'label' => $this->translation('capell-layout-builder::generic.page_content_sources'),
@@ -319,7 +325,7 @@ final class LayoutContentInventoryItemFactory
      */
     private function source(array $assetState): array
     {
-        return match ((string) ($assetState['asset_type'] ?? '')) {
+        return match ($this->stringValue($assetState['asset_type'] ?? null)) {
             'page' => [
                 'label' => $this->translation('capell-layout-builder::generic.page_translation_source'),
                 'detail' => $this->translation('capell-layout-builder::generic.content_tab_title_content_fields'),
@@ -355,16 +361,16 @@ final class LayoutContentInventoryItemFactory
     {
         $warnings = [];
 
-        if ((string) ($assetState['asset_type'] ?? '') === '') {
-            $warnings[] = __('capell-layout-builder::message.content_source_unknown_warning');
+        if ($this->stringValue($assetState['asset_type'] ?? null) === '') {
+            $warnings[] = $this->translation('capell-layout-builder::message.content_source_unknown_warning');
         }
 
         if ($isReused) {
-            $warnings[] = __('capell-layout-builder::message.content_reused_warning');
+            $warnings[] = $this->translation('capell-layout-builder::message.content_reused_warning');
         }
 
         if ($widgetCopy['text'] !== null) {
-            $warnings[] = __('capell-layout-builder::message.widget_copy_source_warning');
+            $warnings[] = $this->translation('capell-layout-builder::message.widget_copy_source_warning');
         }
 
         return $warnings;
@@ -395,9 +401,9 @@ final class LayoutContentInventoryItemFactory
         return implode(':', [
             $containerKey,
             (string) $widgetIndex,
-            (string) ($assetState['occurrence'] ?? 1),
-            (string) ($assetState['asset_type'] ?? ''),
-            (string) ($assetState['asset_id'] ?? ''),
+            $this->stringValue($assetState['occurrence'] ?? 1),
+            $this->stringValue($assetState['asset_type'] ?? null),
+            $this->stringValue($assetState['asset_id'] ?? null),
             (string) $assetIndex,
         ]);
     }
@@ -410,10 +416,30 @@ final class LayoutContentInventoryItemFactory
         return implode(':', [
             $containerKey,
             (string) $widgetIndex,
-            (string) ($containerWidget['occurrence'] ?? 1),
+            $this->stringValue($containerWidget['occurrence'] ?? 1),
             'widget',
-            (string) $widget->getKey(),
+            $this->stringValue($widget->getKey()),
             'copy',
         ]);
+    }
+
+    private function assetId(mixed $value): int|string|null
+    {
+        return is_int($value) || is_string($value) ? $value : null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function arrayValue(mixed $value): array
+    {
+        return is_array($value) ? $value : [];
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        return is_string($value) || is_int($value) || is_float($value)
+            ? (string) $value
+            : '';
     }
 }

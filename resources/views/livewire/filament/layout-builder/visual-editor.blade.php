@@ -1276,6 +1276,27 @@
         </div>
     </div>
 
+    <div class="layout-builder-editor-summary">
+        <div class="layout-builder-editor-summary-group">
+            <span class="layout-builder-editor-summary-item">
+                @svg('heroicon-o-rectangle-stack', 'h-4 w-4')
+                {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
+            </span>
+
+            <span class="layout-builder-editor-summary-item">
+                @svg('heroicon-o-cube', 'h-4 w-4')
+                {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
+            </span>
+        </div>
+
+        @if ($this->layoutModified)
+            <span class="layout-builder-editor-summary-status">
+                @svg('heroicon-o-exclamation-circle', 'h-4 w-4')
+                {{ __('capell-layout-builder::message.layout_unsaved') }}
+            </span>
+        @endif
+    </div>
+
     <div
         @class([
             'layout-builder-visual-grid',

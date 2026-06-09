@@ -62,7 +62,7 @@ it('exposes widget resource metadata search details and soft-deleted query scope
         ->and(WidgetResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
         ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
         ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')
-        ->and(WidgetResource::getSlug())->toBe('widgets')
+        ->and(WidgetResource::getSlug())->toBe('layout-builder/widgets')
         ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.widget'))
         ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
         ->and(WidgetResource::shouldRegisterNavigation())->toBeTrue()
@@ -240,7 +240,7 @@ it('adds layout-builder specific layout table filters columns and query relation
         ->and($columns)->not->toBeEmpty()
         ->and($query)->toBeInstanceOf(Builder::class)
         ->and($bulkChangeAction)->toBeInstanceOf(Action::class)
-        ->and($bulkChangeAction->getName())->toBe('bulkChangeLayouts')
+        ->and(layoutBuilderTableAction($bulkChangeAction)->getName())->toBe('bulkChangeLayouts')
         ->and($widget->exists)->toBeTrue()
         ->and(layoutBuilderTableContainsColumn($columns, ['layoutWidgets.name', 'admin.' . LayoutPreviewMetaKey::STATUS]))->toBeBool();
 });
@@ -308,6 +308,13 @@ function layoutBuilderWidgetAssetsTableLivewire(Builder $query): HasTable
 function layoutBuilderTableObject(mixed $value): object
 {
     throw_unless(is_object($value), RuntimeException::class, 'Expected a table component object.');
+
+    return $value;
+}
+
+function layoutBuilderTableAction(mixed $value): Action
+{
+    throw_unless($value instanceof Action, RuntimeException::class, 'Expected a Filament table action.');
 
     return $value;
 }

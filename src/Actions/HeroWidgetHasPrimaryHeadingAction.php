@@ -7,6 +7,8 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Models\Widget;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -24,9 +26,12 @@ class HeroWidgetHasPrimaryHeadingAction
 
         $content = null;
 
-        if ($widget->assets->isNotEmpty()) {
-            $firstAsset = $widget->assets->first()?->asset;
-            $firstAssetTranslation = $firstAsset?->getRelationValue('translation');
+        $assets = $this->loadedRelation($widget, 'assets');
+
+        if ($assets instanceof Collection && $assets->isNotEmpty()) {
+            $firstWidgetAsset = $assets->first();
+            $firstAsset = $firstWidgetAsset instanceof Model ? $this->loadedRelation($firstWidgetAsset, 'asset') : null;
+            $firstAssetTranslation = $firstAsset instanceof Model ? $this->loadedRelation($firstAsset, 'translation') : null;
 
             if ($firstAssetTranslation instanceof Translation) {
                 if ($firstAssetTranslation->title !== null && $firstAssetTranslation->title !== '') {
@@ -36,7 +41,8 @@ class HeroWidgetHasPrimaryHeadingAction
                 }
             }
         } else {
-            $content = $page->translation->meta['hero'] ?? null;
+            $pageTranslation = $page instanceof Model ? $this->loadedRelation($page, 'translation') : null;
+            $content = data_get($pageTranslation, 'meta.hero');
         }
 
         if (! $hasPrimaryHeading && filled($content)) {
@@ -63,5 +69,14 @@ class HeroWidgetHasPrimaryHeadingAction
         $frontend = resolve(self::FRONTEND_CONTEXT_SERVICE);
 
         return is_object($frontend) ? $frontend : null;
+    }
+
+    private function loadedRelation(Model $model, string $relation): mixed
+    {
+        if (! $model->relationLoaded($relation)) {
+            return null;
+        }
+
+        return $model->getRelation($relation);
     }
 }

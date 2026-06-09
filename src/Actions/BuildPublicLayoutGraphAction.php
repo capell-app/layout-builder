@@ -19,6 +19,9 @@ use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static PublicLayoutGraphData run(Layout $layout, Page $page, Language $language, array<int, string> $containers = [], bool $includeHtml = false)
+ */
 class BuildPublicLayoutGraphAction
 {
     use AsObject;

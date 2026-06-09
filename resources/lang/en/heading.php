@@ -37,6 +37,7 @@ return [
     'settings' => 'Settings',
     'site_type' => 'Site Type',
     'stale_drafts' => 'Stale Drafts',
+    'starter_layouts' => 'Starter layouts',
     'translation_coverage' => 'Translation Coverage',
     'upgrade' => 'Upgrade',
     'upgrade_confirm' => 'Run upgrade?',

@@ -15,11 +15,14 @@ use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @method static array<string, mixed> run(LayoutBulkChangeRun $run, ?int $actorId = null)
+ */
 final class ApplyLayoutBulkChangeRunAction
 {
     use AsAction;
@@ -27,9 +30,7 @@ final class ApplyLayoutBulkChangeRunAction
     /** @return array<string, mixed> */
     public function handle(LayoutBulkChangeRun $run, ?int $actorId = null): array
     {
-        if ($run->status === LayoutBulkChangeRunStatus::Blocked) {
-            throw new LogicException('This bulk layout change is blocked by preview warnings and cannot be applied.');
-        }
+        throw_if($run->status === LayoutBulkChangeRunStatus::Blocked, LogicException::class, 'This bulk layout change is blocked by preview warnings and cannot be applied.');
 
         if (in_array($run->status, [LayoutBulkChangeRunStatus::Applied, LayoutBulkChangeRunStatus::PartiallyApplied], true)) {
             return $run->summary ?? [];
@@ -71,7 +72,7 @@ final class ApplyLayoutBulkChangeRunAction
                 $this->migratePageScopedAssets($layout, $result);
                 $this->deleteRemovedPageScopedAssets($operation, $result);
                 $applied++;
-                $result->update(['status' => LayoutBulkChangeResultStatus::Applied, 'applied_at' => Carbon::now()]);
+                $result->update(['status' => LayoutBulkChangeResultStatus::Applied, 'applied_at' => Date::now()]);
             }
 
             $summary = [...($run->summary ?? []), 'applied_layouts' => $applied, 'drifted_layouts' => $drifted, 'apply_skipped_layouts' => $skipped];
@@ -81,8 +82,8 @@ final class ApplyLayoutBulkChangeRunAction
                 'summary' => $summary,
                 'approved_by' => $actorId,
                 'applied_by' => $actorId,
-                'approved_at' => Carbon::now(),
-                'applied_at' => Carbon::now(),
+                'approved_at' => Date::now(),
+                'applied_at' => Date::now(),
             ])->save();
 
             return $summary;
@@ -93,12 +94,8 @@ final class ApplyLayoutBulkChangeRunAction
     {
         $changes = $result->changes ?? [];
 
-        foreach ((array) ($changes['asset_moves'] ?? []) as $assetMove) {
-            if (! is_array($assetMove)) {
-                continue;
-            }
-
-            $widget = Widget::query()->where('key', (string) ($assetMove['widget_key'] ?? ''))->first();
+        foreach ($this->arrayList($changes['asset_moves'] ?? []) as $assetMove) {
+            $widget = Widget::query()->where('key', $this->stringValue($assetMove['widget_key'] ?? null))->first();
 
             if (! $widget instanceof Widget) {
                 continue;
@@ -107,11 +104,14 @@ final class ApplyLayoutBulkChangeRunAction
             foreach ($this->pageScopesForLayout($layout) as $pageScope) {
                 WidgetAsset::query()
                     ->where('widget_id', $widget->id)
-                    ->where('container', $assetMove['from_container'])
-                    ->where('occurrence', (int) ($assetMove['from_occurrence'] ?? 1))
+                    ->where('container', $this->stringValue($assetMove['from_container'] ?? null))
+                    ->where('occurrence', $this->integerValue($assetMove['from_occurrence'] ?? null, 1))
                     ->where('pageable_type', $pageScope['type'])
                     ->where('pageable_id', $pageScope['id'])
-                    ->update(['container' => $assetMove['to_container'], 'occurrence' => (int) ($assetMove['to_occurrence'] ?? 1)]);
+                    ->update([
+                        'container' => $this->stringValue($assetMove['to_container'] ?? null),
+                        'occurrence' => $this->integerValue($assetMove['to_occurrence'] ?? null, 1),
+                    ]);
             }
         }
     }
@@ -124,12 +124,8 @@ final class ApplyLayoutBulkChangeRunAction
 
         $changes = $result->changes ?? [];
 
-        foreach ((array) ($changes['asset_removals'] ?? []) as $assetRemoval) {
-            if (! is_array($assetRemoval)) {
-                continue;
-            }
-
-            $widget = Widget::query()->where('key', (string) ($assetRemoval['widget_key'] ?? ''))->first();
+        foreach ($this->arrayList($changes['asset_removals'] ?? []) as $assetRemoval) {
+            $widget = Widget::query()->where('key', $this->stringValue($assetRemoval['widget_key'] ?? null))->first();
 
             if (! $widget instanceof Widget) {
                 continue;
@@ -137,8 +133,8 @@ final class ApplyLayoutBulkChangeRunAction
 
             WidgetAsset::query()
                 ->where('widget_id', $widget->id)
-                ->where('container', $assetRemoval['container'])
-                ->where('occurrence', (int) ($assetRemoval['occurrence'] ?? 1))
+                ->where('container', $this->stringValue($assetRemoval['container'] ?? null))
+                ->where('occurrence', $this->integerValue($assetRemoval['occurrence'] ?? null, 1))
                 ->whereNotNull('pageable_type')
                 ->whereNotNull('pageable_id')
                 ->delete();
@@ -156,10 +152,44 @@ final class ApplyLayoutBulkChangeRunAction
             }
 
             $pageModel::query()->where('layout_id', $layout->id)->get(['id'])->each(function (Model $page) use (&$scopes): void {
-                $scopes[] = ['type' => $page->getMorphClass(), 'id' => $page->getKey()];
+                $pageKey = $page->getKey();
+
+                if (is_int($pageKey) || is_string($pageKey)) {
+                    $scopes[] = ['type' => $page->getMorphClass(), 'id' => $pageKey];
+                }
             });
         }
 
         return $scopes;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function arrayList(mixed $value): array
+    {
+        if (! is_array($value)) {
+            return [];
+        }
+
+        $items = [];
+
+        foreach ($value as $item) {
+            if (is_array($item)) {
+                $items[] = $item;
+            }
+        }
+
+        return $items;
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        return is_string($value) || is_numeric($value) ? (string) $value : '';
+    }
+
+    private function integerValue(mixed $value, int $fallback): int
+    {
+        return is_numeric($value) ? (int) $value : $fallback;
     }
 }

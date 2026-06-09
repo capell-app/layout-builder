@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryContextData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\ContentInventory\LayoutContentInventoryGrouper;
 use Capell\LayoutBuilder\Support\ContentInventory\LayoutContentInventoryItemFactory;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -56,7 +57,7 @@ final class BuildLayoutContentInventoryAction
             $containerKey = (string) $containerOrder;
             $containerLabel = $this->itemFactory->containerLabel($containerKey, $container);
 
-            foreach (($container['widgets'] ?? []) as $widgetIndex => $containerWidget) {
+            foreach ($this->widgets($container) as $widgetIndex => $containerWidget) {
                 $widget = $containerWidgets[$containerKey][$widgetIndex] ?? null;
 
                 if (! $widget instanceof Widget) {
@@ -75,7 +76,7 @@ final class BuildLayoutContentInventoryAction
                         containerLabel: $containerLabel,
                         widgetLabel: $widgetLabel,
                         widgetCopy: $widgetCopy,
-                        meta: $containerWidget['meta'] ?? [],
+                        meta: $this->arrayValue($containerWidget['meta'] ?? []),
                     );
 
                     foreach ($contributors as $contributor) {
@@ -87,9 +88,15 @@ final class BuildLayoutContentInventoryAction
                 }
 
                 foreach (($assets[$containerKey][$widgetIndex] ?? []) as $assetIndex => $assetState) {
+                    $assetIndex = $this->integerIndex($assetIndex);
+
+                    if ($assetIndex === null) {
+                        continue;
+                    }
+
                     $widgetAsset = $this->itemFactory->resolveWidgetAsset($widget, $assetState, $assetIndex);
 
-                    if ($widgetAsset === null) {
+                    if (! $widgetAsset instanceof WidgetAsset) {
                         continue;
                     }
 
@@ -137,6 +144,42 @@ final class BuildLayoutContentInventoryAction
             ->sortBy(fn (LayoutContentGroupContributor $contributor): int => $contributor->priority())
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $container
+     * @return list<array<string, mixed>>
+     */
+    private function widgets(array $container): array
+    {
+        $widgets = $container['widgets'] ?? [];
+
+        if (! is_array($widgets)) {
+            return [];
+        }
+
+        $normalised = [];
+
+        foreach ($widgets as $widget) {
+            if (is_array($widget)) {
+                $normalised[] = $widget;
+            }
+        }
+
+        return $normalised;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function arrayValue(mixed $value): array
+    {
+        return is_array($value) ? $value : [];
+    }
+
+    private function integerIndex(int|string $index): ?int
+    {
+        return is_int($index) || is_numeric($index) ? (int) $index : null;
     }
 
     /**

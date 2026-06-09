@@ -31,6 +31,8 @@ class WidgetResource extends Resource
     use HasConfiguredTable;
     use HasNavigationBadge;
 
+    protected static ?string $slug = 'layout-builder/widgets';
+
     protected static ?string $recordTitleAttribute = 'name';
 
     protected static bool $isGloballySearchable = true;
@@ -44,8 +46,6 @@ class WidgetResource extends Resource
     protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::PuzzlePiece;
 
     protected static ?int $navigationSort = 2;
-
-    protected static ?string $slug = 'widgets';
 
     #[Override]
     public static function form(Schema $configurator): Schema

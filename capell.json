@@ -21,7 +21,12 @@
             "capell-app/block-library",
             "capell-app/frontend"
         ],
-        "supports": [],
+        "supports": [
+            "capell-app/content-sections",
+            "capell-app/frontend-authoring",
+            "capell-app/publishing-studio",
+            "capell-app/structured-content-library"
+        ],
         "conflicts": []
     },
     "providers": {
@@ -157,44 +162,34 @@
                 "caption": "Layout Builder extension preview"
             },
             {
-                "path": "docs/screenshots/widgets-admin-index.png",
-                "alt": "Layout Builder widgets admin index in Capell",
-                "caption": "Review reusable widgets, filters, usage columns, and widget actions in the Capell admin."
+                "path": "docs/assets/marketplace/bulk-change-criteria.svg",
+                "alt": "Layout Builder bulk change criteria wizard",
+                "caption": "Admins define filters and guided widget operations before any shared layout is mutated."
             },
             {
-                "path": "docs/screenshots/widgets-admin-index-dark.png",
-                "alt": "Layout Builder widgets admin index in dark mode",
-                "caption": "Dark-mode widget management keeps reusable layout blocks visible in the admin chrome."
+                "path": "docs/assets/marketplace/bulk-change-review.svg",
+                "alt": "Layout Builder bulk change review table",
+                "caption": "Review affected layouts, page counts, widget order diffs, warnings, and skipped records before approval."
             },
             {
-                "path": "docs/screenshots/create-edit-widget-form.png",
-                "alt": "Layout Builder create widget form in Capell",
-                "caption": "Configure widget details, placement, items, appearance, background, rendering, and admin metadata."
+                "path": "docs/assets/marketplace/bulk-change-approved.svg",
+                "alt": "Layout Builder approved bulk change run",
+                "caption": "Hash-guarded apply skips layouts that changed after preview instead of overwriting newer editor work."
             },
             {
-                "path": "docs/screenshots/create-edit-widget-form-dark.png",
-                "alt": "Layout Builder create widget form in dark mode",
-                "caption": "Create and edit reusable widgets with the same controls available in dark mode."
+                "path": "docs/assets/marketplace/content-first-editor.svg",
+                "alt": "Layout Builder content-first page editor",
+                "caption": "Editors update assigned widget assets without opening the full layout canvas."
             },
             {
-                "path": "docs/screenshots/layout-builder-screen.png",
-                "alt": "Layout Builder page editor screen in Capell",
-                "caption": "Edit page copy beside Layout Builder-powered page settings and reusable layout assignment controls."
+                "path": "docs/assets/marketplace/layout-areas.svg",
+                "alt": "Layout Builder named layout areas",
+                "caption": "Header, main, sidebar, and footer placement stay explicit across themes."
             },
             {
-                "path": "docs/screenshots/layout-builder-screen-dark.png",
-                "alt": "Layout Builder page editor screen in dark mode",
-                "caption": "Work in the page editor with cached-page status, content fields, and layout controls in dark mode."
-            },
-            {
-                "path": "docs/screenshots/sections-admin-index.png",
-                "alt": "Layout Builder layouts admin index in Capell",
-                "caption": "Manage reusable layouts that connect page records to frontend rendering."
-            },
-            {
-                "path": "docs/screenshots/sections-admin-index-dark.png",
-                "alt": "Layout Builder layouts admin index in dark mode",
-                "caption": "Manage layout records from the dark Capell admin interface."
+                "path": "docs/assets/marketplace/public-render-output.svg",
+                "alt": "Layout Builder public render output",
+                "caption": "Resolved widgets render as clean visitor HTML without exposing editor metadata."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

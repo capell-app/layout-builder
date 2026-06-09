@@ -77,6 +77,19 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         $this->app->instance(self::REGISTRATION_FLAG, true);
     }
 
+    public function registerResources(): void
+    {
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: WidgetResource::class,
+            group: 'Widget',
+        ));
+
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutResource::class,
+            group: ResourceEnum::Layout->name,
+        ));
+    }
+
     private function registerViewAndTranslationNamespaces(): void
     {
         $basePath = $this->packageBasePath();
@@ -91,19 +104,6 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
                 $translatorLoader->addNamespace('capell-layout-builder', $basePath . '/resources/lang');
             }
         });
-    }
-
-    private function registerResources(): void
-    {
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
-            class: WidgetResource::class,
-            group: 'Widget',
-        ));
-
-        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
-            class: LayoutResource::class,
-            group: ResourceEnum::Layout->name,
-        ));
     }
 
     private function registerConfigurators(): void

@@ -13,6 +13,9 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static LayoutMutationResultData run(string $presetKey)
+ */
 final class ApplyStarterLayoutPresetAction
 {
     use AsObject;

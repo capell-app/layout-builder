@@ -68,7 +68,7 @@ final readonly class LayoutBulkChangeCriteriaData
         }
 
         return array_values(array_unique(array_filter(
-            array_map(fn (mixed $item): string => trim((string) $item), $value),
+            array_map(fn (mixed $item): string => is_string($item) || is_numeric($item) ? trim((string) $item) : '', $value),
             fn (string $item): bool => $item !== '',
         )));
     }

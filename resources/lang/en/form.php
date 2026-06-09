@@ -356,7 +356,6 @@ return [
     'site_permissions_user' => 'User',
     'site_type' => 'Site Type',
     'sitemap' => 'Sitemap',
-    'sites' => 'Sites',
     'size' => 'Size',
     'shadow' => 'Shadow',
     'shadow_subtle' => 'Subtle',

@@ -34,7 +34,9 @@ use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetForm;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema as SchemaFacade;
@@ -69,6 +71,8 @@ it('renders the visual layout builder by default from the package namespace', fu
         ->assertElementExists('.layout-builder-command-save')
         ->assertElementExists('.layout-builder-preview-command-label')
         ->assertElementExists('.layout-builder-history-actions')
+        ->assertElementExists('.layout-builder-editor-summary')
+        ->assertElementExists('.layout-builder-editor-summary-item')
         ->assertElementExists('[x-ref="treeToggle"]')
         ->assertElementExists('.layout-builder-tree-collapse-button')
         ->assertElementExists('.layout-builder-breakpoint-controls')
@@ -79,6 +83,44 @@ it('renders the visual layout builder by default from the package namespace', fu
         ->assertSeeHtml('applyPreviewBreakpoint')
         ->assertDontSeeHtml('layout-builder-preview-status-row')
         ->assertDontSeeHtml('capell-layout-builder:request-page-state');
+});
+
+it('uses the loaded layout page count for shared layout context', function (): void {
+    $site = Site::factory()->createOne();
+    $layout = Layout::factory()->site($site)->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+    $page = Page::factory()
+        ->for($site)
+        ->createOne(['layout_id' => $layout->getKey()]);
+
+    Page::factory()
+        ->count(2)
+        ->for($site)
+        ->create(['layout_id' => $layout->getKey()]);
+
+    $currentPageCountQueries = [];
+
+    DB::listen(function (QueryExecuted $query) use (&$currentPageCountQueries): void {
+        if (
+            str_contains($query->sql, 'count(*)')
+            && str_contains($query->sql, 'pages')
+            && (str_contains($query->sql, '"pages"."id" !=') || str_contains($query->sql, '`pages`.`id` !='))
+        ) {
+            $currentPageCountQueries[] = $query->sql;
+        }
+    });
+
+    Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])
+        ->assertSet('layout.pages_count', 3)
+        ->assertSee(trans_choice('capell-layout-builder::message.layout_shared_with_other_pages_heading', 2, ['count' => 2]));
+
+    expect($currentPageCountQueries)->toBeEmpty();
 });
 
 it('renders a full width empty page preview when a layout has no containers', function (): void {

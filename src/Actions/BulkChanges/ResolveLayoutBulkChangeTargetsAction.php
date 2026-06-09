@@ -10,6 +10,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @method static Collection<int, Layout> run(LayoutBulkChangeCriteriaData $criteria)
+ */
 final class ResolveLayoutBulkChangeTargetsAction
 {
     use AsAction;
@@ -28,7 +31,10 @@ final class ResolveLayoutBulkChangeTargetsAction
             ->get();
     }
 
-    /** @param Builder<Layout> $query */
+    /**
+     * @param  Builder<Layout>  $query
+     * @return Builder<Layout>
+     */
     private function whereContainsWidgetKey(Builder $query, string $widgetKey): Builder
     {
         $escapedWidgetKey = addcslashes($widgetKey, '\%_');

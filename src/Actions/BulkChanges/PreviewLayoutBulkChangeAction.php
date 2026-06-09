@@ -19,6 +19,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/**
+ * @method static LayoutBulkChangeRun run(LayoutBulkChangeCriteriaData $criteria, LayoutBulkWidgetOperationData $operation, ?int $actorId = null)
+ */
 final class PreviewLayoutBulkChangeAction
 {
     use AsAction;
@@ -111,30 +114,40 @@ final class PreviewLayoutBulkChangeAction
         return $count;
     }
 
-    /** @param list<array<string, mixed>> $assetMoves */
+    /**
+     * @param  list<array<string, mixed>>  $assetMoves
+     * @return list<string>
+     */
     private function defaultAssetWarnings(array $assetMoves): array
     {
         $warnings = [];
 
         foreach ($assetMoves as $assetMove) {
-            if ((int) ($assetMove['from_occurrence'] ?? 1) === (int) ($assetMove['to_occurrence'] ?? 1)) {
+            if ($this->integerValue($assetMove['from_occurrence'] ?? null, 1) === $this->integerValue($assetMove['to_occurrence'] ?? null, 1)) {
                 continue;
             }
 
-            $widget = Widget::query()->where('key', (string) ($assetMove['widget_key'] ?? ''))->first();
+            $widgetKey = $this->stringValue($assetMove['widget_key'] ?? null);
+            $widget = Widget::query()->where('key', $widgetKey)->first();
 
             if (! $widget instanceof Widget) {
                 continue;
             }
 
-            if (WidgetAsset::query()->where('widget_id', $widget->id)->where('occurrence', (int) $assetMove['from_occurrence'])->whereNull('pageable_type')->whereNull('pageable_id')->exists()) {
-                $warnings[] = sprintf('Default assets for widget [%s] occurrence [%d] would become ambiguous after this move.', (string) $assetMove['widget_key'], (int) $assetMove['from_occurrence']);
+            $fromOccurrence = $this->integerValue($assetMove['from_occurrence'] ?? null, 1);
+
+            if (WidgetAsset::query()->where('widget_id', $widget->id)->where('occurrence', $fromOccurrence)->whereNull('pageable_type')->whereNull('pageable_id')->exists()) {
+                $warnings[] = sprintf('Default assets for widget [%s] occurrence [%d] would become ambiguous after this move.', $widgetKey, $fromOccurrence);
             }
         }
 
         return array_values(array_unique($warnings));
     }
 
+    /**
+     * @param  list<array<string, mixed>>  $assetRemovals
+     * @return list<string>
+     */
     private function removedAssetWarnings(LayoutBulkWidgetOperationData $operation, array $assetRemovals): array
     {
         if ($operation->typeEnum() !== LayoutBulkWidgetOperationType::RemoveWidget || $operation->removeWidgetAssetMode !== 'warn') {
@@ -150,16 +163,15 @@ final class PreviewLayoutBulkChangeAction
         return [sprintf('Removing this widget will leave %d page-scoped widget asset%s unused. Select auto-delete page-scoped assets to remove them during apply.', $assetCount, $assetCount === 1 ? '' : 's')];
     }
 
+    /**
+     * @param  list<array<string, mixed>>  $assetRemovals
+     */
     private function pageScopedAssetCountForRemovals(array $assetRemovals): int
     {
         $count = 0;
 
         foreach ($assetRemovals as $assetRemoval) {
-            if (! is_array($assetRemoval)) {
-                continue;
-            }
-
-            $widget = Widget::query()->where('key', (string) ($assetRemoval['widget_key'] ?? ''))->first();
+            $widget = Widget::query()->where('key', $this->stringValue($assetRemoval['widget_key'] ?? null))->first();
 
             if (! $widget instanceof Widget) {
                 continue;
@@ -167,13 +179,23 @@ final class PreviewLayoutBulkChangeAction
 
             $count += WidgetAsset::query()
                 ->where('widget_id', $widget->id)
-                ->where('container', $assetRemoval['container'])
-                ->where('occurrence', (int) ($assetRemoval['occurrence'] ?? 1))
+                ->where('container', $this->stringValue($assetRemoval['container'] ?? null))
+                ->where('occurrence', $this->integerValue($assetRemoval['occurrence'] ?? null, 1))
                 ->whereNotNull('pageable_type')
                 ->whereNotNull('pageable_id')
                 ->count();
         }
 
         return $count;
+    }
+
+    private function stringValue(mixed $value): string
+    {
+        return is_string($value) || is_numeric($value) ? (string) $value : '';
+    }
+
+    private function integerValue(mixed $value, int $fallback): int
+    {
+        return is_numeric($value) ? (int) $value : $fallback;
     }
 }

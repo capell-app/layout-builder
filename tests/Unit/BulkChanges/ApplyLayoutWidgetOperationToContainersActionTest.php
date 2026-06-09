@@ -6,14 +6,65 @@ use Capell\LayoutBuilder\Actions\BulkChanges\ApplyLayoutWidgetOperationToContain
 use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationData;
 use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 
+/**
+ * @param  array<string, mixed>  $payload
+ */
 function layoutBulkOperation(array $payload): LayoutBulkWidgetOperationData
 {
     return LayoutBulkWidgetOperationData::fromPayload($payload);
 }
 
+/**
+ * @param  array<string, mixed>  $containers
+ * @return array<string, mixed>
+ */
+function layoutBulkContainer(array $containers, string $container): array
+{
+    $containerState = $containers[$container] ?? [];
+
+    return is_array($containerState) ? $containerState : [];
+}
+
+/**
+ * @param  array<string, mixed>  $containers
+ * @return list<array<string, mixed>>
+ */
+function layoutBulkWidgets(array $containers, string $container): array
+{
+    $widgets = layoutBulkContainer($containers, $container)['widgets'] ?? [];
+
+    if (! is_array($widgets)) {
+        return [];
+    }
+
+    $normalizedWidgets = [];
+
+    foreach ($widgets as $widget) {
+        if (is_array($widget)) {
+            $normalizedWidgets[] = $widget;
+        }
+    }
+
+    return $normalizedWidgets;
+}
+
+/**
+ * @param  array<string, mixed>  $containers
+ * @return list<string>
+ */
 function layoutBulkWidgetKeys(array $containers, string $container): array
 {
-    return array_map(fn (array $widget): string => (string) $widget['widget_key'], $containers[$container]['widgets'] ?? []);
+    $keys = [];
+
+    foreach (layoutBulkWidgets($containers, $container) as $widget) {
+        $key = $widget['widget_key'] ?? null;
+
+        if (is_string($key)) {
+            $keys[] = $key;
+        }
+    }
+
+    return $keys;
 }
 
 it('moves a widget relative to another widget', function (): void {
@@ -32,8 +83,8 @@ it('moves a widget relative to another widget', function (): void {
 
     expect($result->changed)->toBeTrue()
         ->and(layoutBulkWidgetKeys($result->containers, 'main'))->toBe(['hero', 'breadcrumbs', 'content'])
-        ->and($result->containers['main']['meta'])->toBe(['width' => 'full'])
-        ->and($result->containers['main']['widgets'][1]['meta'])->toBe(['locked' => true])
+        ->and(layoutBulkContainer($result->containers, 'main')['meta'] ?? [])->toBe(['width' => 'full'])
+        ->and(layoutBulkWidgets($result->containers, 'main')[1]['meta'] ?? [])->toBe(['locked' => true])
         ->and($result->containerDiffs[0])->toMatchArray([
             'container' => 'main',
             'before' => ['breadcrumbs#1', 'hero#1', 'content#1'],
@@ -101,7 +152,7 @@ it('moves a widget to another container and renumbers collisions', function (): 
 
     expect($result->changed)->toBeTrue()
         ->and(layoutBulkWidgetKeys($result->containers, 'main'))->toBe(['hero'])
-        ->and($result->containers['sidebar']['widgets'][1]['occurrence'])->toBe(2)
+        ->and(layoutBulkWidgets($result->containers, 'sidebar')[1]['occurrence'] ?? null)->toBe(2)
         ->and($result->assetMoves[0])->toMatchArray(['from_container' => 'main', 'from_occurrence' => 1, 'to_container' => 'sidebar', 'to_occurrence' => 2]);
 });
 
