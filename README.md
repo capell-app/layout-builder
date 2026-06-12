@@ -251,3 +251,11 @@ Run the focused public graph and package-boundary checks after changing public r
 ```bash
 vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php packages/layout-builder/tests/Arch/LayoutBuilderPackageBoundaryTest.php --configuration=phpunit.xml
 ```
+
+## Troubleshooting
+
+| Symptom                               | Likely cause                                                         | Check                                                                                                                       | Fix                                                                                           |
+| ------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Layout Builder tables are missing     | The host app installed the package without running its install flow  | In a host app, run `php artisan migrate:status` and check the Layout Builder migrations                                     | Run `php artisan capell:layout-builder-install` in the host app, then rerun the package tests |
+| Public widget output is empty         | Widget payload data was not loaded before Blade rendering            | Run `vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php --configuration=phpunit.xml` | Load widget payloads through the public graph Actions instead of querying from public Blade   |
+| Bulk layout change cannot be approved | The reviewed run drifted or the approval token references an old run | In a host app, rerun the preview command for the same spec and compare the run UUID                                         | Review the fresh preview output, then approve the new run UUID                                |
