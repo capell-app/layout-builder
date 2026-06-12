@@ -4,6 +4,18 @@
 
 Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
 
+## At A Glance
+
+| Field               | Value                                                  |
+| ------------------- | ------------------------------------------------------ |
+| Composer package    | `capell-app/layout-builder`                            |
+| Namespace           | `Capell\LayoutBuilder`                                 |
+| Surfaces            | Admin, Livewire editor, public rendering, console      |
+| Provider            | `Capell\LayoutBuilder\LayoutBuilderServiceProvider`    |
+| Public graph Action | `BuildPublicLayoutGraphAction`                         |
+| Editor component    | `Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder` |
+| Install command     | `capell:layout-builder-install` in a host Capell app   |
+
 ## Why It Helps Your Capell Workflow
 
 - Provides the visual composition layer for Capell: layouts, containers, widgets, assets, public render graphs, and editor mutations.
@@ -17,7 +29,18 @@ Core still owns sites, pages, languages, URLs, themes, and base content models. 
 - [Content Sections](../content-sections/README.md)
 - [Foundation Theme](../foundation-theme/README.md)
 
+## What It Adds
+
+- Layout, widget, widget asset, reusable preset, and bulk-change models.
+- Filament layout resources, schemas, configurators, and Livewire editor surfaces.
+- Public layout graph and widget payload Actions.
+- Layout areas for theme-owned placement zones such as headers.
+- Content-first editor inventory and widget asset persistence.
+- Reviewed bulk layout mutations with preview, approval, drift detection, and revert support.
+
 ## Install
+
+In a host Capell app:
 
 ```bash
 composer require capell-app/layout-builder
@@ -40,6 +63,12 @@ The visual editor preview uses breakpoint-aware canvas width variables and keeps
 | `widget.skip_render_empty` | Skip empty widgets in public rendering. |
 | `default_widget` | Default renderable key for new widgets. |
 
+## Boundaries
+
+Layout Builder owns visual composition, layout graphs, editor mutations, widget assets, reusable presets, and public layout rendering. Core owns sites, pages, languages, URLs, themes, and base content models.
+
+Public Blade must not query the database, lazy-load relationships, expose raw widget meta, include authoring selectors, or leak signed admin URLs, diagnostics, package internals, schema labels, or preview/admin view names.
+
 ## Main Surfaces
 
 | Surface                        | Package path                                                                                                       |
@@ -56,6 +85,10 @@ The visual editor preview uses breakpoint-aware canvas width variables and keeps
 | Filament resources and schemas | `src/Filament/`                                                                                                    |
 | Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                          |
 | Admin views and components     | `resources/views/`                                                                                                 |
+
+## Runtime Surface
+
+The table above is the package code map. Start with `BuildPublicLayoutGraphAction` for public rendering, `src/Actions/Mutations/` for editor mutations, `src/Actions/BulkChanges/` for reviewed broad edits, and `src/Livewire/Filament/LayoutBuilder.php` for the admin editor.
 
 ## Bulk Layout Changes With Review Approval
 
@@ -74,6 +107,8 @@ The first typed operations are `move_widget`, `remove_widget`, `swap_widgets`, a
 Page-scoped `widget_assets` follow moved widgets when container or occurrence changes. Remove operations can warn about page-scoped assets or delete them explicitly. Default widget assets are not rewritten globally; ambiguous default asset moves are blocked so editors do not accidentally change shared content assignments.
 
 The same Actions power both surfaces:
+
+In a host Capell app:
 
 ```bash
 php artisan capell:layouts:bulk-change --spec=/path/change.json --preview
@@ -203,7 +238,7 @@ The command does not authenticate, generate signed routes, query tenant content,
 
 Both modes write through the same `WidgetAsset` persistence path.
 
-## Tests
+## Testing
 
 Run the package suite from the packages monorepo:
 
