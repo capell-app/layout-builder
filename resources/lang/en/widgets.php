@@ -3,6 +3,27 @@
 declare(strict_types=1);
 
 return [
+    'admin' => [
+        'layout_health' => [
+            'heading' => 'Layout health',
+            'layout_count' => ':count layouts',
+            'least_used_widgets' => 'Least Used Widgets (Bottom 5)',
+            'no_widgets_configured' => 'No widgets configured',
+            'pending_modifications' => 'Pending Modifications',
+            'published_count' => ':count published',
+            'published_sections' => 'Published Sections',
+            'total_count' => ':count total',
+            'total_sections' => 'Total Sections',
+            'total_widgets' => 'Total Widgets',
+            'unused_widget_types' => 'Unused Widget Types',
+            'widgets_by_group' => 'Widgets by Group',
+        ],
+        'recent_activity' => [
+            'empty' => 'No recent activity.',
+            'heading' => 'Recent activity',
+        ],
+    ],
+
     'common' => [
         'section_content' => 'Content',
         'section_content_description' => 'Section content and copy',
