@@ -14,8 +14,8 @@ use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
-use Capell\Frontend\Data\RenderHookContext;
-use Capell\Frontend\Support\Render\RenderHookRegistry;
+use Capell\Frontend\Enums\RenderHookLocation;
+use Capell\Frontend\Support\Render\FrontendHookRegistrar;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
@@ -37,13 +37,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Facades\App;
-use WeakMap;
 
 final class LayoutBuilderCoreRegistrar
 {
-    /** @var WeakMap<RenderHookRegistry<RenderHookContext>, true>|null */
-    private static ?WeakMap $mainContentHookRegistries = null;
-
     public function register(): void
     {
         LayoutModelRegistrar::register();
@@ -217,30 +213,19 @@ final class LayoutBuilderCoreRegistrar
 
     private function registerRenderHooks(): void
     {
-        App::afterResolving(
-            RenderHookRegistry::class,
-            function (RenderHookRegistry $registry): void {
-                $this->registerRenderHooksForRegistry($registry);
-            },
-        );
-
-        if (App::bound(RenderHookRegistry::class)) {
-            $this->registerRenderHooksForRegistry(App::make(RenderHookRegistry::class));
-        }
-    }
-
-    /** @param RenderHookRegistry<RenderHookContext> $registry */
-    private function registerRenderHooksForRegistry(RenderHookRegistry $registry): void
-    {
-        self::$mainContentHookRegistries ??= new WeakMap;
-
-        if (isset(self::$mainContentHookRegistries[$registry])) {
+        if (! App::bound(FrontendHookRegistrar::class)) {
             return;
         }
 
-        (new RegisterMainContentLayoutHook($registry))->register();
-
-        self::$mainContentHookRegistries[$registry] = true;
+        resolve(FrontendHookRegistrar::class)->contribute(
+            location: RenderHookLocation::MainContent,
+            extension: new RegisterMainContentLayoutHook,
+            owner: 'capell-app/layout-builder',
+            key: 'main-content-layout',
+            scenario: RegisterMainContentLayoutHook::Scenario,
+            target: RegisterMainContentLayoutHook::Target,
+            cacheSafe: true,
+        );
     }
 
     private function registerListeners(): void
