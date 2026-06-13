@@ -1,261 +1,111 @@
-# Capell Layout Builder
+# Layout Builder
 
-`capell-app/layout-builder` owns Capell's visual layout composition layer: layout containers, widgets, widget assets, public layout graphs, content-first editing, and the Filament layout editor.
+<!-- prettier-ignore-start -->
 
-Core still owns sites, pages, languages, URLs, themes, and base content models. Admin still owns the Filament panel shell. Layout Builder plugs into both through package registrars and exposes its public API from the `Capell\LayoutBuilder` namespace.
+## What This Plugin Adds
 
-## At A Glance
+Layout Builder is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/layout-builder` and extends these surfaces: admin, frontend, console.
 
-| Field               | Value                                                  |
-| ------------------- | ------------------------------------------------------ |
-| Composer package    | `capell-app/layout-builder`                            |
-| Namespace           | `Capell\LayoutBuilder`                                 |
-| Surfaces            | Admin, Livewire editor, public rendering, console      |
-| Provider            | `Capell\LayoutBuilder\LayoutBuilderServiceProvider`    |
-| Public graph Action | `BuildPublicLayoutGraphAction`                         |
-| Editor component    | `Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder` |
-| Install command     | `capell:layout-builder-install` in a host Capell app   |
+Compose pages visually with reusable widgets and named layout areas - edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.
 
-## Why It Helps Your Capell Workflow
+After install, admins get package-owned management surfaces and public users may see package-owned frontend output or routes.
 
-- Provides the visual composition layer for Capell: layouts, containers, widgets, assets, public render graphs, and editor mutations.
-- Helps editors assemble pages without storing theme-specific presentation markup in database content fields.
-- Gives developers Actions and registries for public-safe layout payloads, reusable presets, layout areas, and content-first editing.
-- Lets admins make reviewed bulk layout changes across many layouts, with a stored preview, exact per-layout diffs, page impact counts, warnings, approval, and hash-guarded apply.
+Status details:
 
-## Best Used With
+- Status: Available
+- Tier: free
+- Bundle: foundation
+- Composer package: `capell-app/layout-builder`
+- Namespace: `Capell\LayoutBuilder`
+- Theme key: not applicable
 
-- [Block Library](../block-library/README.md)
-- [Content Sections](../content-sections/README.md)
-- [Foundation Theme](../foundation-theme/README.md)
+## Why It Matters
 
-## What It Adds
+**For developers:** The package gives developers package-owned service providers, Actions, Data objects, models, Filament classes, and Blade views instead of pushing this behaviour into core or application code.
 
-- Layout, widget, widget asset, reusable preset, and bulk-change models.
-- Filament layout resources, schemas, configurators, and Livewire editor surfaces.
-- Public layout graph and widget payload Actions.
-- Layout areas for theme-owned placement zones such as headers.
-- Content-first editor inventory and widget asset persistence.
-- Reviewed bulk layout mutations with preview, approval, drift detection, and revert support.
+**For teams:** Compose pages visually with reusable widgets and named layout areas - edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.
 
-## Install
+## Screens And Workflow
 
-In a host Capell app:
+Screenshot contract: `docs/screenshots.json`.
 
-```bash
-composer require capell-app/layout-builder
-php artisan capell:layout-builder-install
-```
+- Widgets admin index (admin, required).
+- Create/edit widget form with widget assets (admin, required).
+- Layout Builder editor screen (admin, required).
+- Sections admin index (admin, required).
+- Public page rendering Layout Builder widgets (frontend, required).
 
-The install command publishes and runs the package migrations listed by `Capell\LayoutBuilder\Support\CapellLayoutBuilderManager`.
+## Technical Shape
 
-## Configuration
+- Service providers: `Capell\LayoutBuilder\LayoutBuilderServiceProvider`.
+- Config files: `packages/layout-builder/config/capell-layout-builder.php`.
+- Migrations: `packages/layout-builder/database/migrations/2026_05_10_190841_01_create_layouts_table.php`, `packages/layout-builder/database/migrations/2026_05_10_190841_02_create_widgets_table.php`, `packages/layout-builder/database/migrations/2026_05_10_190841_03_create_widget_assets_table.php`, `packages/layout-builder/database/migrations/2026_05_10_190841_04_create_widget_widgets_table.php`, `packages/layout-builder/database/migrations/2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `packages/layout-builder/database/migrations/2026_05_10_190841_06_create_layout_presets_table.php`, `packages/layout-builder/database/migrations/2026_06_07_000001_create_layout_bulk_change_tables.php`.
+- Models: `Layout`, `LayoutBulkChangeResult`, `LayoutBulkChangeRun`, `LayoutPreset`, `Widget`, `WidgetAsset`, `WidgetWidget`.
+- Filament classes: `CreateWidgetAction`, `ActionsRepeater`, `AlignSelect`, `AssetTypeSelect`, `AssetsRepeater`, `BackgroundSchema`, `CarouselSettingsSchema`, `ColorSchemeComponent`, `ColumnInput`, `ContainerWidthSelect`, `CustomColorInput`, `HeadingSizeSelect`, `and 80 more`.
+- Livewire components: `AuthorizesLayoutBuilderAccess`, `HasLayoutActions`, `ManagesAssets`, `ManagesContainers`, `ManagesLayoutBuilderState`, `ManagesWidgets`, `LayoutBuilder`, `ModalTableSelect`, `LayoutBuilderActionFactory`.
+- Policies: `LayoutPresetPolicy`.
+- Listeners: `AfterRecordSaved`, `LayoutLoaded`, `SiteTreeRebuilt`, `TypeValidated`.
+- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 43 more`.
+- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `LayoutBuilderTreeContainerData`, `and 24 more`.
+- Jobs: `ApplyLayoutBulkChangeRunJob`.
+- Command signatures: `capell:layout-builder-install`.
+- Console command classes: `InstallCommand`, `LayoutBulkChangeCommand`, `WidgetVisualRegressionCommand`.
+- Manifest contributions: `admin-resource: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `asset: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `configurator: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `schema-extender: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`.
+- Health checks: `Capell\LayoutBuilder\Health\LayoutBuilderHealthCheck`.
+- Blade views: `packages/layout-builder/resources/views/components/filament/layout-builder/asset.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/assets.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/container.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/drag-handle-icon.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/widget.blade.php`, `packages/layout-builder/resources/views/components/infolists/entries/layout-widget.blade.php`, `packages/layout-builder/resources/views/components/infolists/entries/layout-widgets.blade.php`, `packages/layout-builder/resources/views/components/layout/area.blade.php`, `packages/layout-builder/resources/views/components/layout/container.blade.php`, `packages/layout-builder/resources/views/components/layout/main-content.blade.php`, `packages/layout-builder/resources/views/components/layout/widget.blade.php`, `packages/layout-builder/resources/views/filament/actions/layout-bulk-change-review.blade.php`, `and 14 more`.
+- Cache tags: `layout-builder`.
 
-Configuration lives in `config/capell-layout-builder.php`.
+## Data Model
 
-| Key                                       | Purpose                                                               |
-| ----------------------------------------- | --------------------------------------------------------------------- |
-| `editor_mode.default`                     | Default editor mode. Defaults to `content_first`.                     |
-| `editor_mode.allowed`                     | Allowed modes. Current values are `content_first` and `layout_first`. |
-| `preview.match_frontend_container_layout` | Match admin preview container layout to frontend columns.             |
+- Required tables: `layouts`, `widgets`, `widget_assets`, `widget_widgets`.
+- Models: `Layout`, `LayoutBulkChangeResult`, `LayoutBulkChangeRun`, `LayoutPreset`, `Widget`, `WidgetAsset`, `WidgetWidget`.
+- Migration files: `2026_05_10_190841_01_create_layouts_table.php`, `2026_05_10_190841_02_create_widgets_table.php`, `2026_05_10_190841_03_create_widget_assets_table.php`, `2026_05_10_190841_04_create_widget_widgets_table.php`, `2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `2026_05_10_190841_06_create_layout_presets_table.php`, `2026_06_07_000001_create_layout_bulk_change_tables.php`.
+- Migration impact: run host migrations through the package install flow before opening package surfaces.
+- Deletion/retention behaviour: Docs gap unless the package has an explicit pruning command, retention setting, or tested cascade path.
 
-The visual editor preview uses breakpoint-aware canvas width variables and keeps save controls in a sticky preview action bar so desktop, tablet, and mobile frames stay usable inside narrower admin panels.
-| `widget.skip_render_empty` | Skip empty widgets in public rendering. |
-| `default_widget` | Default renderable key for new widgets. |
+## Install Impact
 
-## Boundaries
+- Admin navigation: adds package-owned Filament classes when registered.
+- Permissions: `ViewAny:Layout`, `View:Layout`, `Create:Layout`, `EditContent:Layout`, `EditLayout:Layout`, `Update:Layout`, `Delete:Layout`, `DeleteAny:Layout`, `Restore:Layout`, `ForceDelete:Layout`, `Replicate:Layout`, `Reorder:Layout`, `BulkMutate:Layout`.
+- Public routes: none detected in package route files.
+- Database changes: package migrations are declared.
+- Settings: no package settings declared.
+- Queues or schedules: review package jobs or schedules before install.
+- Cache tags: `layout-builder`.
+- Commands: `capell:layout-builder-install`.
 
-Layout Builder owns visual composition, layout graphs, editor mutations, widget assets, reusable presets, and public layout rendering. Core owns sites, pages, languages, URLs, themes, and base content models.
+## Common Pitfalls
 
-Public Blade must not query the database, lazy-load relationships, expose raw widget meta, include authoring selectors, or leak signed admin URLs, diagnostics, package internals, schema labels, or preview/admin view names.
-
-## Main Surfaces
-
-| Surface                        | Package path                                                                                                       |
-| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| Public graph building          | `src/Actions/BuildPublicLayoutGraphAction.php`                                                                     |
-| Public widget payloads         | `src/Contracts/PublicWidgetPayloadContributor.php`, `src/Support/DefaultPublicWidgetPayloadResolver.php`           |
-| Layout areas                   | `src/Support/LayoutAreas/LayoutAreaRegistry.php`, `src/Actions/ResolveLayoutAreaContainersAction.php`              |
-| Widget presentation projection | `src/Actions/ResolveWidgetPresentationDataAction.php`                                                              |
-| Layout health checks           | `src/Actions/AnalyzeLayoutHealthAction.php`                                                                        |
-| Reusable layout presets        | `src/Models/LayoutPreset.php`, `src/Actions/SaveLayoutPresetAction.php`, `src/Actions/ApplyLayoutPresetAction.php` |
-| Content-first inventory        | `src/Actions/BuildLayoutContentInventoryAction.php`                                                                |
-| Layout mutations               | `src/Actions/Mutations/`                                                                                           |
-| Bulk layout changes            | `src/Actions/BulkChanges/`, `src/Console/Commands/LayoutBulkChangeCommand.php`                                     |
-| Filament resources and schemas | `src/Filament/`                                                                                                    |
-| Livewire editor                | `src/Livewire/Filament/LayoutBuilder.php`                                                                          |
-| Admin views and components     | `resources/views/`                                                                                                 |
-
-## Runtime Surface
-
-The table above is the package code map. Start with `BuildPublicLayoutGraphAction` for public rendering, `src/Actions/Mutations/` for editor mutations, `src/Actions/BulkChanges/` for reviewed broad edits, and `src/Livewire/Filament/LayoutBuilder.php` for the admin editor.
-
-## Bulk Layout Changes With Review Approval
-
-Large Capell sites often need a layout change that is simple in one page and risky across dozens of shared layouts: move breadcrumbs below the hero, remove a widget, swap two widgets, or move a widget from a sidebar container into the main container.
-
-Layout Builder handles that as a reviewed mutation workflow instead of a one-off script:
-
-1. Define criteria and a guided operation.
-2. Store a preview run with the exact target layouts, page counts, before and after container state, structured diffs, warnings, skipped records, and hashes.
-3. Review the preview in the Filament action or from the Artisan command.
-4. Approve the stored run when the result is correct.
-5. Apply with hash guards so layouts changed after preview are skipped as drifted instead of overwritten.
-
-The first typed operations are `move_widget`, `remove_widget`, `swap_widgets`, and `move_widget_to_container`. Criteria can filter by site, theme, group, layout key, active state, and required widget. Specific widget occurrences can be targeted when a repeated widget appears more than once.
-
-Page-scoped `widget_assets` follow moved widgets when container or occurrence changes. Remove operations can warn about page-scoped assets or delete them explicitly. Default widget assets are not rewritten globally; ambiguous default asset moves are blocked so editors do not accidentally change shared content assignments.
-
-The same Actions power both surfaces:
-
-In a host Capell app:
-
-```bash
-php artisan capell:layouts:bulk-change --spec=/path/change.json --preview
-php artisan capell:layouts:bulk-change --approve=run-uuid
-php artisan capell:layouts:bulk-change --revert=run-uuid
-```
-
-Marketplace screenshots for this workflow live in `docs/assets/marketplace/` and are declared in `capell.json` so the Capell website can show the criteria, review, approval, content-first editor, layout areas, and public output states.
-
-## Public Rendering
-
-Use `Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction` when a public route, API, or package needs layout content without depending on the frontend renderer.
-
-```php
-$graph = BuildPublicLayoutGraphAction::run(
-    layout: $layout,
-    page: $page,
-    language: $language,
-    containers: ['main'],
-    includeHtml: false,
-);
-```
-
-Payload contributors are tagged with `Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor::TAG`. Contributors should return public-safe data or HTML only; do not expose admin state, editor-only metadata, private IDs, or unpublished content.
-
-Widget variants and settings are stored as authoring state in widget meta, but public rendering receives only the sanitized `presentation` payload:
-
-```php
-[
-    'variant' => 'split-media',
-    'spacing' => 'normal',
-    'background' => 'default',
-    'mediaPosition' => 'top',
-    'cardsPerRow' => 3,
-    'showCta' => true,
-    'headingWidth' => 'normal',
-    'anchorId' => null,
-]
-```
-
-Public Blade must not query the database, lazy-load relationships, resolve widget contracts, expose raw meta, or include authoring selectors, signed URLs, diagnostics, package internals, schema, labels, or preview/admin view names.
-
-## Layout Areas
-
-Layout areas let a theme expose named places where normal Layout Builder widgets can render outside the main page-body loop. The storage model stays unchanged: widgets still live inside layout containers, and containers may set `meta.area`.
-
-- Missing `meta.area` is treated as `main` for backwards compatibility.
-- `main` is built in and rendered by the normal main-content hook.
-- Themes and packages can register extra areas through `Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry`.
-- The Foundation Theme registers `header`, so editors can place normal widgets into the site header without hidden containers or a separate data model.
-
-Register areas from a package service provider after the registry resolves:
-
-```php
-use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
-
-$this->app->afterResolving(
-    LayoutAreaRegistry::class,
-    function (LayoutAreaRegistry $registry): void {
-        $registry->register(
-            key: 'header',
-            label: __('capell-layout-builder::generic.header_area'),
-        );
-    },
-);
-```
-
-If an area only applies to one active theme, pass the theme key:
-
-```php
-$registry->register(
-    key: 'announcement',
-    label: __('capell-theme-client::layout_areas.announcement'),
-    themeKey: 'client',
-);
-```
-
-Public area rendering should use the package renderer rather than querying from Blade:
-
-```blade
-<x-capell::layout.area area="header" />
-```
-
-The area component reads the already-resolved layout containers and uses the stored `CapellLayoutManager` widget instances. Keep public Blade query-free and authoring-free; area keys are public placement data, but editor state, model IDs, field paths, signed URLs, and package/admin metadata must stay out of the HTML.
-
-Apps and package seeders should use `AttachWidgetToLayoutAreaAction` when placing widgets into a named area. The action creates the area container when needed, normalizes the area key, preserves existing container metadata, and avoids duplicate widget/occurrence pairs.
-
-```php
-use Capell\LayoutBuilder\Actions\AttachWidgetToLayoutAreaAction;
-
-AttachWidgetToLayoutAreaAction::run(
-    layout: $layout,
-    area: 'header',
-    widgetKey: 'announcement-bar',
-    containerKey: 'site-announcement',
-    containerMeta: ['container' => 'full'],
-);
-```
-
-For full-bleed sections, separate the two width settings deliberately. The layout container owns the section band and background, so set its container meta to `full`. The widget or widget inside owns readable content, so keep its own `container` meta at the default contained width. This gives edge-to-edge backgrounds while text, media, and controls stay aligned with the site container.
-
-Avoid solving this in widget Blade with `w-screen`, negative margins, or translate hacks. Those make the widget fight the layout system and usually break once the same widget is reused in another theme or container.
-
-## Reusable Presets
-
-Saved agency presets are persisted in `layout_presets` and scoped to a required `site_id` with optional `theme_key`. Presets are layout-only by default: they deep-copy structure, selected widget variants, and settings without duplicating client content. Applying a preset revalidates site scope and regenerates duplicate anchors.
-
-The older in-session `LayoutPresetRepository` remains only for temporary editor fragments; package and agency presets should use `SaveLayoutPresetAction` and `ApplyLayoutPresetAction`.
-
-## Visual Regression Manifests
-
-Use `capell:layout-builder-widget-visual-regression capture` or `assert` to emit deterministic widget/variant/viewport fixture entries for a screenshot runner. The command supports `--widget`, `--theme`, `--variant`, `--changed`, `--concurrency`, and `--ci-limit`.
-
-The command does not authenticate, generate signed routes, query tenant content, or use live media. Browser capture/compare remains the responsibility of the runner.
-
-## Docs
-
-- [docs index](docs/README.md)
-- [overview.md](docs/overview.md)
-- [screenshots.json](docs/screenshots.json)
-
-## Editor Modes
-
-`content_first` is the default mode. It shows editor-facing content groups from the current layout state and lets editors update assigned widget assets without navigating the full layout canvas.
-
-`layout_first` opens the drag/drop layout builder directly. Keep it available for designers and implementers who need placement and structure control.
-
-Both modes write through the same `WidgetAsset` persistence path.
-
-## Testing
-
-Run the package suite from the packages monorepo:
-
-```bash
-vendor/bin/pest packages/layout-builder/tests --configuration=phpunit.xml
-```
-
-Run the focused public graph and package-boundary checks after changing public rendering or package ownership:
-
-```bash
-vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php packages/layout-builder/tests/Arch/LayoutBuilderPackageBoundaryTest.php --configuration=phpunit.xml
-```
+- Run migrations before opening package resources or public routes.
+- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Run package commands from the host app; in this repository use `vendor/bin/pest` for package tests.
+- Keep `composer.json`, `composer.local.json`, `capell.json`, docs, screenshots, and tests aligned when the package surface changes.
 
 ## Troubleshooting
 
-| Symptom                               | Likely cause                                                         | Check                                                                                                                       | Fix                                                                                           |
-| ------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Layout Builder tables are missing     | The host app installed the package without running its install flow  | In a host app, run `php artisan migrate:status` and check the Layout Builder migrations                                     | Run `php artisan capell:layout-builder-install` in the host app, then rerun the package tests |
-| Public widget output is empty         | Widget payload data was not loaded before Blade rendering            | Run `vendor/bin/pest packages/layout-builder/tests/Integration/PublicLayoutGraphActionTest.php --configuration=phpunit.xml` | Load widget payloads through the public graph Actions instead of querying from public Blade   |
-| Bulk layout change cannot be approved | The reviewed run drifted or the approval token references an old run | In a host app, rerun the preview command for the same spec and compare the run UUID                                         | Review the fresh preview output, then approve the new run UUID                                |
+| Symptom | Likely cause | Check | Fix |
+| --- | --- | --- | --- |
+| Package surface is missing after install | Provider or manifest is not loaded | Confirm `capell.json`, package `composer.json`, and provider registration | Reinstall the package, refresh Composer autoload, and clear host caches |
+| Admin screen or command fails on missing table | Package migrations have not run | Check the tables listed in `Data Model` | Run host migrations and rerun the focused package test |
+| Background work does not run | Queue worker or scheduled command is not active | Check package jobs, commands, and host scheduler configuration | Start the queue or scheduler, then run the focused command or package test |
+| Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
+
+## Quick Start
+
+1. Install the package: `composer require capell-app/layout-builder`.
+2. Run the required setup: `php artisan capell:layout-builder-install`.
+3. Open the related Capell admin surface and verify Layout Builder appears.
+
+## Next Steps
+
+- [Package docs](docs/README.md)
+- [Overview](docs/overview.md)
+- [Screenshot contract](docs/screenshots.json)
+- [Marketplace assets](docs/assets/marketplace/)
+- [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
+- [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
+- [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
+- Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md).
+- Focused tests: `vendor/bin/pest packages/layout-builder/tests --configuration=phpunit.xml`.
+
+<!-- prettier-ignore-end -->
