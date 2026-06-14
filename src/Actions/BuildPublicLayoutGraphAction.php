@@ -172,6 +172,21 @@ class BuildPublicLayoutGraphAction
             }
         }
 
+        foreach (['show_home', 'show_parent', 'show_current_page'] as $key) {
+            $value = $this->safeBoolean($meta[$key] ?? null);
+
+            if ($value !== null) {
+                $safeMeta[$key] = $value;
+            }
+        }
+
+        $minimumItems = $meta['minimum_items'] ?? null;
+        if (is_int($minimumItems)) {
+            $safeMeta['minimum_items'] = max(1, min(10, $minimumItems));
+        } elseif (is_string($minimumItems) && ctype_digit($minimumItems)) {
+            $safeMeta['minimum_items'] = max(1, min(10, (int) $minimumItems));
+        }
+
         $settings = is_array($meta['widget_settings'] ?? null) ? $meta['widget_settings'] : [];
         $safeSettings = [];
 
@@ -233,6 +248,31 @@ class BuildPublicLayoutGraphAction
         return is_string($value)
             && ! $this->containsUnsafePublicMarker($value)
             && preg_match('/\A[a-z0-9][a-z0-9._-]{0,127}\z/i', trim($value)) === 1;
+    }
+
+    private function safeBoolean(mixed $value): ?bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return match ($value) {
+                0 => false,
+                1 => true,
+                default => null,
+            };
+        }
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        return match (strtolower(trim($value))) {
+            '0', 'false', 'no', 'off' => false,
+            '1', 'true', 'yes', 'on' => true,
+            default => null,
+        };
     }
 
     /**
