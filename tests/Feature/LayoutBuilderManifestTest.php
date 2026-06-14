@@ -59,6 +59,20 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
     }
 });
 
+it('declares all package-owned storage tables in the manifest', function (): void {
+    $manifest = layoutBuilderJson('capell.json');
+
+    expect($manifest['database']['requiredTables'] ?? [])->toBe([
+        'layouts',
+        'widgets',
+        'widget_assets',
+        'widget_widgets',
+        'layout_presets',
+        'layout_bulk_change_runs',
+        'layout_bulk_change_results',
+    ]);
+});
+
 it('references committed marketplace and screenshot manifest images', function (): void {
     $manifest = layoutBuilderJson('capell.json');
     $screenshots = layoutBuilderJson('docs/screenshots.json');

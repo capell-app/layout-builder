@@ -38,6 +38,17 @@ it('fails the storage table check when a layout table is missing', function (): 
         ->and(LayoutBuilderHealthCheck::passed())->toBeFalse();
 });
 
+it('fails the storage table check when preset or bulk change tables are missing', function (): void {
+    Schema::drop('layout_presets');
+    Schema::drop('layout_bulk_change_results');
+
+    $check = new LayoutBuilderHealthCheck;
+
+    expect($check->missingTables())->toContain('layout_presets', 'layout_bulk_change_results')
+        ->and($check->storageTablesCheck()->passed)->toBeFalse()
+        ->and($check->storageTablesCheck()->message)->toContain('layout_presets', 'layout_bulk_change_results');
+});
+
 it('fails the graph builder binding check when the contract resolves to a foreign implementation', function (): void {
     app()->forgetInstance(PublicLayoutGraphBuilder::class);
     app()->bind(PublicLayoutGraphBuilder::class, fn (): PublicLayoutGraphBuilder => new class implements PublicLayoutGraphBuilder
