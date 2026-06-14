@@ -42,6 +42,10 @@ class WidgetDefinitionData extends Data
                 typeCreatorMethod: 'systemWidgetType',
                 meta: [
                     'component' => WidgetComponentEnum::PageBreadcrumbs,
+                    'minimum_items' => 1,
+                    'show_current_page' => true,
+                    'show_home' => true,
+                    'show_parent' => true,
                 ],
             ),
             new self(
