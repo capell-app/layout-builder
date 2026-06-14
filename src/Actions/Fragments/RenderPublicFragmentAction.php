@@ -71,40 +71,46 @@ class RenderPublicFragmentAction
             return null;
         }
 
-        $this->bindFrontendContext($site, $layout, $language, $page);
+        $previousFrontendContext = $this->resolvedFrontendContext();
 
-        $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, [$containerKey], includeHtml: true);
-        $container = null;
+        try {
+            $this->bindFrontendContext($site, $layout, $language, $page);
 
-        foreach ($graph->containers as $candidateContainer) {
-            if ($candidateContainer->key === $containerKey) {
-                $container = $candidateContainer;
+            $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, [$containerKey], includeHtml: true);
+            $container = null;
 
-                break;
-            }
-        }
-
-        $widget = null;
-
-        if ($container instanceof PublicLayoutContainerData) {
-            foreach ($container->widgets as $candidateWidget) {
-                if ($candidateWidget->key === $widgetKey && $candidateWidget->occurrence === $occurrence) {
-                    $widget = $candidateWidget;
+            foreach ($graph->containers as $candidateContainer) {
+                if ($candidateContainer->key === $containerKey) {
+                    $container = $candidateContainer;
 
                     break;
                 }
             }
+
+            $widget = null;
+
+            if ($container instanceof PublicLayoutContainerData) {
+                foreach ($container->widgets as $candidateWidget) {
+                    if ($candidateWidget->key === $widgetKey && $candidateWidget->occurrence === $occurrence) {
+                        $widget = $candidateWidget;
+
+                        break;
+                    }
+                }
+            }
+
+            if (! $widget instanceof PublicLayoutWidgetData || ! is_string($widget->html) || trim($widget->html) === '') {
+                return null;
+            }
+
+            $response = new Response($widget->html);
+            $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
+            AssertPublicHtmlContainsNoAuthoringSurfaceAction::run($response);
+
+            return $widget->html;
+        } finally {
+            $this->restoreFrontendContext($previousFrontendContext);
         }
-
-        if (! $widget instanceof PublicLayoutWidgetData || ! is_string($widget->html) || trim($widget->html) === '') {
-            return null;
-        }
-
-        $response = new Response($widget->html);
-        $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
-        AssertPublicHtmlContainsNoAuthoringSurfaceAction::run($response);
-
-        return $widget->html;
     }
 
     /**
@@ -177,6 +183,30 @@ class RenderPublicFragmentAction
         }
 
         return $layout->theme instanceof Theme ? $layout->theme : null;
+    }
+
+    private function resolvedFrontendContext(): ?CapellFrontendContext
+    {
+        if (! app()->resolved(CapellFrontendContext::class)) {
+            return null;
+        }
+
+        $context = resolve(CapellFrontendContext::class);
+
+        return $context instanceof CapellFrontendContext ? $context : null;
+    }
+
+    private function restoreFrontendContext(?CapellFrontendContext $context): void
+    {
+        Frontend::clearResolvedInstance(CapellFrontendContext::class);
+
+        if ($context instanceof CapellFrontendContext) {
+            app()->instance(CapellFrontendContext::class, $context);
+
+            return;
+        }
+
+        app()->forgetInstance(CapellFrontendContext::class);
     }
 
     private function stringValue(mixed $value): ?string
