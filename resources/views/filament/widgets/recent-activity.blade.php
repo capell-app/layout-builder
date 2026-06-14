@@ -1,9 +1,13 @@
 <x-filament-widgets::widget>
     <x-filament::section>
-        <x-slot name="heading">🕐 Recent activity</x-slot>
+        <x-slot name="heading">
+            {{ __('capell-layout-builder::widgets.admin.recent_activity.heading') }}
+        </x-slot>
 
         @if ($data->items->isEmpty())
-            <p class="text-sm text-gray-500">No recent activity.</p>
+            <p class="text-sm text-gray-500">
+                {{ __('capell-layout-builder::widgets.admin.recent_activity.empty') }}
+            </p>
         @else
             <div class="divide-y divide-gray-100 dark:divide-gray-800">
                 @foreach ($data->items as $item)

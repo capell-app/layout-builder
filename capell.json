@@ -126,6 +126,58 @@
         "layout-builder-content-first",
         "layout-builder-public-rendering"
     ],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [],
+            "auth": "none",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "sensitiveData": {
+            "encryptedFields": [],
+            "hashedTokenFields": [
+                "layout_bulk_change_runs.original_container_hash",
+                "layout_bulk_change_runs.proposed_container_hash"
+            ],
+            "redactedOutputClasses": [
+                "Capell\\LayoutBuilder\\Actions\\SaveLayoutPresetAction"
+            ],
+            "plaintextJustifications": []
+        },
+        "publicOutput": {
+            "cacheSafe": true,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        },
+        "externalHttpClients": {
+            "requiresTimeouts": false,
+            "requiresSecretRedaction": false,
+            "clients": []
+        },
+        "adminSurface": {
+            "authorization": "permissions",
+            "permissions": [
+                "ViewAny:Layout",
+                "View:Layout",
+                "Create:Layout",
+                "EditContent:Layout",
+                "EditLayout:Layout",
+                "Update:Layout",
+                "Delete:Layout",
+                "DeleteAny:Layout",
+                "Restore:Layout",
+                "ForceDelete:Layout",
+                "Replicate:Layout",
+                "Reorder:Layout",
+                "BulkMutate:Layout"
+            ]
+        }
+    },
     "performance": {
         "frontendRenderBudgetMs": 20,
         "adminQueryBudget": 50,
