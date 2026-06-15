@@ -77,11 +77,13 @@ it('declares all package-owned storage tables in the manifest', function (): voi
 it('declares lifecycle actions that satisfy the installer contract', function (): void {
     $manifest = layoutBuilderJson('capell.json');
     $actions = $manifest['actions'] ?? [];
+    throw_unless(is_array($actions), RuntimeException::class, 'Layout Builder actions must be an array.');
 
     expect($actions)->toHaveKeys(['install', 'setup']);
 
     foreach (['install', 'setup'] as $lifecycle) {
         $actionClass = $actions[$lifecycle] ?? null;
+        throw_unless(is_string($actionClass), RuntimeException::class, 'Lifecycle action class must be a string.');
 
         expect($actionClass)->toBeString()
             ->and(class_exists($actionClass))->toBeTrue()
