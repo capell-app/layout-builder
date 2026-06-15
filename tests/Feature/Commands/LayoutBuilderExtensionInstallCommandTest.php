@@ -9,6 +9,8 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\CapellExtension;
 use Capell\Core\Support\Manifest\CapellManifestData;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction;
+use Capell\LayoutBuilder\Data\WidgetDefinitionData;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderInstallRecorder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -23,6 +25,7 @@ afterEach(function (): void {
 
 it('forces migrations when installing layout builder directly', function (): void {
     $migrateForceOptions = [];
+    Widget::query()->delete();
 
     CapellCore::registerPackage('capell-app/layout-builder');
 
@@ -37,7 +40,10 @@ it('forces migrations when installing layout builder directly', function (): voi
     test()->artisan('capell:layout-builder-install')
         ->assertSuccessful();
 
-    expect($migrateForceOptions)->toBe([true]);
+    expect($migrateForceOptions)->toBe([true])
+        ->and(Widget::query()->count())->toBe(count(WidgetDefinitionData::defaultCatalog()) + count(WidgetDefinitionData::extraCatalog()))
+        ->and(Widget::query()->where('key', 'asset-testimonials')->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'page-content')->exists())->toBeTrue();
 });
 
 it('installs layout builder from its package manifest', function (): void {
