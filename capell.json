@@ -105,7 +105,8 @@
         "doctor": null
     },
     "actions": {
-        "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction"
+        "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction",
+        "setup": "Capell\\LayoutBuilder\\Actions\\InstallPackageAction"
     },
     "settings": [],
     "permissions": [

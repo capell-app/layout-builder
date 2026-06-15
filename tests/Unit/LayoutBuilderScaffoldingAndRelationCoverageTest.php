@@ -14,6 +14,7 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\Layout\LayoutTab;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\LayoutsRelationManager;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Makers\LayoutBuilderWidgetMaker;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAssetsRepeaterHarness;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderCoverageSchemaHarness;
@@ -73,6 +74,8 @@ it('keeps the compatibility install action wired for consuming package setup hel
     InstallPackageAction::run();
 
     expect(Layout::query()->where('key', LayoutEnum::Default->value)->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'page-content')->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', 'kitchen-sink-rich-text')->exists())->toBeFalse()
         ->and(Blueprint::query()
             ->where('type', LayoutTypeEnum::Widget->value)
             ->where('key', WidgetTypeEnum::Hero->value)
