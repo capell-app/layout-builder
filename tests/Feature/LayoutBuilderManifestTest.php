@@ -98,12 +98,24 @@ it('declares all package-owned storage tables in the manifest', function (): voi
 
 it('declares runtime model page type route and migration contribution metadata', function (): void {
     $manifest = layoutBuilderJson('capell.json');
-    $contributions = collect($manifest['contributes'] ?? []);
+    $contributes = $manifest['contributes'] ?? [];
+    $security = $manifest['security'] ?? null;
+
+    throw_unless(is_array($contributes), RuntimeException::class, 'Expected Layout Builder contributions array.');
+    throw_unless(is_array($security), RuntimeException::class, 'Expected Layout Builder security metadata array.');
+    throw_unless(is_array($security['publicSurface'] ?? null), RuntimeException::class, 'Expected Layout Builder public surface metadata array.');
+
+    $contributions = collect($contributes);
 
     $models = $contributions->firstWhere('class', LayoutBuilderModelsContribution::class);
     $pageTypes = $contributions->firstWhere('class', LayoutBuilderPageTypesContribution::class);
     $routes = $contributions->firstWhere('class', LayoutBuilderRoutesContribution::class);
     $migrations = $contributions->firstWhere('class', LayoutBuilderMigrationsContribution::class);
+
+    throw_unless(is_array($models), RuntimeException::class, 'Expected Layout Builder model contribution array.');
+    throw_unless(is_array($pageTypes), RuntimeException::class, 'Expected Layout Builder page type contribution array.');
+    throw_unless(is_array($routes), RuntimeException::class, 'Expected Layout Builder route contribution array.');
+    throw_unless(is_array($migrations), RuntimeException::class, 'Expected Layout Builder migration contribution array.');
 
     expect($models)->toBeArray()
         ->and($models['modelClasses'])->toBe([
@@ -128,7 +140,7 @@ it('declares runtime model page type route and migration contribution metadata',
         ->and(class_implements(LayoutBuilderPageTypesContribution::class))->toContain(RegistersExtensionPageType::class)
         ->and($routes['routes'])->toBe(['capell-layout-builder.fragments.show'])
         ->and($routes['reservedFrontendPath'])->toBe('_fragments')
-        ->and($manifest['security']['publicSurface']['routeNames'])->toBe(['capell-layout-builder.fragments.show'])
+        ->and($security['publicSurface']['routeNames'])->toBe(['capell-layout-builder.fragments.show'])
         ->and(class_implements(LayoutBuilderRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($migrations['migrationFiles'])->toBe([
             '2026_05_10_190841_01_create_layouts_table',
