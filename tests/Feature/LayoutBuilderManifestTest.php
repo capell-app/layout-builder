@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Contracts\PackageLifecycleAction;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
@@ -62,7 +63,7 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
 it('declares all package-owned storage tables in the manifest', function (): void {
     $manifest = layoutBuilderJson('capell.json');
 
-    expect($manifest['database']['requiredTables'] ?? [])->toBe([
+    expect(data_get($manifest, 'database.requiredTables', []))->toBe([
         'layouts',
         'widgets',
         'widget_assets',
@@ -71,6 +72,21 @@ it('declares all package-owned storage tables in the manifest', function (): voi
         'layout_bulk_change_runs',
         'layout_bulk_change_results',
     ]);
+});
+
+it('declares lifecycle actions that satisfy the installer contract', function (): void {
+    $manifest = layoutBuilderJson('capell.json');
+    $actions = $manifest['actions'] ?? [];
+
+    expect($actions)->toHaveKeys(['install', 'setup']);
+
+    foreach (['install', 'setup'] as $lifecycle) {
+        $actionClass = $actions[$lifecycle] ?? null;
+
+        expect($actionClass)->toBeString()
+            ->and(class_exists($actionClass))->toBeTrue()
+            ->and(is_subclass_of($actionClass, PackageLifecycleAction::class))->toBeTrue();
+    }
 });
 
 it('references committed marketplace and screenshot manifest images', function (): void {
