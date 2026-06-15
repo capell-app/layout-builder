@@ -8,6 +8,8 @@
     $breakpointWidths = collect(LayoutBreakpoint::cases())
         ->mapWithKeys(fn (LayoutBreakpoint $breakpoint): array => [$breakpoint->value => $breakpoint->maxCanvasWidth()])
         ->all();
+    $editorPageLabel = (string) (data_get($this->page, 'title') ?: data_get($this->page, 'name') ?: $this->layout->name);
+    $editorSiteLabel = (string) (data_get($this->site, 'name') ?: __('capell-layout-builder::generic.site'));
     $previewContainerActions = [];
     $previewWidgetActions = [];
 
@@ -74,7 +76,7 @@
     <script data-navigate-once>
         window.capellLayoutBuilderVisualEditor = (config = {}) => ({
             treeOpen: false,
-            treeCollapsed: true,
+            treeCollapsed: false,
             compactPanels: false,
             actionLoading: false,
             search: '',
@@ -121,7 +123,7 @@
                     .clb-preview-main { display: grid; gap: 1rem; padding: 1.125rem; }
                     .clb-preview-content-layout { display: grid; gap: 1rem; align-items: start; }
                     .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr) minmax(13.5rem, 18rem); }
-                    .clb-preview-region { display: grid; min-width: 0; gap: .75rem; align-self: start; border-radius: .625rem; background: #f8fafc; padding: .75rem; box-shadow: inset 0 0 0 1px rgba(148,163,184,.12); }
+                    .clb-preview-region { display: grid; min-width: 0; gap: .75rem; align-self: start; border-radius: .25rem; background: #f5f7f4; padding: .75rem; box-shadow: inset 0 0 0 1px rgba(82,97,91,.14); }
                     .clb-preview-region-main { background: transparent; padding: 0; box-shadow: none; }
                     .clb-preview-region-sidebar { background: #f8fafc; }
                     .clb-preview-region-area { background: #f8fafc; }
@@ -129,18 +131,18 @@
                     .clb-preview-region-main > .clb-preview-region-label { display: none; }
                     .clb-preview-container-list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .875rem; }
                     .clb-preview-region-sidebar .clb-preview-container-list { grid-template-columns: minmax(0, 1fr); }
-                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .75rem; background: #fff; padding: .875rem; box-shadow: inset 0 0 0 1px rgba(148,163,184,.18), 0 10px 26px rgba(15,23,42,.06); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
+                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .125rem; background: #fff; padding: .875rem; box-shadow: inset 0 0 0 1px rgba(82,97,91,.18); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
                     .clb-preview-region-sidebar .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container:hover { background: #fff; box-shadow: inset 0 0 0 1px rgba(37,99,235,.2), 0 14px 32px rgba(15,23,42,.09); }
+                    .clb-preview-container:hover { background: #fff; box-shadow: inset 0 0 0 1px rgba(8,119,101,.34), 0 10px 22px rgba(15,23,42,.08); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); }
                     :host([data-active-breakpoint="mobile"]) .clb-preview-container { grid-column: 1 / -1; }
-                    .clb-preview-container-label { display: inline-flex; margin-bottom: .625rem; border-radius: 999px; background: #eef2ff; padding: .1875rem .5rem; color: #2563eb; font-size: .625rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
+                    .clb-preview-container-label { display: inline-flex; margin-bottom: .625rem; border-radius: .125rem; background: #087765; padding: .1875rem .5rem; color: #f8fffb; font-size: .625rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
                     .clb-preview-widgets { display: grid; gap: .75rem; }
-                    .clb-preview-widget { position: relative; overflow: hidden; border-radius: .875rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: inset 0 0 0 1px rgba(148,163,184,.16), 0 3px 10px rgba(15,23,42,.05); transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+                    .clb-preview-widget { position: relative; overflow: hidden; border-radius: .125rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: inset 0 0 0 1px rgba(82,97,91,.16), 0 3px 10px rgba(15,23,42,.04); transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
                     .layout-builder-widget-preview { overflow: hidden; border-radius: .25rem; background: transparent; box-shadow: none; }
-                    .clb-preview-widget:hover { box-shadow: inset 0 0 0 1px rgba(37,99,235,.2), 0 12px 26px rgba(15,23,42,.09); transform: translateY(-1px); }
+                    .clb-preview-widget:hover { box-shadow: inset 0 0 0 1px rgba(8,119,101,.34), 0 10px 22px rgba(15,23,42,.08); transform: translateY(-1px); }
                     .clb-preview-widget-body { display: flex; gap: .75rem; padding: .875rem; }
                     .clb-preview-widget-icon { display: inline-flex; width: 2rem; height: 2rem; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #eff6ff; color: #2563eb; }
                     .clb-preview-widget-type { margin-bottom: .25rem; color: #64748b; font-size: .72rem; font-weight: 700; letter-spacing: 0; text-transform: uppercase; }
@@ -151,10 +153,10 @@
                     .clb-preview-empty { width: 100%; border-radius: .25rem; background: rgba(255,255,255,.7); padding: .75rem; color: #71717a; text-align: center; }
                     .clb-preview-empty-page { grid-column: 1 / -1; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
-                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 1px dashed rgba(37,99,235,.34); outline-offset: 3px; }
-                    [data-clb-preview-node].is-selected { border-radius: 0 !important; outline: 1.5px dashed rgba(71,85,105,.72); outline-offset: 3px; box-shadow: 0 8px 18px rgba(15,23,42,.06); }
+                    [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 1px solid rgba(8,119,101,.42); outline-offset: 2px; }
+                    [data-clb-preview-node].is-selected { border-radius: 0 !important; outline: 2px solid #087765; outline-offset: 0; box-shadow: 0 8px 18px rgba(15,23,42,.06); }
                     [data-clb-preview-node].is-selected :where(.layout-builder-widget-preview) { border-radius: 0 !important; }
-                    .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(148, 163, 184, .28); border-radius: .5rem; background: rgba(255, 255, 255, .96); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 8px 18px rgba(15, 23, 42, .12); }
+                    .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(82, 97, 91, .22); border-radius: .375rem; background: rgba(255, 255, 255, .96); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 8px 18px rgba(15, 23, 42, .12); }
                     [data-clb-preview-node-type="widget"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="container"]:hover > .clb-preview-actionbar, [data-clb-preview-node].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
                     .clb-preview-actionbar button { pointer-events: auto !important; }
                     .clb-preview-action-button { display: inline-flex; width: 1.625rem; height: 1.625rem; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: #475569; cursor: pointer; padding: 0; transition: background-color .15s ease, color .15s ease; }
@@ -172,10 +174,10 @@
                     .clb-preview-menu button:hover, .clb-preview-menu button:focus-visible { background: #f3f4f6; outline: none; }
                     .clb-preview-menu-heading { margin: .25rem .625rem .125rem; color: #64748b; font-size: .6875rem; font-weight: 800; text-transform: uppercase; }
                     .clb-preview-insert { position: relative; z-index: 15; display: flex; min-height: 1rem; align-items: center; justify-content: center; opacity: 0; transition: opacity .15s ease; }
-                    .clb-preview-insert::before { position: absolute; left: .25rem; right: .25rem; height: 1px; background: rgba(37, 99, 235, .45); content: ''; }
+                    .clb-preview-insert::before { position: absolute; left: .25rem; right: .25rem; height: 1px; background: rgba(8, 119, 101, .45); content: ''; }
                     .clb-preview-insert:hover, .clb-preview-insert:focus-within { opacity: 1; }
-                    .clb-preview-insert-button { position: relative; z-index: 1; display: inline-flex; width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border: 1px solid rgba(37, 99, 235, .28); border-radius: 999px; background: #fff; color: #2563eb; cursor: pointer; pointer-events: auto !important; box-shadow: 0 4px 12px rgba(15, 23, 42, .12); }
-                    .clb-preview-insert-button:hover, .clb-preview-insert-button:focus-visible { border-color: rgba(37, 99, 235, .5); outline: none; }
+                    .clb-preview-insert-button { position: relative; z-index: 1; display: inline-flex; width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border: 1px solid rgba(8, 119, 101, .34); border-radius: 999px; background: #fff; color: #087765; cursor: pointer; pointer-events: auto !important; box-shadow: 0 4px 12px rgba(15, 23, 42, .12); }
+                    .clb-preview-insert-button:hover, .clb-preview-insert-button:focus-visible { border-color: rgba(8, 119, 101, .58); outline: none; }
                     .clb-preview-insert-button:disabled { cursor: wait; opacity: .82; }
                     .clb-preview-insert-button.is-loading { color: transparent; }
                     .clb-preview-insert-button.is-loading::after { position: absolute; inset: .38rem; border: 2px solid rgba(37, 99, 235, .25); border-top-color: #2563eb; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
@@ -1216,10 +1218,32 @@
 >
     <div class="layout-builder-visual-toolbar">
         <div class="layout-builder-visual-toolbar-start">
-            <div class="layout-builder-command-save">
-                @if ($this->saveLayoutAction->isVisible())
-                    {{ $this->saveLayoutAction }}
-                @endif
+            <button
+                type="button"
+                class="layout-builder-panel-toggle"
+                title="{{ __('capell-layout-builder::heading.layout_structure') }}"
+                x-ref="treeToggle"
+                x-on:click="compactPanels ? openTree() : toggleTreeCollapsed()"
+                x-bind:aria-pressed="! treeCollapsed"
+            >
+                @svg('heroicon-o-bars-3-bottom-left', 'h-4 w-4')
+                <span class="sr-only">
+                    {{ __('capell-layout-builder::heading.layout_structure') }}
+                </span>
+            </button>
+
+            <div class="layout-builder-editor-title">
+                <strong>{{ $this->layout->name }}</strong>
+
+                <span
+                    @class([
+                        'layout-builder-editor-status',
+                        'layout-builder-editor-status-unsaved' => $this->layoutModified,
+                    ])
+                >
+                    @svg($this->layoutModified ? 'heroicon-o-exclamation-circle' : 'heroicon-o-check-circle', 'h-3.5 w-3.5')
+                    {{ $this->layoutModified ? __('capell-layout-builder::message.layout_unsaved') : __('capell-layout-builder::message.layout_saved') }}
+                </span>
             </div>
         </div>
 
@@ -1258,6 +1282,18 @@
         </div>
 
         <div class="layout-builder-visual-actions">
+            <div class="layout-builder-editor-context">
+                <span>
+                    @svg('heroicon-o-globe-alt', 'h-4 w-4')
+                    {{ $editorSiteLabel }}
+                </span>
+
+                <span>
+                    @svg('heroicon-o-home', 'h-4 w-4')
+                    {{ $editorPageLabel }}
+                </span>
+            </div>
+
             <div
                 x-show="actionLoading"
                 x-cloak
@@ -1272,6 +1308,12 @@
             <div class="layout-builder-history-actions">
                 {{ $this->undoLayoutMutationAction }}
                 {{ $this->redoLayoutMutationAction }}
+            </div>
+
+            <div class="layout-builder-command-save">
+                @if ($this->saveLayoutAction->isVisible())
+                    {{ $this->saveLayoutAction }}
+                @endif
             </div>
         </div>
     </div>
@@ -1311,7 +1353,6 @@
                 type="button"
                 class="layout-builder-studio-rail-button"
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
-                x-ref="treeToggle"
                 x-bind:class="{ 'layout-builder-studio-rail-button-active': ! treeCollapsed }"
                 x-bind:aria-pressed="! treeCollapsed"
                 x-on:click="
@@ -1369,7 +1410,7 @@
             x-ref="treePanel"
             class="layout-builder-visual-panel layout-builder-visual-panel-tree"
         >
-            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree])
+            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel])
         </aside>
 
         <div
@@ -1565,6 +1606,6 @@
         tabindex="-1"
         class="layout-builder-responsive-drawer layout-builder-responsive-drawer-left"
     >
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree])
+        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel])
     </aside>
 </section>

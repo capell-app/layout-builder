@@ -1,5 +1,6 @@
 @props([
     'tree',
+    'title' => __('capell-layout-builder::heading.layout_structure'),
 ])
 
 <div
@@ -9,7 +10,7 @@
     <div class="layout-builder-tree-header">
         <div>
             <h2>
-                {{ __('capell-layout-builder::heading.layout_structure') }}
+                {{ $title }}
             </h2>
             <div class="layout-builder-tree-counts">
                 <span>
