@@ -2,10 +2,23 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Contracts\Extensions\RegistersExtensionPageType;
+use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
+use Capell\Core\Contracts\Extensions\RunsExtensionMigration;
 use Capell\Core\Contracts\PackageLifecycleAction;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
+use Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution;
+use Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution;
+use Capell\LayoutBuilder\Manifest\LayoutBuilderPageTypesContribution;
+use Capell\LayoutBuilder\Manifest\LayoutBuilderRoutesContribution;
+use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
+use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
+use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Models\WidgetWidget;
 use Illuminate\Support\Arr;
 
 it('declares the admin resources and extension points owned by layout builder', function (): void {
@@ -18,8 +31,17 @@ it('declares the admin resources and extension points owned by layout builder', 
     $contributionTypes = capell_test_collect($manifest['contributes'] ?? [])->pluck('type')->all();
     $deferredTypes = $manifest['contributionTraceability']['deferredContributions'] ?? [];
 
-    expect($contributionTypes)->toContain('admin-resource', 'configurator', 'schema-extender', 'asset')
-        ->and($deferredTypes)->not->toContain('permission', 'configurator', 'schema-extender', 'asset');
+    expect($contributionTypes)->toContain(
+        'admin-resource',
+        'asset',
+        'configurator',
+        'migration',
+        'model',
+        'page-type',
+        'route',
+        'schema-extender',
+    )
+        ->and($deferredTypes)->toBe([]);
 });
 
 it('advertises package-owned layout builder admin classes in its manifest', function (): void {
@@ -72,6 +94,64 @@ it('declares all package-owned storage tables in the manifest', function (): voi
         'layout_bulk_change_runs',
         'layout_bulk_change_results',
     ]);
+});
+
+it('declares runtime model page type route and migration contribution metadata', function (): void {
+    $manifest = layoutBuilderJson('capell.json');
+    $contributes = $manifest['contributes'] ?? [];
+    $security = $manifest['security'] ?? null;
+
+    throw_unless(is_array($contributes), RuntimeException::class, 'Expected Layout Builder contributions array.');
+    throw_unless(is_array($security), RuntimeException::class, 'Expected Layout Builder security metadata array.');
+    throw_unless(is_array($security['publicSurface'] ?? null), RuntimeException::class, 'Expected Layout Builder public surface metadata array.');
+
+    $contributions = collect($contributes);
+
+    $models = $contributions->firstWhere('class', LayoutBuilderModelsContribution::class);
+    $pageTypes = $contributions->firstWhere('class', LayoutBuilderPageTypesContribution::class);
+    $routes = $contributions->firstWhere('class', LayoutBuilderRoutesContribution::class);
+    $migrations = $contributions->firstWhere('class', LayoutBuilderMigrationsContribution::class);
+
+    throw_unless(is_array($models), RuntimeException::class, 'Expected Layout Builder model contribution array.');
+    throw_unless(is_array($pageTypes), RuntimeException::class, 'Expected Layout Builder page type contribution array.');
+    throw_unless(is_array($routes), RuntimeException::class, 'Expected Layout Builder route contribution array.');
+    throw_unless(is_array($migrations), RuntimeException::class, 'Expected Layout Builder migration contribution array.');
+
+    expect($models)->toBeArray()
+        ->and($models['modelClasses'])->toBe([
+            Widget::class,
+            WidgetAsset::class,
+            WidgetWidget::class,
+            LayoutPreset::class,
+            LayoutBulkChangeRun::class,
+            LayoutBulkChangeResult::class,
+        ])
+        ->and($models['morphAliases'])->toBe([
+            'widget' => Widget::class,
+            'widget_asset' => WidgetAsset::class,
+            'widget_widget' => WidgetWidget::class,
+        ])
+        ->and($pageTypes['pageTypes'])->toBe([
+            [
+                'name' => 'widget',
+                'modelClass' => Widget::class,
+            ],
+        ])
+        ->and(class_implements(LayoutBuilderPageTypesContribution::class))->toContain(RegistersExtensionPageType::class)
+        ->and($routes['routes'])->toBe(['capell-layout-builder.fragments.show'])
+        ->and($routes['reservedFrontendPath'])->toBe('_fragments')
+        ->and($security['publicSurface']['routeNames'])->toBe(['capell-layout-builder.fragments.show'])
+        ->and(class_implements(LayoutBuilderRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
+        ->and($migrations['migrationFiles'])->toBe([
+            '2026_05_10_190841_01_create_layouts_table',
+            '2026_05_10_190841_02_create_widgets_table',
+            '2026_05_10_190841_03_create_widget_assets_table',
+            '2026_05_10_190841_04_create_widget_widgets_table',
+            '2026_05_10_190841_05_add_container_widgets_to_layouts_table',
+            '2026_05_10_190841_06_create_layout_presets_table',
+            '2026_06_07_000001_create_layout_bulk_change_tables',
+        ])
+        ->and(class_implements(LayoutBuilderMigrationsContribution::class))->toContain(RunsExtensionMigration::class);
 });
 
 it('declares lifecycle actions that satisfy the installer contract', function (): void {

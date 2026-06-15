@@ -28,6 +28,8 @@ Prioritized.
 
 9. **Done/Shipped 2026-06-14: manifest and health storage lists cover presets and bulk changes.** `capell.json`, README docs, and Diagnostics now include `layout_presets`, `layout_bulk_change_runs`, and `layout_bulk_change_results`, matching the migrations and model layer. — `capell.json`, `src/Health/LayoutBuilderHealthCheck.php`, `tests/Feature/LayoutBuilderManifestTest.php`, `tests/Feature/LayoutBuilderHealthCheckTest.php` — **S**
 
+10. **Done/Shipped 2026-06-15: runtime contribution traceability is explicit.** `capell.json` now declares package-owned models, the `widget` page type, the `_fragments` public fragment route, and the seven migration files through marker contribution classes, clearing stale `migration`/`model`/`page-type`/`route` deferred traceability. — `capell.json`, `src/Manifest/*Contribution.php`, `tests/Feature/LayoutBuilderManifestTest.php` — **S**
+
 ## 3. Missing Features (gaps)
 
 Capabilities declared: `layout-builder`, `layout-builder-admin`, `layout-builder-content-first`, `layout-builder-public-rendering`. All four are genuinely reachable in production. Gaps against page-builder norms:
