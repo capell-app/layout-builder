@@ -62,7 +62,7 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
 it('declares all package-owned storage tables in the manifest', function (): void {
     $manifest = layoutBuilderJson('capell.json');
 
-    expect($manifest['database']['requiredTables'] ?? [])->toBe([
+    expect(data_get($manifest, 'database.requiredTables', []))->toBe([
         'layouts',
         'widgets',
         'widget_assets',
