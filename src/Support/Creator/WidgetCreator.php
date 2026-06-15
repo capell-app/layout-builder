@@ -56,6 +56,10 @@ class WidgetCreator
             'is_livewire' => false,
             'meta' => [
                 'component' => WidgetComponentEnum::PageBreadcrumbs->value,
+                'minimum_items' => 1,
+                'show_current_page' => true,
+                'show_home' => true,
+                'show_parent' => true,
             ],
         ])->save();
 

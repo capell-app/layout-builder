@@ -9,6 +9,9 @@ use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Layout;
+use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
+use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
+use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\WidgetWidget;
@@ -34,6 +37,9 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
         Widget::class,
         WidgetAsset::class,
         WidgetWidget::class,
+        LayoutPreset::class,
+        LayoutBulkChangeRun::class,
+        LayoutBulkChangeResult::class,
     ];
 
     public static function compatibleCapellApiVersion(): string
@@ -72,7 +78,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
             label: 'Layout Builder storage tables',
             passed: $missingTables === [],
             message: $missingTables === []
-                ? 'The layouts, widgets, widget assets, and widget relation tables are present.'
+                ? 'The layout, widget, preset, and bulk-change storage tables are present.'
                 : 'Missing tables: ' . implode(', ', $missingTables) . '.',
             remediation: $missingTables === []
                 ? null

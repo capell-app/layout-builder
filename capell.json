@@ -92,7 +92,10 @@
             "layouts",
             "widgets",
             "widget_assets",
-            "widget_widgets"
+            "widget_widgets",
+            "layout_presets",
+            "layout_bulk_change_runs",
+            "layout_bulk_change_results"
         ]
     },
     "commands": {

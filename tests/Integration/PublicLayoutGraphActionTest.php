@@ -405,6 +405,10 @@ it('sanitizes stored widget meta before public contributors see it', function ()
                 'cards_per_row' => '2',
                 'signed_url' => 'https://example.test/admin/signed',
             ],
+            'minimum_items' => '2',
+            'show_current_page' => '1',
+            'show_home' => '0',
+            'show_parent' => true,
             'admin_schema' => ['secret' => true],
         ],
     ]);
@@ -446,6 +450,10 @@ it('sanitizes stored widget meta before public contributors see it', function ()
     $payload = $graph->containers[0]->widgets[0]->data;
 
     expect($payload['seenMeta'])->toBe([
+        'show_home' => false,
+        'show_parent' => true,
+        'show_current_page' => true,
+        'minimum_items' => 2,
         'widget_settings' => [
             'spacing' => 'spacious',
             'cards_per_row' => 2,

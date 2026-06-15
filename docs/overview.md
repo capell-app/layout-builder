@@ -57,7 +57,7 @@ Screenshot contract: `screenshots.json`.
 
 ## Data Model
 
-- Required tables: `layouts`, `widgets`, `widget_assets`, `widget_widgets`.
+- Required tables: `layouts`, `widgets`, `widget_assets`, `widget_widgets`, `layout_presets`, `layout_bulk_change_runs`, `layout_bulk_change_results`.
 - Models: `Layout`, `LayoutBulkChangeResult`, `LayoutBulkChangeRun`, `LayoutPreset`, `Widget`, `WidgetAsset`, `WidgetWidget`.
 - Migration files: `2026_05_10_190841_01_create_layouts_table.php`, `2026_05_10_190841_02_create_widgets_table.php`, `2026_05_10_190841_03_create_widget_assets_table.php`, `2026_05_10_190841_04_create_widget_widgets_table.php`, `2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `2026_05_10_190841_06_create_layout_presets_table.php`, `2026_06_07_000001_create_layout_bulk_change_tables.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.

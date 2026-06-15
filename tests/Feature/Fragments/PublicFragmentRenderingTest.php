@@ -7,6 +7,9 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Support\CapellFrontendContext;
+use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
 use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
@@ -16,6 +19,17 @@ it('renders a valid encrypted public widget fragment reference', function (): vo
     [$reference] = publicFragmentFixture('<section class="fragment-card">Public fragment</section>');
 
     expect(RenderPublicFragmentAction::run($reference))->toBe('<section class="fragment-card">Public fragment</section>');
+});
+
+it('restores the previous frontend context after rendering a public fragment', function (): void {
+    [$reference] = publicFragmentFixture('<section class="fragment-card">Public fragment</section>');
+    $previousContext = new CapellFrontendContext(new FrontendState);
+
+    app()->instance(CapellFrontendContext::class, $previousContext);
+    Frontend::clearResolvedInstance(CapellFrontendContext::class);
+
+    expect(RenderPublicFragmentAction::run($reference))->toBe('<section class="fragment-card">Public fragment</section>')
+        ->and(resolve(CapellFrontendContext::class))->toBe($previousContext);
 });
 
 it('exposes the public fragment route with fragment specific cache headers', function (): void {
