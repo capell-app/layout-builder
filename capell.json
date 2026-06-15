@@ -106,7 +106,7 @@
     },
     "actions": {
         "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction",
-        "setup": "Capell\\LayoutBuilder\\Actions\\InstallPackageAction"
+        "setup": "Capell\\LayoutBuilder\\Actions\\SetupLayoutBuilderPackageAction"
     },
     "settings": [],
     "permissions": [
