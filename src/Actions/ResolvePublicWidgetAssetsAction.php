@@ -14,6 +14,7 @@ use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ResolvePublicWidgetAssetsAction
@@ -160,16 +161,25 @@ final class ResolvePublicWidgetAssetsAction
 
         return $translation instanceof Model
             && $this->integerAttribute($translation, 'language_id') === $this->integerKey($language)
-            && $this->integerAttribute($translation, 'workspace_id') === 0
+            && in_array($this->integerAttribute($translation, 'workspace_id'), [null, 0], true)
             && $translation->getAttribute('deleted_at') === null;
     }
 
     private function scopePublicTranslation(BuilderContract $query, Language $language): BuilderContract
     {
-        return $query
-            ->where('language_id', $language->getKey())
-            ->where('workspace_id', 0)
-            ->whereNull('deleted_at');
+        $table = $query->getModel()->getTable();
+
+        $query->where('language_id', $language->getKey());
+
+        if (Schema::hasColumn($table, 'workspace_id')) {
+            $query->where('workspace_id', 0);
+        }
+
+        if (Schema::hasColumn($table, 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        return $query;
     }
 
     private function integerAttribute(Model $model, string $attribute): ?int
