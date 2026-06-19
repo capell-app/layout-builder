@@ -18,15 +18,7 @@
             "required": true,
             "notes": "Shows reusable widgets, component/search columns, filters, and table actions.",
             "useCase": "An administrator scans reusable widgets by component, usage, status, and search/filter state.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/widgets-admin-index.png",
-            "covers": [
-                "packages/layout-builder/src/Filament/Components/Forms/AssetsRepeater.php",
-                "packages/layout-builder/src/Filament/Resources/Layouts/Tables/LayoutsTable.php",
-                "packages/layout-builder/src/Filament/Resources/Widgets/Pages/EditWidget.php",
-                "packages/layout-builder/src/Filament/Resources/Widgets/Pages/ListWidgets.php",
-                "packages/layout-builder/src/Livewire/Filament/ModalTableSelect.php",
-                "packages/layout-builder/src/Livewire/Filament/Support/LayoutBuilderActionFactory.php"
-            ]
+            "screenshotPath": "packages/layout-builder/docs/screenshots/widgets-admin-index.png"
         },
         {
             "id": "create-edit-widget-form",
