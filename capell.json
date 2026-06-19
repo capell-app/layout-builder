@@ -181,8 +181,8 @@
     "security": {
         "riskTier": "standard",
         "publicSurface": {
-            "routeNames": ["capell-layout-builder.fragments.show"],
-            "auth": "public",
+            "routeNames": [],
+            "auth": "none",
             "csrfExemptRoutes": [],
             "signedRoutes": [],
             "tokenizedRoutes": [],
