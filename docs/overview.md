@@ -35,50 +35,6 @@ Screenshot contract: `screenshots.json`.
 - Sections admin index (admin, required).
 - Public page rendering Layout Builder widgets (frontend, required).
 
-## Screenshot Evidence
-
-These captures are the package-owned visual contract for the admin pages, public pages, actions, workflows, and feature surfaces described above. Keep this section aligned with `docs/screenshots.json` whenever the package surface changes.
-
-### Widgets admin index
-
-![Widgets admin index](screenshots/widgets-admin-index.png)
-
-- Surface: admin · Target: WidgetResource.
-- Documents: An administrator scans reusable widgets by component, usage, status, and search/filter state.
-- Capture notes: Shows reusable widgets, component/search columns, filters, and table actions.
-
-### Create/edit widget form with widget assets
-
-![Create/edit widget form with widget assets](screenshots/create-edit-widget-form.png)
-
-- Surface: admin · Target: WidgetResource.
-- Documents: An editor configures a reusable widget, its display settings, translations, and widget assets.
-- Capture notes: Capture the component, display, settings, translations, and asset configuration tabs.
-
-### Layout Builder editor screen
-
-![Layout Builder editor screen](screenshots/layout-builder-screen.png)
-
-- Surface: admin · Target: PageSchemaExtender.
-- Documents: An editor composes a page visually with reusable widgets and named layout areas.
-- Capture notes: Shows the dual-mode page composition screen with layout areas and widgets.
-
-### Sections admin index
-
-![Sections admin index](screenshots/sections-admin-index.png)
-
-- Surface: admin · Target: LayoutResource.
-- Documents: An administrator reviews layout sections and layout-builder managed records.
-- Capture notes: Shows package-specific section and layout table state.
-
-### Public page rendering Layout Builder widgets
-
-![Public page rendering Layout Builder widgets](screenshots/frontend-page-rendering-layout-builder-widgets.png)
-
-- Surface: frontend · Target: frontend-url.
-- Documents: An anonymous visitor sees seeded layout widgets rendered as safe public HTML.
-- Capture notes: Anonymous public page render with seeded widgets; must expose no admin/editor state.
-
 ## Technical Shape
 
 - Service providers: `Capell\LayoutBuilder\LayoutBuilderServiceProvider`.
@@ -89,12 +45,12 @@ These captures are the package-owned visual contract for the admin pages, public
 - Livewire components: `AuthorizesLayoutBuilderAccess`, `HasLayoutActions`, `ManagesAssets`, `ManagesContainers`, `ManagesLayoutBuilderState`, `ManagesWidgets`, `LayoutBuilder`, `ModalTableSelect`, `LayoutBuilderActionFactory`.
 - Policies: `LayoutPresetPolicy`.
 - Listeners: `AfterRecordSaved`, `LayoutLoaded`, `SiteTreeRebuilt`, `TypeValidated`.
-- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 44 more`.
+- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 45 more`.
 - Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `LayoutBuilderTreeContainerData`, `and 24 more`.
 - Jobs: `ApplyLayoutBulkChangeRunJob`.
 - Command signatures: `capell:layout-builder-install`.
 - Console command classes: `InstallCommand`, `LayoutBulkChangeCommand`, `WidgetVisualRegressionCommand`.
-- Manifest contributions: `admin-resource: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `asset: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `configurator: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `schema-extender: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`.
+- Manifest contributions: `admin-resource: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `asset: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `configurator: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `migration: Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution`, `model: Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution`, `page-type: Capell\LayoutBuilder\Manifest\LayoutBuilderPageTypesContribution`, `route: Capell\LayoutBuilder\Manifest\LayoutBuilderRoutesContribution`, `schema-extender: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`.
 - Health checks: `Capell\LayoutBuilder\Health\LayoutBuilderHealthCheck`.
 - Blade views: `packages/layout-builder/resources/views/components/filament/layout-builder/asset.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/assets.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/container.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/drag-handle-icon.blade.php`, `packages/layout-builder/resources/views/components/filament/layout-builder/widget.blade.php`, `packages/layout-builder/resources/views/components/infolists/entries/layout-widget.blade.php`, `packages/layout-builder/resources/views/components/infolists/entries/layout-widgets.blade.php`, `packages/layout-builder/resources/views/components/layout/area.blade.php`, `packages/layout-builder/resources/views/components/layout/container.blade.php`, `packages/layout-builder/resources/views/components/layout/main-content.blade.php`, `packages/layout-builder/resources/views/components/layout/widget.blade.php`, `packages/layout-builder/resources/views/filament/actions/layout-bulk-change-review.blade.php`, `and 14 more`.
 - Cache tags: `layout-builder`.
