@@ -35,6 +35,50 @@ Screenshot contract: `screenshots.json`.
 - Sections admin index (admin, required).
 - Public page rendering Layout Builder widgets (frontend, required).
 
+## Screenshot Evidence
+
+These captures are the package-owned visual contract for the admin pages, public pages, actions, workflows, and feature surfaces described above. Keep this section aligned with `docs/screenshots.json` whenever the package surface changes.
+
+### Widgets admin index
+
+![Widgets admin index](screenshots/widgets-admin-index.png)
+
+- Surface: admin · Target: WidgetResource.
+- Documents: An administrator scans reusable widgets by component, usage, status, and search/filter state.
+- Capture notes: Shows reusable widgets, component/search columns, filters, and table actions.
+
+### Create/edit widget form with widget assets
+
+![Create/edit widget form with widget assets](screenshots/create-edit-widget-form.png)
+
+- Surface: admin · Target: WidgetResource.
+- Documents: An editor configures a reusable widget, its display settings, translations, and widget assets.
+- Capture notes: Capture the component, display, settings, translations, and asset configuration tabs.
+
+### Layout Builder editor screen
+
+![Layout Builder editor screen](screenshots/layout-builder-screen.png)
+
+- Surface: admin · Target: PageSchemaExtender.
+- Documents: An editor composes a page visually with reusable widgets and named layout areas.
+- Capture notes: Shows the dual-mode page composition screen with layout areas and widgets.
+
+### Sections admin index
+
+![Sections admin index](screenshots/sections-admin-index.png)
+
+- Surface: admin · Target: LayoutResource.
+- Documents: An administrator reviews layout sections and layout-builder managed records.
+- Capture notes: Shows package-specific section and layout table state.
+
+### Public page rendering Layout Builder widgets
+
+![Public page rendering Layout Builder widgets](screenshots/frontend-page-rendering-layout-builder-widgets.png)
+
+- Surface: frontend · Target: frontend-url.
+- Documents: An anonymous visitor sees seeded layout widgets rendered as safe public HTML.
+- Capture notes: Anonymous public page render with seeded widgets; must expose no admin/editor state.
+
 ## Technical Shape
 
 - Service providers: `Capell\LayoutBuilder\LayoutBuilderServiceProvider`.
