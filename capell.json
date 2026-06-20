@@ -114,7 +114,10 @@
         {
             "type": "route",
             "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderRoutesContribution",
-            "routes": ["capell-layout-builder.fragments.show"],
+            "routes": [
+                "capell-layout-builder.fragments.show",
+                "capell-layout-builder.layout-widgets.show"
+            ],
             "prefix": "_fragments",
             "middleware": ["web"],
             "reservedFrontendPath": "_fragments"
@@ -181,7 +184,10 @@
     "security": {
         "riskTier": "standard",
         "publicSurface": {
-            "routeNames": [],
+            "routeNames": [
+                "capell-layout-builder.fragments.show",
+                "capell-layout-builder.layout-widgets.show"
+            ],
             "auth": "none",
             "csrfExemptRoutes": [],
             "signedRoutes": [],

@@ -27,12 +27,12 @@ it('registers the admin surface through the layout builder package registrar', f
         );
 });
 
-it('nests layout builder resources below pages navigation', function (): void {
-    expect(LayoutResource::getNavigationGroup())->toBeNull()
-        ->and(LayoutResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
+it('groups layout builder resources under web pages navigation', function (): void {
+    expect(LayoutResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_websites'))
+        ->and(LayoutResource::getNavigationParentItem())->toBeNull()
         ->and(LayoutResource::getNavigationSort())->toBe(3)
-        ->and(WidgetResource::getNavigationGroup())->toBeNull()
-        ->and(WidgetResource::getNavigationParentItem())->toBe((string) __('capell-admin::navigation.website'))
+        ->and(WidgetResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_websites'))
+        ->and(WidgetResource::getNavigationParentItem())->toBeNull()
         ->and(WidgetResource::getNavigationSort())->toBe(2);
 });
 

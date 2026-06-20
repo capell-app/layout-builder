@@ -10,10 +10,10 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\LayoutBuilder\Actions\ResolveWidgetPresentationDataAction;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 
-final class WidgetPresentationPublicWidgetPayloadContributor implements PublicWidgetPayloadContributor
+final class WidgetPresentationPublicLayoutWidgetPayloadContributor implements PublicLayoutWidgetPayloadContributor
 {
     /**
      * @var array<int, string|null>

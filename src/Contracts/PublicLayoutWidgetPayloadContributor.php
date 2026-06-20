@@ -8,9 +8,9 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 
-interface PublicWidgetPayloadContributor
+interface PublicLayoutWidgetPayloadContributor
 {
-    public const string TAG = 'capell.layout_builder.public_widget_payload_contributor';
+    public const string TAG = 'capell.layout_builder.public_layout_widget_payload_contributor';
 
     public function priority(): int;
 

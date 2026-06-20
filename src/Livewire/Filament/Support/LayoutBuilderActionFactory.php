@@ -313,7 +313,7 @@ final class LayoutBuilderActionFactory
             ->modalWidth(Width::ScreenSmall)
             ->schema(function (array $arguments, LayoutBuilder $livewire, Schema $schema): Schema {
                 $adminSchema = AdminSurfaceLookup::configurator(
-                    ConfiguratorTypeEnum::LayoutWidget->value,
+                    ConfiguratorTypeEnum::Widget->value,
                     $livewire->getContainerWidgetConfigurator($arguments['containerKey'], $arguments['widgetIndex']) ?? DefaultWidgetConfigurator::getKey(),
                 );
 

@@ -16,7 +16,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
@@ -244,7 +244,7 @@ it('lets package tagged contributors extend widget payload data and html', funct
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.layout-builder-payload-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
+    app()->singleton('test.layout-builder-payload-contributor', fn (): PublicLayoutWidgetPayloadContributor => new class implements PublicLayoutWidgetPayloadContributor
     {
         public function priority(): int
         {
@@ -270,7 +270,7 @@ it('lets package tagged contributors extend widget payload data and html', funct
         }
     });
 
-    app()->tag(['test.layout-builder-payload-contributor'], PublicWidgetPayloadContributor::TAG);
+    app()->tag(['test.layout-builder-payload-contributor'], PublicLayoutWidgetPayloadContributor::TAG);
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
     $widgetData = $graph->containers[0]->widgets[0];
@@ -331,7 +331,7 @@ it('adds sanitized widget presentation data without exposing authoring metadata'
         ],
     ]);
 
-    app()->singleton('test.widget-settings-spy-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
+    app()->singleton('test.widget-settings-spy-contributor', fn (): PublicLayoutWidgetPayloadContributor => new class implements PublicLayoutWidgetPayloadContributor
     {
         public function priority(): int
         {
@@ -353,7 +353,7 @@ it('adds sanitized widget presentation data without exposing authoring metadata'
             return null;
         }
     });
-    app()->tag(['test.widget-settings-spy-contributor'], PublicWidgetPayloadContributor::TAG);
+    app()->tag(['test.widget-settings-spy-contributor'], PublicLayoutWidgetPayloadContributor::TAG);
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
@@ -421,7 +421,7 @@ it('sanitizes stored widget meta before public contributors see it', function ()
         ],
     ]);
 
-    app()->singleton('test.stored-meta-spy-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
+    app()->singleton('test.stored-meta-spy-contributor', fn (): PublicLayoutWidgetPayloadContributor => new class implements PublicLayoutWidgetPayloadContributor
     {
         public function priority(): int
         {
@@ -443,7 +443,7 @@ it('sanitizes stored widget meta before public contributors see it', function ()
             return null;
         }
     });
-    app()->tag(['test.stored-meta-spy-contributor'], PublicWidgetPayloadContributor::TAG);
+    app()->tag(['test.stored-meta-spy-contributor'], PublicLayoutWidgetPayloadContributor::TAG);
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
@@ -492,7 +492,7 @@ it('scopes default widget assets to the matching occurrence when building public
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.layout-builder-asset-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
+    app()->singleton('test.layout-builder-asset-contributor', fn (): PublicLayoutWidgetPayloadContributor => new class implements PublicLayoutWidgetPayloadContributor
     {
         public function priority(): int
         {
@@ -518,7 +518,7 @@ it('scopes default widget assets to the matching occurrence when building public
         }
     });
 
-    app()->tag(['test.layout-builder-asset-contributor'], PublicWidgetPayloadContributor::TAG);
+    app()->tag(['test.layout-builder-asset-contributor'], PublicLayoutWidgetPayloadContributor::TAG);
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
 

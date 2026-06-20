@@ -8,7 +8,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutGraphData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
@@ -39,7 +39,7 @@ class BuildPublicLayoutGraphAction
 
         $selectedContainers = $this->selectedContainers($containers);
         $loader = resolve(LayoutLoader::class);
-        $resolver = resolve(PublicWidgetPayloadResolver::class);
+        $resolver = resolve(PublicLayoutWidgetPayloadResolver::class);
 
         $loader->preloadLayoutWidgets($layout, $language, $page, $selectedContainers);
 
@@ -73,7 +73,7 @@ class BuildPublicLayoutGraphAction
         Page $page,
         Language $language,
         LayoutLoader $loader,
-        PublicWidgetPayloadResolver $resolver,
+        PublicLayoutWidgetPayloadResolver $resolver,
         string $containerKey,
         array $container,
         bool $includeHtml,
@@ -111,7 +111,7 @@ class BuildPublicLayoutGraphAction
         Page $page,
         Language $language,
         LayoutLoader $loader,
-        PublicWidgetPayloadResolver $resolver,
+        PublicLayoutWidgetPayloadResolver $resolver,
         string $containerKey,
         array $widgetData,
         bool $includeHtml,

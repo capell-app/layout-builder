@@ -14,8 +14,8 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Contracts\DeferredFragmentReferenceBuilder;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Frontend\Contracts\PublicWidgetAssetsRenderer;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
+use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
@@ -57,7 +57,7 @@ it('renders explicitly grouped widget assets without querying frontend context',
         ->create(['order' => 10]);
     $widgetAsset->setRelation('asset', $asset);
 
-    $html = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetData: ['occurrence' => 2],
@@ -93,7 +93,7 @@ it('falls back to frontend context and filters non-public translations', functio
 
     app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
 
-    $html = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetData: ['occurrence' => 3],
@@ -137,7 +137,7 @@ it('renders deferred placeholders before renderable dispatch', function (): void
         }
     });
 
-    $html = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetAssets: collect([$widgetAsset]),
@@ -162,7 +162,7 @@ it('dispatches renderables with dynamic data and implementation options', functi
         static fn (Model $asset, Model $translation, array $meta, string $renderKey): array => ['badge' => 'Dynamic Badge'],
     );
 
-    $bladeHtml = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $bladeHtml = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetAssets: collect([$widgetAsset]),

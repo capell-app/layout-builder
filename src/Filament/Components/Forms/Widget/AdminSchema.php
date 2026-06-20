@@ -28,8 +28,8 @@ class AdminSchema
             ConfiguratorSelect::make('layout_widget_configurator')
                 ->label(__('capell-layout-builder::form.layout_widget_configurator'))
                 ->helperText(__('capell-layout-builder::generic.admin_layout_builder_widget_schema_info'))
-                ->setupOptions(ConfiguratorTypeEnum::LayoutWidget)
-                ->withCreateConfiguratorAction(ConfiguratorTypeEnum::LayoutWidget),
+                ->setupOptions(ConfiguratorTypeEnum::Widget)
+                ->withCreateConfiguratorAction(ConfiguratorTypeEnum::Widget),
 
             IconPicker::make('icon')
                 ->label(__('capell-admin::form.admin_icon')),

@@ -17,8 +17,8 @@ use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\FrontendHookRegistrar;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Enums\ComponentTypeEnum;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
@@ -59,8 +59,8 @@ final class LayoutBuilderCoreRegistrar
     private function registerManagers(): void
     {
         App::singleton(CapellLayoutManager::class, fn (): CapellLayoutManager => new CapellLayoutManager);
-        App::bind(PublicWidgetPayloadResolver::class, DefaultPublicWidgetPayloadResolver::class);
-        App::tag([], PublicWidgetPayloadContributor::TAG);
+        App::bind(PublicLayoutWidgetPayloadResolver::class, DefaultPublicLayoutWidgetPayloadResolver::class);
+        App::tag([], PublicLayoutWidgetPayloadContributor::TAG);
     }
 
     private function registerRelationships(): void

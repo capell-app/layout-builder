@@ -8,7 +8,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 
-interface PublicWidgetPayloadResolver
+interface PublicLayoutWidgetPayloadResolver
 {
     /**
      * @return array<string, mixed>

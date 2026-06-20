@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Widgets;
 
-use Capell\Admin\Contracts\CapellWidgetContract;
+use Capell\Admin\Contracts\CapellFilamentWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Facades\CapellCore;
@@ -20,7 +20,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 use Override;
 
-final class LayoutHealthWidgetAbstract extends FilamentWidget implements CapellWidgetContract
+final class LayoutHealthFilamentWidget extends FilamentWidget implements CapellFilamentWidgetContract
 {
     use GatedByRoleAndSettings;
 

@@ -37,8 +37,8 @@ use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerCo
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Tables\PageSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
-use Capell\LayoutBuilder\Filament\Widgets\LayoutHealthWidgetAbstract;
-use Capell\LayoutBuilder\Filament\Widgets\RecentActivityWidgetAbstract;
+use Capell\LayoutBuilder\Filament\Widgets\LayoutHealthFilamentWidget;
+use Capell\LayoutBuilder\Filament\Widgets\RecentActivityFilamentWidget;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
 use Capell\LayoutBuilder\Livewire\Filament\Support\LayoutBuilderActionFactory;
 use Capell\LayoutBuilder\Models\Widget;
@@ -158,7 +158,7 @@ it('aggregates layout health widget data for grouped unused and least-used widge
 
     WidgetAsset::factory()->widget($publishedWidget)->asset(Page::factory()->create())->create();
 
-    $layoutHealthWidget = new LayoutHealthWidgetAbstract;
+    $layoutHealthWidget = new LayoutHealthFilamentWidget;
     $viewData = invokeLayoutBuilderResidualMethod($layoutHealthWidget, 'getViewData');
     $data = $viewData['data'];
 
@@ -1244,7 +1244,7 @@ it('covers simple residual form configurators widgets enums and widget model bra
 
     $containerConfigurator = resolve(DefaultLayoutContainerConfigurator::class);
     $containerSchema = $containerConfigurator->make(Mockery::mock(Schema::class));
-    $recentActivityData = invokeLayoutBuilderResidualMethod(new RecentActivityWidgetAbstract, 'getViewData')['data'];
+    $recentActivityData = invokeLayoutBuilderResidualMethod(new RecentActivityFilamentWidget, 'getViewData')['data'];
     $tagSelect = TagSelect::make('tag');
     $assetTypeSelect = AssetTypeSelect::make('asset_type');
 

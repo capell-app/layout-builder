@@ -138,9 +138,15 @@ it('declares runtime model page type route and migration contribution metadata',
             ],
         ])
         ->and(class_implements(LayoutBuilderPageTypesContribution::class))->toContain(RegistersExtensionPageType::class)
-        ->and($routes['routes'])->toBe(['capell-layout-builder.fragments.show'])
+        ->and($routes['routes'])->toBe([
+            'capell-layout-builder.fragments.show',
+            'capell-layout-builder.layout-widgets.show',
+        ])
         ->and($routes['reservedFrontendPath'])->toBe('_fragments')
-        ->and($security['publicSurface']['routeNames'])->toBe(['capell-layout-builder.fragments.show'])
+        ->and($security['publicSurface']['routeNames'])->toBe([
+            'capell-layout-builder.fragments.show',
+            'capell-layout-builder.layout-widgets.show',
+        ])
         ->and(class_implements(LayoutBuilderRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($migrations['migrationFiles'])->toBe([
             '2026_05_10_190841_01_create_layouts_table',
