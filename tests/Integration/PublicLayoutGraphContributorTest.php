@@ -9,7 +9,7 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 
@@ -57,7 +57,7 @@ it('routes public graph rendering through layout builder package payload contrib
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.package-public-widget-payload-contributor', fn (): PublicWidgetPayloadContributor => new class implements PublicWidgetPayloadContributor
+    app()->singleton('test.package-public-layout-widget-payload-contributor', fn (): PublicLayoutWidgetPayloadContributor => new class implements PublicLayoutWidgetPayloadContributor
     {
         public function priority(): int
         {
@@ -81,7 +81,7 @@ it('routes public graph rendering through layout builder package payload contrib
         }
     });
 
-    app()->tag('test.package-public-widget-payload-contributor', PublicWidgetPayloadContributor::TAG);
+    app()->tag('test.package-public-layout-widget-payload-contributor', PublicLayoutWidgetPayloadContributor::TAG);
 
     $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, includeHtml: true);
     $widgetData = $graph->containers[0]->widgets[0];

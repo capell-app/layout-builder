@@ -11,7 +11,7 @@ use Capell\Core\Models\Site;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\LayoutWidgetResourceUsageContributor;
+use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 
 it('contributes layout widget resource usages from the public layout graph', function (): void {
     $language = Language::factory()->create();
@@ -50,7 +50,7 @@ it('contributes layout widget resource usages from the public layout graph', fun
     ]);
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    $usages = (new LayoutWidgetResourceUsageContributor)->usages(new FrontendRenderContextData(
+    $usages = (new LayoutBuilderLayoutWidgetResourceUsageContributor)->usages(new FrontendRenderContextData(
         page: $page,
         site: $site,
         language: $language,
@@ -64,7 +64,7 @@ it('contributes layout widget resource usages from the public layout graph', fun
             'app.widget.lightbox',
         ])
         ->and($usages[0]->widgetKey)->toBe('feature-carousel')
-        ->and($usages[0]->publicId)->toBe(LayoutWidgetResourceUsageContributor::publicId(
+        ->and($usages[0]->publicId)->toBe(LayoutBuilderLayoutWidgetResourceUsageContributor::publicId(
             'feature-carousel',
             'package.widget.carousel',
             'main',

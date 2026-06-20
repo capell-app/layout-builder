@@ -258,7 +258,13 @@ trait ManagesLayoutBuilderState
 
     protected function applyLayoutState(LayoutBuilderStateData $state, bool $markModified): void
     {
-        $this->containers = $state->containers;
+        $normalizedContainers = [];
+
+        foreach ($state->containers as $containerKey => $container) {
+            $normalizedContainers[(string) $containerKey] = is_array($container) ? $container : [];
+        }
+
+        $this->containers = $normalizedContainers;
         $this->assets = $state->assets;
         $this->originalAssets = $state->originalAssets;
         $this->selectedRecords = $state->selectedRecords;
@@ -272,10 +278,14 @@ trait ManagesLayoutBuilderState
     {
         $this->containerWidgets = [];
         $widgetKeys = collect($this->containers ?? [])
-            ->flatMap(fn (array $container): array => array_map(
-                static fn (array $widget): mixed => $widget['widget_key'] ?? null,
-                $container['widgets'] ?? [],
-            ))
+            ->flatMap(function (array $container): array {
+                $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+
+                return array_map(
+                    static fn (mixed $widget): mixed => is_array($widget) ? ($widget['widget_key'] ?? null) : null,
+                    $widgets,
+                );
+            })
             ->filter(static fn (mixed $widgetKey): bool => is_string($widgetKey) && $widgetKey !== '')
             ->unique()
             ->values()
@@ -339,9 +349,11 @@ trait ManagesLayoutBuilderState
 
     protected function refreshLayoutChanges(): void
     {
+        $changes = SummarizeLayoutChangesAction::run($this->savedBaselineState(), $this->layoutState());
+
         $this->layoutChanges = array_map(
             fn (mixed $change): array => is_object($change) && method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
-            SummarizeLayoutChangesAction::run($this->savedBaselineState(), $this->layoutState()),
+            is_array($changes) ? $changes : [],
         );
     }
 
@@ -397,7 +409,9 @@ trait ManagesLayoutBuilderState
 
         foreach ($this->assets as $containerKey => $containerAssets) {
             foreach ($containerAssets as $widgetIndex => $widgetAssets) {
-                foreach ($widgetAssets as $assetIndex => $asset) {
+                foreach ($widgetAssets as $assetIndex => $assetEntry) {
+                    $asset = is_array($assetEntry) ? $assetEntry : [];
+
                     $assets[$containerKey][$widgetIndex][$assetIndex] = [
                         'id' => $asset['id'] ?? null,
                         'widget_id' => $asset['widget_id'] ?? null,

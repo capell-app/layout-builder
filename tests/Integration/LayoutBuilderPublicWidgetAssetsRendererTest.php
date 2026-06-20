@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Models\Language;
@@ -14,8 +13,8 @@ use Capell\Core\Models\Translation;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Contracts\DeferredFragmentReferenceBuilder;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Frontend\Contracts\PublicWidgetAssetsRenderer;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
+use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
@@ -57,7 +56,7 @@ it('renders explicitly grouped widget assets without querying frontend context',
         ->create(['order' => 10]);
     $widgetAsset->setRelation('asset', $asset);
 
-    $html = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetData: ['occurrence' => 2],
@@ -93,7 +92,7 @@ it('falls back to frontend context and filters non-public translations', functio
 
     app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
 
-    $html = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetData: ['occurrence' => 3],
@@ -133,18 +132,24 @@ it('renders deferred placeholders before renderable dispatch', function (): void
          */
         public function url(array $reference): string
         {
-            return '/deferred-fragments/' . $reference['asset'];
+            $assetReference = $reference['asset'] ?? null;
+            $assetIdentifier = is_scalar($assetReference) ? (string) $assetReference : '';
+
+            return '/deferred-fragments/' . $assetIdentifier;
         }
     });
 
-    $html = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetAssets: collect([$widgetAsset]),
     );
 
+    $assetKey = $asset->getKey();
+    $assetIdentifier = is_scalar($assetKey) ? (string) $assetKey : '';
+
     expect($html)->toContain('data-deferred-fragment')
-        ->and($html)->toContain('data-deferred-fragment-url="/deferred-fragments/' . $asset->getKey() . '"')
+        ->and($html)->toContain('data-deferred-fragment-url="/deferred-fragments/' . $assetIdentifier . '"')
         ->and($html)->toContain('data-deferred-fragment-strategy="idle"')
         ->and($html)->not->toContain('Deferred Asset');
 });
@@ -162,7 +167,7 @@ it('dispatches renderables with dynamic data and implementation options', functi
         static fn (Model $asset, Model $translation, array $meta, string $renderKey): array => ['badge' => 'Dynamic Badge'],
     );
 
-    $bladeHtml = resolve(PublicWidgetAssetsRenderer::class)->render(
+    $bladeHtml = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
         containerKey: 'main',
         widgetAssets: collect([$widgetAsset]),
@@ -201,27 +206,27 @@ function layoutBuilderRendererContext(Page $page, Site $site, Language $language
             private Theme $theme,
         ) {}
 
-        public function site(): ?Site
+        public function site(): Site
         {
             return $this->site;
         }
 
-        public function language(): ?Language
+        public function language(): Language
         {
             return $this->language;
         }
 
-        public function page(): ?Pageable
+        public function page(): Page
         {
             return $this->page;
         }
 
-        public function layout(): ?Layout
+        public function layout(): Layout
         {
             return $this->layout;
         }
 
-        public function theme(): ?Theme
+        public function theme(): Theme
         {
             return $this->theme;
         }

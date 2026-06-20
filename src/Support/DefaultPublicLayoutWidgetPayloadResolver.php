@@ -6,14 +6,14 @@ namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadResolver;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Models\Widget;
 
-class DefaultPublicWidgetPayloadResolver implements PublicWidgetPayloadResolver
+class DefaultPublicLayoutWidgetPayloadResolver implements PublicLayoutWidgetPayloadResolver
 {
     /**
-     * @var array<int, PublicWidgetPayloadContributor>|null
+     * @var array<int, PublicLayoutWidgetPayloadContributor>|null
      */
     private ?array $contributors = null;
 
@@ -40,7 +40,7 @@ class DefaultPublicWidgetPayloadResolver implements PublicWidgetPayloadResolver
     public function html(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence): ?string
     {
         $html = collect($this->contributors())
-            ->map(fn (PublicWidgetPayloadContributor $contributor): ?string => $contributor->html($widget, $page, $language, $containerKey, $occurrence))
+            ->map(fn (PublicLayoutWidgetPayloadContributor $contributor): ?string => $contributor->html($widget, $page, $language, $containerKey, $occurrence))
             ->filter(fn (?string $html): bool => is_string($html) && trim($html) !== '')
             ->implode("\n");
 
@@ -48,7 +48,7 @@ class DefaultPublicWidgetPayloadResolver implements PublicWidgetPayloadResolver
     }
 
     /**
-     * @return array<int, PublicWidgetPayloadContributor>
+     * @return array<int, PublicLayoutWidgetPayloadContributor>
      */
     private function contributors(): array
     {
@@ -56,9 +56,9 @@ class DefaultPublicWidgetPayloadResolver implements PublicWidgetPayloadResolver
             return $this->contributors;
         }
 
-        $this->contributors = collect(app()->tagged(PublicWidgetPayloadContributor::TAG))
-            ->filter(fn (mixed $contributor): bool => $contributor instanceof PublicWidgetPayloadContributor)
-            ->sortBy(fn (PublicWidgetPayloadContributor $contributor): int => $contributor->priority())
+        $this->contributors = collect(app()->tagged(PublicLayoutWidgetPayloadContributor::TAG))
+            ->filter(fn (mixed $contributor): bool => $contributor instanceof PublicLayoutWidgetPayloadContributor)
+            ->sortBy(fn (PublicLayoutWidgetPayloadContributor $contributor): int => $contributor->priority())
             ->values()
             ->all();
 

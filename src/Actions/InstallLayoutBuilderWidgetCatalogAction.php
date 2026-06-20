@@ -9,7 +9,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Support\Creator\BlueprintCreator as CoreTypeCreator;
-use Capell\LayoutBuilder\Data\WidgetDefinitionData;
+use Capell\LayoutBuilder\Data\LayoutWidgetCatalogDefinitionData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\Navigation\Models\Navigation;
@@ -36,12 +36,12 @@ class InstallLayoutBuilderWidgetCatalogAction
         /** @var Collection<int, Language> $catalogLanguages */
         $catalogLanguages = $languages ?? Language::query()->get();
 
-        $definitions = WidgetDefinitionData::defaultCatalog();
+        $definitions = LayoutWidgetCatalogDefinitionData::defaultCatalog();
 
         if ($extraWidgets) {
             $definitions = [
                 ...$definitions,
-                ...WidgetDefinitionData::extraCatalog(),
+                ...LayoutWidgetCatalogDefinitionData::extraCatalog(),
             ];
         }
 
@@ -56,7 +56,7 @@ class InstallLayoutBuilderWidgetCatalogAction
         }
     }
 
-    private function createType(TypeCreator $typeCreator, WidgetDefinitionData $definition): Blueprint
+    private function createType(TypeCreator $typeCreator, LayoutWidgetCatalogDefinitionData $definition): Blueprint
     {
         return match ($definition->typeCreatorMethod) {
             'assetsWidgetType' => $typeCreator->assetsWidgetType(),
@@ -73,7 +73,7 @@ class InstallLayoutBuilderWidgetCatalogAction
         };
     }
 
-    private function installWidget(WidgetDefinitionData $definition, Blueprint $type): Widget
+    private function installWidget(LayoutWidgetCatalogDefinitionData $definition, Blueprint $type): Widget
     {
         $meta = $this->normalizeArray($definition->meta);
 
@@ -111,7 +111,7 @@ class InstallLayoutBuilderWidgetCatalogAction
         return $widget;
     }
 
-    private function installNavigation(WidgetDefinitionData $definition): ?Model
+    private function installNavigation(LayoutWidgetCatalogDefinitionData $definition): ?Model
     {
         $navigationModel = Navigation::class;
 
@@ -146,7 +146,7 @@ class InstallLayoutBuilderWidgetCatalogAction
     /**
      * @param  Collection<int, Language>  $languages
      */
-    private function installTranslations(Widget $widget, WidgetDefinitionData $definition, Collection $languages): void
+    private function installTranslations(Widget $widget, LayoutWidgetCatalogDefinitionData $definition, Collection $languages): void
     {
         if ($definition->translations === []) {
             return;

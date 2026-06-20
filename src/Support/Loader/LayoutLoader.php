@@ -30,7 +30,7 @@ class LayoutLoader
      * Preloaded widgets per [layoutId][languageId][pageIdOr0] => [containerKey][widgetKey][occurrence] => Widget
      * Used to avoid N+1 queries when resolving multiple widgets for a layout.
      *
-     * @var array<array-key, mixed>
+     * @var array<string, array<string, array<string, array<int, Widget>>>>
      */
     private array $preloaded = [];
 

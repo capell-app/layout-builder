@@ -542,7 +542,8 @@ it('mutates real layout builder container and widget state through editor operat
     $layoutBuilder->removeWidget('primary', 1);
     $layoutBuilder->removeContainer('aside');
 
-    $primaryWidgets = $layoutBuilder->containers['primary']['widgets'];
+    $primaryWidgetsValue = data_get($layoutBuilder->containers, 'primary.widgets');
+    $primaryWidgets = is_array($primaryWidgetsValue) ? $primaryWidgetsValue : [];
 
     expect($layoutBuilder->containers)->toHaveKey('primary')
         ->and($layoutBuilder->containers)->not->toHaveKey('main')

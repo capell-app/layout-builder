@@ -10,16 +10,16 @@ use Capell\Frontend\Actions\RenderRenderableAction;
 use Capell\Frontend\Actions\ResolveDeferredFragmentPlaceholderDataAction;
 use Capell\Frontend\Contracts\DeferredFragmentReferenceBuilder;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Frontend\Contracts\PublicWidgetAssetsRenderer;
 use Capell\Frontend\Support\Fragments\DeferredFragmentPlaceholderData;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
+use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicWidgetAssetsRenderer
+final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLayoutWidgetAssetsRenderer
 {
     public function __construct(
         private ResolvePublicWidgetAssetsAction $assets,
@@ -66,7 +66,9 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicWi
         }
 
         $occurrence = is_numeric($widgetData['occurrence'] ?? null) ? (int) $widgetData['occurrence'] : 1;
-        $assetGroupKey = implode(':', [$widget->getKey(), $containerKey, (string) $occurrence]);
+        $widgetKey = $widget->getKey();
+        $widgetKeyString = is_scalar($widgetKey) ? (string) $widgetKey : '';
+        $assetGroupKey = implode(':', [$widgetKeyString, $containerKey, (string) $occurrence]);
 
         if ($widgetAssetsByWidget instanceof Collection && $widgetAssetsByWidget->offsetExists($assetGroupKey)) {
             $assets = $widgetAssetsByWidget[$assetGroupKey];

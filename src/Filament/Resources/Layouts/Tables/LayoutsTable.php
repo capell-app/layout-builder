@@ -296,7 +296,7 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
 
         if ($nameColumnIndex !== false && ! $usesCardLayout) {
             array_splice($columns, $nameColumnIndex + 1, 0, [
-                TextColumn::make('layout_widgets')
+                TextColumn::make('widgets')
                     ->label(__('capell-layout-builder::table.container_widgets'))
                     ->getStateUsing(fn (Layout $record): array => self::widgetWidgetsForLayout($record)
                         ->pluck('name')

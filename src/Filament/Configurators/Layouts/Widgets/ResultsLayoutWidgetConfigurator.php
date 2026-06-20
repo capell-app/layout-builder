@@ -17,14 +17,14 @@ class ResultsLayoutWidgetConfigurator implements ConfiguratorInterface
 {
     use HasConfigurator;
 
-    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::LayoutWidget;
+    protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::Widget;
 
     /**
      * @return iterable<int, mixed>
      */
     public static function getExtenders(): iterable
     {
-        return app()->tagged(SchemaExtenderEnum::LayoutWidget->value);
+        return app()->tagged(SchemaExtenderEnum::Widget->value);
     }
 
     /**

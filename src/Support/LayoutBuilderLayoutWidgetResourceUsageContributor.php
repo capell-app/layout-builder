@@ -9,13 +9,13 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
-use Capell\Frontend\Contracts\WidgetResourceUsageContributor;
-use Capell\Frontend\Data\Assets\WidgetResourceUsageData;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
+use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
-class LayoutWidgetResourceUsageContributor implements WidgetResourceUsageContributor
+class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetResourceUsageContributor
 {
     public static function publicId(string $widgetKey, string $resourceGroup, string $containerKey, int $occurrence): string
     {
@@ -23,7 +23,7 @@ class LayoutWidgetResourceUsageContributor implements WidgetResourceUsageContrib
     }
 
     /**
-     * @return array<int, WidgetResourceUsageData>
+     * @return array<int, LayoutWidgetResourceUsageData>
      */
     public function usages(FrontendRenderContextData $context): array
     {
@@ -46,7 +46,13 @@ class LayoutWidgetResourceUsageContributor implements WidgetResourceUsageContrib
                 continue;
             }
 
-            foreach (LayoutWidgetData::fromContainer($container) as $widgetData) {
+            $stringKeyedContainer = array_filter(
+                $container,
+                static fn (int|string $key): bool => is_string($key),
+                ARRAY_FILTER_USE_KEY,
+            );
+
+            foreach (LayoutWidgetData::fromContainer($stringKeyedContainer) as $widgetData) {
                 $widgetKey = LayoutWidgetData::key($widgetData);
                 if ($widgetKey === null) {
                     continue;
@@ -76,13 +82,13 @@ class LayoutWidgetResourceUsageContributor implements WidgetResourceUsageContrib
                 $type = $widget->type;
                 $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
 
-                $presentation = ResolvePresentationSettingsAction::run(
+                $presentation = ResolvePresentationSettingsAction::make()->handle(
                     instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
                     typeDefaults: is_array($typeMeta['presentation'] ?? null) ? $typeMeta['presentation'] : [],
                 );
 
                 foreach ($resourceGroups as $resourceGroup) {
-                    $usages[] = new WidgetResourceUsageData(
+                    $usages[] = new LayoutWidgetResourceUsageData(
                         widgetKey: $widgetKey,
                         resourceGroup: $resourceGroup,
                         publicId: self::publicId($widgetKey, $resourceGroup, (string) $containerKey, $occurrence),

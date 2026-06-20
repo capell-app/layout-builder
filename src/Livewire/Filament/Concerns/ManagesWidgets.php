@@ -246,9 +246,15 @@ trait ManagesWidgets
             $assets = $this->loadWidgetAssetsFor($widget, $containerKey, $widgetIndex);
 
             $widget->setRelation('assets', $assets);
+
+            return $widget;
         }
 
-        return $this->containerWidgets[$containerKey][$widgetIndex];
+        $containerWidget = $this->containerWidgets[$containerKey][$widgetIndex];
+
+        throw_unless($containerWidget instanceof Widget, Exception::class, 'Container widget is not a loaded widget.');
+
+        return $containerWidget;
     }
 
     public function getContainerWidgetConfigurator(string $containerKey, int $widgetIndex): ?string

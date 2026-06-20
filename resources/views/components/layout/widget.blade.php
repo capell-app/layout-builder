@@ -88,7 +88,7 @@
         class="deferred-fragment"
     ></div>
 @elseif ($type === 'blade')
-    <x-capell::widgets.runtime-wrapper
+    <x-capell-layout-builder::layout-widgets.runtime-wrapper
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
@@ -112,9 +112,9 @@
             />
             <x-capell::interactions :triggers="$interactions" />
         </div>
-    </x-capell::widgets.runtime-wrapper>
+    </x-capell-layout-builder::layout-widgets.runtime-wrapper>
 @elseif ($type === 'livewire')
-    <x-capell::widgets.runtime-wrapper
+    <x-capell-layout-builder::layout-widgets.runtime-wrapper
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"
     >
@@ -125,5 +125,5 @@
             @livewire($widgetComponent, ['widgetReference' => $widgetReference], key($containerKey . '-' . $widget->key . '-' . $occurrence))
         </div>
         <x-capell::interactions :triggers="$interactions" />
-    </x-capell::widgets.runtime-wrapper>
+    </x-capell-layout-builder::layout-widgets.runtime-wrapper>
 @endif

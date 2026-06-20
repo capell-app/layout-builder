@@ -83,21 +83,23 @@ final class PasteLayoutFragmentAction
         }
 
         $containers = $state->containers;
-        $widgets = $containers[$targetContainerKey]['widgets'] ?? [];
+        $targetContainerData = is_array($containers[$targetContainerKey] ?? null) ? $containers[$targetContainerKey] : [];
+        $widgets = is_array($targetContainerData['widgets'] ?? null) ? $targetContainerData['widgets'] : [];
         $targetIndex = min(count($widgets), max(0, $targetIndex ?? count($widgets)));
         $usedAnchors = $this->usedAnchors($containers);
         $widget = $this->withUniqueWidgetAnchor($fragment->widget, $usedAnchors);
 
-        $containers[$targetContainerKey]['widgets'] = $this->insertSlot($widgets, $targetIndex, $widget);
+        $targetContainerData['widgets'] = $this->insertSlot($widgets, $targetIndex, $widget);
+        $containers[$targetContainerKey] = $targetContainerData;
 
         $assets = $state->assets;
-        $assets[$targetContainerKey] = $this->insertSlot($assets[$targetContainerKey] ?? [], $targetIndex, $fragment->assets);
+        $assets[$targetContainerKey] = $this->insertSlot($this->slots($assets, $targetContainerKey), $targetIndex, $fragment->assets);
 
         $originalAssets = $state->originalAssets;
-        $originalAssets[$targetContainerKey] = $this->insertSlot($originalAssets[$targetContainerKey] ?? [], $targetIndex, $fragment->originalAssets);
+        $originalAssets[$targetContainerKey] = $this->insertSlot($this->slots($originalAssets, $targetContainerKey), $targetIndex, $fragment->originalAssets);
 
         $selectedRecords = $state->selectedRecords;
-        $selectedRecords[$targetContainerKey] = $this->insertSlot($selectedRecords[$targetContainerKey] ?? [], $targetIndex, $fragment->selectedRecords);
+        $selectedRecords[$targetContainerKey] = $this->insertSlot($this->slots($selectedRecords, $targetContainerKey), $targetIndex, $fragment->selectedRecords);
 
         return NormalizeLayoutBuilderStateAction::run(new LayoutBuilderStateData(
             containers: $containers,
@@ -128,6 +130,17 @@ final class PasteLayoutFragmentAction
         }
 
         return $candidate;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $collection
+     * @return array<int, mixed>
+     */
+    private function slots(array $collection, string $containerKey): array
+    {
+        $slots = $collection[$containerKey] ?? [];
+
+        return is_array($slots) ? array_values($slots) : [];
     }
 
     /**

@@ -11,7 +11,7 @@ use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
-use Capell\LayoutBuilder\Contracts\PublicWidgetPayloadContributor;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 
@@ -102,7 +102,7 @@ function publicFragmentFixture(string $html): array
 
     $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
 
-    app()->singleton('test.public-fragment-payload-contributor', fn (): PublicWidgetPayloadContributor => new class($html) implements PublicWidgetPayloadContributor
+    app()->singleton('test.public-fragment-payload-contributor', fn (): PublicLayoutWidgetPayloadContributor => new class($html) implements PublicLayoutWidgetPayloadContributor
     {
         public function __construct(private string $html) {}
 
@@ -121,7 +121,7 @@ function publicFragmentFixture(string $html): array
             return $this->html;
         }
     });
-    app()->tag('test.public-fragment-payload-contributor', PublicWidgetPayloadContributor::TAG);
+    app()->tag('test.public-fragment-payload-contributor', PublicLayoutWidgetPayloadContributor::TAG);
 
     $referenceData = [
         'site_id' => $site->getKey(),

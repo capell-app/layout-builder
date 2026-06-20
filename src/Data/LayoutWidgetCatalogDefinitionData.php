@@ -10,7 +10,7 @@ use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Spatie\LaravelData\Data;
 
-class WidgetDefinitionData extends Data
+class LayoutWidgetCatalogDefinitionData extends Data
 {
     /**
      * @param  array<string, mixed>  $meta

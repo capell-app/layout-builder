@@ -75,8 +75,8 @@ class WidgetTypeConfigurator extends DefaultBlueprintConfigurator
                     ->label(__('capell-admin::form.layout_widget_configurator'))
                     ->helperText(__('capell-admin::generic.layout_widget_configurator_info'))
                     ->default('Default')
-                    ->setupOptions(ConfiguratorTypeEnum::LayoutWidget)
-                    ->withCreateConfiguratorAction(ConfiguratorTypeEnum::LayoutWidget),
+                    ->setupOptions(ConfiguratorTypeEnum::Widget)
+                    ->withCreateConfiguratorAction(ConfiguratorTypeEnum::Widget),
                 IconPicker::make('icon')
                     ->label(__('capell-admin::form.admin_icon')),
                 AssetTypeSelect::make('asset_types')

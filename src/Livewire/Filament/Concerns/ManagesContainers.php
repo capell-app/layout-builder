@@ -191,13 +191,7 @@ trait ManagesContainers
     {
         $this->assertCanUpdateLayout();
 
-        foreach (['containers', 'containerWidgets', 'assets'] as $property) {
-            if (! isset($this->{$property}[$containerKey])) {
-                continue;
-            }
-
-            unset($this->{$property}[$containerKey]);
-        }
+        unset($this->containers[$containerKey], $this->containerWidgets[$containerKey], $this->assets[$containerKey]);
 
         $this->forgetKnownContainerKey($containerKey);
 
@@ -276,14 +270,22 @@ trait ManagesContainers
 
     protected function updateContainerKey(string $oldKey, string $newKey): string
     {
-        foreach (['containers', 'containerWidgets', 'assets'] as $property) {
-            if (! isset($this->{$property}[$oldKey])) {
-                continue;
-            }
+        if (isset($this->containers[$oldKey])) {
+            $this->containers[$newKey] = $this->containers[$oldKey];
 
-            $this->{$property}[$newKey] = $this->{$property}[$oldKey];
+            unset($this->containers[$oldKey]);
+        }
 
-            unset($this->{$property}[$oldKey]);
+        if (isset($this->containerWidgets[$oldKey])) {
+            $this->containerWidgets[$newKey] = $this->containerWidgets[$oldKey];
+
+            unset($this->containerWidgets[$oldKey]);
+        }
+
+        if (isset($this->assets[$oldKey])) {
+            $this->assets[$newKey] = $this->assets[$oldKey];
+
+            unset($this->assets[$oldKey]);
         }
 
         foreach ($this->containerWidgets($newKey) as $widgetIndex => $widget) {
@@ -345,9 +347,13 @@ trait ManagesContainers
         }
 
         foreach ($containers as $key => $container) {
-            $this->containers[$key] = [
-                'widgets' => $container['widgets'] ?? [],
-                'meta' => $container['meta'] ?? [],
+            $container = is_array($container) ? $container : [];
+            $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+            $meta = is_array($container['meta'] ?? null) ? $container['meta'] : [];
+
+            $this->containers[(string) $key] = [
+                'widgets' => $widgets,
+                'meta' => $meta,
             ];
             $this->trackKnownContainerKey((string) $key);
         }

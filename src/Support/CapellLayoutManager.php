@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 class CapellLayoutManager
 {
     /**
-     * @var array<array-key, mixed>
+     * @var array<string, array<string, array<int, Widget>>>
      */
     protected static array $containerWidgets = [];
 
@@ -53,15 +53,15 @@ class CapellLayoutManager
     }
 
     /**
-     * @return Collection<array-key, mixed>
+     * @return Collection<string, array<string, array<int, Widget>>>|Collection<string, array<int, Widget>>
      */
     public static function getContainerWidgets(?string $containerKey = null): Collection
     {
-        $widgets = in_array($containerKey, [null, '', '0'], true)
-            ? (static::$containerWidgets)
-            : static::$containerWidgets[$containerKey] ?? [];
+        if (in_array($containerKey, [null, '', '0'], true)) {
+            return new Collection(static::$containerWidgets);
+        }
 
-        return new Collection(is_array($widgets) ? $widgets : []);
+        return new Collection(static::$containerWidgets[$containerKey] ?? []);
     }
 
     /**

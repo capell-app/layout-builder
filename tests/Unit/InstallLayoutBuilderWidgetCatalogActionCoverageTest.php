@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Language;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
-use Capell\LayoutBuilder\Data\WidgetDefinitionData;
+use Capell\LayoutBuilder\Data\LayoutWidgetCatalogDefinitionData;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 
 it('defines every extra widget with string labels', function (): void {
-    $definitions = WidgetDefinitionData::extraCatalog();
+    $definitions = LayoutWidgetCatalogDefinitionData::extraCatalog();
 
     expect($definitions)->not->toBeEmpty();
 
@@ -28,8 +28,8 @@ it('installs the full widget catalog with normalized enum metadata and translati
 
     InstallLayoutBuilderWidgetCatalogAction::run(collect([$language]), extraWidgets: true);
 
-    $defaultDefinitions = WidgetDefinitionData::defaultCatalog();
-    $extraDefinitions = WidgetDefinitionData::extraCatalog();
+    $defaultDefinitions = LayoutWidgetCatalogDefinitionData::defaultCatalog();
+    $extraDefinitions = LayoutWidgetCatalogDefinitionData::extraCatalog();
 
     expect($defaultDefinitions)->not->toBeEmpty()
         ->and($extraDefinitions)->not->toBeEmpty()

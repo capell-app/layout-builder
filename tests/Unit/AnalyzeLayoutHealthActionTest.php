@@ -147,5 +147,5 @@ it('includes legacy shorthand widget keys in preview signatures', function (): v
 
     $payload = resolve(LayoutPreviewSignature::class)->payload($layout);
 
-    expect($payload['containers'][0]['widgets'][0]['key'])->toBe('breadcrumbs');
+    expect(data_get($payload, 'containers.0.widgets.0.key'))->toBe('breadcrumbs');
 });

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Widgets;
 
-use Capell\Admin\Contracts\CapellWidgetContract;
+use Capell\Admin\Contracts\CapellFilamentWidgetContract;
 use Capell\Admin\Filament\Concerns\GatedByRoleAndSettings;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Data\Dashboard\ActivityItemData;
@@ -12,7 +12,7 @@ use Capell\LayoutBuilder\Data\Dashboard\RecentActivityData;
 use Filament\Widgets\Widget;
 use Override;
 
-final class RecentActivityWidgetAbstract extends Widget implements CapellWidgetContract
+final class RecentActivityFilamentWidget extends Widget implements CapellFilamentWidgetContract
 {
     use GatedByRoleAndSettings;
 

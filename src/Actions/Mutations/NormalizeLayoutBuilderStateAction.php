@@ -21,10 +21,19 @@ final class NormalizeLayoutBuilderStateAction
         $selectedRecords = $state->selectedRecords;
 
         foreach ($containers as $containerKey => $container) {
-            $containers[$containerKey]['widgets'] = array_values($container['widgets'] ?? []);
-            $containers[$containerKey]['meta'] = $this->normalizeContainerMeta($container['meta'] ?? []);
+            $container = is_array($container) ? $container : [];
 
-            $widgetCount = count($containers[$containerKey]['widgets']);
+            $widgets = $container['widgets'] ?? [];
+            $meta = $container['meta'] ?? [];
+
+            $normalizedWidgets = array_values(is_array($widgets) ? $widgets : []);
+            $containers[$containerKey] = [
+                ...$container,
+                'widgets' => $normalizedWidgets,
+                'meta' => $this->normalizeContainerMeta(is_array($meta) ? $meta : []),
+            ];
+
+            $widgetCount = count($normalizedWidgets);
             $assets[$containerKey] = $this->normalizeWidgetSlots($assets[$containerKey] ?? [], $widgetCount);
             $originalAssets[$containerKey] = $this->normalizeWidgetSlots($originalAssets[$containerKey] ?? [], $widgetCount);
             $selectedRecords[$containerKey] = $this->normalizeWidgetSlots($selectedRecords[$containerKey] ?? [], $widgetCount);
