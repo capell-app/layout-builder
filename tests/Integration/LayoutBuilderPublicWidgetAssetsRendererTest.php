@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Models\Language;
@@ -133,7 +132,10 @@ it('renders deferred placeholders before renderable dispatch', function (): void
          */
         public function url(array $reference): string
         {
-            return '/deferred-fragments/' . $reference['asset'];
+            $assetReference = $reference['asset'] ?? null;
+            $assetIdentifier = is_scalar($assetReference) ? (string) $assetReference : '';
+
+            return '/deferred-fragments/' . $assetIdentifier;
         }
     });
 
@@ -143,8 +145,11 @@ it('renders deferred placeholders before renderable dispatch', function (): void
         widgetAssets: collect([$widgetAsset]),
     );
 
+    $assetKey = $asset->getKey();
+    $assetIdentifier = is_scalar($assetKey) ? (string) $assetKey : '';
+
     expect($html)->toContain('data-deferred-fragment')
-        ->and($html)->toContain('data-deferred-fragment-url="/deferred-fragments/' . $asset->getKey() . '"')
+        ->and($html)->toContain('data-deferred-fragment-url="/deferred-fragments/' . $assetIdentifier . '"')
         ->and($html)->toContain('data-deferred-fragment-strategy="idle"')
         ->and($html)->not->toContain('Deferred Asset');
 });
@@ -201,27 +206,27 @@ function layoutBuilderRendererContext(Page $page, Site $site, Language $language
             private Theme $theme,
         ) {}
 
-        public function site(): ?Site
+        public function site(): Site
         {
             return $this->site;
         }
 
-        public function language(): ?Language
+        public function language(): Language
         {
             return $this->language;
         }
 
-        public function page(): ?Pageable
+        public function page(): Page
         {
             return $this->page;
         }
 
-        public function layout(): ?Layout
+        public function layout(): Layout
         {
             return $this->layout;
         }
 
-        public function theme(): ?Theme
+        public function theme(): Theme
         {
             return $this->theme;
         }

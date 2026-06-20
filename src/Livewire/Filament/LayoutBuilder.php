@@ -103,7 +103,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public array $knownContainerKeys = [];
 
     /**
-     * @var array<array-key, mixed>
+     * @var array<string, array<string, mixed>>|null
      */
     public ?array $containers = null;
 
@@ -495,7 +495,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return null;
         }
 
-        return $this->containerWidgets[$this->selectedContainerKey][$this->selectedWidgetIndex] ?? null;
+        $selectedWidget = $this->containerWidgets[$this->selectedContainerKey][$this->selectedWidgetIndex] ?? null;
+
+        return $selectedWidget instanceof Widget ? $selectedWidget : null;
     }
 
     public function selectContainer(string $containerKey): void
@@ -1003,7 +1005,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
      */
     private function restoreServerSideLayoutState(array $state): void
     {
-        $this->containers = is_array($state['containers'] ?? null) ? $state['containers'] : [];
+        $this->containers = $this->normalizeRestoredContainers($state['containers'] ?? null);
         $this->assets = is_array($state['assets'] ?? null) ? $state['assets'] : [];
         $this->originalAssets = is_array($state['originalAssets'] ?? null) ? $state['originalAssets'] : [];
         $this->selectedRecords = is_array($state['selectedRecords'] ?? null) ? $state['selectedRecords'] : [];
@@ -1015,6 +1017,38 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->visualPreviewNodeMap = $this->normalizeVisualPreviewNodeMap($state['visualPreviewNodeMap'] ?? null);
 
         $this->rebuildLoadedContainerWidgets();
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private function normalizeRestoredContainers(mixed $containers): array
+    {
+        if (! is_array($containers)) {
+            return [];
+        }
+
+        $normalized = [];
+
+        foreach ($containers as $containerKey => $container) {
+            if (! is_string($containerKey) || ! is_array($container)) {
+                continue;
+            }
+
+            $normalizedContainer = [];
+
+            foreach ($container as $attributeKey => $attributeValue) {
+                if (! is_string($attributeKey)) {
+                    continue;
+                }
+
+                $normalizedContainer[$attributeKey] = $attributeValue;
+            }
+
+            $normalized[$containerKey] = $normalizedContainer;
+        }
+
+        return $normalized;
     }
 
     /**

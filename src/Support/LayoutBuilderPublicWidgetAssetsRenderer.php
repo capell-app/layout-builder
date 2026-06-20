@@ -66,7 +66,9 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
         }
 
         $occurrence = is_numeric($widgetData['occurrence'] ?? null) ? (int) $widgetData['occurrence'] : 1;
-        $assetGroupKey = implode(':', [$widget->getKey(), $containerKey, (string) $occurrence]);
+        $widgetKey = $widget->getKey();
+        $widgetKeyString = is_scalar($widgetKey) ? (string) $widgetKey : '';
+        $assetGroupKey = implode(':', [$widgetKeyString, $containerKey, (string) $occurrence]);
 
         if ($widgetAssetsByWidget instanceof Collection && $widgetAssetsByWidget->offsetExists($assetGroupKey)) {
             $assets = $widgetAssetsByWidget[$assetGroupKey];

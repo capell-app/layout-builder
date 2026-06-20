@@ -408,6 +408,7 @@ trait ManagesAssets
         $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
 
         foreach ($widgetAssets as $widgetAssetData) {
+            $widgetAssetData = is_array($widgetAssetData) ? $widgetAssetData : [];
             $type = $widgetAssetData['asset_type'];
             $assetId = is_numeric($widgetAssetData['asset_id']) ? (int) $widgetAssetData['asset_id'] : $widgetAssetData['asset_id'];
 
@@ -457,11 +458,16 @@ trait ManagesAssets
                 continue;
             }
 
+            $orderValue = $widgetAssetData['order'] ?? null;
+            $occurrenceValue = $widgetAssetData['occurrence'] ?? null;
+            $pageableIdValue = $widgetAssetData['pageable_id'] ?? null;
+            $pageableTypeValue = $widgetAssetData['pageable_type'] ?? null;
+
             $widgetAsset = clone $matchingAsset;
-            $widgetAsset->order = $widgetAssetData['order'] ?? $widgetAsset->order;
-            $widgetAsset->occurrence = $widgetAssetData['occurrence'] ?? $occurrence;
-            $widgetAsset->pageable_id = $widgetAssetData['pageable_id'] ?? null;
-            $widgetAsset->pageable_type = $widgetAssetData['pageable_type'] ?? null;
+            $widgetAsset->order = is_numeric($orderValue) ? max(0, (int) $orderValue) : $widgetAsset->order;
+            $widgetAsset->occurrence = max(0, is_numeric($occurrenceValue) ? (int) $occurrenceValue : $occurrence);
+            $widgetAsset->pageable_id = is_numeric($pageableIdValue) ? max(0, (int) $pageableIdValue) : null;
+            $widgetAsset->pageable_type = is_string($pageableTypeValue) ? $pageableTypeValue : null;
 
             $assets->push($widgetAsset);
         }
@@ -491,6 +497,7 @@ trait ManagesAssets
                 $containerWidget = $this->getContainerWidget($containerKey, $widgetIndex);
 
                 foreach ($widgetAssets as $widgetAssetIndex => $widgetAsset) {
+                    $widgetAsset = is_array($widgetAsset) ? $widgetAsset : [];
                     $widgetAsset['original_container_key'] = $containerKey;
                     $widgetAsset['original_widget_id'] = $containerWidget->id;
                     $widgetAsset['original_widget_key'] = $containerWidget->key;
@@ -508,9 +515,25 @@ trait ManagesAssets
      */
     protected function getAllSelectableAssetsKeys(string $containerKey, int $widgetIndex): array
     {
+        $containerAssets = $this->assets[$containerKey] ?? null;
+        $widgetAssets = is_array($containerAssets) ? ($containerAssets[$widgetIndex] ?? null) : null;
+
         return array_values(array_map(
-            fn (array $widgetAsset): string => sprintf('%s.%s', $widgetAsset['asset_type'], $widgetAsset['asset_id']),
-            $this->assets[$containerKey][$widgetIndex],
+            function (mixed $widgetAsset): string {
+                if (! is_array($widgetAsset)) {
+                    return '';
+                }
+
+                $assetType = $widgetAsset['asset_type'] ?? null;
+                $assetId = $widgetAsset['asset_id'] ?? null;
+
+                return sprintf(
+                    '%s.%s',
+                    is_scalar($assetType) ? (string) $assetType : '',
+                    is_scalar($assetId) ? (string) $assetId : '',
+                );
+            },
+            is_array($widgetAssets) ? $widgetAssets : [],
         ));
     }
 
@@ -824,10 +847,12 @@ trait ManagesAssets
                     )
                     ->when(
                         $assetIds->isNotEmpty(),
-                        fn (EloquentBuilder $query): EloquentBuilder => $query->orWhereIn(
-                            $query->getModel()->getQualifiedKeyName(),
-                            $assetIds->all(),
-                        ),
+                        function (EloquentBuilder $query) use ($assetIds): EloquentBuilder {
+                            $model = $query->getModel();
+                            $qualifiedKeyName = $model->getTable() . '.' . $model->getKeyName();
+
+                            return $query->orWhereIn($qualifiedKeyName, $assetIds->all());
+                        },
                     ),
             )
             ->get();
@@ -878,9 +903,12 @@ trait ManagesAssets
         }
 
         foreach ($assets as $widgetAsset) {
-            $key = sprintf('%s.%s', $widgetAsset['asset_type'], $widgetAsset['asset_id']);
+            $widgetAsset = is_array($widgetAsset) ? $widgetAsset : [];
+            $assetType = is_scalar($widgetAsset['asset_type'] ?? null) ? $widgetAsset['asset_type'] : '';
+            $assetIdValue = is_scalar($widgetAsset['asset_id'] ?? null) ? $widgetAsset['asset_id'] : '';
+            $key = sprintf('%s.%s', $assetType, $assetIdValue);
 
-            $order = $widgetAsset['order'];
+            $order = $widgetAsset['order'] ?? 0;
 
             $existingAsset = isset($widgetAsset['id'])
                 ? $existingAssetsById->get((int) $widgetAsset['id'])
@@ -891,13 +919,15 @@ trait ManagesAssets
             }
 
             if ($existingAsset instanceof WidgetAsset) {
-                $existingAsset->order = max(0, (int) $order);
-                $existingAsset->meta = $widgetAsset['meta'] ?? [];
+                $metaValue = $widgetAsset['meta'] ?? [];
+                $existingAsset->order = max(0, is_numeric($order) ? (int) $order : 0);
+                $existingAsset->meta = is_array($metaValue) ? $metaValue : [];
                 $existingAsset->occurrence = max(0, $occurrence);
 
                 if ($hasPageAssets) {
+                    $pageableKey = $this->pageContext()->getKey();
                     $existingAsset->container = $containerKey;
-                    $existingAsset->pageable_id = $this->pageContext()->getKey();
+                    $existingAsset->pageable_id = is_numeric($pageableKey) ? max(0, (int) $pageableKey) : null;
                     $existingAsset->pageable_type = $this->pageContext()->getMorphClass();
                 } else {
                     $existingAsset->container = null;
@@ -976,7 +1006,8 @@ trait ManagesAssets
         int $occurrence,
         int $order,
     ): WidgetAsset {
-        $pageId = $hasPageAssets ? $this->pageContext()->getKey() : null;
+        $pageKey = $hasPageAssets ? $this->pageContext()->getKey() : null;
+        $pageId = is_numeric($pageKey) ? max(0, (int) $pageKey) : null;
 
         $widgetAsset = $widget->assets
             ->where([
@@ -1050,8 +1081,9 @@ trait ManagesAssets
             ->first();
 
         if ($existing instanceof WidgetAsset) {
+            $existingMeta = $asset['meta'] ?? [];
             $existing->order = max(0, $order);
-            $existing->meta = $asset['meta'] ?? [];
+            $existing->meta = is_array($existingMeta) ? $existingMeta : [];
             $existing->save();
 
             return $existing;
@@ -1237,9 +1269,9 @@ trait ManagesAssets
         $newAssetsCollection = collect($newAssets)
             ->values()
             ->filter(fn (array $data): bool => in_array((int) ($data['workspace_id'] ?? $this->getCurrentWidgetAssetWorkspaceId()), $this->getCurrentContainerWidgetAssetWorkspaceIds(), true))
-            ->map(function (array $data) use ($model): WidgetAsset {
+            ->map(function (mixed $data) use ($model): WidgetAsset {
                 $widgetAsset = $model::query()->newModelInstance();
-                $widgetAsset->forceFill($data);
+                $widgetAsset->forceFill(is_array($data) ? $data : []);
 
                 return $widgetAsset;
             });
@@ -1397,6 +1429,7 @@ trait ManagesAssets
                 }
 
                 foreach ($originalAssets as $asset) {
+                    $asset = is_array($asset) ? $asset : [];
                     $key = $asset['asset_type'] . ':' . $asset['asset_id'] . ':' . $asset['occurrence'] . ':' . $asset['original_container_key'];
                     if (! in_array($key, $removedKeys, true)) {
                         continue;

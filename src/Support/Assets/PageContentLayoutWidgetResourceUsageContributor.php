@@ -27,7 +27,7 @@ class PageContentLayoutWidgetResourceUsageContributor implements LayoutWidgetRes
         }
 
         $type = $page->relationLoaded('type') ? $page->type : null;
-        if (($type?->content_structure ?? null) !== ContentStructure::Blocks) {
+        if (($type->content_structure ?? null) !== ContentStructure::Blocks) {
             return [];
         }
 
@@ -38,6 +38,6 @@ class PageContentLayoutWidgetResourceUsageContributor implements LayoutWidgetRes
             return [];
         }
 
-        return BuildLayoutWidgetResourceUsagesAction::run($content, LayoutWidgetTarget::FrontendBlade);
+        return BuildLayoutWidgetResourceUsagesAction::make()->handle($content, LayoutWidgetTarget::FrontendBlade);
     }
 }

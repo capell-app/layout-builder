@@ -10,6 +10,7 @@ use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\FrontendAssetContextData;
 use Capell\Frontend\Data\FrontendAssetRequirementData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
+use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 
 class LayoutWidgetResourceAssetContributor implements FrontendAssetContributor
 {

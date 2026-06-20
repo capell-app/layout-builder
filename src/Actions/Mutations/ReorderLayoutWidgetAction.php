@@ -20,7 +20,14 @@ final class ReorderLayoutWidgetAction
         int $originalIndex,
         int $targetIndex,
     ): LayoutMutationResultData {
-        if (! isset($state->containers[$originalContainer]['widgets'][$originalIndex])) {
+        $originalContainerData = is_array($state->containers[$originalContainer] ?? null)
+            ? $state->containers[$originalContainer]
+            : [];
+        $originalWidgets = is_array($originalContainerData['widgets'] ?? null)
+            ? $originalContainerData['widgets']
+            : [];
+
+        if (! isset($originalWidgets[$originalIndex])) {
             return new LayoutMutationResultData($state);
         }
 
@@ -33,37 +40,55 @@ final class ReorderLayoutWidgetAction
         $originalAssets = $state->originalAssets;
         $selectedRecords = $state->selectedRecords;
 
-        $widget = $containers[$originalContainer]['widgets'][$originalIndex];
-        $widgetAssets = $assets[$originalContainer][$originalIndex] ?? [];
-        $widgetOriginalAssets = $originalAssets[$originalContainer][$originalIndex] ?? [];
-        $widgetSelectedRecords = $selectedRecords[$originalContainer][$originalIndex] ?? [];
+        $targetContainerData = is_array($containers[$targetContainer] ?? null)
+            ? $containers[$targetContainer]
+            : [];
+        $targetWidgets = is_array($targetContainerData['widgets'] ?? null)
+            ? $targetContainerData['widgets']
+            : [];
 
-        $containers[$originalContainer]['widgets'] = $this->removeSlot(
-            items: $containers[$originalContainer]['widgets'],
+        $widget = $originalWidgets[$originalIndex];
+        $widgetAssets = $this->slotItems($assets, $originalContainer, $originalIndex);
+        $widgetOriginalAssets = $this->slotItems($originalAssets, $originalContainer, $originalIndex);
+        $widgetSelectedRecords = $this->slotItems($selectedRecords, $originalContainer, $originalIndex);
+
+        $originalWidgets = $this->removeSlot(
+            items: $originalWidgets,
             index: $originalIndex,
         );
-        $assets[$originalContainer] = $this->removeSlot($assets[$originalContainer] ?? [], $originalIndex);
-        $originalAssets[$originalContainer] = $this->removeSlot($originalAssets[$originalContainer] ?? [], $originalIndex);
-        $selectedRecords[$originalContainer] = $this->removeSlot($selectedRecords[$originalContainer] ?? [], $originalIndex);
+        $originalContainerData['widgets'] = $originalWidgets;
+        $containers[$originalContainer] = $originalContainerData;
+
+        $assets[$originalContainer] = $this->removeSlot($this->containerSlots($assets, $originalContainer), $originalIndex);
+        $originalAssets[$originalContainer] = $this->removeSlot($this->containerSlots($originalAssets, $originalContainer), $originalIndex);
+        $selectedRecords[$originalContainer] = $this->removeSlot($this->containerSlots($selectedRecords, $originalContainer), $originalIndex);
+
+        if ($originalContainer === $targetContainer) {
+            $targetWidgets = $originalWidgets;
+            $targetContainerData = $originalContainerData;
+        }
 
         $targetIndex = min(
-            count($containers[$targetContainer]['widgets'] ?? []),
+            count($targetWidgets),
             max(0, $targetIndex),
         );
 
-        $containers[$targetContainer]['widgets'] = $this->insertSlot(
-            items: $containers[$targetContainer]['widgets'] ?? [],
+        $targetWidgets = $this->insertSlot(
+            items: $targetWidgets,
             index: $targetIndex,
             item: $widget,
         );
-        $assets[$targetContainer] = $this->insertSlot($assets[$targetContainer] ?? [], $targetIndex, $widgetAssets);
-        $originalAssets[$targetContainer] = $this->insertSlot($originalAssets[$targetContainer] ?? [], $targetIndex, $widgetOriginalAssets);
-        $selectedRecords[$targetContainer] = $this->insertSlot($selectedRecords[$targetContainer] ?? [], $targetIndex, $widgetSelectedRecords);
+        $assets[$targetContainer] = $this->insertSlot($this->containerSlots($assets, $targetContainer), $targetIndex, $widgetAssets);
+        $originalAssets[$targetContainer] = $this->insertSlot($this->containerSlots($originalAssets, $targetContainer), $targetIndex, $widgetOriginalAssets);
+        $selectedRecords[$targetContainer] = $this->insertSlot($this->containerSlots($selectedRecords, $targetContainer), $targetIndex, $widgetSelectedRecords);
 
-        $containers[$targetContainer]['widgets'] = $this->normalizeOccurrences($containers[$targetContainer]['widgets']);
+        $targetWidgets = $this->normalizeOccurrences($targetWidgets);
+        $targetContainerData['widgets'] = $targetWidgets;
+        $containers[$targetContainer] = $targetContainerData;
 
         if ($originalContainer !== $targetContainer) {
-            $containers[$originalContainer]['widgets'] = $this->normalizeOccurrences($containers[$originalContainer]['widgets']);
+            $originalContainerData['widgets'] = $this->normalizeOccurrences($originalWidgets);
+            $containers[$originalContainer] = $originalContainerData;
         }
 
         $assets = $this->syncAssetOccurrences($containers, $assets);
@@ -82,6 +107,28 @@ final class ReorderLayoutWidgetAction
                 widgetIndex: $targetIndex,
             ),
         ]);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $collection
+     * @return array<int, mixed>
+     */
+    private function containerSlots(array $collection, string $containerKey): array
+    {
+        $slots = $collection[$containerKey] ?? [];
+
+        return is_array($slots) ? array_values($slots) : [];
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $collection
+     * @return array<array-key, mixed>
+     */
+    private function slotItems(array $collection, string $containerKey, int $index): array
+    {
+        $items = $this->containerSlots($collection, $containerKey)[$index] ?? [];
+
+        return is_array($items) ? $items : [];
     }
 
     /**
@@ -109,35 +156,53 @@ final class ReorderLayoutWidgetAction
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $widgets
+     * @param  array<int, mixed>  $widgets
      * @return array<int, array<string, mixed>>
      */
     private function normalizeOccurrences(array $widgets): array
     {
         $occurrences = [];
+        $normalized = [];
 
         foreach ($widgets as $widgetIndex => $widget) {
-            $widgetKey = (string) ($widget['widget_key'] ?? '');
+            $widget = is_array($widget) ? $widget : [];
+            $widgetKeyValue = $widget['widget_key'] ?? '';
+            $widgetKey = is_string($widgetKeyValue) ? $widgetKeyValue : '';
             $occurrences[$widgetKey] = ($occurrences[$widgetKey] ?? 0) + 1;
-            $widgets[$widgetIndex]['occurrence'] = $occurrences[$widgetKey];
+            $widget['occurrence'] = $occurrences[$widgetKey];
+            $normalized[$widgetIndex] = $widget;
         }
 
-        return $widgets;
+        return $normalized;
     }
 
     /**
-     * @param  array<string, array<string, mixed>>  $containers
-     * @param  array<string, array<int, array<int, array<string, mixed>>>>  $assets
-     * @return array<string, array<int, array<int, array<string, mixed>>>>
+     * @param  array<array-key, mixed>  $containers
+     * @param  array<array-key, mixed>  $assets
+     * @return array<array-key, mixed>
      */
     private function syncAssetOccurrences(array $containers, array $assets): array
     {
         foreach ($containers as $containerKey => $container) {
-            foreach (($container['widgets'] ?? []) as $widgetIndex => $widget) {
-                foreach (array_keys($assets[$containerKey][$widgetIndex] ?? []) as $assetIndex) {
-                    $assets[$containerKey][$widgetIndex][$assetIndex]['occurrence'] = $widget['occurrence'] ?? 1;
+            $container = is_array($container) ? $container : [];
+            $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+
+            $containerAssets = is_array($assets[$containerKey] ?? null) ? $assets[$containerKey] : [];
+
+            foreach ($widgets as $widgetIndex => $widget) {
+                $widget = is_array($widget) ? $widget : [];
+                $widgetAssets = is_array($containerAssets[$widgetIndex] ?? null) ? $containerAssets[$widgetIndex] : [];
+
+                foreach (array_keys($widgetAssets) as $assetIndex) {
+                    $assetData = is_array($widgetAssets[$assetIndex]) ? $widgetAssets[$assetIndex] : [];
+                    $assetData['occurrence'] = $widget['occurrence'] ?? 1;
+                    $widgetAssets[$assetIndex] = $assetData;
                 }
+
+                $containerAssets[$widgetIndex] = $widgetAssets;
             }
+
+            $assets[$containerKey] = $containerAssets;
         }
 
         return $assets;

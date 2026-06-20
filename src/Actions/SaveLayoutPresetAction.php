@@ -147,7 +147,8 @@ final class SaveLayoutPresetAction
                 $container = is_array($container) ? $container : [];
                 $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
-                $container = $this->scrubUnsafePresetData($container);
+                $scrubbed = $this->scrubUnsafePresetData($container);
+                $container = is_array($scrubbed) ? $scrubbed : [];
                 $container['widgets'] = array_map(
                     fn (array $widget): array => $this->snapshotWidget($widget, $includeStarterContent),
                     LayoutWidgetData::normalizeMany($widgets),

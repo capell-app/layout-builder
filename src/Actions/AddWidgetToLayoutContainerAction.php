@@ -21,11 +21,14 @@ class AddWidgetToLayoutContainerAction
         $containers = $layout->getAttribute('containers');
         $containers = is_array($containers) ? $containers : [];
 
-        throw_if(! isset($containers[$container]['widgets']), RuntimeException::class, sprintf("Container '%s' not found in layout.", $container));
+        $containerData = $containers[$container] ?? null;
+        throw_if(! is_array($containerData) || ! isset($containerData['widgets']) || ! is_array($containerData['widgets']), RuntimeException::class, sprintf("Container '%s' not found in layout.", $container));
+
+        $widgets = $containerData['widgets'];
 
         $existingWidgets = array_filter(
-            $containers[$container]['widgets'],
-            fn (array $existingWidget): bool => $existingWidget['widget_key'] === $widget->key,
+            $widgets,
+            fn (mixed $existingWidget): bool => is_array($existingWidget) && ($existingWidget['widget_key'] ?? null) === $widget->key,
         );
 
         if ($skipExists && $existingWidgets !== []) {
@@ -34,10 +37,12 @@ class AddWidgetToLayoutContainerAction
 
         $occurrence = count($existingWidgets) + 1;
 
-        $containers[$container]['widgets'][] = [
+        $widgets[] = [
             'widget_key' => $widget->key,
             'occurrence' => $occurrence,
         ];
+        $containerData['widgets'] = $widgets;
+        $containers[$container] = $containerData;
 
         $layout->update(['containers' => $containers]);
     }

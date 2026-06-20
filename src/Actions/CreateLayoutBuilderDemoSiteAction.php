@@ -102,7 +102,8 @@ class CreateLayoutBuilderDemoSiteAction
         $secondPageCardsWidget = $this->demoCreator->createPageCardsWidget($page, occurrence: 2);
         $mediaCarouselWidget = $this->demoCreator->createMediaCarouselWidget();
 
-        $containers['main']['widgets'] = [
+        $mainContainer = is_array($containers['main'] ?? null) ? $containers['main'] : [];
+        $mainContainer['widgets'] = [
             [
                 'widget_key' => $pageCardsWidget->key,
                 'occurrence' => 1,
@@ -114,6 +115,7 @@ class CreateLayoutBuilderDemoSiteAction
             ],
             ['widget_key' => $mediaCarouselWidget->key],
         ];
+        $containers['main'] = $mainContainer;
     }
 
     /**

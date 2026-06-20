@@ -942,6 +942,9 @@ it('covers layout builder public editor helpers and action factory private branc
         'widgetIndex' => 0,
         'type' => $assetType,
     ]);
+    if (! $record instanceof WidgetAsset) {
+        throw new RuntimeException('Expected makeWidgetAssetRecordForCreate to return a WidgetAsset.');
+    }
     $editableAsset = invokeLayoutBuilderResidualMethod($factory, 'resolveEditableWidgetAsset', [
         'containerKey' => 'main',
         'widgetIndex' => 0,
@@ -1168,6 +1171,9 @@ it('drives layout editor action closures through a page editing workflow', funct
     callLayoutBuilderResidualAction($factory->duplicateContainerAction(), $harness, [], ['containerKey' => 'sidebar']);
     callLayoutBuilderResidualAction($factory->changeLayoutAction(), $harness, ['layout_id' => $layout->getKey()]);
 
+    $harnessContainers = $harness->containers ?? [];
+    $mainContainer = $harnessContainers['main'] ?? [];
+
     expect($harness->saveLayout(withNotifications: true))->toBeTrue()
         ->and($harness->visualPreviewHtml())->toContain('Preview title')
         ->and($harness->visualPreviewSignature)->toBe('workflow-preview-signature')
@@ -1177,7 +1183,7 @@ it('drives layout editor action closures through a page editing workflow', funct
         ->and($harness->editorMode)->toBe('content_first')
         ->and($harness->returnToContentItemKey)->toBe('content:hero')
         ->and($harness->layoutAreaOptions())->toHaveKey('main')
-        ->and($harness->layoutAreaForContainer($harness->containers['main']))->toBe('main')
+        ->and($harness->layoutAreaForContainer($mainContainer))->toBe('main')
         ->and($harness->layoutAreaLabel('main'))->toBeString()
         ->and($harness->knownContainerKeys)->toContain('main', 'sidebar')
         ->and($harness->layoutModified)->toBeFalse()
@@ -1222,7 +1228,7 @@ it('renders deterministic layout preview images and signatures for varied contai
 
     capell_expect($signature->forLayout($layout))->toHaveLength(64)
         ->and($payload['containers'])->toHaveCount(5)
-        ->and($payload['containers'][0]['widgets'][0]['name'])->toBe('Preview Hero')
+        ->and(data_get($payload, 'containers.0.widgets.0.name'))->toBe('Preview Hero')
         ->and($png)->toStartWith("\x89PNG");
 });
 

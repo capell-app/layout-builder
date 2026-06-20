@@ -974,7 +974,8 @@ final class LayoutBuilderActionFactory
         $draftableNewAsset = $this->createDraftableAssetFromBuilderData($type, $data, $draftableNewAssetWorkspace);
 
         if ($draftableNewAsset instanceof Model) {
-            $widgetAsset->asset_id = $draftableNewAsset->getKey();
+            $newAssetKey = $draftableNewAsset->getKey();
+            $widgetAsset->asset_id = is_scalar($newAssetKey) ? (string) $newAssetKey : '';
             $widgetAsset->setRelation('asset', $draftableNewAsset);
         }
 
@@ -1394,7 +1395,8 @@ final class LayoutBuilderActionFactory
         }
 
         if ($canUpdatePersistedRecord && (int) $record->workspace_id > 0) {
-            $record->asset_id = $resultRecord->getKey();
+            $resultRecordKey = $resultRecord->getKey();
+            $record->asset_id = is_scalar($resultRecordKey) ? (string) $resultRecordKey : '';
             $record->save();
         }
 

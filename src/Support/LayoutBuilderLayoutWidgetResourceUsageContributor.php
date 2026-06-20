@@ -46,7 +46,13 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
                 continue;
             }
 
-            foreach (LayoutWidgetData::fromContainer($container) as $widgetData) {
+            $stringKeyedContainer = array_filter(
+                $container,
+                static fn (int|string $key): bool => is_string($key),
+                ARRAY_FILTER_USE_KEY,
+            );
+
+            foreach (LayoutWidgetData::fromContainer($stringKeyedContainer) as $widgetData) {
                 $widgetKey = LayoutWidgetData::key($widgetData);
                 if ($widgetKey === null) {
                     continue;
@@ -76,7 +82,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
                 $type = $widget->type;
                 $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
 
-                $presentation = ResolvePresentationSettingsAction::run(
+                $presentation = ResolvePresentationSettingsAction::make()->handle(
                     instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
                     typeDefaults: is_array($typeMeta['presentation'] ?? null) ? $typeMeta['presentation'] : [],
                 );
