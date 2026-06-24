@@ -23,10 +23,13 @@ it('contributes the hero editor as a full width section after the translated tit
         ->toBe([]);
 
     $editorComponents = ReadsRawSchemaComponents::childComponents($components[0]);
+    $editorComponent = $editorComponents[0] ?? null;
+
+    throw_unless(is_object($editorComponent), RuntimeException::class, 'Expected the hero editor child component to be an object.');
 
     expect($editorComponents)
         ->toHaveCount(1)
-        ->and(layoutBuilderFilamentObjectName($editorComponents[0]))->toBe('hero');
+        ->and(layoutBuilderFilamentObjectName($editorComponent))->toBe('hero');
 });
 
 it('hides the translated hero editor when page hero widget assets exist', function (): void {

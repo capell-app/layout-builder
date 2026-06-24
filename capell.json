@@ -188,7 +188,7 @@
                 "capell-layout-builder.fragments.show",
                 "capell-layout-builder.layout-widgets.show"
             ],
-            "auth": "none",
+            "auth": "public",
             "csrfExemptRoutes": [],
             "signedRoutes": [],
             "tokenizedRoutes": [],
