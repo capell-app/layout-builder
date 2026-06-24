@@ -77,6 +77,13 @@
             x-model.debounce.150ms="search"
             placeholder="{{ __('capell-layout-builder::form.search_layout_tree') }}"
         />
+        <kbd
+            class="layout-builder-tree-search-shortcut"
+            x-show="! treeSearchActive()"
+            aria-hidden="true"
+        >
+            /
+        </kbd>
         <button
             type="button"
             class="layout-builder-tree-search-clear"

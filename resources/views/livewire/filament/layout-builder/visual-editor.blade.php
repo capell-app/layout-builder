@@ -1344,12 +1344,18 @@
                 <div class="layout-builder-command-divider"></div>
 
                 <div class="layout-builder-breakpoint-segment">
-                    @foreach (LayoutBreakpoint::cases() as $breakpoint)
+                    @foreach (LayoutBreakpoint::cases() as $shortcutIndex => $breakpoint)
+                        @php
+                            $breakpointLabel = __('capell-layout-builder::button.' . $breakpoint->value);
+                            $shortcutKey = (string) ($shortcutIndex + 1);
+                        @endphp
+
                         <button
                             type="button"
                             class="layout-builder-breakpoint-button"
                             x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
                             x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
+                            title="{{ $breakpointLabel }} · {{ $shortcutKey }}"
                         >
                             @svg(match ($breakpoint) {
                                 LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
@@ -1357,7 +1363,7 @@
                                 LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
                             }, 'h-4 w-4')
                             <span class="sr-only">
-                                {{ __('capell-layout-builder::button.' . $breakpoint->value) }}
+                                {{ $breakpointLabel }}
                             </span>
                         </button>
                     @endforeach
