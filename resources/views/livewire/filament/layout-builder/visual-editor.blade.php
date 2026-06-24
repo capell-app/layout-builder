@@ -843,6 +843,68 @@
                     return
                 }
             },
+            handleGlobalShortcut(event) {
+                if (!event || event.defaultPrevented || event.isComposing)
+                    return
+
+                const modifier = event.metaKey || event.ctrlKey
+                const key = (event.key || '').toLowerCase()
+
+                if (modifier && key === 's') {
+                    event.preventDefault()
+                    if (this.$wire.layoutModified) {
+                        this.$wire.$call('saveLayout', true)
+                    }
+                    return
+                }
+
+                if (
+                    modifier &&
+                    (key === 'y' || (event.shiftKey && key === 'z'))
+                ) {
+                    event.preventDefault()
+                    this.$wire.$call('redoLayoutMutation')
+                    return
+                }
+
+                if (modifier && !event.shiftKey && key === 'z') {
+                    event.preventDefault()
+                    this.$wire.$call('undoLayoutMutation')
+                    return
+                }
+
+                if (modifier || event.altKey) return
+                if (this.isEditableTarget(event.target)) return
+
+                if (key === '/') {
+                    const input = this.$refs.treeSearchInput
+                    if (!input) return
+                    event.preventDefault()
+                    if (this.treeCollapsed) this.treeCollapsed = false
+                    if (this.compactPanels && !this.treeOpen) this.openTree()
+                    this.$nextTick(() => {
+                        input.focus()
+                        input.select?.()
+                    })
+                    return
+                }
+
+                const breakpointByKey = {
+                    1: 'desktop',
+                    2: 'tablet',
+                    3: 'mobile',
+                }
+                if (breakpointByKey[key]) {
+                    event.preventDefault()
+                    this.setActiveBreakpointPreview(breakpointByKey[key])
+                }
+            },
+            isEditableTarget(target) {
+                if (!(target instanceof HTMLElement)) return false
+                if (target.isContentEditable) return true
+                const tag = target.tagName
+                return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+            },
             toggleTreeCollapsed() {
                 this.treeCollapsed = !this.treeCollapsed
             },
@@ -1206,6 +1268,7 @@
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
             })"
     x-on:keydown.escape.window.prevent="handleEscape()"
+    x-on:keydown.window="handleGlobalShortcut($event)"
     x-bind:data-tree-collapsed="treeCollapsed ? 'true' : 'false'"
     x-bind:data-inspector-open="selectedPreviewAction() ? 'true' : 'false'"
     @class([
