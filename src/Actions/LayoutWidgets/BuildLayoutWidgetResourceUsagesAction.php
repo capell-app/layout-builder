@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions\LayoutWidgets;
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
+use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -46,7 +47,7 @@ class BuildLayoutWidgetResourceUsagesAction
                 $usages[] = new LayoutWidgetResourceUsageData(
                     widgetKey: $definition->key,
                     resourceGroup: $resourceGroup,
-                    publicId: hash('xxh128', $definition->key . ':' . $resourceGroup . ':' . $index),
+                    publicId: LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId($resourceGroup),
                     presentation: $presentation,
                 );
             }

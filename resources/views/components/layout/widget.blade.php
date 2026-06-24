@@ -3,7 +3,7 @@
     use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
     use Capell\Core\Enums\PresentationDeliveryMode;
     use Capell\Frontend\Facades\Frontend;
-    use Capell\LayoutBuilder\Support\LayoutWidgetResourceUsageContributor;
+    use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
     use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 
     $widgetComponent = $component;
@@ -67,7 +67,7 @@
         ->values()
         ->all();
     $resourcePublicIds = collect($resourceGroups)
-        ->map(fn (string $resourceGroup): string => LayoutWidgetResourceUsageContributor::publicId(
+        ->map(fn (string $resourceGroup): string => LayoutBuilderLayoutWidgetResourceUsageContributor::publicId(
             (string) ($widgetData['widget_key'] ?? $widget->key),
             $resourceGroup,
             (string) $containerKey,

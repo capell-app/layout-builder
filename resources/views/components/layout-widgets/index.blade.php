@@ -8,6 +8,7 @@
     use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
     use Capell\Frontend\Exceptions\WidgetLibraryException;
     use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
+    use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
     use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 
     if (! $widgets) {
@@ -45,7 +46,7 @@
             $definition?->defaultInteractionTriggers ?? [],
         );
         $resourcePublicIds = collect($definition?->resourceGroups ?? [])
-            ->map(fn (string $resourceGroup): string => hash('xxh128', $definition->key . ':' . $resourceGroup . ':' . $widgetIndex))
+            ->map(fn (string $resourceGroup): string => LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId($resourceGroup))
             ->values()
             ->all();
     @endphp

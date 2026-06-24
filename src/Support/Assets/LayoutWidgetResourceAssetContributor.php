@@ -10,12 +10,14 @@ use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\FrontendAssetContextData;
 use Capell\Frontend\Data\FrontendAssetRequirementData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
+use Capell\Frontend\Support\Assets\ThemeResourceResolver;
 use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 
 class LayoutWidgetResourceAssetContributor implements FrontendAssetContributor
 {
     public function __construct(
         private readonly FrontendResourceRegistry $resources,
+        private readonly ThemeResourceResolver $themeResources,
     ) {}
 
     public function requirements(FrontendAssetContextData $context): array
@@ -27,7 +29,9 @@ class LayoutWidgetResourceAssetContributor implements FrontendAssetContributor
                 continue;
             }
 
-            $group = $this->resources->get($usage->resourceGroup);
+            $group = $this->resources->get($usage->resourceGroup)
+                ?? $this->themeResources->group($context->theme, $usage->resourceGroup);
+
             if (! $group instanceof FrontendResourceGroupData) {
                 continue;
             }
@@ -48,6 +52,14 @@ class LayoutWidgetResourceAssetContributor implements FrontendAssetContributor
             }
         }
 
-        return $requirements;
+        return collect($requirements)
+            ->unique(fn (FrontendAssetRequirementData $requirement): string => implode(':', [
+                $requirement->kind,
+                $requirement->buildPath ?? '',
+                $requirement->source,
+                $requirement->condition ?? '',
+            ]))
+            ->values()
+            ->all();
     }
 }

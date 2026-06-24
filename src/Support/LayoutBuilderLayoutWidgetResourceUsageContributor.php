@@ -19,7 +19,12 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
 {
     public static function publicId(string $widgetKey, string $resourceGroup, string $containerKey, int $occurrence): string
     {
-        return hash('xxh128', implode(':', [$widgetKey, $resourceGroup, $containerKey, $occurrence]));
+        return self::resourceGroupPublicId($resourceGroup);
+    }
+
+    public static function resourceGroupPublicId(string $resourceGroup): string
+    {
+        return hash('xxh128', $resourceGroup);
     }
 
     /**
