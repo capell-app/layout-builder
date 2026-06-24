@@ -22,6 +22,12 @@
 
         <div class="layout-builder-tree-header-actions">
             @if ($this->canEditLayout())
+                @php
+                    $addActionLabel = $this->selectedContainerKey
+                        ? __('capell-layout-builder::button.add_widget_here')
+                        : __('capell-layout-builder::button.add_container');
+                @endphp
+
                 <x-filament::dropdown
                     class="layout-builder-layout-actions-dropdown"
                     placement="bottom-end"
@@ -32,13 +38,19 @@
                             color="gray"
                             icon="heroicon-o-plus"
                             size="sm"
-                            :label="__('capell-layout-builder::button.layout_actions')"
+                            :label="$addActionLabel"
+                            :tooltip="$addActionLabel"
                         />
                     </x-slot>
 
                     <x-filament::dropdown.list>
-                        {{ $this->addContainerAction }}
-                        {{ $this->addWidgetAction }}
+                        @if ($this->selectedContainerKey)
+                            {{ $this->addWidgetAction }}
+                            {{ $this->addContainerAction }}
+                        @else
+                            {{ $this->addContainerAction }}
+                            {{ $this->addWidgetAction }}
+                        @endif
 
                         @if ($canBrowseStarterLayouts)
                             <x-filament::dropdown.list.item
