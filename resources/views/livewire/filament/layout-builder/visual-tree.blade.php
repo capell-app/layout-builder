@@ -1,6 +1,7 @@
 @props([
     'tree',
     'title' => __('capell-layout-builder::heading.layout_structure'),
+    'canBrowseStarterLayouts' => false,
 ])
 
 <div
@@ -12,14 +13,11 @@
             <h2>
                 {{ $title }}
             </h2>
-            <div class="layout-builder-tree-counts">
-                <span>
-                    {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
-                </span>
-                <span>
-                    {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
-                </span>
-            </div>
+            <p class="layout-builder-tree-counts">
+                {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
+                <span aria-hidden="true">·</span>
+                {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
+            </p>
         </div>
 
         <div class="layout-builder-tree-header-actions">
@@ -41,6 +39,15 @@
                     <x-filament::dropdown.list>
                         {{ $this->addContainerAction }}
                         {{ $this->addWidgetAction }}
+
+                        @if ($canBrowseStarterLayouts)
+                            <x-filament::dropdown.list.item
+                                icon="heroicon-o-sparkles"
+                                x-on:click="$dispatch('open-modal', { id: 'capell-layout-builder-starter-layouts' })"
+                            >
+                                {{ __('capell-layout-builder::button.browse_starter_layouts') }}
+                            </x-filament::dropdown.list.item>
+                        @endif
                     </x-filament::dropdown.list>
                 </x-filament::dropdown>
             @endif
@@ -122,10 +129,16 @@
                     </span>
                     <span class="layout-builder-tree-row-main">
                         <span>{{ $container->label }}</span>
-                        <small>
-                            {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $container->widgetCount, ['count' => $container->widgetCount]) }}
-                        </small>
                     </span>
+                    @if ($container->widgetCount > 0)
+                        <span
+                            class="layout-builder-tree-badge"
+                            title="{{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $container->widgetCount, ['count' => $container->widgetCount]) }}"
+                        >
+                            {{ $container->widgetCount }}
+                        </span>
+                    @endif
+
                     <span
                         class="layout-builder-tree-chevron"
                         x-on:click.stop="open = ! open"
