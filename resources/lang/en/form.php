@@ -331,6 +331,7 @@ return [
     'rounded_images' => 'Rounded Images',
     'search_content_inventory' => 'Search editable content',
     'search_layout_tree' => 'Search layout',
+    'search_starter_layouts' => 'Search starter layouts',
     'search_widgets' => 'Search widgets',
     'secondary_button_text' => 'Secondary Button Text',
     'secondary_button_url' => 'Secondary Button URL',

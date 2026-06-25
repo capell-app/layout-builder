@@ -683,10 +683,8 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->toContain("node.setAttribute('role', 'button')")
         ->toContain("node.setAttribute('aria-label', label)")
         ->toContain("['Enter', ' '].includes(event.key)")
-        ->toContain('aria-haspopup="menu"')
-        ->toContain('aria-expanded="false"')
-        ->toContain('role="menu"')
-        ->toContain('role="menuitem"');
+        ->toContain('data-clb-action="openInspector"')
+        ->toContain('scrollInspectorIntoView()');
 });
 
 it('renders widget copy in the visual preview from the package namespace', function (): void {

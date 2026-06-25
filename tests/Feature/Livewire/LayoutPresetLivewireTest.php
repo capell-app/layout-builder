@@ -89,6 +89,32 @@ it('renders registered starter layout presets in the builder', function (): void
         ->assertSee(__('capell-layout-builder::button.apply_starter_layout'));
 });
 
+it('renders the canvas empty state and modal trigger when the layout has no containers', function (): void {
+    $site = Site::factory()->create();
+    $layout = Layout::factory()->site($site)->create([
+        'containers' => [],
+    ]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout, 'site' => $site])
+        ->assertSee(__('capell-layout-builder::message.layout_canvas_empty_heading'))
+        ->assertSee(__('capell-layout-builder::message.layout_canvas_empty_description'))
+        ->assertSee(__('capell-layout-builder::button.browse_starter_layouts'))
+        ->assertSeeHtml('data-layout-empty="true"');
+});
+
+it('hides the canvas empty state when the layout has containers', function (): void {
+    $site = Site::factory()->create();
+    $layout = Layout::factory()->site($site)->create([
+        'containers' => [
+            'main' => ['widgets' => []],
+        ],
+    ]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout, 'site' => $site])
+        ->assertDontSee(__('capell-layout-builder::message.layout_canvas_empty_heading'))
+        ->assertSeeHtml('data-layout-empty="false"');
+});
+
 it('applies a registered starter layout preset to the full builder state', function (): void {
     $site = Site::factory()->create();
     Widget::factory()->create(['key' => 'old-widget']);

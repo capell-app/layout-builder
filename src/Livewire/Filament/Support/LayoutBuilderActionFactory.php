@@ -80,6 +80,7 @@ final class LayoutBuilderActionFactory
     {
         return Action::make('saveLayout')
             ->label(__('capell-layout-builder::button.save_layout'))
+            ->tooltip(__('capell-layout-builder::button.save_layout_tooltip'))
             ->color('primary')
             ->size(Size::Small)
             ->button()
@@ -143,6 +144,7 @@ final class LayoutBuilderActionFactory
     {
         return Action::make('undoLayoutMutation')
             ->label(__('capell-layout-builder::button.undo'))
+            ->tooltip(__('capell-layout-builder::button.undo_tooltip'))
             ->icon('heroicon-o-arrow-uturn-left')
             ->color('gray')
             ->size(Size::Small)
@@ -155,6 +157,7 @@ final class LayoutBuilderActionFactory
     {
         return Action::make('redoLayoutMutation')
             ->label(__('capell-layout-builder::button.redo'))
+            ->tooltip(__('capell-layout-builder::button.redo_tooltip'))
             ->icon('heroicon-o-arrow-uturn-right')
             ->color('gray')
             ->size(Size::Small)

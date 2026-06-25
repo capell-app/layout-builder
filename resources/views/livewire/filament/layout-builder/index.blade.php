@@ -71,86 +71,116 @@
 
         @php
             $starterLayoutPresets = $this->starterLayoutPresets;
+            $canBrowseStarterLayouts = $this->canEditLayout() && $starterLayoutPresets !== [];
         @endphp
 
-        @if ($this->canEditLayout() && $starterLayoutPresets !== [])
-            <section
-                class="mb-5 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                aria-labelledby="capell-layout-builder-starter-layouts-heading"
+        @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
+            'canBrowseStarterLayouts' => $canBrowseStarterLayouts,
+            'starterLayoutPresets' => $starterLayoutPresets,
+        ])
+
+        @if ($canBrowseStarterLayouts)
+            <x-filament::modal
+                id="capell-layout-builder-starter-layouts"
+                :heading="__('capell-layout-builder::heading.starter_layouts')"
+                :description="__('capell-layout-builder::message.starter_layouts_description')"
+                width="2xl"
+                slide-over
             >
                 <div
-                    class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between"
+                    x-data="{ starterLayoutsSearch: '' }"
+                    class="flex flex-col gap-4"
                 >
-                    <div>
-                        <h2
-                            id="capell-layout-builder-starter-layouts-heading"
-                            class="text-sm font-semibold text-gray-950 dark:text-white"
+                    <label class="relative">
+                        <span class="sr-only">
+                            {{ __('capell-layout-builder::form.search_starter_layouts') }}
+                        </span>
+                        <span
+                            class="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-gray-400"
+                            aria-hidden="true"
                         >
-                            {{ __('capell-layout-builder::heading.starter_layouts') }}
-                        </h2>
+                            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                        </span>
+                        <input
+                            type="search"
+                            x-model.debounce.120ms="starterLayoutsSearch"
+                            placeholder="{{ __('capell-layout-builder::form.search_starter_layouts') }}"
+                            class="focus:border-primary-500 focus:ring-primary-500 w-full rounded-lg border border-gray-200 bg-white py-2 pr-3 pl-9 text-sm shadow-sm focus:ring-1 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                        />
+                    </label>
 
-                        <p
-                            class="mt-1 max-w-3xl text-sm text-gray-600 dark:text-gray-400"
-                        >
-                            {{ __('capell-layout-builder::message.starter_layouts_description') }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    @foreach ($starterLayoutPresets as $preset)
-                        <article
-                            wire:key="starter-layout-preset-{{ $preset->key }}"
-                            class="flex min-h-36 flex-col justify-between rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-800 dark:bg-gray-950"
-                        >
-                            <div>
-                                <h3
-                                    class="text-sm font-medium text-gray-950 dark:text-white"
-                                >
-                                    {{ $preset->label }}
-                                </h3>
-
-                                <p
-                                    class="mt-1 text-sm text-gray-600 dark:text-gray-400"
-                                >
-                                    {{ $preset->description }}
-                                </p>
-                            </div>
-
-                            <div
-                                class="mt-4 flex flex-wrap items-center justify-between gap-3"
+                    <ul
+                        role="list"
+                        class="divide-y divide-gray-100 dark:divide-gray-800"
+                    >
+                        @foreach ($starterLayoutPresets as $preset)
+                            <li
+                                wire:key="starter-layout-preset-{{ $preset->key }}"
+                                x-show="
+                                    starterLayoutsSearch === '' ||
+                                        $el.dataset.starterTerm
+                                            .toLowerCase()
+                                            .includes(starterLayoutsSearch.toLowerCase())
+                                "
+                                data-starter-term="{{ $preset->label . ' ' . $preset->description }}"
+                                class="flex items-start justify-between gap-4 py-3"
                             >
-                                <div class="flex flex-wrap gap-1.5">
-                                    <span
-                                        class="rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700"
+                                <div class="min-w-0 flex-1">
+                                    <h3
+                                        class="text-sm font-semibold text-gray-950 dark:text-white"
+                                    >
+                                        {{ $preset->label }}
+                                    </h3>
+                                    <p
+                                        class="mt-0.5 text-sm text-gray-600 dark:text-gray-400"
+                                    >
+                                        {{ $preset->description }}
+                                    </p>
+                                    <p
+                                        class="mt-1 text-xs text-gray-500 dark:text-gray-500"
                                     >
                                         {{ trans_choice('capell-layout-builder::message.starter_layout_container_count', count($preset->containers), ['count' => count($preset->containers)]) }}
-                                    </span>
-
-                                    <span
-                                        class="rounded-md bg-white px-2 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700"
-                                    >
+                                        <span
+                                            class="mx-1 opacity-50"
+                                            aria-hidden="true"
+                                        >
+                                            ·
+                                        </span>
                                         {{ trans_choice('capell-layout-builder::message.starter_layout_section_count', count($preset->sections), ['count' => count($preset->sections)]) }}
-                                    </span>
+                                    </p>
                                 </div>
 
                                 <x-filament::button
                                     icon="heroicon-o-sparkles"
-                                    size="xs"
+                                    size="sm"
+                                    x-on:click="$dispatch('close-modal', { id: 'capell-layout-builder-starter-layouts' })"
                                     wire:click="applyStarterLayoutPreset(@js($preset->key))"
                                     wire:loading.attr="disabled"
                                     wire:target="applyStarterLayoutPreset"
                                 >
                                     {{ __('capell-layout-builder::button.apply_starter_layout') }}
                                 </x-filament::button>
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            </section>
-        @endif
+                            </li>
+                        @endforeach
+                    </ul>
 
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor')
+                    <p
+                        x-show="
+                            starterLayoutsSearch !== '' &&
+                                ! [...$root.querySelectorAll('[data-starter-term]')].some((row) =>
+                                    row.dataset.starterTerm
+                                        .toLowerCase()
+                                        .includes(starterLayoutsSearch.toLowerCase()),
+                                )
+                        "
+                        x-cloak
+                        class="py-6 text-center text-sm text-gray-500 dark:text-gray-400"
+                    >
+                        {{ __('capell-layout-builder::message.starter_layouts_search_empty') }}
+                    </p>
+                </div>
+            </x-filament::modal>
+        @endif
     </div>
 
     <x-filament-actions::modals />

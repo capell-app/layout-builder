@@ -48,6 +48,7 @@
 
             $previewWidgetActions[$treeWidget->nodeId] = [
                 'type' => 'widget',
+                'nodeId' => $treeWidget->nodeId,
                 'containerKey' => $treeWidget->containerKey,
                 'widgetIndex' => $treeWidget->widgetIndex,
                 'label' => $treeWidget->label,
@@ -311,6 +312,8 @@
                     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>',
                     plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
                     more: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>',
+                    inspector:
+                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/><path d="M17 9h1"/><path d="M17 12h1"/><path d="M17 15h1"/></svg>',
                 }
 
                 return icons[name] || ''
@@ -410,6 +413,15 @@
                             event.preventDefault()
                             event.stopPropagation()
                             this.closePreviewMenus()
+
+                            if (button.dataset.clbAction === 'openInspector') {
+                                this.selectPreviewNode(
+                                    node.dataset.clbPreviewNode,
+                                )
+                                this.scrollInspectorIntoView()
+                                return
+                            }
+
                             const assetTypes = Array.isArray(action.assetTypes)
                                 ? action.assetTypes
                                 : []
@@ -610,59 +622,12 @@
             },
             widgetActionsHtml(action) {
                 const labels = this.actionLabels
-                const moreItems = []
-
-                if (action.hasLayoutSettings) {
-                    moreItems.push(
-                        this.menuButton(
-                            'editLayoutWidget',
-                            labels.widgetSettings,
-                        ),
-                    )
-                }
-
-                if (action.canTogglePageAssets) {
-                    moreItems.push(
-                        this.menuButton(
-                            'togglePageAssets',
-                            action.toggleAssetsLabel,
-                        ),
-                    )
-                }
-
-                if (action.assetTypes.length > 0) {
-                    moreItems.push(
-                        `<div class="clb-preview-menu-heading">${labels.assets}</div>`,
-                    )
-                    action.assetTypes.forEach((assetType) => {
-                        if (action.assetTypes.length > 1) {
-                            moreItems.push(
-                                `<div class="clb-preview-menu-heading">${this.escapeHtml(assetType.label)}</div>`,
-                            )
-                        }
-
-                        moreItems.push(
-                            this.menuButton(
-                                'selectAsset',
-                                assetType.selectLabel,
-                                assetType.type,
-                            ),
-                        )
-                        moreItems.push(
-                            this.menuButton(
-                                'addAsset',
-                                assetType.createLabel,
-                                assetType.type,
-                            ),
-                        )
-                    })
-                }
 
                 return `
                     <button type="button" class="clb-preview-action-button" data-clb-action="editWidget" title="${this.escapeHtml(labels.edit)}" aria-label="${this.escapeHtml(labels.edit)}">${this.icon('edit')}</button>
                     ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button" data-clb-action="duplicateWidget" title="${this.escapeHtml(labels.duplicate)}" aria-label="${this.escapeHtml(labels.duplicate)}">${this.icon('copy')}</button>` : ''}
                     ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeWidget" title="${this.escapeHtml(labels.remove)}" aria-label="${this.escapeHtml(labels.remove)}">${this.icon('trash')}</button>` : ''}
-                    ${moreItems.length > 0 ? `<span class="clb-preview-more"><button type="button" class="clb-preview-action-button" data-clb-menu-toggle title="${this.escapeHtml(labels.controls)}" aria-label="${this.escapeHtml(labels.controls)}" aria-haspopup="menu" aria-expanded="false">${this.icon('more')}</button><div class="clb-preview-menu" role="menu">${moreItems.join('')}</div></span>` : ''}
+                    <button type="button" class="clb-preview-action-button" data-clb-action="openInspector" title="${this.escapeHtml(labels.openInspector)}" aria-label="${this.escapeHtml(labels.openInspector)}">${this.icon('inspector')}</button>
                 `
             },
             containerActionsHtml() {
@@ -878,6 +843,68 @@
                     return
                 }
             },
+            handleGlobalShortcut(event) {
+                if (!event || event.defaultPrevented || event.isComposing)
+                    return
+
+                const modifier = event.metaKey || event.ctrlKey
+                const key = (event.key || '').toLowerCase()
+
+                if (modifier && key === 's') {
+                    event.preventDefault()
+                    if (this.$wire.layoutModified) {
+                        this.$wire.$call('saveLayout', true)
+                    }
+                    return
+                }
+
+                if (
+                    modifier &&
+                    (key === 'y' || (event.shiftKey && key === 'z'))
+                ) {
+                    event.preventDefault()
+                    this.$wire.$call('redoLayoutMutation')
+                    return
+                }
+
+                if (modifier && !event.shiftKey && key === 'z') {
+                    event.preventDefault()
+                    this.$wire.$call('undoLayoutMutation')
+                    return
+                }
+
+                if (modifier || event.altKey) return
+                if (this.isEditableTarget(event.target)) return
+
+                if (key === '/') {
+                    const input = this.$refs.treeSearchInput
+                    if (!input) return
+                    event.preventDefault()
+                    if (this.treeCollapsed) this.treeCollapsed = false
+                    if (this.compactPanels && !this.treeOpen) this.openTree()
+                    this.$nextTick(() => {
+                        input.focus()
+                        input.select?.()
+                    })
+                    return
+                }
+
+                const breakpointByKey = {
+                    1: 'desktop',
+                    2: 'tablet',
+                    3: 'mobile',
+                }
+                if (breakpointByKey[key]) {
+                    event.preventDefault()
+                    this.setActiveBreakpointPreview(breakpointByKey[key])
+                }
+            },
+            isEditableTarget(target) {
+                if (!(target instanceof HTMLElement)) return false
+                if (target.isContentEditable) return true
+                const tag = target.tagName
+                return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+            },
             toggleTreeCollapsed() {
                 this.treeCollapsed = !this.treeCollapsed
             },
@@ -962,6 +989,15 @@
                 } else if (nodeRect.bottom > panelRect.bottom) {
                     panel.scrollTop += nodeRect.bottom - panelRect.bottom + 12
                 }
+            },
+            scrollInspectorIntoView() {
+                const panel = this.$el.querySelector(
+                    '.layout-builder-inspector-panel',
+                )
+
+                if (!panel) return
+
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
             },
             runPreviewAction(actionName, action, extra = {}, trigger = null) {
                 const args = {}
@@ -1147,7 +1183,29 @@
 
                 return assetTypes.map((assetType) => assetType.type)
             },
-            runSelectedPreviewAction(actionName, trigger = null) {
+            selectedPreviewAssetTypeDescriptors() {
+                const action = this.selectedPreviewAction()
+
+                return Array.isArray(action?.assetTypes)
+                    ? action.assetTypes
+                    : []
+            },
+            selectedPreviewHasWidgetControls() {
+                const action = this.selectedPreviewAction()
+
+                if (!action || action.type !== 'widget') return false
+
+                return Boolean(
+                    action.hasLayoutSettings ||
+                    action.canTogglePageAssets ||
+                    this.selectedPreviewAssetTypeDescriptors().length > 0,
+                )
+            },
+            runSelectedPreviewAction(
+                actionName,
+                trigger = null,
+                typeOverride = null,
+            ) {
                 const action = this.selectedPreviewAction()
 
                 if (!action) return
@@ -1156,7 +1214,7 @@
                     actionName,
                     action,
                     {
-                        type: this.selectedPreviewAssetType(),
+                        type: typeOverride || this.selectedPreviewAssetType(),
                         types: this.selectedPreviewAssetTypes(),
                     },
                     trigger,
@@ -1191,6 +1249,7 @@
                         'edit' => __('capell-layout-builder::button.edit_widget'),
                         'editContainer' => __('capell-layout-builder::button.edit_container'),
                         'inspector' => __('capell-layout-builder::generic.inspector'),
+                        'openInspector' => __('capell-layout-builder::button.open_inspector'),
                         'layout' => __('capell-layout-builder::generic.layout'),
                         'page' => __('capell-layout-builder::generic.page'),
                         'placement' => __('capell-layout-builder::generic.placement'),
@@ -1209,6 +1268,7 @@
                 previewSignature: {{ Js::from($this->visualPreviewSignature) }},
             })"
     x-on:keydown.escape.window.prevent="handleEscape()"
+    x-on:keydown.window="handleGlobalShortcut($event)"
     x-bind:data-tree-collapsed="treeCollapsed ? 'true' : 'false'"
     x-bind:data-inspector-open="selectedPreviewAction() ? 'true' : 'false'"
     @class([
@@ -1235,53 +1295,16 @@
             <div class="layout-builder-editor-title">
                 <strong>{{ $this->layout->name }}</strong>
 
-                <span
-                    @class([
-                        'layout-builder-editor-status',
-                        'layout-builder-editor-status-unsaved' => $this->layoutModified,
-                    ])
-                >
-                    @svg($this->layoutModified ? 'heroicon-o-exclamation-circle' : 'heroicon-o-check-circle', 'h-3.5 w-3.5')
-                    {{ $this->layoutModified ? __('capell-layout-builder::message.layout_unsaved') : __('capell-layout-builder::message.layout_saved') }}
-                </span>
-            </div>
-        </div>
-
-        <div
-            class="layout-builder-breakpoint-controls layout-builder-command-group"
-            aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
-        >
-            <div class="layout-builder-preview-command-label">
-                @svg('heroicon-o-eye', 'h-4 w-4')
-                <span>
-                    {{ __('capell-layout-builder::button.preview_changes') }}
-                </span>
-            </div>
-
-            <div class="layout-builder-command-divider"></div>
-
-            <div class="layout-builder-breakpoint-segment">
-                @foreach (LayoutBreakpoint::cases() as $breakpoint)
-                    <button
-                        type="button"
-                        class="layout-builder-breakpoint-button"
-                        x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
-                        x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
+                @if ($this->layoutModified)
+                    <span
+                        class="layout-builder-editor-status layout-builder-editor-status-unsaved"
                     >
-                        @svg(match ($breakpoint) {
-                            LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
-                            LayoutBreakpoint::Tablet => 'heroicon-o-device-tablet',
-                            LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
-                        }, 'h-4 w-4')
-                        <span class="sr-only">
-                            {{ __('capell-layout-builder::button.' . $breakpoint->value) }}
-                        </span>
-                    </button>
-                @endforeach
+                        @svg('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
+                        {{ __('capell-layout-builder::message.layout_unsaved') }}
+                    </span>
+                @endif
             </div>
-        </div>
 
-        <div class="layout-builder-visual-actions">
             <div class="layout-builder-editor-context">
                 <span>
                     @svg('heroicon-o-globe-alt', 'h-4 w-4')
@@ -1293,7 +1316,9 @@
                     {{ $editorPageLabel }}
                 </span>
             </div>
+        </div>
 
+        <div class="layout-builder-visual-actions">
             <div
                 x-show="actionLoading"
                 x-cloak
@@ -1305,10 +1330,60 @@
                 </span>
             </div>
 
+            <div
+                class="layout-builder-breakpoint-controls layout-builder-command-group"
+                aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
+            >
+                <div class="layout-builder-preview-command-label">
+                    @svg('heroicon-o-eye', 'h-4 w-4')
+                    <span>
+                        {{ __('capell-layout-builder::button.preview_changes') }}
+                    </span>
+                </div>
+
+                <div class="layout-builder-command-divider"></div>
+
+                <div class="layout-builder-breakpoint-segment">
+                    @foreach (LayoutBreakpoint::cases() as $shortcutIndex => $breakpoint)
+                        @php
+                            $breakpointLabel = __('capell-layout-builder::button.' . $breakpoint->value);
+                            $shortcutKey = (string) ($shortcutIndex + 1);
+                        @endphp
+
+                        <button
+                            type="button"
+                            class="layout-builder-breakpoint-button"
+                            x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
+                            x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
+                            title="{{ $breakpointLabel }} · {{ $shortcutKey }}"
+                        >
+                            @svg(match ($breakpoint) {
+                                LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
+                                LayoutBreakpoint::Tablet => 'heroicon-o-device-tablet',
+                                LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
+                            }, 'h-4 w-4')
+                            <span class="sr-only">
+                                {{ $breakpointLabel }}
+                            </span>
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+
+            <div
+                class="layout-builder-toolbar-divider"
+                aria-hidden="true"
+            ></div>
+
             <div class="layout-builder-history-actions">
                 {{ $this->undoLayoutMutationAction }}
                 {{ $this->redoLayoutMutationAction }}
             </div>
+
+            <div
+                class="layout-builder-toolbar-divider"
+                aria-hidden="true"
+            ></div>
 
             <div class="layout-builder-command-save">
                 @if ($this->saveLayoutAction->isVisible())
@@ -1410,13 +1485,14 @@
             x-ref="treePanel"
             class="layout-builder-visual-panel layout-builder-visual-panel-tree"
         >
-            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel])
+            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
         </aside>
 
         <div
             class="layout-builder-visual-canvas layout-builder-canvas-scroll"
             x-ref="previewCanvas"
             data-match-frontend-container-layout="{{ config('capell-layout-builder.preview.match_frontend_container_layout', true) ? 'true' : 'false' }}"
+            data-layout-empty="{{ $tree->containerCount === 0 ? 'true' : 'false' }}"
             x-bind:data-active-breakpoint="activeBreakpoint"
             x-bind:data-stack-containers="shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'"
             x-bind:style="{
@@ -1424,6 +1500,37 @@
                 '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
             }"
         >
+            @if ($tree->containerCount === 0 && $this->canEditLayout())
+                <div class="layout-builder-canvas-empty-state">
+                    <span
+                        class="layout-builder-canvas-empty-icon"
+                        aria-hidden="true"
+                    >
+                        @svg('heroicon-o-rectangle-stack', 'h-7 w-7')
+                    </span>
+                    <h3 class="layout-builder-canvas-empty-heading">
+                        {{ __('capell-layout-builder::message.layout_canvas_empty_heading') }}
+                    </h3>
+                    <p class="layout-builder-canvas-empty-description">
+                        {{ __('capell-layout-builder::message.layout_canvas_empty_description') }}
+                    </p>
+                    <div class="layout-builder-canvas-empty-actions">
+                        @if ($canBrowseStarterLayouts ?? false)
+                            <x-filament::button
+                                color="primary"
+                                icon="heroicon-o-sparkles"
+                                size="sm"
+                                x-on:click="$dispatch('open-modal', { id: 'capell-layout-builder-starter-layouts' })"
+                            >
+                                {{ __('capell-layout-builder::button.browse_starter_layouts') }}
+                            </x-filament::button>
+                        @endif
+
+                        {{ $this->addContainerAction }}
+                    </div>
+                </div>
+            @endif
+
             <script
                 type="application/json"
                 x-ref="previewWidgetActionsPayload"
@@ -1498,8 +1605,6 @@
                     </div>
 
                     <div class="layout-builder-inspector-card">
-                        <h4 x-text="actionLabels.properties"></h4>
-
                         <template
                             x-for="row in selectedPreviewMetaRows()"
                             :key="row.label"
@@ -1512,8 +1617,6 @@
                     </div>
 
                     <div class="layout-builder-inspector-card">
-                        <h4 x-text="actionLabels.controls"></h4>
-
                         <div class="layout-builder-inspector-actions-grid">
                             <button
                                 type="button"
@@ -1555,19 +1658,6 @@
 
                             <button
                                 type="button"
-                                class="layout-builder-inspector-action layout-builder-inspector-action-secondary"
-                                x-show="selectedPreviewAction()?.type === 'widget'"
-                                x-bind:disabled="selectedPreviewAssetTypes().length === 0"
-                                x-on:click="runSelectedPreviewAction('selectAsset', $event.currentTarget)"
-                            >
-                                @svg('heroicon-o-photo', 'h-4 w-4')
-                                <span>
-                                    {{ __('capell-layout-builder::heading.assets') }}
-                                </span>
-                            </button>
-
-                            <button
-                                type="button"
                                 class="layout-builder-inspector-action layout-builder-inspector-action-danger"
                                 x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
                                 x-on:click="
@@ -1584,6 +1674,81 @@
                                     {{ __('capell-layout-builder::button.remove') }}
                                 </span>
                             </button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="layout-builder-inspector-card layout-builder-inspector-widget-controls"
+                        x-show="selectedPreviewHasWidgetControls()"
+                        x-cloak
+                    >
+                        <h4>
+                            {{ __('capell-layout-builder::button.controls') }}
+                        </h4>
+
+                        <div class="layout-builder-inspector-stack-buttons">
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-row-button"
+                                x-show="selectedPreviewAction()?.hasLayoutSettings"
+                                x-on:click="runSelectedPreviewAction('editLayoutWidget', $event.currentTarget)"
+                            >
+                                @svg('heroicon-o-cog-6-tooth', 'h-4 w-4')
+                                <span>
+                                    {{ __('capell-layout-builder::button.edit_layout_widget') }}
+                                </span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="layout-builder-inspector-row-button"
+                                x-show="selectedPreviewAction()?.canTogglePageAssets"
+                                x-on:click="runSelectedPreviewAction('togglePageAssets', $event.currentTarget)"
+                            >
+                                @svg('heroicon-o-arrows-right-left', 'h-4 w-4')
+                                <span
+                                    x-text="selectedPreviewAction()?.toggleAssetsLabel"
+                                ></span>
+                            </button>
+
+                            <template
+                                x-for="assetType in selectedPreviewAssetTypeDescriptors()"
+                                :key="assetType.type"
+                            >
+                                <div class="layout-builder-inspector-asset-row">
+                                    <p
+                                        class="layout-builder-inspector-asset-row-label"
+                                        x-show="selectedPreviewAssetTypeDescriptors().length > 1"
+                                        x-text="assetType.label"
+                                    ></p>
+
+                                    <div
+                                        class="layout-builder-inspector-asset-row-actions"
+                                    >
+                                        <button
+                                            type="button"
+                                            class="layout-builder-inspector-row-button"
+                                            x-on:click="runSelectedPreviewAction('selectAsset', $event.currentTarget, assetType.type)"
+                                        >
+                                            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                                            <span
+                                                x-text="assetType.selectLabel"
+                                            ></span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="layout-builder-inspector-row-button layout-builder-inspector-row-button-secondary"
+                                            x-on:click="runSelectedPreviewAction('addAsset', $event.currentTarget, assetType.type)"
+                                        >
+                                            @svg('heroicon-o-plus-circle', 'h-4 w-4')
+                                            <span
+                                                x-text="assetType.createLabel"
+                                            ></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -1606,6 +1771,6 @@
         tabindex="-1"
         class="layout-builder-responsive-drawer layout-builder-responsive-drawer-left"
     >
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel])
+        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
     </aside>
 </section>
