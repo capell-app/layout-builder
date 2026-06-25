@@ -55,8 +55,12 @@ class SettingsSchema
 
             ...$components,
 
+            // On edit, status + publish dates are owned by the PublishStatusPanel
+            // pinned to the top of the sidebar; keep the inline fields only for
+            // create/option flows where there is no record to act on yet.
             Grid::make()
                 ->columns(['default' => 1, 'md' => 2, '2xl' => 1])
+                ->hiddenOn('edit')
                 ->schema([
                     Grid::make()
                         ->columnSpan(1)
