@@ -8,6 +8,7 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Actions\Mutations\ReorderLayoutContainerAction;
 use Capell\LayoutBuilder\Actions\Mutations\ResizeLayoutContainerAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
+use Capell\LayoutBuilder\Data\LayoutContainerSchemaContextData;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
@@ -18,6 +19,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use ReflectionMethod;
 
 trait ManagesContainers
 {
@@ -223,7 +225,12 @@ trait ManagesContainers
             $this->layout->admin['container_schema'][$containerKey] ?? DefaultLayoutContainerConfigurator::getKey(),
         );
 
-        $typeSchema = resolve($adminSchema)->make($configurator);
+        $containerConfigurator = resolve($adminSchema);
+        $context = LayoutContainerSchemaContextData::fromLayout($this->layout, is_string($containerKey) ? $containerKey : null);
+        $makeMethod = new ReflectionMethod($containerConfigurator, 'make');
+        $typeSchema = $makeMethod->getNumberOfParameters() > 1
+            ? $containerConfigurator->make($configurator, $context)
+            : $containerConfigurator->make($configurator);
 
         return [
             TextInput::make('key')

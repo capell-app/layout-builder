@@ -51,6 +51,21 @@
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-screen.png"
         },
         {
+            "id": "layout-container-theme-settings",
+            "title": "Layout container theme settings.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/admin/pages/{first-record}/edit",
+            "waitFor": "form",
+            "targetType": "admin-surface",
+            "target": "PageSchemaExtender",
+            "required": true,
+            "notes": "Shows the layout container editor with spacing, padding, border, background, and active-theme-scoped settings visible.",
+            "useCase": "An editor tunes a layout container while seeing which fields come from the active theme.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-container-theme-settings.png"
+        },
+        {
             "id": "sections-admin-index",
             "title": "Sections admin index.",
             "package": "layout-builder",

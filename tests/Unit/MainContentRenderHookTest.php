@@ -74,7 +74,18 @@ it('renders stored layout containers through the shared hook and updates render 
                     'widgets' => [
                         ['widget_key' => 'page-content', 'occurrence' => 1],
                     ],
-                    'meta' => ['colspan' => 8, 'container' => 'full'],
+                    'meta' => [
+                        'colspan' => 8,
+                        'container' => 'full',
+                        'border' => 'subtle',
+                        'theme_settings' => [
+                            'saas' => [
+                                'surface_tone' => 'muted',
+                                'admin_schema' => 'private',
+                                'signed_url' => 'https://admin.test/signed',
+                            ],
+                        ],
+                    ],
                 ],
                 'sidebar' => [
                     'widgets' => [
@@ -97,6 +108,11 @@ it('renders stored layout containers through the shared hook and updates render 
 
     expect($output)->toContain('id="layout-container-main"')
         ->and($output)->toContain('id="layout-container-sidebar"')
+        ->and($output)->toContain('border-slate-200/80')
+        ->and($output)->not->toContain('theme_settings')
+        ->and($output)->not->toContain('surface_tone')
+        ->and($output)->not->toContain('admin_schema')
+        ->and($output)->not->toContain('signed_url')
         ->and($context->pageContentWidgetRendered)->toBeTrue()
         ->and($context->slotRendered)->toBeTrue();
 });

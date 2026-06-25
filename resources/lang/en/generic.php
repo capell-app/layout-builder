@@ -69,6 +69,8 @@ return [
     'container_name' => ':name Container',
     'container_spacing_help' => 'Set the spacing between the widgets',
     'container_width_helper' => 'Controls how wide this item renders. Use Full on a layout container for edge-to-edge backgrounds, then keep the widget contained so its content stays aligned.',
+    'theme_settings_description' => 'These fields come from the active theme and are stored on this layout container only.',
+    'theme_settings_heading' => 'Theme settings: :theme',
     'content' => 'Content',
     'content_first_editor' => 'Layout content editor',
     'content_placement' => ':container > :widget > Item :position',
