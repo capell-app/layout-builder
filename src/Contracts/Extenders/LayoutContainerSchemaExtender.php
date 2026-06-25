@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Contracts\Extenders;
 use Capell\LayoutBuilder\Data\LayoutContainerSchemaContextData;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 
 interface LayoutContainerSchemaExtender
 {
@@ -19,7 +20,7 @@ interface LayoutContainerSchemaExtender
     public function supports(LayoutContainerSchemaContextData $context): bool;
 
     /**
-     * @return array<int, mixed>
+     * @return array<int, Htmlable>
      */
     public function extendContainerComponents(Schema $schema, LayoutContainerSchemaContextData $context): array;
 }

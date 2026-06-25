@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderCoverageSchemaHarness;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 
 it('resolves layout container schema context from the active layout theme', function (): void {
     $theme = Theme::factory()->create([
@@ -163,7 +164,7 @@ it('does not add theme fields when the extender does not support the container c
 });
 
 /**
- * @param  array<int, mixed>  $components
+ * @param  array<int, Htmlable>  $components
  * @return array<int, mixed>
  */
 function layoutContainerSchemaExtenderFlattenComponents(array $components): array
