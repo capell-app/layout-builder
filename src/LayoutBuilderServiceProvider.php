@@ -57,7 +57,7 @@ use Illuminate\Support\Facades\Route;
 use Override;
 use Spatie\LaravelPackageTools\Package;
 
-class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
+final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 {
     private const string EDITABLE_REGION_EDITOR_SURFACE = EditableRegionEditorSurface::class;
 
@@ -140,7 +140,7 @@ class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     protected function isPackageInstalled(): bool
     {
-        return CapellCore::isPackageInstalled(static::$packageName);
+        return CapellCore::isPackageInstalled(self::$packageName);
     }
 
     private function registerDefaultLayoutWidgets(): void

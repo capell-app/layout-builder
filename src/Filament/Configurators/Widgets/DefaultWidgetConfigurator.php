@@ -9,6 +9,7 @@ use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Admin\Filament\Components\Forms\ImageSourcePicker;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\Admin\Filament\Livewire\PublishStatusPanel;
 use Capell\Core\Enums\ImageSourceType;
 use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Contracts\Extenders\WidgetSchemaExtender;
@@ -22,7 +23,9 @@ use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
+use Capell\LayoutBuilder\Models\Widget;
 use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -74,6 +77,7 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
                     ...$this->getExtraSchema($configurator),
                 ])
                 ->sidebarSchema([
+                    ...$this->publishPanel($configurator),
                     Section::make()
                         ->gridContainer()
                         ->columns(['@md' => 2])
@@ -84,6 +88,31 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
                                 ->imageSourcePolicy(blueprintSources: $this->blueprintImageSourcePolicy($configurator, 'image')),
                         ]),
                 ]),
+        ];
+    }
+
+    /**
+     * The shared WordPress-style publish panel, pinned to the top of the widget
+     * editor sidebar. Edit only — on create there is no record to act on yet, so
+     * the slim inline publish/status fields in SettingsSchema cover that case.
+     *
+     * @return array<int, Livewire>
+     */
+    protected function publishPanel(Schema $configurator): array
+    {
+        $record = $configurator->getRecord();
+
+        if ($configurator->getOperation() !== 'edit' || ! $record instanceof Widget) {
+            return [];
+        }
+
+        $key = $record->getKey();
+
+        return [
+            Livewire::make(PublishStatusPanel::class, [
+                'recordClass' => Widget::class,
+                'recordId' => is_scalar($key) ? (int) $key : 0,
+            ]),
         ];
     }
 

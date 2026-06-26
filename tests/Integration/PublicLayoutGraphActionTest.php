@@ -60,6 +60,40 @@ function publicLayoutGraphFirstWidgetPresentation(PublicLayoutGraphData $graph):
     return is_array($presentation) ? $presentation : [];
 }
 
+it('keeps layout container theme settings out of the public graph payload', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->create(['language_id' => $language->id]);
+    $layout = Layout::factory()->site($site)->create([
+        'key' => 'theme-settings-safe',
+        'containers' => [
+            'main' => [
+                'meta' => [
+                    'border' => 'subtle',
+                    'theme_settings' => [
+                        'saas' => [
+                            'surface_tone' => 'muted',
+                            'admin_schema' => 'private',
+                            'signed_url' => 'https://admin.test/signed',
+                        ],
+                    ],
+                ],
+                'widgets' => [],
+            ],
+        ],
+    ]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+
+    $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language);
+    $serialized = json_encode($graph, JSON_THROW_ON_ERROR);
+
+    expect($graph->containers)->toHaveCount(1)
+        ->and($graph->containers[0]->meta)->toBe([])
+        ->and($serialized)->not->toContain('theme_settings')
+        ->and($serialized)->not->toContain('surface_tone')
+        ->and($serialized)->not->toContain('admin_schema')
+        ->and($serialized)->not->toContain('signed_url');
+});
+
 it('builds public layout data for selected containers only', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->id]);

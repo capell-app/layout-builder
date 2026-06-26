@@ -84,6 +84,32 @@ it('adds saves renames duplicates moves and removes containers while keeping sta
         ->and($harness->knownContainerKeys)->toContain('primary')
         ->and($harness->knownContainerKeys)->not->toContain('main');
 
+    $harness->saveContainer([
+        'key' => 'primary',
+        'meta' => [
+            'area' => 'main',
+            'spacing' => 'lg',
+            'padding' => ['t-lg', 'b-lg'],
+            'border' => 'subtle',
+            'background' => ['mode' => 'color', 'color' => '#ffffff'],
+            'theme_settings' => [
+                'saas' => [
+                    'surface_tone' => 'muted',
+                ],
+            ],
+        ],
+    ], 'primary');
+
+    $containers = layoutBuilderMutationContainers($harness);
+    $primaryContainer = capell_test_array($containers['primary'] ?? null);
+    $primaryContainerMeta = capell_test_array($primaryContainer['meta'] ?? null);
+
+    capell_expect($primaryContainerMeta['spacing'] ?? null)->toBe('lg')
+        ->and($primaryContainerMeta['padding'] ?? null)->toBe(['t-lg', 'b-lg'])
+        ->and($primaryContainerMeta['border'] ?? null)->toBe('subtle')
+        ->and($primaryContainerMeta['background'] ?? null)->toBe(['mode' => 'color', 'color' => '#ffffff'])
+        ->and(data_get($primaryContainerMeta, 'theme_settings.saas.surface_tone'))->toBe('muted');
+
     $harness->duplicateContainer('primary');
 
     $duplicatedKey = null;

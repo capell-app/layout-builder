@@ -7,11 +7,14 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Layouts;
 use Capell\Admin\Contracts\ConfiguratorInterface;
 use Capell\Admin\Contracts\ConfiguratorTypeEnumInterface;
 use Capell\Admin\Filament\Concerns\HasConfigurator;
+use Capell\LayoutBuilder\Contracts\Extenders\LayoutContainerSchemaExtender;
+use Capell\LayoutBuilder\Data\LayoutContainerSchemaContextData;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
 use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\BackgroundSchema;
+use Capell\LayoutBuilder\Filament\Components\Forms\BorderSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColumnInput;
 use Capell\LayoutBuilder\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\HtmlClassInput;
@@ -26,7 +29,11 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
+/**
+ * @method array<array-key, Htmlable> make(Schema $configurator, ?LayoutContainerSchemaContextData $context = null)
+ */
 class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
 {
     use HasConfigurator;
@@ -44,8 +51,10 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
     /**
      * @return array<array-key, mixed>
      */
-    public function make(Schema $configurator): array
+    public function make(Schema $configurator, ?LayoutContainerSchemaContextData $context = null): array
     {
+        $context ??= LayoutContainerSchemaContextData::fromSchema($configurator);
+
         return [
             Section::make(__('capell-admin::generic.settings'))
                 ->statePath('meta')
@@ -75,6 +84,7 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
                     MarginSelect::make('margin'),
                     SpacingSelect::make('spacing')
                         ->helperText(__('capell-admin::generic.container_spacing_help')),
+                    BorderSelect::make('border'),
                     TagSelect::make('tag'),
                     TextInput::make('override_columns')
                         ->label(__('capell-layout-builder::form.override_columns'))
@@ -89,6 +99,51 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
                         backgroundCollectionUsing: fn (Get $get): string => $get('key') . '-background',
                     ),
                 ),
+            ...$this->themeSettingsSections($configurator, $context),
         ];
+    }
+
+    /**
+     * @return array<int, Section>
+     */
+    private function themeSettingsSections(Schema $configurator, LayoutContainerSchemaContextData $context): array
+    {
+        $sections = [];
+
+        foreach (static::getExtenders() as $extender) {
+            if (! $extender instanceof LayoutContainerSchemaExtender) {
+                continue;
+            }
+
+            if (! $this->supportsContext($extender, $context)) {
+                continue;
+            }
+
+            $components = $extender->extendContainerComponents($configurator, $context);
+
+            if ($components === []) {
+                continue;
+            }
+
+            $sections[] = Section::make(__('capell-layout-builder::generic.theme_settings_heading', [
+                'theme' => $extender->themeLabel(),
+            ]))
+                ->description(__('capell-layout-builder::generic.theme_settings_description'))
+                ->statePath('meta.theme_settings.' . $extender->themeKey())
+                ->collapsed()
+                ->icon(Heroicon::OutlinedSwatch)
+                ->columnSpanFull()
+                ->columns(['sm' => 2, 'md' => 3])
+                ->schema($components);
+        }
+
+        return $sections;
+    }
+
+    private function supportsContext(LayoutContainerSchemaExtender $extender, LayoutContainerSchemaContextData $context): bool
+    {
+        return $context->themeKey !== null
+            && $extender->themeKey() === $context->themeKey
+            && $extender->supports($context);
     }
 }

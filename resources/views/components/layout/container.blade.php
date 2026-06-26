@@ -13,6 +13,7 @@
     $spacing = $container['meta']['spacing'] ?? null;
     $padding = $container['meta']['padding'] ?? [];
     $margin = $container['meta']['margin'] ?? [];
+    $border = $container['meta']['border'] ?? null;
     $htmlClass = trim((string) ($htmlClass ?? ''));
 
     if (! empty($container['meta']['html_class'])) {
@@ -74,6 +75,11 @@
         'space-y-4' => $spacing === 'sm',
         'space-y-2' => $spacing === 'md',
         'space-y-10' => $spacing === 'lg',
+        'border border-slate-200/80' => $border === 'subtle',
+        'border border-slate-300' => $border === 'strong',
+        'border-t border-slate-200/80' => $border === 'top',
+        'border-b border-slate-200/80' => $border === 'bottom',
+        'border-y border-slate-200/80' => $border === 'vertical',
         'py-4' => in_array('sm', $padding, true),
         'pt-4' => in_array('t-sm', $padding, true),
         'pb-4' => in_array('b-sm', $padding, true),

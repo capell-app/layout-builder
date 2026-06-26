@@ -25,6 +25,15 @@ This guide is for editors who build pages and owners deciding how to use widgets
 2. Drop it in its new position.
 3. Save the page. The new order shows on the live site.
 
+### How to tune a layout container
+
+1. Open the page editor and select the container that holds the widgets you want to adjust.
+2. In **Settings**, choose the container width, alignment, spacing, padding, margin, border, visibility, tag, or background options you need.
+3. If the active theme adds extra controls, use the **Theme settings** section in the same panel. These settings apply only to this container and this active theme.
+4. Save the page.
+
+![Edit a layout container with spacing, padding, border, background, and active-theme settings.](screenshots/layout-container-theme-settings.png)
+
 ### How to upload an image or file for a widget
 
 1. Click the widget, then the image or file field.
