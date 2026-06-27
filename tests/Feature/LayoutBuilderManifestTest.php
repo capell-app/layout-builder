@@ -6,6 +6,8 @@ use Capell\Core\Contracts\Extensions\RegistersExtensionPageType;
 use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
 use Capell\Core\Contracts\Extensions\RunsExtensionMigration;
 use Capell\Core\Contracts\PackageLifecycleAction;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\PageUrl;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
@@ -175,6 +177,34 @@ it('declares lifecycle actions that satisfy the installer contract', function ()
             ->and(class_exists($actionClass))->toBeTrue()
             ->and(is_subclass_of($actionClass, PackageLifecycleAction::class))->toBeTrue();
     }
+});
+
+it('keeps public layout output cacheable with invalidation metadata', function (): void {
+    // Layout Builder renders query-free public HTML, so its frontend output is
+    // origin-cacheable. The cacheable flag must agree with the public-output
+    // contract and ship invalidation sources, or the manifest validator rejects
+    // it ("cacheable frontend surfaces need invalidation metadata") and the
+    // origin HTML cache silently stops populating for every public page.
+    $manifest = layoutBuilderJson('capell.json');
+    $cacheSafety = data_get($manifest, 'performance.cacheSafety');
+
+    throw_unless(is_array($cacheSafety), RuntimeException::class, 'Expected Layout Builder cacheSafety metadata array.');
+
+    expect($cacheSafety['cacheable'])->toBeTrue();
+    expect($cacheSafety['sensitiveOutput'])->toBeFalse();
+    expect(data_get($manifest, 'security.publicOutput.cacheSafe'))->toBeTrue();
+
+    $invalidationModels = collect($cacheSafety['invalidationSources'] ?? [])->pluck('model')->all();
+
+    expect($cacheSafety['invalidationSources'])->not->toBeEmpty();
+    expect($invalidationModels)->toContain(
+        Page::class,
+        PageUrl::class,
+        Widget::class,
+        WidgetAsset::class,
+        WidgetWidget::class,
+        LayoutPreset::class,
+    );
 });
 
 it('references committed marketplace and screenshot manifest images', function (): void {

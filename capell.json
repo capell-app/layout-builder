@@ -241,10 +241,47 @@
         "adminQueryBudget": 50,
         "cacheTags": ["layout-builder"],
         "cacheSafety": {
-            "cacheable": false,
+            "cacheable": true,
             "variesBy": ["site", "locale", "page"],
             "sensitiveOutput": false,
-            "invalidationSources": [],
+            "invalidationSources": [
+                {
+                    "model": "Capell\\Core\\Models\\Page",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\PageUrl",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\SiteDomain",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\Translation",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\Layout",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\Widget",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\WidgetAsset",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\WidgetWidget",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\LayoutPreset",
+                    "events": ["saved", "deleted"]
+                }
+            ],
             "queueInvalidation": true
         }
     },
