@@ -604,7 +604,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
             'meta' => [
                 'align' => 'center',
                 'margin' => ['lg'],
-                'view_file' => 'capell-theme-foundation::components.widget.asset.features',
+                'view_file' => 'capell-foundation-theme::components.widget.asset.features',
             ],
         ]);
 
@@ -700,7 +700,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
             'blueprint_id' => $this->requiredWidgetType(WidgetTypeEnum::Assets)->id,
             'meta' => [
                 'component_item' => FrontendComponentKeyEnum::SectionWidget->value,
-                'view_file' => 'capell-theme-foundation::components.widget.asset.widgets',
+                'view_file' => 'capell-foundation-theme::components.widget.asset.widgets',
                 'spacing' => 'none',
                 'columns' => 4,
                 'margin' => 'none',

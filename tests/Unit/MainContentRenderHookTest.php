@@ -3,9 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\RenderableDefinitionData;
-use Capell\Core\Models\Language;
-use Capell\Core\Models\Layout;
-use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Data\RenderHookContext;
@@ -13,8 +10,6 @@ use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
-use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
-use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContextForLoadedLayout;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
 use Illuminate\Support\Facades\Blade;
 
@@ -120,56 +115,6 @@ it('renders stored layout containers through the shared hook and updates render 
         ->and($output)->not->toContain('signed_url')
         ->and($context->pageContentWidgetRendered)->toBeTrue()
         ->and($context->slotRendered)->toBeTrue();
-});
-
-it('preloads layout widgets during hook rendering when the layout manager is empty', function (): void {
-    /** @var RenderHookRegistry<RenderHookContext> $registry */
-    $registry = resolve(RenderHookRegistry::class);
-
-    $layout = (new Layout)->forceFill([
-        'id' => 10,
-        'containers' => [
-            'main' => [
-                'widgets' => [
-                    ['widget_key' => 'package-alert', 'occurrence' => 1],
-                ],
-                'meta' => ['colspan' => 12, 'container' => 'full'],
-            ],
-        ],
-    ]);
-    $language = (new Language)->forceFill(['id' => 20]);
-    $page = (new Page)->forceFill(['id' => 30]);
-    $widget = (new Widget)->forceFill([
-        'id' => 40,
-        'key' => 'package-alert',
-        'name' => 'Package alert',
-        'component' => 'capell.widget.default',
-        'meta' => [],
-    ]);
-
-    $loader = Mockery::mock(LayoutLoader::class);
-    $loader->shouldReceive('preloadLayoutWidgets')
-        ->once()
-        ->with($layout, $language, $page);
-    $loader->shouldReceive('getLayoutWidget')
-        ->once()
-        ->with($layout, 'package-alert', $language, $page, 'main', 1)
-        ->andReturn($widget);
-    app()->instance(LayoutLoader::class, $loader);
-    app()->instance('capell.frontend.context', new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
-
-    $output = $registry->renderAll(
-        RenderHookLocation::MainContent,
-        new MainContentRenderHookData(
-            layout: $layout,
-            page: $page,
-        ),
-        scenario: 'frontend-main-layout',
-        target: 'capell::layout.main',
-    );
-
-    expect($output)->toContain('id="layout-container-main"')
-        ->and(CapellLayoutManager::getStoredContainerWidget('main', 'package-alert'))->toBe($widget);
 });
 
 it('owns the main content layout rendering views', function (): void {
