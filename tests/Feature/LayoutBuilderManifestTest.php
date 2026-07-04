@@ -194,7 +194,10 @@ it('keeps public layout output cacheable with invalidation metadata', function (
     expect($cacheSafety['sensitiveOutput'])->toBeFalse();
     expect(data_get($manifest, 'security.publicOutput.cacheSafe'))->toBeTrue();
 
-    $invalidationModels = collect($cacheSafety['invalidationSources'] ?? [])->pluck('model')->all();
+    $invalidationSources = $cacheSafety['invalidationSources'] ?? [];
+    throw_unless(is_array($invalidationSources), RuntimeException::class, 'Expected Layout Builder invalidation sources array.');
+
+    $invalidationModels = collect($invalidationSources)->pluck('model')->all();
 
     expect($cacheSafety['invalidationSources'])->not->toBeEmpty();
     expect($invalidationModels)->toContain(
