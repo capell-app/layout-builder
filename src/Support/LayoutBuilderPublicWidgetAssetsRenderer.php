@@ -11,6 +11,7 @@ use Capell\Frontend\Actions\ResolveDeferredFragmentPlaceholderDataAction;
 use Capell\Frontend\Contracts\DeferredFragmentReferenceBuilder;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Support\Fragments\DeferredFragmentPlaceholderData;
+use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
@@ -76,6 +77,10 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             if ($assets instanceof Collection) {
                 return $assets->filter(fn (mixed $asset): bool => $asset instanceof WidgetAsset)->values();
             }
+        }
+
+        if ($this->publicViewQueryGuardIsActive()) {
+            return collect();
         }
 
         $context = $this->frontendContext();
@@ -152,5 +157,14 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
     private function frontendContext(): ?FrontendContextReader
     {
         return app()->bound(FrontendContextReader::class) ? app(FrontendContextReader::class) : null;
+    }
+
+    private function publicViewQueryGuardIsActive(): bool
+    {
+        if (! app()->bound(PublicViewQueryGuard::class)) {
+            return false;
+        }
+
+        return app(PublicViewQueryGuard::class)->isActive();
     }
 }

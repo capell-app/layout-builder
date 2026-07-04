@@ -60,6 +60,7 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
             return;
         }
 
+        $containers = $this->validContainers($containers);
         if ($this->hasStoredWidgets($containers)) {
             return;
         }
@@ -97,7 +98,24 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
     }
 
     /**
-     * @param  array<string, mixed>  $containers
+     * @param  array<mixed, mixed>  $containers
+     * @return array<string, array<string, mixed>>
+     */
+    private function validContainers(array $containers): array
+    {
+        $validContainers = [];
+
+        foreach ($containers as $containerKey => $container) {
+            if (is_string($containerKey) && is_array($container)) {
+                $validContainers[$containerKey] = $container;
+            }
+        }
+
+        return $validContainers;
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $containers
      */
     private function hasStoredWidgets(array $containers): bool
     {
