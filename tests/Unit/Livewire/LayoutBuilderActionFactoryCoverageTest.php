@@ -328,7 +328,7 @@ it('evaluates layout builder action presentation and modal workflows from editor
 it('builds change layout options from site-aware layout state', function (): void {
     $site = Site::factory()->create();
     $otherSite = Site::factory()->create();
-    $currentLayout = Layout::factory()->site($site)->create(['name' => 'Current Site Layout']);
+    $currentLayout = Layout::factory()->site($site)->create(['name' => 'Current Site Layout', 'default' => true]);
     $globalLayout = Layout::factory()->create(['name' => 'Global Layout', 'site_id' => null]);
     $otherSiteLayout = Layout::factory()->site($otherSite)->create(['name' => 'Other Site Layout']);
     Page::factory()->count(2)->site($site)->create(['layout_id' => $currentLayout->getKey()]);

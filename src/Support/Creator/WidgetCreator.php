@@ -283,6 +283,48 @@ class WidgetCreator
         return $widget;
     }
 
+    /**
+     * Creates (or updates) a single meta-driven `Widget` row for a bespoke,
+     * package-owned widget component — one that renders straight off
+     * `Widget->meta` (like {@see pageContentWidget()}) rather than an
+     * asset/section collection.
+     *
+     * Unlike the theme-specific `ap*Widget()` methods above (each hardcoding
+     * one fixed `key` and one fixed `component`), this is intentionally
+     * generic: `$key`, `$name`, `$component`, and `$meta` are all caller
+     * supplied, so any package's own widget-component keys (e.g. a theme's
+     * `capell.widget.{theme}.{section}` keys registered through its own
+     * `RenderableRegistry` entries) can create as many distinctly-keyed
+     * `Widget` instances as they need — one per demo surface, for
+     * example — without adding a new `WidgetCreator` method per instance.
+     *
+     * `$key` should be globally unique (e.g. prefixed with the owning
+     * theme/package name) since `Widget.key` is unique per workspace.
+     *
+     * @param  array<string, mixed>  $meta
+     */
+    public function bespokeContentWidget(string $key, string $name, string $component, array $meta = [], ?Blueprint $type = null): Widget
+    {
+        $type ??= resolve(TypeCreator::class)->defaultWidgetType();
+
+        $widget = $this->widgetModel::query()->firstOrNew([
+            'key' => $key,
+        ]);
+
+        $widget->forceFill([
+            'name' => $name,
+            'blueprint_id' => $type->id,
+            'component' => $component,
+            'is_livewire' => false,
+            'meta' => [
+                'component' => $component,
+                ...$meta,
+            ],
+        ])->save();
+
+        return $widget;
+    }
+
     public function pagesCardWidget(?Blueprint $type = null): Widget
     {
         $type ??= resolve(TypeCreator::class)->pagesWidgetType();
