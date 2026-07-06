@@ -1,7 +1,5 @@
 <div class="fi-widgets-table-select-modal">
-    <div class="px-4">
-        {{ $this->table }}
-    </div>
+    <div class="px-4">{{ $this->table }}</div>
 
     <form
         wire:submit.prevent="selectRecords"
@@ -12,9 +10,7 @@
                 {{ $this->form }}
             </div>
 
-            <div class="ml-auto">
-                {{ $this->selectRecordsAction() }}
-            </div>
+            <div class="ml-auto">{{ $this->selectRecordsAction() }}</div>
         </div>
     </form>
 

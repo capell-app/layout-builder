@@ -70,13 +70,13 @@
     @else
         <script>
             const loadCapellLayoutBuilderAuthoringDarkMode = () => {
-                window.theme = localStorage.getItem('theme') ?? @js(filament()->getDefaultThemeMode()->value)
+                window.theme =
+                    localStorage.getItem('theme') ?? @js (filament()->getDefaultThemeMode()->value)
 
                 if (
                     window.theme === 'dark' ||
                     (window.theme === 'system' &&
-                        window.matchMedia('(prefers-color-scheme: dark)')
-                            .matches)
+                        window.matchMedia('(prefers-color-scheme: dark)').matches)
                 ) {
                     document.documentElement.classList.add('dark')
                 }

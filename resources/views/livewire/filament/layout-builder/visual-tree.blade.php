@@ -1,4 +1,4 @@
-@props([
+@props ([
     'tree',
     'title' => __('capell-layout-builder::heading.layout_structure'),
     'canBrowseStarterLayouts' => false,
@@ -10,9 +10,7 @@
 >
     <div class="layout-builder-tree-header">
         <div>
-            <h2>
-                {{ $title }}
-            </h2>
+            <h2>{{ $title }}</h2>
             <p class="layout-builder-tree-counts">
                 {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
                 <span aria-hidden="true">·</span>
@@ -55,7 +53,11 @@
                         @if ($canBrowseStarterLayouts)
                             <x-filament::dropdown.list.item
                                 icon="heroicon-o-sparkles"
-                                x-on:click="$dispatch('open-modal', { id: 'capell-layout-builder-starter-layouts' })"
+                                x-on:click="
+                                    $dispatch('open-modal', {
+                                        id: 'capell-layout-builder-starter-layouts',
+                                    })
+                                "
                             >
                                 {{ __('capell-layout-builder::button.browse_starter_layouts') }}
                             </x-filament::dropdown.list.item>
@@ -70,7 +72,7 @@
                 x-on:click="toggleTreeCollapsed()"
                 title="{{ __('capell-layout-builder::button.structure') }}"
             >
-                @svg('heroicon-o-x-mark', 'h-4 w-4')
+                @svg ('heroicon-o-x-mark', 'h-4 w-4')
                 <span class="sr-only">
                     {{ __('capell-layout-builder::button.structure') }}
                 </span>
@@ -82,7 +84,7 @@
         <span class="sr-only">
             {{ __('capell-layout-builder::form.search_layout_tree') }}
         </span>
-        @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+        @svg ('heroicon-o-magnifying-glass', 'h-4 w-4')
         <input
             x-ref="treeSearchInput"
             type="search"
@@ -91,7 +93,7 @@
         />
         <kbd
             class="layout-builder-tree-search-shortcut"
-            x-show="! treeSearchActive()"
+            x-show="!treeSearchActive()"
             aria-hidden="true"
         >
             /
@@ -103,7 +105,7 @@
             x-on:click="clearTreeSearch()"
             aria-label="{{ __('capell-layout-builder::button.clear_layout_tree_search') }}"
         >
-            @svg('heroicon-o-x-mark', 'h-4 w-4')
+            @svg ('heroicon-o-x-mark', 'h-4 w-4')
         </button>
     </label>
 
@@ -133,18 +135,20 @@
                 data-layout-builder-tree-node="{{ $container->nodeId }}"
                 class="layout-builder-tree-container"
                 role="treeitem"
-                x-bind:aria-expanded="treeContainerOpen(open, $el) ? 'true' : 'false'"
+                x-bind:aria-expanded="
+                    treeContainerOpen(open, $el) ? 'true' : 'false'
+                "
             >
                 <button
                     type="button"
-                    @class([
+                    @class ([
                         'layout-builder-tree-row layout-builder-tree-row-container',
                         'layout-builder-tree-row-selected' => $container->isSelected,
                     ])
                     x-on:click="selectFromTree(@js($container->nodeId), () => $wire.selectContainer(@js($container->key)))"
                 >
                     <span class="layout-builder-tree-row-icon">
-                        @svg('heroicon-o-rectangle-group', 'h-4 w-4')
+                        @svg ('heroicon-o-rectangle-group', 'h-4 w-4')
                     </span>
                     <span class="layout-builder-tree-row-main">
                         <span>{{ $container->label }}</span>
@@ -160,20 +164,27 @@
 
                     <span
                         class="layout-builder-tree-chevron"
-                        x-on:click.stop="open = ! open"
+                        x-on:click.stop="open = !open"
                         x-bind:class="{
                             'rotate-90': treeContainerOpen(
                                 open,
-                                $el.closest('[data-layout-builder-tree-container]'),
+                                $el.closest(
+                                    '[data-layout-builder-tree-container]',
+                                ),
                             ),
                         }"
                     >
-                        @svg('heroicon-o-chevron-right', 'h-4 w-4')
+                        @svg ('heroicon-o-chevron-right', 'h-4 w-4')
                     </span>
                 </button>
 
                 <div
-                    x-show="treeContainerOpen(open, $el.closest('[data-layout-builder-tree-container]'))"
+                    x-show="
+                        treeContainerOpen(
+                            open,
+                            $el.closest('[data-layout-builder-tree-container]'),
+                        )
+                    "
                     x-collapse
                     class="layout-builder-tree-widgets"
                     role="group"
@@ -191,7 +202,7 @@
 
                         <button
                             type="button"
-                            @class([
+                            @class ([
                                 'layout-builder-tree-row layout-builder-tree-row-widget',
                                 'layout-builder-tree-row-selected' => $widget->isSelected,
                             ])
@@ -202,7 +213,7 @@
                             x-on:click="selectFromTree(@js($widget->nodeId), () => $wire.selectWidget(@js($widget->containerKey), @js($widget->widgetIndex)))"
                         >
                             <span class="layout-builder-tree-row-icon">
-                                @svg($widget->icon ?: 'heroicon-o-cube', 'h-4 w-4')
+                                @svg ($widget->icon ?: 'heroicon-o-cube', 'h-4 w-4')
                             </span>
                             <span class="layout-builder-tree-row-main">
                                 <span>{{ $widget->label }}</span>
@@ -227,9 +238,9 @@
 
         <div
             class="layout-builder-tree-search-empty"
-            x-show="treeSearchActive() && ! hasTreeSearchResults()"
+            x-show="treeSearchActive() && !hasTreeSearchResults()"
         >
-            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+            @svg ('heroicon-o-magnifying-glass', 'h-4 w-4')
             <span>
                 {{ __('capell-layout-builder::message.layout_tree_search_empty') }}
             </span>

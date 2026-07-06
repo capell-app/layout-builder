@@ -96,10 +96,7 @@
 
                     this.closePreviewMenus()
                 }
-                document.addEventListener(
-                    'click',
-                    this.closePreviewMenusFromDocument,
-                )
+                document.addEventListener('click', this.closePreviewMenusFromDocument)
                 this.syncPanelLayout()
                 this.previewResizeObserver = new ResizeObserver(() =>
                     this.syncPanelLayout(),
@@ -198,50 +195,47 @@
 
                 if (!host) return
 
-                const root =
-                    host.shadowRoot || host.attachShadow({ mode: 'open' })
+                const root = host.shadowRoot || host.attachShadow({ mode: 'open' })
                 const template = this.previewTemplateElement()
                 const html = template ? template.innerHTML : ''
 
                 host.dataset.activeBreakpoint = this.activeBreakpoint
                 root.innerHTML = `<style>${this.shadowStyles()}</style>${html}`
                 this.bindPreviewRootEvents(root)
-                root.querySelectorAll('[data-clb-preview-node]').forEach(
-                    (node) => {
-                        if (node.dataset.clbPreviewNode === this.selectedNode) {
-                            node.classList.add('is-selected')
+                root.querySelectorAll('[data-clb-preview-node]').forEach((node) => {
+                    if (node.dataset.clbPreviewNode === this.selectedNode) {
+                        node.classList.add('is-selected')
+                    }
+
+                    if (node.dataset.clbPreviewNodeType === 'container') {
+                        this.preparePreviewContainerNode(node)
+                        this.attachContainerActions(node)
+                        this.attachWidgetInsertControls(node)
+                    }
+
+                    if (node.dataset.clbPreviewNodeType === 'widget') {
+                        this.preparePreviewWidgetNode(node)
+                        this.attachWidgetActions(node)
+                    }
+
+                    node.addEventListener('click', (event) => {
+                        const selectedTarget = event
+                            .composedPath()
+                            .find(
+                                (target) =>
+                                    target instanceof HTMLElement &&
+                                    target.dataset.clbPreviewNode,
+                            )
+
+                        if (selectedTarget !== node) {
+                            return
                         }
 
-                        if (node.dataset.clbPreviewNodeType === 'container') {
-                            this.preparePreviewContainerNode(node)
-                            this.attachContainerActions(node)
-                            this.attachWidgetInsertControls(node)
-                        }
-
-                        if (node.dataset.clbPreviewNodeType === 'widget') {
-                            this.preparePreviewWidgetNode(node)
-                            this.attachWidgetActions(node)
-                        }
-
-                        node.addEventListener('click', (event) => {
-                            const selectedTarget = event
-                                .composedPath()
-                                .find(
-                                    (target) =>
-                                        target instanceof HTMLElement &&
-                                        target.dataset.clbPreviewNode,
-                                )
-
-                            if (selectedTarget !== node) {
-                                return
-                            }
-
-                            event.preventDefault()
-                            event.stopPropagation()
-                            this.selectPreviewNode(node.dataset.clbPreviewNode)
-                        })
-                    },
-                )
+                        event.preventDefault()
+                        event.stopPropagation()
+                        this.selectPreviewNode(node.dataset.clbPreviewNode)
+                    })
+                })
                 this.attachContainerInsertControls(root)
             },
             syncPreviewPayload() {
@@ -250,9 +244,7 @@
                     this.previewWidgetActions,
                 )
                 this.previewContainerActions = this.parsePreviewPayload(
-                    this.previewPayloadElement(
-                        'previewContainerActionsPayload',
-                    ),
+                    this.previewPayloadElement('previewContainerActionsPayload'),
                     this.previewContainerActions,
                 )
             },
@@ -319,8 +311,7 @@
                 return icons[name] || ''
             },
             preparePreviewContainerNode(node) {
-                const action =
-                    this.previewContainerActions[node.dataset.clbPreviewNode]
+                const action = this.previewContainerActions[node.dataset.clbPreviewNode]
                 const label = action?.label
                     ? `${this.actionLabels.editContainer}: ${action.label}`
                     : this.actionLabels.editContainer
@@ -338,8 +329,7 @@
                 })
             },
             preparePreviewWidgetNode(node) {
-                const action =
-                    this.previewWidgetActions[node.dataset.clbPreviewNode]
+                const action = this.previewWidgetActions[node.dataset.clbPreviewNode]
                 const label = action?.label
                     ? `${this.actionLabels.edit}: ${action.label}`
                     : this.actionLabels.edit
@@ -357,8 +347,7 @@
                 })
             },
             attachContainerActions(node) {
-                const action =
-                    this.previewContainerActions[node.dataset.clbPreviewNode]
+                const action = this.previewContainerActions[node.dataset.clbPreviewNode]
 
                 if (!action?.canEditLayout) return
 
@@ -367,25 +356,22 @@
                 toolbar.innerHTML = this.containerActionsHtml(action)
                 node.appendChild(toolbar)
 
-                toolbar
-                    .querySelectorAll('[data-clb-action]')
-                    .forEach((button) => {
-                        button.addEventListener('click', (event) => {
-                            event.preventDefault()
-                            event.stopPropagation()
-                            this.closePreviewMenus()
-                            this.runPreviewAction(
-                                button.dataset.clbAction,
-                                action,
-                                {},
-                                button,
-                            )
-                        })
+                toolbar.querySelectorAll('[data-clb-action]').forEach((button) => {
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        this.closePreviewMenus()
+                        this.runPreviewAction(
+                            button.dataset.clbAction,
+                            action,
+                            {},
+                            button,
+                        )
                     })
+                })
             },
             attachWidgetActions(node) {
-                const action =
-                    this.previewWidgetActions[node.dataset.clbPreviewNode]
+                const action = this.previewWidgetActions[node.dataset.clbPreviewNode]
 
                 if (!action) return
 
@@ -395,9 +381,7 @@
                 node.appendChild(toolbar)
 
                 const menu = toolbar.querySelector('.clb-preview-menu')
-                const menuToggle = toolbar.querySelector(
-                    '[data-clb-menu-toggle]',
-                )
+                const menuToggle = toolbar.querySelector('[data-clb-menu-toggle]')
 
                 if (menu && menuToggle) {
                     const menuId = `clb-preview-menu-${node.dataset.clbPreviewNode}`
@@ -406,39 +390,33 @@
                     menuToggle.setAttribute('aria-controls', menuId)
                 }
 
-                toolbar
-                    .querySelectorAll('[data-clb-action]')
-                    .forEach((button) => {
-                        button.addEventListener('click', (event) => {
-                            event.preventDefault()
-                            event.stopPropagation()
-                            this.closePreviewMenus()
+                toolbar.querySelectorAll('[data-clb-action]').forEach((button) => {
+                    button.addEventListener('click', (event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        this.closePreviewMenus()
 
-                            if (button.dataset.clbAction === 'openInspector') {
-                                this.selectPreviewNode(
-                                    node.dataset.clbPreviewNode,
-                                )
-                                this.scrollInspectorIntoView()
-                                return
-                            }
+                        if (button.dataset.clbAction === 'openInspector') {
+                            this.selectPreviewNode(node.dataset.clbPreviewNode)
+                            this.scrollInspectorIntoView()
+                            return
+                        }
 
-                            const assetTypes = Array.isArray(action.assetTypes)
-                                ? action.assetTypes
-                                : []
+                        const assetTypes = Array.isArray(action.assetTypes)
+                            ? action.assetTypes
+                            : []
 
-                            this.runPreviewAction(
-                                button.dataset.clbAction,
-                                action,
-                                {
-                                    type: button.dataset.clbAssetType,
-                                    types: assetTypes.map(
-                                        (assetType) => assetType.type,
-                                    ),
-                                },
-                                button,
-                            )
-                        })
+                        this.runPreviewAction(
+                            button.dataset.clbAction,
+                            action,
+                            {
+                                type: button.dataset.clbAssetType,
+                                types: assetTypes.map((assetType) => assetType.type),
+                            },
+                            button,
+                        )
                     })
+                })
 
                 toolbar
                     .querySelector('[data-clb-menu-toggle]')
@@ -450,15 +428,11 @@
             },
             attachWidgetInsertControls(containerNode) {
                 const action =
-                    this.previewContainerActions[
-                        containerNode.dataset.clbPreviewNode
-                    ]
+                    this.previewContainerActions[containerNode.dataset.clbPreviewNode]
 
                 if (!action?.canEditLayout) return
 
-                const widgets = containerNode.querySelector(
-                    '.clb-preview-widgets',
-                )
+                const widgets = containerNode.querySelector('.clb-preview-widgets')
 
                 if (!widgets) return
 
@@ -487,40 +461,70 @@
                 })
 
                 widgets.appendChild(
-                    this.makeInsertControl(
-                        this.actionLabels.addWidgetHere,
-                        (trigger) =>
-                            this.runPreviewAction(
-                                'addWidget',
-                                {
-                                    ...action,
-                                    widgetIndex: 0,
-                                    position: widgetNodes.length,
-                                },
-                                {},
-                                trigger,
-                            ),
+                    this.makeInsertControl(this.actionLabels.addWidgetHere, (trigger) =>
+                        this.runPreviewAction(
+                            'addWidget',
+                            {
+                                ...action,
+                                widgetIndex: 0,
+                                position: widgetNodes.length,
+                            },
+                            {},
+                            trigger,
+                        ),
                     ),
                 )
             },
             attachContainerInsertControls(root) {
-                root.querySelectorAll(
-                    '[data-clb-preview-container-list]',
-                ).forEach((containerList) => {
-                    const containerNodes = Array.from(
-                        containerList.querySelectorAll(
-                            ':scope > .clb-preview-container',
-                        ),
-                    )
-
-                    containerNodes.forEach((containerNode) => {
-                        const position = Number.parseInt(
-                            containerNode.dataset.clbPreviewContainerPosition ||
-                                '0',
-                            10,
+                root.querySelectorAll('[data-clb-preview-container-list]').forEach(
+                    (containerList) => {
+                        const containerNodes = Array.from(
+                            containerList.querySelectorAll(
+                                ':scope > .clb-preview-container',
+                            ),
                         )
 
-                        containerList.insertBefore(
+                        containerNodes.forEach((containerNode) => {
+                            const position = Number.parseInt(
+                                containerNode.dataset.clbPreviewContainerPosition ||
+                                    '0',
+                                10,
+                            )
+
+                            containerList.insertBefore(
+                                this.makeInsertControl(
+                                    this.actionLabels.addContainerHere,
+                                    (trigger) =>
+                                        this.runPreviewAction(
+                                            'addContainer',
+                                            {
+                                                type: 'container',
+                                                containerKey: '',
+                                                widgetIndex: 0,
+                                                position,
+                                            },
+                                            {},
+                                            trigger,
+                                        ),
+                                    'clb-preview-container-insert',
+                                ),
+                                containerNode,
+                            )
+                        })
+
+                        const lastPosition =
+                            Math.max(
+                                -1,
+                                ...containerNodes.map((containerNode) =>
+                                    Number.parseInt(
+                                        containerNode.dataset
+                                            .clbPreviewContainerPosition || '0',
+                                        10,
+                                    ),
+                                ),
+                            ) + 1
+
+                        containerList.appendChild(
                             this.makeInsertControl(
                                 this.actionLabels.addContainerHere,
                                 (trigger) =>
@@ -530,68 +534,32 @@
                                             type: 'container',
                                             containerKey: '',
                                             widgetIndex: 0,
-                                            position,
+                                            position: lastPosition,
                                         },
                                         {},
                                         trigger,
                                     ),
                                 'clb-preview-container-insert',
                             ),
-                            containerNode,
                         )
-                    })
-
-                    const lastPosition =
-                        Math.max(
-                            -1,
-                            ...containerNodes.map((containerNode) =>
-                                Number.parseInt(
-                                    containerNode.dataset
-                                        .clbPreviewContainerPosition || '0',
-                                    10,
-                                ),
-                            ),
-                        ) + 1
-
-                    containerList.appendChild(
-                        this.makeInsertControl(
-                            this.actionLabels.addContainerHere,
-                            (trigger) =>
-                                this.runPreviewAction(
-                                    'addContainer',
-                                    {
-                                        type: 'container',
-                                        containerKey: '',
-                                        widgetIndex: 0,
-                                        position: lastPosition,
-                                    },
-                                    {},
-                                    trigger,
-                                ),
-                            'clb-preview-container-insert',
-                        ),
-                    )
-                })
+                    },
+                )
             },
             makeInsertControl(label, callback, className = '') {
                 const control = document.createElement('div')
                 control.className = `clb-preview-insert ${className}`.trim()
                 control.innerHTML = `<button type="button" class="clb-preview-insert-button" title="${this.escapeHtml(label)}" aria-label="${this.escapeHtml(label)}">${this.icon('plus')}</button>`
-                control
-                    .querySelector('button')
-                    .addEventListener('click', (event) => {
-                        event.preventDefault()
-                        event.stopPropagation()
-                        callback(event.currentTarget)
-                    })
+                control.querySelector('button').addEventListener('click', (event) => {
+                    event.preventDefault()
+                    event.stopPropagation()
+                    callback(event.currentTarget)
+                })
 
                 return control
             },
             togglePreviewMenu(toolbar) {
                 const menu = toolbar.querySelector('.clb-preview-menu')
-                const menuToggle = toolbar.querySelector(
-                    '[data-clb-menu-toggle]',
-                )
+                const menuToggle = toolbar.querySelector('[data-clb-menu-toggle]')
 
                 if (!menu || !menuToggle) return
 
@@ -608,14 +576,12 @@
 
                 let closed = false
 
-                root.querySelectorAll('.clb-preview-menu.is-open').forEach(
-                    (menu) => {
-                        menu.classList.remove('is-open')
-                        closed = true
-                    },
-                )
-                root.querySelectorAll('[data-clb-menu-toggle]').forEach(
-                    (button) => button.setAttribute('aria-expanded', 'false'),
+                root.querySelectorAll('.clb-preview-menu.is-open').forEach((menu) => {
+                    menu.classList.remove('is-open')
+                    closed = true
+                })
+                root.querySelectorAll('[data-clb-menu-toggle]').forEach((button) =>
+                    button.setAttribute('aria-expanded', 'false'),
                 )
 
                 return closed
@@ -655,14 +621,12 @@
 
                 if (!root) return
 
-                root.querySelectorAll('[data-clb-preview-node]').forEach(
-                    (node) => {
-                        node.classList.toggle(
-                            'is-selected',
-                            node.dataset.clbPreviewNode === this.selectedNode,
-                        )
-                    },
-                )
+                root.querySelectorAll('[data-clb-preview-node]').forEach((node) => {
+                    node.classList.toggle(
+                        'is-selected',
+                        node.dataset.clbPreviewNode === this.selectedNode,
+                    )
+                })
             },
             markSelectedTreeNode() {
                 this.$el
@@ -670,14 +634,11 @@
                     .forEach((node) => {
                         const row = node.matches('.layout-builder-tree-row')
                             ? node
-                            : node.querySelector(
-                                  ':scope > .layout-builder-tree-row',
-                              )
+                            : node.querySelector(':scope > .layout-builder-tree-row')
 
                         row?.classList.toggle(
                             'layout-builder-tree-row-selected',
-                            node.dataset.layoutBuilderTreeNode ===
-                                this.selectedNode,
+                            node.dataset.layoutBuilderTreeNode === this.selectedNode,
                         )
                     })
             },
@@ -707,8 +668,7 @@
                 host.style.minWidth = minWidth
             },
             activeBreakpointMaxCanvasWidth() {
-                const width =
-                    this.breakpointWidths[this.activeBreakpoint] || '100%'
+                const width = this.breakpointWidths[this.activeBreakpoint] || '100%'
 
                 if (this.activeBreakpoint === 'desktop' && width === '100%') {
                     return 'min(100%, 76rem)'
@@ -741,9 +701,7 @@
                 if (!this.treeSearchActive()) return false
 
                 return [
-                    ...element.querySelectorAll(
-                        '[data-layout-builder-tree-widget]',
-                    ),
+                    ...element.querySelectorAll('[data-layout-builder-tree-widget]'),
                 ].some((widget) => this.treeItemMatches(widget))
             },
             containerMatches(element) {
@@ -758,10 +716,7 @@
                 return !this.treeSearchActive() || this.treeItemMatches(element)
             },
             treeSearchScope() {
-                return (
-                    this.$el.closest('.layout-builder-visual-editor') ||
-                    this.$el
-                )
+                return this.$el.closest('.layout-builder-visual-editor') || this.$el
             },
             treeSearchResultCount() {
                 if (!this.treeSearchActive()) return 0
@@ -769,20 +724,12 @@
                 const scope = this.treeSearchScope()
                 const nodes = new Set()
 
-                ;[
-                    ...scope.querySelectorAll(
-                        '[data-layout-builder-tree-container]',
-                    ),
-                ]
+                ;[...scope.querySelectorAll('[data-layout-builder-tree-container]')]
                     .filter((container) => this.treeItemMatches(container))
                     .forEach((container) =>
                         nodes.add(container.dataset.layoutBuilderTreeNode),
                     )
-                ;[
-                    ...scope.querySelectorAll(
-                        '[data-layout-builder-tree-widget]',
-                    ),
-                ]
+                ;[...scope.querySelectorAll('[data-layout-builder-tree-widget]')]
                     .filter((widget) => this.treeItemMatches(widget))
                     .forEach((widget) =>
                         nodes.add(widget.dataset.layoutBuilderTreeNode),
@@ -801,18 +748,14 @@
                       )
             },
             hasTreeSearchResults() {
-                return (
-                    !this.treeSearchActive() || this.treeSearchResultCount() > 0
-                )
+                return !this.treeSearchActive() || this.treeSearchResultCount() > 0
             },
             clearTreeSearch() {
                 this.search = ''
                 this.$nextTick(() => this.$refs.treeSearchInput?.focus())
             },
             treeContainerOpen(open, element) {
-                return this.treeSearchActive()
-                    ? this.containerMatches(element)
-                    : open
+                return this.treeSearchActive() ? this.containerMatches(element) : open
             },
             openTree() {
                 this.treeOpen = true
@@ -844,8 +787,7 @@
                 }
             },
             handleGlobalShortcut(event) {
-                if (!event || event.defaultPrevented || event.isComposing)
-                    return
+                if (!event || event.defaultPrevented || event.isComposing) return
 
                 const modifier = event.metaKey || event.ctrlKey
                 const key = (event.key || '').toLowerCase()
@@ -858,10 +800,7 @@
                     return
                 }
 
-                if (
-                    modifier &&
-                    (key === 'y' || (event.shiftKey && key === 'z'))
-                ) {
+                if (modifier && (key === 'y' || (event.shiftKey && key === 'z'))) {
                     event.preventDefault()
                     this.$wire.$call('redoLayoutMutation')
                     return
@@ -923,9 +862,7 @@
                 const action = this.previewWidgetActions[node]
 
                 if (!action) {
-                    this.selectNode(node, () =>
-                        this.$wire.selectPreviewNode(node),
-                    )
+                    this.selectNode(node, () => this.$wire.selectPreviewNode(node))
 
                     return
                 }
@@ -938,9 +875,7 @@
                 const action = this.previewContainerActions[node]
 
                 if (!action) {
-                    this.selectNode(node, () =>
-                        this.$wire.selectPreviewNode(node),
-                    )
+                    this.selectNode(node, () => this.$wire.selectPreviewNode(node))
 
                     return
                 }
@@ -991,9 +926,7 @@
                 }
             },
             scrollInspectorIntoView() {
-                const panel = this.$el.querySelector(
-                    '.layout-builder-inspector-panel',
-                )
+                const panel = this.$el.querySelector('.layout-builder-inspector-panel')
 
                 if (!panel) return
 
@@ -1030,17 +963,11 @@
 
                 const directActions = {
                     duplicateContainer: async () => {
-                        await this.$wire.$call(
-                            'duplicateContainer',
-                            args.containerKey,
-                        )
+                        await this.$wire.$call('duplicateContainer', args.containerKey)
                         await this.$wire.$call('refreshVisualPreview')
                     },
                     removeContainer: async () => {
-                        await this.$wire.$call(
-                            'removeContainer',
-                            args.containerKey,
-                        )
+                        await this.$wire.$call('removeContainer', args.containerKey)
                         await this.$wire.$call('refreshVisualPreview')
                     },
                     duplicateWidget: async () => {
@@ -1186,9 +1113,7 @@
             selectedPreviewAssetTypeDescriptors() {
                 const action = this.selectedPreviewAction()
 
-                return Array.isArray(action?.assetTypes)
-                    ? action.assetTypes
-                    : []
+                return Array.isArray(action?.assetTypes) ? action.assetTypes : []
             },
             selectedPreviewHasWidgetControls() {
                 const action = this.selectedPreviewAction()
@@ -1201,11 +1126,7 @@
                     this.selectedPreviewAssetTypeDescriptors().length > 0,
                 )
             },
-            runSelectedPreviewAction(
-                actionName,
-                trigger = null,
-                typeOverride = null,
-            ) {
+            runSelectedPreviewAction(actionName, trigger = null, typeOverride = null) {
                 const action = this.selectedPreviewAction()
 
                 if (!action) return
@@ -1271,7 +1192,7 @@
     x-on:keydown.window="handleGlobalShortcut($event)"
     x-bind:data-tree-collapsed="treeCollapsed ? 'true' : 'false'"
     x-bind:data-inspector-open="selectedPreviewAction() ? 'true' : 'false'"
-    @class([
+    @class ([
         'layout-builder-visual-editor',
         'layout-builder-visual-editor-empty' => $tree->widgetCount === 0,
     ])
@@ -1284,9 +1205,9 @@
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
                 x-ref="treeToggle"
                 x-on:click="compactPanels ? openTree() : toggleTreeCollapsed()"
-                x-bind:aria-pressed="! treeCollapsed"
+                x-bind:aria-pressed="!treeCollapsed"
             >
-                @svg('heroicon-o-bars-3-bottom-left', 'h-4 w-4')
+                @svg ('heroicon-o-bars-3-bottom-left', 'h-4 w-4')
                 <span class="sr-only">
                     {{ __('capell-layout-builder::heading.layout_structure') }}
                 </span>
@@ -1299,7 +1220,7 @@
                     <span
                         class="layout-builder-editor-status layout-builder-editor-status-unsaved"
                     >
-                        @svg('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
+                        @svg ('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
                         {{ __('capell-layout-builder::message.layout_unsaved') }}
                     </span>
                 @endif
@@ -1307,12 +1228,12 @@
 
             <div class="layout-builder-editor-context">
                 <span>
-                    @svg('heroicon-o-globe-alt', 'h-4 w-4')
+                    @svg ('heroicon-o-globe-alt', 'h-4 w-4')
                     {{ $editorSiteLabel }}
                 </span>
 
                 <span>
-                    @svg('heroicon-o-home', 'h-4 w-4')
+                    @svg ('heroicon-o-home', 'h-4 w-4')
                     {{ $editorPageLabel }}
                 </span>
             </div>
@@ -1324,7 +1245,7 @@
                 x-cloak
                 class="layout-builder-action-inline-loading"
             >
-                @svg('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')
+                @svg ('heroicon-o-arrow-path', 'h-4 w-4 animate-spin')
                 <span>
                     {{ __('capell-layout-builder::message.editor_loading') }}
                 </span>
@@ -1335,7 +1256,7 @@
                 aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
             >
                 <div class="layout-builder-preview-command-label">
-                    @svg('heroicon-o-eye', 'h-4 w-4')
+                    @svg ('heroicon-o-eye', 'h-4 w-4')
                     <span>
                         {{ __('capell-layout-builder::button.preview_changes') }}
                     </span>
@@ -1357,7 +1278,7 @@
                             x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
                             title="{{ $breakpointLabel }} · {{ $shortcutKey }}"
                         >
-                            @svg(match ($breakpoint) {
+                            @svg (match ($breakpoint) {
                                 LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
                                 LayoutBreakpoint::Tablet => 'heroicon-o-device-tablet',
                                 LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
@@ -1376,8 +1297,7 @@
             ></div>
 
             <div class="layout-builder-history-actions">
-                {{ $this->undoLayoutMutationAction }}
-                {{ $this->redoLayoutMutationAction }}
+                {{ $this->undoLayoutMutationAction }} {{ $this->redoLayoutMutationAction }}
             </div>
 
             <div
@@ -1396,26 +1316,26 @@
     <div class="layout-builder-editor-summary">
         <div class="layout-builder-editor-summary-group">
             <span class="layout-builder-editor-summary-item">
-                @svg('heroicon-o-rectangle-stack', 'h-4 w-4')
+                @svg ('heroicon-o-rectangle-stack', 'h-4 w-4')
                 {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
             </span>
 
             <span class="layout-builder-editor-summary-item">
-                @svg('heroicon-o-cube', 'h-4 w-4')
+                @svg ('heroicon-o-cube', 'h-4 w-4')
                 {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
             </span>
         </div>
 
         @if ($this->layoutModified)
             <span class="layout-builder-editor-summary-status">
-                @svg('heroicon-o-exclamation-circle', 'h-4 w-4')
+                @svg ('heroicon-o-exclamation-circle', 'h-4 w-4')
                 {{ __('capell-layout-builder::message.layout_unsaved') }}
             </span>
         @endif
     </div>
 
     <div
-        @class([
+        @class ([
             'layout-builder-visual-grid',
             'layout-builder-visual-grid-empty' => $tree->widgetCount === 0,
         ])
@@ -1428,14 +1348,16 @@
                 type="button"
                 class="layout-builder-studio-rail-button"
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
-                x-bind:class="{ 'layout-builder-studio-rail-button-active': ! treeCollapsed }"
-                x-bind:aria-pressed="! treeCollapsed"
+                x-bind:class="{
+                    'layout-builder-studio-rail-button-active': !treeCollapsed,
+                }"
+                x-bind:aria-pressed="!treeCollapsed"
                 x-on:click="
                     toggleTreeCollapsed()
                     $nextTick(() => scrollSelectedTreeNodeIntoView())
                 "
             >
-                @svg('heroicon-o-rectangle-stack', 'h-5 w-5')
+                @svg ('heroicon-o-rectangle-stack', 'h-5 w-5')
                 <span class="sr-only">
                     {{ __('capell-layout-builder::heading.layout_structure') }}
                 </span>
@@ -1453,7 +1375,7 @@
                             class="layout-builder-studio-rail-button"
                             title="{{ __('capell-layout-builder::button.layout_actions') }}"
                         >
-                            @svg('heroicon-o-plus', 'h-5 w-5')
+                            @svg ('heroicon-o-plus', 'h-5 w-5')
                             <span class="sr-only">
                                 {{ __('capell-layout-builder::button.layout_actions') }}
                             </span>
@@ -1461,8 +1383,7 @@
                     </x-slot>
 
                     <x-filament::dropdown.list>
-                        {{ $this->addContainerAction }}
-                        {{ $this->addWidgetAction }}
+                        {{ $this->addContainerAction }} {{ $this->addWidgetAction }}
                     </x-filament::dropdown.list>
                 </x-filament::dropdown>
             @endif
@@ -1474,7 +1395,7 @@
                 class="layout-builder-studio-rail-button"
                 title="{{ __('capell-layout-builder::heading.settings') }}"
             >
-                @svg('heroicon-o-cog-6-tooth', 'h-5 w-5')
+                @svg ('heroicon-o-cog-6-tooth', 'h-5 w-5')
                 <span class="sr-only">
                     {{ __('capell-layout-builder::heading.settings') }}
                 </span>
@@ -1485,7 +1406,7 @@
             x-ref="treePanel"
             class="layout-builder-visual-panel layout-builder-visual-panel-tree"
         >
-            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
+            @include ('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
         </aside>
 
         <div
@@ -1494,10 +1415,14 @@
             data-match-frontend-container-layout="{{ config('capell-layout-builder.preview.match_frontend_container_layout', true) ? 'true' : 'false' }}"
             data-layout-empty="{{ $tree->containerCount === 0 ? 'true' : 'false' }}"
             x-bind:data-active-breakpoint="activeBreakpoint"
-            x-bind:data-stack-containers="shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'"
+            x-bind:data-stack-containers="
+                shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'
+            "
             x-bind:style="{
-                '--layout-builder-preview-max-width': activeBreakpointMaxCanvasWidth(),
-                '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
+                '--layout-builder-preview-max-width':
+                    activeBreakpointMaxCanvasWidth(),
+                '--layout-builder-preview-min-width':
+                    activeBreakpointMinCanvasWidth(),
             }"
         >
             @if ($tree->containerCount === 0 && $this->canEditLayout())
@@ -1506,7 +1431,7 @@
                         class="layout-builder-canvas-empty-icon"
                         aria-hidden="true"
                     >
-                        @svg('heroicon-o-rectangle-stack', 'h-7 w-7')
+                        @svg ('heroicon-o-rectangle-stack', 'h-7 w-7')
                     </span>
                     <h3 class="layout-builder-canvas-empty-heading">
                         {{ __('capell-layout-builder::message.layout_canvas_empty_heading') }}
@@ -1520,7 +1445,11 @@
                                 color="primary"
                                 icon="heroicon-o-sparkles"
                                 size="sm"
-                                x-on:click="$dispatch('open-modal', { id: 'capell-layout-builder-starter-layouts' })"
+                                x-on:click="
+                                    $dispatch('open-modal', {
+                                        id: 'capell-layout-builder-starter-layouts',
+                                    })
+                                "
                             >
                                 {{ __('capell-layout-builder::button.browse_starter_layouts') }}
                             </x-filament::button>
@@ -1558,7 +1487,7 @@
                 wire:key="layout-builder-shadow-preview-{{ $this->visualPreviewSignature }}"
                 x-ref="previewHost"
                 x-init="$nextTick(() => renderPreview())"
-                @class([
+                @class ([
                     'layout-builder-shadow-preview',
                     'layout-builder-shadow-preview-empty' => $tree->widgetCount === 0,
                 ])
@@ -1568,9 +1497,9 @@
         <aside class="layout-builder-inspector-panel">
             <div
                 class="layout-builder-inspector-empty"
-                x-show="! selectedPreviewAction()"
+                x-show="!selectedPreviewAction()"
             >
-                @svg('heroicon-o-cursor-arrow-rays', 'h-5 w-5')
+                @svg ('heroicon-o-cursor-arrow-rays', 'h-5 w-5')
                 <strong>
                     {{
                         trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->widgetCount, [
@@ -1599,7 +1528,7 @@
                                 title="{{ __('capell-layout-builder::button.close') }}"
                                 aria-label="{{ __('capell-layout-builder::button.close') }}"
                             >
-                                @svg('heroicon-o-x-mark', 'h-4 w-4')
+                                @svg ('heroicon-o-x-mark', 'h-4 w-4')
                             </button>
                         </div>
                     </div>
@@ -1622,12 +1551,13 @@
                                 type="button"
                                 class="layout-builder-inspector-action"
                                 x-on:click="
-                                    selectedPreviewAction()?.type === 'container'
+                                    selectedPreviewAction()?.type ===
+                                    'container'
                                         ? openContainerEditor(selectedNode)
                                         : openWidgetEditor(selectedNode)
                                 "
                             >
-                                @svg('heroicon-o-pencil-square', 'h-4 w-4')
+                                @svg ('heroicon-o-pencil-square', 'h-4 w-4')
                                 <span>
                                     {{ __('capell-layout-builder::button.edit') }}
                                 </span>
@@ -1636,20 +1566,24 @@
                             <button
                                 type="button"
                                 class="layout-builder-inspector-action layout-builder-inspector-action-secondary"
-                                x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
+                                x-bind:disabled="
+                                    !selectedPreviewAction()?.canEditLayout
+                                "
                                 x-on:click="
                                     runSelectedPreviewAction(
-                                        selectedPreviewAction()?.type === 'container'
+                                        selectedPreviewAction()?.type ===
+                                            'container'
                                             ? 'duplicateContainer'
                                             : 'duplicateWidget',
                                         $event.currentTarget,
                                     )
                                 "
                             >
-                                @svg('heroicon-o-square-2-stack', 'h-4 w-4')
+                                @svg ('heroicon-o-square-2-stack', 'h-4 w-4')
                                 <span
                                     x-text="
-                                        selectedPreviewAction()?.type === 'container'
+                                        selectedPreviewAction()?.type ===
+                                        'container'
                                             ? actionLabels.duplicateContainer
                                             : actionLabels.duplicate
                                     "
@@ -1659,17 +1593,20 @@
                             <button
                                 type="button"
                                 class="layout-builder-inspector-action layout-builder-inspector-action-danger"
-                                x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
+                                x-bind:disabled="
+                                    !selectedPreviewAction()?.canEditLayout
+                                "
                                 x-on:click="
                                     runSelectedPreviewAction(
-                                        selectedPreviewAction()?.type === 'container'
+                                        selectedPreviewAction()?.type ===
+                                            'container'
                                             ? 'removeContainer'
                                             : 'removeWidget',
                                         $event.currentTarget,
                                     )
                                 "
                             >
-                                @svg('heroicon-o-trash', 'h-4 w-4')
+                                @svg ('heroicon-o-trash', 'h-4 w-4')
                                 <span>
                                     {{ __('capell-layout-builder::button.remove') }}
                                 </span>
@@ -1690,10 +1627,17 @@
                             <button
                                 type="button"
                                 class="layout-builder-inspector-row-button"
-                                x-show="selectedPreviewAction()?.hasLayoutSettings"
-                                x-on:click="runSelectedPreviewAction('editLayoutWidget', $event.currentTarget)"
+                                x-show="
+                                    selectedPreviewAction()?.hasLayoutSettings
+                                "
+                                x-on:click="
+                                    runSelectedPreviewAction(
+                                        'editLayoutWidget',
+                                        $event.currentTarget,
+                                    )
+                                "
                             >
-                                @svg('heroicon-o-cog-6-tooth', 'h-4 w-4')
+                                @svg ('heroicon-o-cog-6-tooth', 'h-4 w-4')
                                 <span>
                                     {{ __('capell-layout-builder::button.edit_layout_widget') }}
                                 </span>
@@ -1702,23 +1646,39 @@
                             <button
                                 type="button"
                                 class="layout-builder-inspector-row-button"
-                                x-show="selectedPreviewAction()?.canTogglePageAssets"
-                                x-on:click="runSelectedPreviewAction('togglePageAssets', $event.currentTarget)"
+                                x-show="
+                                    selectedPreviewAction()?.canTogglePageAssets
+                                "
+                                x-on:click="
+                                    runSelectedPreviewAction(
+                                        'togglePageAssets',
+                                        $event.currentTarget,
+                                    )
+                                "
                             >
-                                @svg('heroicon-o-arrows-right-left', 'h-4 w-4')
+                                @svg ('heroicon-o-arrows-right-left', 'h-4 w-4')
                                 <span
-                                    x-text="selectedPreviewAction()?.toggleAssetsLabel"
+                                    x-text="
+                                        selectedPreviewAction()
+                                            ?.toggleAssetsLabel
+                                    "
                                 ></span>
                             </button>
 
                             <template
-                                x-for="assetType in selectedPreviewAssetTypeDescriptors()"
+                                x-for="
+                                    assetType in
+                                    selectedPreviewAssetTypeDescriptors()
+                                "
                                 :key="assetType.type"
                             >
                                 <div class="layout-builder-inspector-asset-row">
                                     <p
                                         class="layout-builder-inspector-asset-row-label"
-                                        x-show="selectedPreviewAssetTypeDescriptors().length > 1"
+                                        x-show="
+                                            selectedPreviewAssetTypeDescriptors()
+                                                .length > 1
+                                        "
                                         x-text="assetType.label"
                                     ></p>
 
@@ -1728,9 +1688,15 @@
                                         <button
                                             type="button"
                                             class="layout-builder-inspector-row-button"
-                                            x-on:click="runSelectedPreviewAction('selectAsset', $event.currentTarget, assetType.type)"
+                                            x-on:click="
+                                                runSelectedPreviewAction(
+                                                    'selectAsset',
+                                                    $event.currentTarget,
+                                                    assetType.type,
+                                                )
+                                            "
                                         >
-                                            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                                            @svg ('heroicon-o-magnifying-glass', 'h-4 w-4')
                                             <span
                                                 x-text="assetType.selectLabel"
                                             ></span>
@@ -1739,9 +1705,15 @@
                                         <button
                                             type="button"
                                             class="layout-builder-inspector-row-button layout-builder-inspector-row-button-secondary"
-                                            x-on:click="runSelectedPreviewAction('addAsset', $event.currentTarget, assetType.type)"
+                                            x-on:click="
+                                                runSelectedPreviewAction(
+                                                    'addAsset',
+                                                    $event.currentTarget,
+                                                    assetType.type,
+                                                )
+                                            "
                                         >
-                                            @svg('heroicon-o-plus-circle', 'h-4 w-4')
+                                            @svg ('heroicon-o-plus-circle', 'h-4 w-4')
                                             <span
                                                 x-text="assetType.createLabel"
                                             ></span>
@@ -1771,6 +1743,6 @@
         tabindex="-1"
         class="layout-builder-responsive-drawer layout-builder-responsive-drawer-left"
     >
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
+        @include ('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
     </aside>
 </section>

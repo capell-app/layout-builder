@@ -1,4 +1,4 @@
-@props([
+@props ([
     'previewData',
     'assetsToggleAction' => null,
     'widgetActions' => null,

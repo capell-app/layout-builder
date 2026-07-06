@@ -1,4 +1,4 @@
-@props([
+@props ([
     'color' => '',
     'headingSize' => 'h2',
     'size' => '',
@@ -17,8 +17,6 @@ $translation = $page instanceof Pageable && method_exists($page, 'relationLoaded
 $resolvedTitle = $title ?? ($translation->title ?? '');
 ?>
 
-<{{ $headingSize }}
-    class="capell-component capell-widgets-title block-heading"
->
+<{{ $headingSize }} class="capell-component capell-widgets-title block-heading">
     {{ $resolvedTitle }}
 </{{ $headingSize }}>

@@ -1,4 +1,4 @@
-@props([
+@props ([
     'class' => 'h-4 w-4',
 ])
 

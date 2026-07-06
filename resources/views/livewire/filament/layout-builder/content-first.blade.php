@@ -117,7 +117,7 @@
             <div
                 class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
             >
-                @svg('heroicon-o-document-text', 'h-5 w-5')
+                @svg ('heroicon-o-document-text', 'h-5 w-5')
             </div>
             <p class="text-sm font-medium text-gray-950 dark:text-white">
                 {{ __('capell-layout-builder::message.content_inventory_empty') }}
@@ -151,7 +151,7 @@
                         <span class="sr-only">
                             {{ __('capell-layout-builder::form.search_content_inventory') }}
                         </span>
-                        @svg('heroicon-o-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500')
+                        @svg ('heroicon-o-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500')
                         <input
                             type="search"
                             x-model.debounce.150ms="search"
@@ -168,7 +168,7 @@
                             class="hover:text-primary-600 focus:text-primary-600 dark:hover:text-primary-400 dark:focus:text-primary-400 absolute top-1/2 right-2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition dark:text-gray-500"
                             aria-label="{{ __('capell-layout-builder::button.clear_content_inventory_search') }}"
                         >
-                            @svg('heroicon-o-x-mark', 'h-4 w-4')
+                            @svg ('heroicon-o-x-mark', 'h-4 w-4')
                         </button>
                     </label>
                 </div>
@@ -311,7 +311,7 @@
                                                     class="inline-flex items-center gap-1"
                                                     data-layout-content-source-field="{{ $item->sourceDetail }}"
                                                 >
-                                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5 shrink-0')
+                                                    @svg ('heroicon-o-pencil-square', 'h-3.5 w-3.5 shrink-0')
                                                     <span
                                                         x-html="highlight({{ Js::from($item->sourceDetail) }})"
                                                     ></span>
@@ -338,8 +338,7 @@
                                                         <span
                                                             class="font-normal"
                                                         >
-                                                            ·
-                                                            {{ $item->renderedTextSourceLabel }}
+                                                            · {{ $item->renderedTextSourceLabel }}
                                                         </span>
                                                     @endif
                                                 </p>
@@ -354,7 +353,7 @@
                                         <p
                                             class="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"
                                         >
-                                            @svg('heroicon-o-map-pin', 'h-3.5 w-3.5 shrink-0')
+                                            @svg ('heroicon-o-map-pin', 'h-3.5 w-3.5 shrink-0')
                                             <span
                                                 x-html="highlight({{ Js::from($item->placementLabel) }})"
                                             ></span>
@@ -424,7 +423,7 @@
                 <div
                     class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                 >
-                    @svg('heroicon-o-magnifying-glass', 'h-5 w-5')
+                    @svg ('heroicon-o-magnifying-glass', 'h-5 w-5')
                 </div>
                 <p class="text-sm font-medium text-gray-950 dark:text-white">
                     {{ __('capell-layout-builder::message.content_inventory_search_empty') }}

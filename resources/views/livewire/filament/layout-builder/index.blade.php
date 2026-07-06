@@ -74,7 +74,7 @@
             $canBrowseStarterLayouts = $this->canEditLayout() && $starterLayoutPresets !== [];
         @endphp
 
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
+        @include ('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
             'canBrowseStarterLayouts' => $canBrowseStarterLayouts,
             'starterLayoutPresets' => $starterLayoutPresets,
         ])
@@ -99,7 +99,7 @@
                             class="pointer-events-none absolute inset-y-0 left-3 inline-flex items-center text-gray-400"
                             aria-hidden="true"
                         >
-                            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
+                            @svg ('heroicon-o-magnifying-glass', 'h-4 w-4')
                         </span>
                         <input
                             type="search"
@@ -118,9 +118,11 @@
                                 wire:key="starter-layout-preset-{{ $preset->key }}"
                                 x-show="
                                     starterLayoutsSearch === '' ||
-                                        $el.dataset.starterTerm
-                                            .toLowerCase()
-                                            .includes(starterLayoutsSearch.toLowerCase())
+                                    $el.dataset.starterTerm
+                                        .toLowerCase()
+                                        .includes(
+                                            starterLayoutsSearch.toLowerCase(),
+                                        )
                                 "
                                 data-starter-term="{{ $preset->label . ' ' . $preset->description }}"
                                 class="flex items-start justify-between gap-4 py-3"
@@ -153,7 +155,11 @@
                                 <x-filament::button
                                     icon="heroicon-o-sparkles"
                                     size="sm"
-                                    x-on:click="$dispatch('close-modal', { id: 'capell-layout-builder-starter-layouts' })"
+                                    x-on:click="
+                                        $dispatch('close-modal', {
+                                            id: 'capell-layout-builder-starter-layouts',
+                                        })
+                                    "
                                     wire:click="applyStarterLayoutPreset(@js($preset->key))"
                                     wire:loading.attr="disabled"
                                     wire:target="applyStarterLayoutPreset"
@@ -167,11 +173,17 @@
                     <p
                         x-show="
                             starterLayoutsSearch !== '' &&
-                                ! [...$root.querySelectorAll('[data-starter-term]')].some((row) =>
-                                    row.dataset.starterTerm
-                                        .toLowerCase()
-                                        .includes(starterLayoutsSearch.toLowerCase()),
-                                )
+                            ![
+                                ...$root.querySelectorAll(
+                                    '[data-starter-term]',
+                                ),
+                            ].some((row) =>
+                                row.dataset.starterTerm
+                                    .toLowerCase()
+                                    .includes(
+                                        starterLayoutsSearch.toLowerCase(),
+                                    ),
+                            )
                         "
                         x-cloak
                         class="py-6 text-center text-sm text-gray-500 dark:text-gray-400"

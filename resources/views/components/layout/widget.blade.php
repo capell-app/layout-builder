@@ -122,7 +122,7 @@
             id="{{ $widgetDomId }}"
             class="layout-widget"
         >
-            @livewire($widgetComponent, ['widgetReference' => $widgetReference], key($containerKey . '-' . $widget->key . '-' . $occurrence))
+            @livewire ($widgetComponent, ['widgetReference' => $widgetReference], key($containerKey . '-' . $widget->key . '-' . $occurrence))
         </div>
         <x-capell::interactions :triggers="$interactions" />
     </x-capell-layout-builder::layout-widgets.runtime-wrapper>

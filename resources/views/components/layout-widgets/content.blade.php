@@ -9,7 +9,7 @@
     $theme = Frontend::theme();
 @endphp
 
-@props([
+@props ([
     'content' => '',
     'media' => '',
     'mediaAlign' => $media['align'] ?? null,
@@ -72,10 +72,8 @@
     @endif
 
     @if ($title)
-        @php($titleTag = $titleHeadingSize ?: 'div')
-        <{{ $titleTag }}>
-            {{ __($title, $pageVariables) }}
-        </{{ $titleTag }}>
+        @php ($titleTag = $titleHeadingSize ?: 'div')
+        <{{ $titleTag }}> {{ __($title, $pageVariables) }} </{{ $titleTag }}>
     @endif
 
     {!! RenderHtmlContentAction::run((string) $content, $pageVariables) !!}
