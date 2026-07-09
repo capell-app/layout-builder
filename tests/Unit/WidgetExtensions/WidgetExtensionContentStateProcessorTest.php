@@ -3,16 +3,25 @@
 declare(strict_types=1);
 
 use Capell\Admin\Actions\Widgets\NormalizeContentWidgetStateAction;
+use Capell\LayoutBuilder\Contracts\WidgetExtensions\WidgetExtensionStateUpcaster;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleFilamentWidget;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleInputData;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleRenderData;
+use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\MockableStateUpcaster;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\RenamingStateUpcaster;
+use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ThrowingStateUpcaster;
+use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\UnresolvableStateUpcaster;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-function stateIntegrityDefinition(int $stateVersion = 2): WidgetExtensionDefinitionData
-{
+/** @param class-string<WidgetExtensionStateUpcaster>|null $stateUpcaster */
+function stateIntegrityDefinition(
+    int $stateVersion = 2,
+    ?string $stateUpcaster = null,
+): WidgetExtensionDefinitionData {
     return new WidgetExtensionDefinitionData(
         key: 'capell-app.slideshow',
         packageName: 'capell-app/widget-slideshow',
@@ -22,7 +31,7 @@ function stateIntegrityDefinition(int $stateVersion = 2): WidgetExtensionDefinit
         renderData: ExampleRenderData::class,
         fallbackView: 'capell-widget-slideshow::widget',
         components: ['blade' => 'capell::widgets.capell-app.slideshow'],
-        stateUpcaster: $stateVersion > 1 ? RenamingStateUpcaster::class : null,
+        stateUpcaster: $stateVersion > 1 ? ($stateUpcaster ?? RenamingStateUpcaster::class) : null,
     );
 }
 
@@ -94,4 +103,86 @@ it('versions initial state at one without requiring an upcaster', function (): v
     ]);
 
     expect($normalized[0]['data']['__capell']['state_version'])->toBe(1);
+});
+
+it('contains upcaster and container failures while logging only safe context', function (string $stateUpcaster): void {
+    Log::spy();
+    resolve(WidgetExtensionRegistry::class)->register(stateIntegrityDefinition(stateUpcaster: $stateUpcaster));
+    $identity = (string) Str::uuid();
+    $widget = [
+        'type' => 'capell-app.slideshow',
+        'data' => [
+            'old_title' => 'Sensitive saved content',
+            '__capell' => ['instance_id' => $identity],
+        ],
+    ];
+
+    $normalized = NormalizeContentWidgetStateAction::run([$widget]);
+
+    expect($normalized)->toBe([$widget]);
+
+    Log::shouldHaveReceived('warning')
+        ->once()
+        ->with('Widget extension state upcast failed.', Mockery::on(
+            static fn (array $context): bool => $context === [
+                'widget_key' => 'capell-app.slideshow',
+                'target_version' => 2,
+                'failure_type' => $stateUpcaster === ThrowingStateUpcaster::class
+                    ? RuntimeException::class
+                    : BindingResolutionException::class,
+            ],
+        ));
+})->with([
+    'runtime exception' => ThrowingStateUpcaster::class,
+    'container resolution failure' => UnresolvableStateUpcaster::class,
+]);
+
+it('contains a non-array upcaster return without exposing saved content', function (): void {
+    Log::spy();
+    $upcaster = Mockery::mock(WidgetExtensionStateUpcaster::class);
+    $upcaster->shouldReceive('upcast')->once()->andReturn('not-an-array');
+    app()->instance(MockableStateUpcaster::class, $upcaster);
+    resolve(WidgetExtensionRegistry::class)->register(stateIntegrityDefinition(
+        stateUpcaster: MockableStateUpcaster::class,
+    ));
+    $identity = (string) Str::uuid();
+    $widget = [
+        'type' => 'capell-app.slideshow',
+        'data' => [
+            'old_title' => 'Sensitive saved content',
+            '__capell' => ['instance_id' => $identity],
+        ],
+    ];
+
+    expect(NormalizeContentWidgetStateAction::run([$widget]))->toBe([$widget]);
+
+    Log::shouldHaveReceived('warning')
+        ->once()
+        ->with('Widget extension state upcast failed.', [
+            'widget_key' => 'capell-app.slideshow',
+            'target_version' => 2,
+            'failure_type' => TypeError::class,
+        ]);
+});
+
+it('contains a container binding that resolves the wrong runtime type', function (): void {
+    Log::spy();
+    app()->instance(MockableStateUpcaster::class, new stdClass);
+    resolve(WidgetExtensionRegistry::class)->register(stateIntegrityDefinition(
+        stateUpcaster: MockableStateUpcaster::class,
+    ));
+    $widget = [
+        'type' => 'capell-app.slideshow',
+        'data' => ['__capell' => ['instance_id' => (string) Str::uuid()]],
+    ];
+
+    expect(NormalizeContentWidgetStateAction::run([$widget]))->toBe([$widget]);
+
+    Log::shouldHaveReceived('warning')
+        ->once()
+        ->with('Widget extension state upcast failed.', [
+            'widget_key' => 'capell-app.slideshow',
+            'target_version' => 2,
+            'failure_type' => RuntimeException::class,
+        ]);
 });
