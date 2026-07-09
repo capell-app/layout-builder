@@ -12,7 +12,7 @@
     "license": "proprietary",
     "require": {
         "php": "^8.4",
-        "capell-app/admin": "^4.0 || 4.x-dev",
+        "capell-app/admin": "^4.1 || 4.x-dev",
         "capell-app/block-library": "^4.0 || 4.x-dev",
         "capell-app/core": "^4.0 || 4.x-dev",
         "capell-app/frontend": "^4.0 || 4.x-dev"
