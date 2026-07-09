@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder;
 
+use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
@@ -51,6 +52,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionContentStateProcessor;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionDefinitionAdapter;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistrar;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
@@ -88,6 +90,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->singleton(WidgetExtensionDefinitionAdapter::class);
         $this->app->singleton(WidgetExtensionRegistrar::class);
         $this->app->singleton(WidgetExtensionViewResolver::class);
+        $this->app->singleton(WidgetExtensionContentStateProcessor::class);
         $this->app->singleton(
             WidgetExtensionRegistry::class,
             fn (): WidgetExtensionRegistry => new WidgetExtensionRegistry(
@@ -96,6 +99,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         );
         $this->registerDefaultLayoutWidgets();
         $this->app->tag([], LayoutContentGroupContributor::TAG);
+        $this->app->tag([WidgetExtensionContentStateProcessor::class], ContentWidgetStateProcessor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
         $this->app->scoped(LayoutWidgetResourceAssetContributor::class);
@@ -118,6 +122,10 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->registerPageTypes();
 
         $this->app->booting(function (): void {
+            // Resolve after every provider has registered so definitions declared
+            // before or after Layout Builder are adapted into WidgetDiscovery.
+            $this->app->make(WidgetExtensionRegistry::class);
+
             if (! $this->isPackageInstalled()) {
                 return;
             }

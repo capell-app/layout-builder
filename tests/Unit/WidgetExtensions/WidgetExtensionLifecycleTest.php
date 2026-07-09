@@ -18,6 +18,7 @@ use Illuminate\Container\Container;
 
 it('binds the canonical registry through the Layout Builder provider', function (): void {
     expect(app()->bound(WidgetExtensionRegistry::class))->toBeTrue()
+        ->and(app()->resolved(WidgetExtensionRegistry::class))->toBeTrue()
         ->and(app(WidgetExtensionRegistry::class))->toBeInstanceOf(WidgetExtensionRegistry::class)
         ->and(app()->bound(WidgetExtensionRegistrar::class))->toBeTrue();
 });

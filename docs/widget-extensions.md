@@ -59,3 +59,13 @@ At render time, `WidgetExtensionViewResolver` checks the stable `capell::widgets
 Canonical registrations are authoritative in both the legacy Blade registry and Filament discovery, so ordinary same-key registration order cannot replace them. Until the typed public render DTO pipeline hydrates extension state, legacy public rendering routes canonical extension keys to an inert internal gate and never passes raw saved arrays to a package or theme view. The typed pipeline must use `WidgetExtensionViewResolver`; package fallback views are not registered as legacy runtime components.
 
 Duplicate identical definitions are harmless. A different definition using an occupied key cannot replace the first registration and is exposed through `WidgetExtensionRegistry::collisions()` for diagnostics.
+
+## Saved state and instance identity
+
+Content Builder reserves `data.__capell` for platform metadata. Every registered widget receives a canonical, unique UUID in `data.__capell.instance_id` during hydration and dehydration. Existing valid unique identities remain stable; copied, cloned, imported, translated, templated, and nested widget state with a missing, invalid, or duplicate identity receives a new one. Presentation, interaction, and resource settings already stored beneath `__capell` are merged rather than replaced.
+
+Canonical widget extensions also reserve `data.__capell.state_version`. Missing version metadata means version `1`. When saved state is older than the definition's `stateVersion`, Layout Builder resolves the declared `WidgetExtensionStateUpcaster` and calls it with the widget data and the source and target versions. Upcasters must be deterministic and side-effect free, must return an array, and must not query application state. The platform restores the reserved instance identity and writes the current state version after a successful upcast. Future, invalid, or non-upcastable versions are retained unchanged so an older application cannot corrupt newer package state.
+
+Unknown widget blocks are opaque. Content Builder shows a generic unavailable-widget placeholder, does not render editable fields for the unknown payload, and restores the original type, data, and extension-owned keys on dehydration. State processors must therefore act only on keys present in Admin's `WidgetDiscovery`; they must never recursively inspect an unavailable widget's payload.
+
+Layout Builder connects state versioning through Admin's tagged `ContentWidgetStateProcessor` seam. Admin owns identity normalization and remains fully functional when Layout Builder is absent; packages must not call Layout Builder directly from Content Builder.
