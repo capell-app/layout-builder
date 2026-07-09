@@ -165,29 +165,35 @@ it('keeps the canonical page-building guide captures deterministic and traceable
 
     $expectedEntries = [
         'page-building-layout-builder-editor' => [
-            ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
-            ['type' => 'click', 'selector' => '[data-layout-builder-action="add-container"]:visible'],
-            ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+            'output' => 'docs/images/generated/page-building-layout-builder-editor.png',
+            'interactions' => [
+                ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
+                ['type' => 'click', 'selector' => '[data-layout-builder-action="add-container"]:visible'],
+                ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+            ],
         ],
         'page-building-layout-builder-add-widget' => [
-            ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
-            ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
-            ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
-            ['type' => 'click', 'selector' => '[data-layout-builder-action="add-widget"]:visible'],
-            ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+            'output' => 'docs/images/generated/page-building-layout-builder-add-widget.png',
+            'interactions' => [
+                ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
+                ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
+                ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
+                ['type' => 'click', 'selector' => '[data-layout-builder-action="add-widget"]:visible'],
+                ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+            ],
         ],
     ];
 
-    foreach ($expectedEntries as $id => $interactions) {
+    foreach ($expectedEntries as $id => $expectedEntry) {
         $entry = $entries->get($id);
 
         expect($entry)
             ->not->toBeNull()
             ->and($entry['docsPage'] ?? null)->toBe('docs/getting-started/building-pages.md')
-            ->and($entry['output'] ?? '')->toStartWith('docs/images/generated/page-building-layout-builder-')
+            ->and($entry['output'] ?? null)->toBe($expectedEntry['output'])
             ->and(is_file($documentationRepository . '/' . ($entry['output'] ?? '')))->toBeTrue()
             ->and($entry['notes'] ?? '')->not->toBe('')
             ->and($entry['useCase'] ?? '')->not->toBe('')
-            ->and($entry['interactions'] ?? null)->toBe($interactions);
+            ->and($entry['interactions'] ?? null)->toBe($expectedEntry['interactions']);
     }
 });
