@@ -2421,31 +2421,6 @@
     }
 }
 
-/*
- * Mid-width band (48-72rem): the editor is wide enough for panels but not for
- * three of them. Collapse the tree column into the drawer (the Alpine
- * compactPanels switch flips to drawer mode at the matching 1152px = 72rem)
- * so the canvas keeps a workable width; the inspector stays.
- */
-@container (max-width: 72rem) {
-    .layout-builder-panel-toggle {
-        display: inline-flex;
-    }
-
-    .layout-builder-visual-grid {
-        grid-template-columns: 4.25rem minmax(24rem, 1fr) minmax(15rem, 17rem);
-    }
-
-    .layout-builder-visual-editor[data-inspector-open='false']
-        .layout-builder-visual-grid {
-        grid-template-columns: 4.25rem minmax(0, 1fr);
-    }
-
-    .layout-builder-visual-panel-tree {
-        display: none;
-    }
-}
-
 @container (max-width: 48rem) {
     .layout-builder-panel-toggle {
         display: inline-flex;
@@ -2808,6 +2783,25 @@
     border: 1px solid rgba(15, 23, 42, 0.08);
     background: rgb(245, 247, 244);
     box-shadow: none;
+}
+
+@container (max-width: 72rem) {
+    .layout-builder-panel-toggle {
+        display: inline-flex;
+    }
+
+    .layout-builder-visual-grid,
+    .layout-builder-visual-editor[data-inspector-open='false']
+        .layout-builder-visual-grid,
+    .layout-builder-visual-editor[data-tree-collapsed='true']
+        .layout-builder-visual-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .layout-builder-visual-panel-tree,
+    .layout-builder-inspector-panel {
+        display: none;
+    }
 }
 
 @media (max-width: 1023.98px) {
