@@ -12,6 +12,8 @@ use Illuminate\Contracts\Container\Container;
 
 final class WidgetExtensionDefinitionAdapter
 {
+    public const string GATED_COMPONENT = 'capell-layout-builder::layout-widgets.extension-gated';
+
     /** @var array<string, true> */
     private array $adaptedLayoutDefinitions = [];
 
@@ -31,9 +33,9 @@ final class WidgetExtensionDefinitionAdapter
                 return;
             }
 
-            $registry->registerDefinition(LayoutWidgetDefinitionData::frontendBlade(
+            $registry->registerAuthoritativeDefinition(LayoutWidgetDefinitionData::frontendBlade(
                 key: $definition->key,
-                component: $definition->fallbackView,
+                component: self::GATED_COMPONENT,
                 resourceGroups: $definition->resourceGroups,
                 defaultPresentationSettings: array_replace(
                     $definition->defaultPresentationSettings,
@@ -53,7 +55,7 @@ final class WidgetExtensionDefinitionAdapter
                 return;
             }
 
-            $discovery->register($definition->filamentWidget);
+            $discovery->registerAuthoritative($definition->filamentWidget);
             $this->adaptedFilamentWidgets[$registrationKey] = true;
         };
 

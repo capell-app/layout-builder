@@ -56,4 +56,6 @@ Resource loading defaults use `PresentationLoadingStrategy`. The definition-wide
 
 At render time, `WidgetExtensionViewResolver` checks the stable `capell::widgets.{key}` theme slot on every call. The active theme and its parent may override that slot. If neither provides it, the package fallback is used; a missing fallback raises a diagnostic exception naming the widget and package.
 
+Canonical registrations are authoritative in both the legacy Blade registry and Filament discovery, so ordinary same-key registration order cannot replace them. Until the typed public render DTO pipeline hydrates extension state, legacy public rendering routes canonical extension keys to an inert internal gate and never passes raw saved arrays to a package or theme view. The typed pipeline must use `WidgetExtensionViewResolver`; package fallback views are not registered as legacy runtime components.
+
 Duplicate identical definitions are harmless. A different definition using an occupied key cannot replace the first registration and is exposed through `WidgetExtensionRegistry::collisions()` for diagnostics.

@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionDefinitionAdapter;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistrar;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ConflictingFilamentWidget;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleFilamentWidget;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
 use Illuminate\Container\Container;
@@ -34,7 +35,7 @@ it('adapts accepted extensions into legacy rendering and Filament discovery whil
     $adaptedDefinition = $legacyRegistry->definition('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade);
 
     expect($legacyRegistry->definition('legacy-banner', LayoutWidgetTarget::FrontendBlade))->toBe($legacyDefinition)
-        ->and($adaptedDefinition?->component)->toBe('capell-widget-slideshow::widget')
+        ->and($adaptedDefinition?->component)->toBe(WidgetExtensionDefinitionAdapter::GATED_COMPONENT)
         ->and($adaptedDefinition?->defaultLoadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
         ->and($adaptedDefinition?->resourceGroupLoadingStrategies)->toBe([
             'capell-app.widget-slideshow.interaction' => PresentationLoadingStrategy::Interaction,
@@ -99,4 +100,51 @@ it('carries global and per-group loading defaults through the legacy resource us
 
     expect($overriddenUsages[0]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle)
         ->and($overriddenUsages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle);
+});
+
+it('makes canonical adapters authoritative when ordinary registrations arrive first', function (): void {
+    $container = new Container;
+    $layoutWidgets = new LayoutWidgetRegistry;
+    $filamentWidgets = new WidgetDiscovery;
+    $container->instance(LayoutWidgetRegistry::class, $layoutWidgets);
+    $container->instance(WidgetDiscovery::class, $filamentWidgets);
+
+    $layoutWidgets->register('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade, 'legacy::conflict');
+    $filamentWidgets->register(ConflictingFilamentWidget::class);
+
+    $registry = new WidgetExtensionRegistry(new WidgetExtensionDefinitionAdapter($container));
+    $registry->register(ExampleWidgetExtensionDefinition::make());
+
+    expect($layoutWidgets->get('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade))
+        ->toBe(WidgetExtensionDefinitionAdapter::GATED_COMPONENT)
+        ->and($filamentWidgets->registeredWidgets()['capell-app.slideshow'] ?? null)
+        ->toBe(ExampleFilamentWidget::class);
+});
+
+it('keeps canonical adapters authoritative when ordinary registrations arrive later', function (): void {
+    $container = new Container;
+    $layoutWidgets = new LayoutWidgetRegistry;
+    $filamentWidgets = new WidgetDiscovery;
+    $container->instance(LayoutWidgetRegistry::class, $layoutWidgets);
+    $container->instance(WidgetDiscovery::class, $filamentWidgets);
+
+    $registry = new WidgetExtensionRegistry(new WidgetExtensionDefinitionAdapter($container));
+    $registry->register(ExampleWidgetExtensionDefinition::make());
+
+    $layoutWidgets->register('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade, 'legacy::conflict');
+    $filamentWidgets->register(ConflictingFilamentWidget::class);
+
+    expect($layoutWidgets->get('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade))
+        ->toBe(WidgetExtensionDefinitionAdapter::GATED_COMPONENT)
+        ->and($filamentWidgets->registeredWidgets()['capell-app.slideshow'] ?? null)
+        ->toBe(ExampleFilamentWidget::class);
+});
+
+it('preserves ordinary replacement behavior for unprefixed legacy layout widgets', function (): void {
+    $registry = new LayoutWidgetRegistry;
+
+    $registry->register('legacy-banner', LayoutWidgetTarget::FrontendBlade, 'legacy::first');
+    $registry->register('legacy-banner', LayoutWidgetTarget::FrontendBlade, 'legacy::second');
+
+    expect($registry->get('legacy-banner', LayoutWidgetTarget::FrontendBlade))->toBe('legacy::second');
 });
