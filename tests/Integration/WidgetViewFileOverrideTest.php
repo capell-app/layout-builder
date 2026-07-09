@@ -12,9 +12,12 @@ use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContextForLoadedLayout;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PageBuildingWidget;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 
@@ -28,10 +31,11 @@ afterEach(function (): void {
 });
 
 it('renders a widget view-file override with prepared public widget asset data', function (): void {
-    $viewPath = storage_path('framework/testing/page-building-widget-view-file');
+    $viewNamespace = 'page-building-test-' . str_replace('.', '', uniqid('', true));
+    $viewPath = storage_path('framework/testing/' . $viewNamespace);
     File::ensureDirectoryExists($viewPath);
     File::put($viewPath . '/guide-widget.blade.php', '<section data-page-building-widget>{{ $title }}</section>');
-    View::addNamespace('page-building-test', $viewPath);
+    View::addNamespace($viewNamespace, $viewPath);
 
     $language = Language::factory()->create();
     $site = Site::factory()->create(['language_id' => $language->getKey()]);
@@ -44,7 +48,7 @@ it('renders a widget view-file override with prepared public widget asset data',
     $widget = Widget::factory()->create([
         'key' => 'guide-widget',
         'component' => 'capell.widget.default',
-        'view_file' => 'page-building-test::guide-widget',
+        'view_file' => $viewNamespace . '::guide-widget',
         'meta' => [
             'field_path' => 'containers.main.widgets.0',
             'signed_editor_url' => 'https://admin.test/widgets/guide-widget?signature=private-signature',
@@ -60,6 +64,15 @@ it('renders a widget view-file override with prepared public widget asset data',
         ->create();
 
     app()->instance('capell.frontend.context', new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
+    resolve(LayoutLoader::class)->preloadLayoutWidgets($layout, $language, $page);
+
+    $connection = DB::connection();
+    $wasLoggingQueries = $connection->logging();
+    $wasPreventingLazyLoading = Model::preventsLazyLoading();
+    $queries = [];
+    $connection->flushQueryLog();
+    $connection->enableQueryLog();
+    Model::preventLazyLoading();
 
     try {
         $html = resolve(RenderHookRegistry::class)->renderAll(
@@ -69,6 +82,14 @@ it('renders a widget view-file override with prepared public widget asset data',
             target: 'capell::layout.main',
         );
     } finally {
+        $queries = $connection->getQueryLog();
+        $connection->flushQueryLog();
+
+        if (! $wasLoggingQueries) {
+            $connection->disableQueryLog();
+        }
+
+        Model::preventLazyLoading($wasPreventingLazyLoading);
         File::deleteDirectory($viewPath);
     }
 
@@ -79,5 +100,6 @@ it('renders a widget view-file override with prepared public widget asset data',
         ->and($html)->not->toContain('field_path')
         ->and($html)->not->toContain('containers.main.widgets.0')
         ->and($html)->not->toContain('https://admin.test/widgets/guide-widget?signature=private-signature')
-        ->and($html)->not->toContain('private-signature');
+        ->and($html)->not->toContain('private-signature')
+        ->and($queries)->toBe([]);
 });
