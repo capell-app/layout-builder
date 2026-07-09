@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions\LayoutWidgets;
 
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
+use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
@@ -41,14 +42,23 @@ class BuildLayoutWidgetResourceUsagesAction
                 continue;
             }
 
-            $presentation = ResolvePresentationSettingsAction::make()->fromWidgetBlockData($block, $definition->defaultPresentationSettings);
-
             foreach ($definition->resourceGroups as $resourceGroup) {
+                $loadingStrategy = $definition->resourceGroupLoadingStrategies[$resourceGroup]
+                    ?? $definition->defaultLoadingStrategy;
+                $defaultPresentationSettings = $definition->defaultPresentationSettings;
+
+                if ($loadingStrategy instanceof PresentationLoadingStrategy) {
+                    $defaultPresentationSettings['loading_strategy'] = $loadingStrategy->value;
+                }
+
                 $usages[] = new LayoutWidgetResourceUsageData(
                     widgetKey: $definition->key,
                     resourceGroup: $resourceGroup,
                     publicId: LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId($resourceGroup),
-                    presentation: $presentation,
+                    presentation: ResolvePresentationSettingsAction::make()->fromWidgetBlockData(
+                        $block,
+                        $defaultPresentationSettings,
+                    ),
                 );
             }
         }

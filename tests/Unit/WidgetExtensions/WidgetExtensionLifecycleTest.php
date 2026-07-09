@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Admin\Support\Widgets\WidgetDiscovery;
+use Capell\Core\Enums\PresentationLoadingStrategy;
+use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
 use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
@@ -29,8 +31,15 @@ it('adapts accepted extensions into legacy rendering and Filament discovery whil
     $registry->register($definition);
     $registry->register(ExampleWidgetExtensionDefinition::make());
 
+    $adaptedDefinition = $legacyRegistry->definition('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade);
+
     expect($legacyRegistry->definition('legacy-banner', LayoutWidgetTarget::FrontendBlade))->toBe($legacyDefinition)
-        ->and($legacyRegistry->get('capell-app.slideshow', LayoutWidgetTarget::FrontendBlade))->toBe('capell-widget-slideshow::widget')
+        ->and($adaptedDefinition?->component)->toBe('capell-widget-slideshow::widget')
+        ->and($adaptedDefinition?->defaultLoadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
+        ->and($adaptedDefinition?->resourceGroupLoadingStrategies)->toBe([
+            'capell-app.widget-slideshow.interaction' => PresentationLoadingStrategy::Interaction,
+        ])
+        ->and($adaptedDefinition?->defaultPresentationSettings['loading_strategy'] ?? null)->toBe('visible')
         ->and(app(WidgetDiscovery::class)->registeredWidgets()['capell-app.slideshow'] ?? null)->toBe(ExampleFilamentWidget::class);
 });
 
@@ -61,4 +70,33 @@ it('registers an extension declared after canonical registry resolution without 
 
     expect($registry->all())->toHaveCount(1)
         ->and($registry->collisions())->toBe([]);
+});
+
+it('carries global and per-group loading defaults through the legacy resource usage contract', function (): void {
+    $registry = new WidgetExtensionRegistry(new WidgetExtensionDefinitionAdapter(app()));
+    $registry->register(ExampleWidgetExtensionDefinition::make());
+
+    $usages = BuildLayoutWidgetResourceUsagesAction::run([
+        ['type' => 'capell-app.slideshow', 'data' => []],
+    ], LayoutWidgetTarget::FrontendBlade);
+
+    expect($usages)->toHaveCount(2)
+        ->and($usages[0]->resourceGroup)->toBe('capell-app.widget-slideshow')
+        ->and($usages[0]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
+        ->and($usages[1]->resourceGroup)->toBe('capell-app.widget-slideshow.interaction')
+        ->and($usages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Interaction);
+
+    $overriddenUsages = BuildLayoutWidgetResourceUsagesAction::run([
+        [
+            'type' => 'capell-app.slideshow',
+            'data' => [
+                '__capell' => [
+                    'presentation' => ['loading_strategy' => PresentationLoadingStrategy::Idle->value],
+                ],
+            ],
+        ],
+    ], LayoutWidgetTarget::FrontendBlade);
+
+    expect($overriddenUsages[0]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle)
+        ->and($overriddenUsages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle);
 });

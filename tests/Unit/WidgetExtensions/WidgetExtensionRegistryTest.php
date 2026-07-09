@@ -3,7 +3,13 @@
 declare(strict_types=1);
 
 use Capell\Admin\Filament\Widgets\ContentFilamentWidget;
+use Capell\Core\Enums\InteractionBehavior;
+use Capell\Core\Enums\InteractionTargetType;
+use Capell\Core\Enums\InteractionTriggerEvent;
+use Capell\Core\Enums\PresentationLoadingStrategy;
+use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionCapabilitiesData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
+use Capell\LayoutBuilder\Enums\WidgetPresentationCapability;
 use Capell\LayoutBuilder\Exceptions\InvalidWidgetExtensionDefinitionException;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleFilamentWidget;
@@ -24,8 +30,71 @@ it('accepts a complete Blade widget extension definition', function (): void {
     expect($definition->key)->toBe('capell-app.slideshow')
         ->and($definition->stateVersion)->toBe(2)
         ->and($definition->components)->toBe(['blade' => 'capell::widgets.capell-app.slideshow'])
+        ->and($definition->defaultResourceLoadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
+        ->and($definition->resourceGroupLoadingStrategies)->toBe([
+            'capell-app.widget-slideshow.interaction' => PresentationLoadingStrategy::Interaction,
+        ])
         ->and($definition->capabilities->supportsInteractions)->toBeTrue()
-        ->and($definition->capabilities->requiresInstanceIdentity)->toBeTrue();
+        ->and($definition->capabilities->requiresInstanceIdentity)->toBeTrue()
+        ->and($definition->capabilities->presentationCapabilities)->toContain(WidgetPresentationCapability::Width)
+        ->and($definition->capabilities->supportedInteractionEvents)->toBe([InteractionTriggerEvent::Click])
+        ->and($definition->capabilities->supportedInteractionBehaviors)->toBe([InteractionBehavior::InlineReveal])
+        ->and($definition->capabilities->supportedInteractionTargetTypes)->toBe([InteractionTargetType::Widget]);
+});
+
+it('keeps resource and interaction capability defaults backward friendly', function (): void {
+    $definition = new WidgetExtensionDefinitionData(
+        key: 'capell-app.slideshow',
+        packageName: 'capell-app/widget-slideshow',
+        stateVersion: 1,
+        filamentWidget: ExampleFilamentWidget::class,
+        inputData: ExampleInputData::class,
+        renderData: ExampleRenderData::class,
+        fallbackView: 'capell-widget-slideshow::widget',
+        components: ['blade' => 'capell::widgets.capell-app.slideshow'],
+    );
+
+    expect($definition->defaultResourceLoadingStrategy)->toBe(PresentationLoadingStrategy::Eager)
+        ->and($definition->resourceGroupLoadingStrategies)->toBe([])
+        ->and($definition->capabilities->presentationCapabilities)->toBe([])
+        ->and($definition->capabilities->supportedInteractionEvents)->toBe([])
+        ->and($definition->capabilities->supportedInteractionBehaviors)->toBe([])
+        ->and($definition->capabilities->supportedInteractionTargetTypes)->toBe([]);
+});
+
+it('rejects resource loading defaults for undeclared groups', function (): void {
+    expect(fn (): WidgetExtensionDefinitionData => new WidgetExtensionDefinitionData(
+        key: 'capell-app.slideshow',
+        packageName: 'capell-app/widget-slideshow',
+        stateVersion: 1,
+        filamentWidget: ExampleFilamentWidget::class,
+        inputData: ExampleInputData::class,
+        renderData: ExampleRenderData::class,
+        fallbackView: 'capell-widget-slideshow::widget',
+        components: ['blade' => 'capell::widgets.capell-app.slideshow'],
+        resourceGroups: ['capell-app.widget-slideshow'],
+        resourceGroupLoadingStrategies: [
+            'capell-app.undeclared' => PresentationLoadingStrategy::Idle,
+        ],
+    ))->toThrow(InvalidWidgetExtensionDefinitionException::class, 'declared resource group');
+});
+
+it('validates explicit presentation and interaction capabilities', function (): void {
+    expect(fn (): WidgetExtensionCapabilitiesData => new WidgetExtensionCapabilitiesData(
+        presentationCapabilities: ['width'],
+    ))->toThrow(InvalidWidgetExtensionDefinitionException::class, 'presentation capability')
+        ->and(fn (): WidgetExtensionCapabilitiesData => new WidgetExtensionCapabilitiesData(
+            supportsInteractions: true,
+            supportedInteractionEvents: [InteractionTriggerEvent::Click],
+            supportedInteractionBehaviors: [],
+            supportedInteractionTargetTypes: [InteractionTargetType::Widget],
+        ))->toThrow(InvalidWidgetExtensionDefinitionException::class, 'behavior')
+        ->and(fn (): WidgetExtensionCapabilitiesData => new WidgetExtensionCapabilitiesData(
+            supportsInteractions: false,
+            supportedInteractionEvents: [InteractionTriggerEvent::Click],
+            supportedInteractionBehaviors: [InteractionBehavior::Modal],
+            supportedInteractionTargetTypes: [InteractionTargetType::Widget],
+        ))->toThrow(InvalidWidgetExtensionDefinitionException::class, 'disabled');
 });
 
 it('rejects invalid widget extension definition contracts', function (Closure $makeDefinition, string $message): void {

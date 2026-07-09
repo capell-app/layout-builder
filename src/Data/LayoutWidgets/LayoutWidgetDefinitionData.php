@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Data\LayoutWidgets;
 
+use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Spatie\LaravelData\Data;
 
@@ -13,6 +14,7 @@ class LayoutWidgetDefinitionData extends Data
      * @param  array<int, string>  $resourceGroups
      * @param  array<string, mixed>  $defaultPresentationSettings
      * @param  array<int, array<string, mixed>>  $defaultInteractionTriggers
+     * @param  array<string, PresentationLoadingStrategy>  $resourceGroupLoadingStrategies
      */
     public function __construct(
         public string $key,
@@ -21,12 +23,15 @@ class LayoutWidgetDefinitionData extends Data
         public array $resourceGroups = [],
         public array $defaultPresentationSettings = [],
         public array $defaultInteractionTriggers = [],
+        public ?PresentationLoadingStrategy $defaultLoadingStrategy = null,
+        public array $resourceGroupLoadingStrategies = [],
     ) {}
 
     /**
      * @param  array<int, string>  $resourceGroups
      * @param  array<string, mixed>  $defaultPresentationSettings
      * @param  array<int, array<string, mixed>>  $defaultInteractionTriggers
+     * @param  array<string, PresentationLoadingStrategy>  $resourceGroupLoadingStrategies
      */
     public static function frontendBlade(
         string $key,
@@ -34,6 +39,8 @@ class LayoutWidgetDefinitionData extends Data
         array $resourceGroups = [],
         array $defaultPresentationSettings = [],
         array $defaultInteractionTriggers = [],
+        ?PresentationLoadingStrategy $defaultLoadingStrategy = null,
+        array $resourceGroupLoadingStrategies = [],
     ): self {
         return new self(
             key: $key,
@@ -42,6 +49,8 @@ class LayoutWidgetDefinitionData extends Data
             resourceGroups: $resourceGroups,
             defaultPresentationSettings: $defaultPresentationSettings,
             defaultInteractionTriggers: $defaultInteractionTriggers,
+            defaultLoadingStrategy: $defaultLoadingStrategy,
+            resourceGroupLoadingStrategies: $resourceGroupLoadingStrategies,
         );
     }
 
@@ -49,6 +58,7 @@ class LayoutWidgetDefinitionData extends Data
      * @param  array<int, string>  $resourceGroups
      * @param  array<string, mixed>  $defaultPresentationSettings
      * @param  array<int, array<string, mixed>>  $defaultInteractionTriggers
+     * @param  array<string, PresentationLoadingStrategy>  $resourceGroupLoadingStrategies
      */
     public static function frontendInertia(
         string $key,
@@ -56,6 +66,8 @@ class LayoutWidgetDefinitionData extends Data
         array $resourceGroups = [],
         array $defaultPresentationSettings = [],
         array $defaultInteractionTriggers = [],
+        ?PresentationLoadingStrategy $defaultLoadingStrategy = null,
+        array $resourceGroupLoadingStrategies = [],
     ): self {
         return new self(
             key: $key,
@@ -64,6 +76,8 @@ class LayoutWidgetDefinitionData extends Data
             resourceGroups: $resourceGroups,
             defaultPresentationSettings: $defaultPresentationSettings,
             defaultInteractionTriggers: $defaultInteractionTriggers,
+            defaultLoadingStrategy: $defaultLoadingStrategy,
+            resourceGroupLoadingStrategies: $resourceGroupLoadingStrategies,
         );
     }
 }

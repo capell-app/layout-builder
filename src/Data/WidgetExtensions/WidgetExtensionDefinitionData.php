@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Data\WidgetExtensions;
 
 use Capell\Admin\Contracts\Widgets\FilamentWidget;
+use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\LayoutBuilder\Contracts\WidgetExtensions\WidgetExtensionBatchPayloadResolver;
 use Capell\LayoutBuilder\Contracts\WidgetExtensions\WidgetExtensionDependencyResolver;
 use Capell\LayoutBuilder\Contracts\WidgetExtensions\WidgetExtensionStateUpcaster;
@@ -19,6 +20,7 @@ final class WidgetExtensionDefinitionData extends Data
      * @param  class-string<Data>  $renderData
      * @param  array<string, string>  $components  Runtime name to component/view identifier.
      * @param  list<string>  $resourceGroups
+     * @param  array<string, PresentationLoadingStrategy>  $resourceGroupLoadingStrategies
      * @param  array<string, mixed>  $defaultPresentationSettings
      * @param  list<array<string, mixed>>  $defaultInteractions
      * @param  class-string<WidgetExtensionStateUpcaster>|null  $stateUpcaster
@@ -35,6 +37,8 @@ final class WidgetExtensionDefinitionData extends Data
         public string $fallbackView,
         public array $components,
         public array $resourceGroups = [],
+        public PresentationLoadingStrategy $defaultResourceLoadingStrategy = PresentationLoadingStrategy::Eager,
+        public array $resourceGroupLoadingStrategies = [],
         public array $defaultPresentationSettings = [],
         public array $defaultInteractions = [],
         public WidgetExtensionCapabilitiesData $capabilities = new WidgetExtensionCapabilitiesData,
@@ -84,6 +88,17 @@ final class WidgetExtensionDefinitionData extends Data
         );
         $this->assertStringMap($this->components, 'runtime component');
         $this->assertStringList($this->resourceGroups, 'resource group');
+        $this->assert(
+            count($this->resourceGroups) === count(array_unique($this->resourceGroups)),
+            'Widget extension resource groups must be unique.',
+        );
+        $this->validateResourceGroupLoadingStrategies();
+
+        if ($this->defaultInteractions !== [] && ! $this->capabilities->supportsInteractions) {
+            throw new InvalidWidgetExtensionDefinitionException(
+                'Widget extension default interactions require interaction support to be enabled.',
+            );
+        }
 
         if ($this->stateUpcaster !== null) {
             $this->assertClassImplements($this->stateUpcaster, WidgetExtensionStateUpcaster::class, 'state upcaster');
@@ -95,6 +110,18 @@ final class WidgetExtensionDefinitionData extends Data
 
         if ($this->dependencyResolver !== null) {
             $this->assertClassImplements($this->dependencyResolver, WidgetExtensionDependencyResolver::class, 'dependency resolver');
+        }
+    }
+
+    private function validateResourceGroupLoadingStrategies(): void
+    {
+        foreach ($this->resourceGroupLoadingStrategies as $resourceGroup => $strategy) {
+            $this->assert(
+                is_string($resourceGroup)
+                    && in_array($resourceGroup, $this->resourceGroups, true)
+                    && $strategy instanceof PresentationLoadingStrategy,
+                'Widget extension loading defaults must map each declared resource group to a PresentationLoadingStrategy.',
+            );
         }
     }
 

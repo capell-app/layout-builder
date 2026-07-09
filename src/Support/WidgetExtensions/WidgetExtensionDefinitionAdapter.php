@@ -35,8 +35,13 @@ final class WidgetExtensionDefinitionAdapter
                 key: $definition->key,
                 component: $definition->fallbackView,
                 resourceGroups: $definition->resourceGroups,
-                defaultPresentationSettings: $definition->defaultPresentationSettings,
+                defaultPresentationSettings: array_replace(
+                    $definition->defaultPresentationSettings,
+                    ['loading_strategy' => $definition->defaultResourceLoadingStrategy->value],
+                ),
                 defaultInteractionTriggers: $definition->defaultInteractions,
+                defaultLoadingStrategy: $definition->defaultResourceLoadingStrategy,
+                resourceGroupLoadingStrategies: $definition->resourceGroupLoadingStrategies,
             ));
             $this->adaptedLayoutDefinitions[$registrationKey] = true;
         };
