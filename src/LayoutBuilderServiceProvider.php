@@ -51,6 +51,10 @@ use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionDefinitionAdapter;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistrar;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Capell\LayoutBuilder\Support\WidgetPresentationPublicLayoutWidgetPayloadContributor;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -81,6 +85,15 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         $this->app->singleton(LayoutAreaRegistry::class, fn (): LayoutAreaRegistry => new LayoutAreaRegistry);
         $this->app->singleton(LayoutWidgetRegistry::class, fn (): LayoutWidgetRegistry => new LayoutWidgetRegistry);
+        $this->app->singleton(WidgetExtensionDefinitionAdapter::class);
+        $this->app->singleton(WidgetExtensionRegistrar::class);
+        $this->app->singleton(WidgetExtensionViewResolver::class);
+        $this->app->singleton(
+            WidgetExtensionRegistry::class,
+            fn (): WidgetExtensionRegistry => new WidgetExtensionRegistry(
+                $this->app->make(WidgetExtensionDefinitionAdapter::class),
+            ),
+        );
         $this->registerDefaultLayoutWidgets();
         $this->app->tag([], LayoutContentGroupContributor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);

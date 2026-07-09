@@ -9,6 +9,7 @@ Start at the [package README](../README.md) when deciding whether to install thi
 | Doc                     | Use it for                                                                         |
 | ----------------------- | ---------------------------------------------------------------------------------- |
 | [Overview](overview.md) | Package boundary, runtime surfaces, install notes, and first troubleshooting path. |
+| [Widget extensions](widget-extensions.md) | Canonical Content Builder widget registration and theme overrides. |
 
 ## Read Next
 
