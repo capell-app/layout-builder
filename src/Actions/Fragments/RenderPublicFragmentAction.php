@@ -32,7 +32,9 @@ class RenderPublicFragmentAction
     {
         try {
             return $this->render($reference);
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            report($throwable);
+
             return null;
         }
     }

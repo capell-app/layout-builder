@@ -57,6 +57,24 @@
                 {{ Js::from(__('capell-layout-builder::message.responsive_override_active', ['breakpoint' => '__breakpoint__'])) }},
             ).replace('__breakpoint__', activeBreakpoint)
         },
+        colspanLabel(columns) {
+            const labels = {
+                12: {{ Js::from(__('capell-layout-builder::generic.full_width')) }},
+                9: {{ Js::from(__('capell-layout-builder::generic.three_quarters')) }},
+                8: {{ Js::from(__('capell-layout-builder::generic.two_thirds')) }},
+                6: {{ Js::from(__('capell-layout-builder::generic.half_width')) }},
+                4: {{ Js::from(__('capell-layout-builder::generic.third_width')) }},
+                3: {{ Js::from(__('capell-layout-builder::generic.quarter_width')) }},
+            }
+
+            return String(
+                {{ Js::from(__('capell-layout-builder::message.container_colspan_value', ['columns' => '__columns__', 'label' => '__label__'])) }},
+            )
+                .replace('__columns__', columns)
+                .replace('__label__', labels[columns] || String(
+                    {{ Js::from(__('capell-layout-builder::message.container_columns', ['columns' => '__columns__'])) }},
+                ).replace('__columns__', columns))
+        },
         syncPreviewColspanToBreakpoint() {
             if (this.isResizing) return
 
@@ -325,11 +343,7 @@
             <span
                 class="layout-container-width-stepper-value"
                 aria-live="polite"
-                x-text="
-                    String(
-                        {{ Js::from(__('capell-layout-builder::message.container_colspan_value', ['columns' => '__columns__'])) }},
-                    ).replace('__columns__', previewColspan)
-                "
+                x-text="colspanLabel(previewColspan)"
             ></span>
 
             <button
@@ -352,11 +366,7 @@
             aria-valuemin="1"
             aria-valuemax="12"
             x-bind:aria-valuenow="previewColspan"
-            x-bind:aria-valuetext="
-                String(
-                    {{ Js::from(__('capell-layout-builder::message.container_colspan_value', ['columns' => '__columns__'])) }},
-                ).replace('__columns__', previewColspan)
-            "
+            x-bind:aria-valuetext="colspanLabel(previewColspan)"
             x-show="!isCollapsed && !shouldStackContainersForActiveBreakpoint()"
             x-on:pointerenter="isResizeHandleHovered = true"
             x-on:pointerleave="isResizeHandleHovered = false"

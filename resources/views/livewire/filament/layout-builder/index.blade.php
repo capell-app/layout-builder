@@ -156,11 +156,18 @@
                                     icon="heroicon-o-sparkles"
                                     size="sm"
                                     x-on:click="
+                                        if (! window.confirm({{ \Illuminate\Support\Js::from(__('capell-layout-builder::message.starter_layout_replace_confirmation')) }})) {
+                                            $event.preventDefault()
+                                            $event.stopImmediatePropagation()
+
+                                            return
+                                        }
+
                                         $dispatch('close-modal', {
                                             id: 'capell-layout-builder-starter-layouts',
                                         })
                                     "
-                                    wire:click="applyStarterLayoutPreset(@js($preset->key))"
+                                    wire:click="applyStarterLayoutPreset({{ \Illuminate\Support\Js::from($preset->key) }})"
                                     wire:loading.attr="disabled"
                                     wire:target="applyStarterLayoutPreset"
                                 >

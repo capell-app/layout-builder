@@ -43,7 +43,9 @@ class RenderLazyLayoutWidgetAction
             AssertPublicHtmlContainsNoAuthoringSurfaceAction::run($response);
 
             return $response;
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            report($throwable);
+
             return null;
         }
     }

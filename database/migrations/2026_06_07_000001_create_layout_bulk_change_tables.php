@@ -57,6 +57,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        //
+        Schema::dropIfExists('layout_bulk_change_results');
+        Schema::dropIfExists('layout_bulk_change_runs');
     }
 };

@@ -6,7 +6,7 @@
 
 <div
     class="layout-builder-tree"
-    role="tree"
+    data-layout-builder-surface="tree"
 >
     <div class="layout-builder-tree-header">
         <div>
@@ -131,10 +131,15 @@
                 x-data="{ open: true }"
                 x-show="containerMatches($el)"
                 data-layout-builder-tree-container
+                data-layout-builder-tree-item="{{ $container->key }}"
                 data-layout-builder-tree-search="{{ $containerSearchText }}"
                 data-layout-builder-tree-node="{{ $container->nodeId }}"
+                x-bind:data-layout-builder-selected="
+                    $el.dataset.layoutBuilderTreeNode === selectedNode
+                        ? 'true'
+                        : 'false'
+                "
                 class="layout-builder-tree-container"
-                role="treeitem"
                 x-bind:aria-expanded="
                     treeContainerOpen(open, $el) ? 'true' : 'false'
                 "
@@ -187,7 +192,6 @@
                     "
                     x-collapse
                     class="layout-builder-tree-widgets"
-                    role="group"
                 >
                     @forelse ($container->widgets as $widget)
                         @php
@@ -208,8 +212,15 @@
                             ])
                             x-show="widgetMatches($el)"
                             data-layout-builder-tree-widget
+                            data-layout-builder-tree-item="{{ $widget->nodeId }}"
                             data-layout-builder-tree-search="{{ $widgetSearchText }}"
                             data-layout-builder-tree-node="{{ $widget->nodeId }}"
+                            x-bind:data-layout-builder-selected="
+                                $el.dataset.layoutBuilderTreeNode ===
+                                selectedNode
+                                    ? 'true'
+                                    : 'false'
+                            "
                             x-on:click="selectFromTree(@js($widget->nodeId), () => $wire.selectWidget(@js($widget->containerKey), @js($widget->widgetIndex)))"
                         >
                             <span class="layout-builder-tree-row-icon">

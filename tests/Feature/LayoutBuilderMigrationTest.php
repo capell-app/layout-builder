@@ -47,3 +47,23 @@ it('keeps layout builder migrations idempotent for existing core installs', func
         ->and(Schema::hasColumn('layouts', 'containers'))->toBeTrue()
         ->and(Schema::hasColumn('layouts', 'widgets'))->toBeFalse();
 });
+
+it('reverses layout builder create-table migrations', function (string $migration, array $tables): void {
+    $instance = include dirname(__DIR__, 2) . '/database/migrations/' . $migration . '.php';
+
+    $instance->up();
+
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeTrue();
+    }
+
+    $instance->down();
+
+    foreach ($tables as $table) {
+        expect(Schema::hasTable($table))->toBeFalse();
+    }
+})->with([
+    'layouts' => ['2026_05_10_190841_01_create_layouts_table', ['layouts']],
+    'layout presets' => ['2026_05_10_190841_06_create_layout_presets_table', ['layout_presets']],
+    'bulk changes' => ['2026_06_07_000001_create_layout_bulk_change_tables', ['layout_bulk_change_results', 'layout_bulk_change_runs']],
+]);
