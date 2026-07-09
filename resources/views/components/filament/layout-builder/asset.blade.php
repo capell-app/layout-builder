@@ -1,4 +1,4 @@
-@props([
+@props ([
     'containerKey',
     'description' => null,
     'index',
@@ -151,7 +151,7 @@
                 tabindex="-1"
                 aria-hidden="true"
             >
-                @svg('heroicon-o-arrows-up-down', 'h-5 w-5')
+                @svg ('heroicon-o-arrows-up-down', 'h-5 w-5')
             </button>
         </label>
 
@@ -159,18 +159,18 @@
             type="button"
             data-layout-asset-action="editWidgetAsset"
             x-on:click="{{ $editWidgetAssetClickHandler }}"
-            @class([
+            @class ([
                 'group/asset flex w-full cursor-pointer items-center gap-x-4 text-left',
                 'lg:!grid lg:grid-cols-4 lg:gap-4' => $image,
             ])
         >
-            <div @class(['py-2.5', 'lg:col-span-3' => $image])>
+            <div @class (['py-2.5', 'lg:col-span-3' => $image])>
                 <div
                     class="group-hover/asset:text-primary-600 dark:group-hover/asset:text-primary-400 line-clamp-1 text-sm text-gray-800 dark:text-gray-100"
                 >
                     {{ $plainLabel }}
 
-                    @svg($icon,
+                    @svg ($icon,
                         [
                             'class' => 'group-hover/asset:text-primary-500 dark:group-hover/asset:text-primary-400 inline h-4 w-4 align-text-bottom text-gray-400 dark:text-gray-500',
                             'x-tooltip.raw' => $editWidgetAssetTooltip,

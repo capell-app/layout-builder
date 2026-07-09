@@ -1,4 +1,4 @@
-@props([
+@props ([
     'containerKey',
     'containerWidget',
     'loop',
@@ -138,7 +138,10 @@
         })
     "
     x-on:collapse-widget.window="
-        if ($event.detail.containerKey && $event.detail.containerKey !== containerKey)
+        if (
+            $event.detail.containerKey &&
+            $event.detail.containerKey !== containerKey
+        )
             return
         if ($event.detail.id && $event.detail.id !== id) return
         isCollapsed = $event.detail.isCollapsed
@@ -265,8 +268,10 @@
                 icon="heroicon-o-folder-open"
                 size="sm"
                 x-on:click.stop="toggleCollapse()"
-                x-bind:aria-expanded="(! isCollapsed).toString()"
-                x-bind:class="! isCollapsed ? 'layout-widget-assets-toggle-open' : ''"
+                x-bind:aria-expanded="(!isCollapsed).toString()"
+                x-bind:class="
+                    !isCollapsed ? 'layout-widget-assets-toggle-open' : ''
+                "
                 aria-controls="{{ $assetsPanelId }}"
                 data-layout-widget-assets-toggle="true"
             />
@@ -295,7 +300,7 @@
             </button>
 
             <div
-                @class([
+                @class ([
                     'layout-widget-preview-shell group/widget min-w-0 flex-1 transition focus-visible:outline-none',
                 ])
                 role="button"
@@ -311,7 +316,7 @@
                 x-on:keydown.enter.prevent="selectWidget(containerKey, {{ $widgetIndex }})"
                 x-on:keydown.space.prevent="selectWidget(containerKey, {{ $widgetIndex }})"
             >
-                @include($previewView, [
+                @include ($previewView, [
                     'containerKey' => $containerKey,
                     'containerWidget' => $containerWidget,
                     'previewData' => $previewData,

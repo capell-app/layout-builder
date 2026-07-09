@@ -26,9 +26,7 @@
     data-clb-preview-node-type="container"
     aria-label="{{ __('capell-layout-builder::button.select_container', ['container' => $containerTitle]) }}"
 >
-    <div class="clb-preview-container-label">
-        {{ $containerTitle }}
-    </div>
+    <div class="clb-preview-container-label">{{ $containerTitle }}</div>
 
     <div class="clb-preview-widgets">
         @forelse ($widgets as $widgetIndex => $containerWidget)

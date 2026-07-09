@@ -1,4 +1,4 @@
-@props([
+@props ([
     'src',
     'alt' => null,
     'loading' => 'lazy',

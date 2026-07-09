@@ -1,11 +1,11 @@
-@props([
+@props ([
     'previewData',
 ])
 
 <div class="clb-preview-widget">
     <div class="clb-preview-widget-body">
         <div class="clb-preview-widget-icon">
-            @svg($previewData->icon ?: 'heroicon-o-cube', 'h-5 w-5')
+            @svg ($previewData->icon ?: 'heroicon-o-cube', 'h-5 w-5')
         </div>
 
         <div>
