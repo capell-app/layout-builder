@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab;
 
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\LayoutBuilder\Enums\BackgroundPosition;
+use Capell\LayoutBuilder\Enums\BackgroundRepeat;
+use Capell\LayoutBuilder\Enums\BackgroundSize;
 use Capell\LayoutBuilder\Filament\Components\Forms\AlignSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\ContainerWidthSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\CustomColorInput;
@@ -209,33 +212,15 @@ class WidgetPresentationTabs
                         Select::make('background_size')
                             ->label(__('capell-layout-builder::form.background_size'))
                             ->default('cover')
-                            ->options([
-                                'cover' => __('capell-layout-builder::form.background_cover'),
-                                'contain' => __('capell-layout-builder::form.background_contain'),
-                            ]),
+                            ->options(BackgroundSize::class),
                         Select::make('background_position')
                             ->label(__('capell-layout-builder::form.background_position'))
                             ->default('center')
-                            ->options([
-                                'center' => __('capell-layout-builder::form.background_center'),
-                                'top' => __('capell-layout-builder::form.background_top'),
-                                'right' => __('capell-layout-builder::form.background_right'),
-                                'bottom' => __('capell-layout-builder::form.background_bottom'),
-                                'left' => __('capell-layout-builder::form.background_left'),
-                                'top right' => __('capell-layout-builder::form.background_top_right'),
-                                'top left' => __('capell-layout-builder::form.background_top_left'),
-                                'bottom right' => __('capell-layout-builder::form.background_bottom_right'),
-                                'bottom left' => __('capell-layout-builder::form.background_bottom_left'),
-                            ]),
+                            ->options(BackgroundPosition::class),
                         Select::make('background_repeat')
                             ->label(__('capell-layout-builder::form.background_repeat'))
                             ->default('no-repeat')
-                            ->options([
-                                'no-repeat' => __('capell-layout-builder::form.repeat_once'),
-                                'repeat' => __('capell-layout-builder::form.repeat_both'),
-                                'repeat-x' => __('capell-layout-builder::form.repeat_vertical'),
-                                'repeat-y' => __('capell-layout-builder::form.repeat_horizontal'),
-                            ]),
+                            ->options(BackgroundRepeat::class),
                         Select::make('background_attachment')
                             ->label(__('capell-layout-builder::form.background_attachment'))
                             ->options([
