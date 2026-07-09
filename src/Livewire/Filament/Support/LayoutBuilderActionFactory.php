@@ -12,7 +12,6 @@ use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\HtmlCache\Actions\ClearCachedUrlsForModelAction;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingWidgetAssetException;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
@@ -23,11 +22,6 @@ use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Capell\PublishingStudio\Actions\CreateRecordDraftWorkspaceAction;
-use Capell\PublishingStudio\Actions\SaveRecordDraftAction;
-use Capell\PublishingStudio\Models\Workspace;
-use Capell\PublishingStudio\WorkspaceContext;
-use Capell\PublishingStudio\WorkspaceRegistry;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
@@ -50,17 +44,17 @@ use Throwable;
 
 final class LayoutBuilderActionFactory
 {
-    private const string CLEAR_CACHED_URLS_FOR_MODEL_ACTION = ClearCachedUrlsForModelAction::class;
+    private const string CLEAR_CACHED_URLS_FOR_MODEL_ACTION = 'Capell\\HtmlCache\\Actions\\ClearCachedUrlsForModelAction';
 
-    private const string CREATE_RECORD_DRAFT_WORKSPACE_ACTION = CreateRecordDraftWorkspaceAction::class;
+    private const string CREATE_RECORD_DRAFT_WORKSPACE_ACTION = 'Capell\\PublishingStudio\\Actions\\CreateRecordDraftWorkspaceAction';
 
-    private const string SAVE_RECORD_DRAFT_ACTION = SaveRecordDraftAction::class;
+    private const string SAVE_RECORD_DRAFT_ACTION = 'Capell\\PublishingStudio\\Actions\\SaveRecordDraftAction';
 
-    private const string WORKSPACE_CLASS = Workspace::class;
+    private const string WORKSPACE_CLASS = 'Capell\\PublishingStudio\\Models\\Workspace';
 
-    private const string WORKSPACE_CONTEXT_CLASS = WorkspaceContext::class;
+    private const string WORKSPACE_CONTEXT_CLASS = 'Capell\\PublishingStudio\\WorkspaceContext';
 
-    private const string WORKSPACE_REGISTRY_CLASS = WorkspaceRegistry::class;
+    private const string WORKSPACE_REGISTRY_CLASS = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
     /**
      * @var array<string, mixed>|null
@@ -149,6 +143,7 @@ final class LayoutBuilderActionFactory
             ->color('gray')
             ->size(Size::Small)
             ->link()
+            ->extraAttributes(['data-layout-builder-action' => 'undo'])
             ->visible(fn (): bool => $this->livewire->layoutUndoSnapshots !== [])
             ->action(fn (): null => $this->livewire->undoLayoutMutation());
     }
@@ -162,6 +157,7 @@ final class LayoutBuilderActionFactory
             ->color('gray')
             ->size(Size::Small)
             ->link()
+            ->extraAttributes(['data-layout-builder-action' => 'redo'])
             ->visible(fn (): bool => $this->livewire->layoutRedoSnapshots !== [])
             ->action(fn (): null => $this->livewire->redoLayoutMutation());
     }
@@ -175,7 +171,10 @@ final class LayoutBuilderActionFactory
             ->color('gray')
             ->outlined()
             ->size(Size::Small)
-            ->extraAttributes(['class' => 'layout-builder-add-container-button'])
+            ->extraAttributes([
+                'class' => 'layout-builder-add-container-button',
+                'data-layout-builder-action' => 'add-container',
+            ])
             ->record(fn (): Layout => $this->livewire->layout)
             ->modalWidth(Width::ThreeExtraLarge)
             ->modalSubmitActionLabel(fn (Action $action): string => $this->labelText($action->getTooltip()))
@@ -348,6 +347,7 @@ final class LayoutBuilderActionFactory
             ->button()
             ->visible(fn (): bool => (bool) $this->livewire->containers)
             ->modalWidth(Width::ScreenLarge)
+            ->extraAttributes(['data-layout-builder-action' => 'add-widget'])
             ->extraModalWindowAttributes([
                 'class' => 'capell-layout-builder-builder-assets-table',
             ])
@@ -1711,9 +1711,11 @@ final class LayoutBuilderActionFactory
 
     private function isWorkspace(mixed $workspace): bool
     {
+        $workspaceClass = self::WORKSPACE_CLASS;
+
         return $workspace instanceof Model
-            && class_exists(self::WORKSPACE_CLASS)
-            && $workspace instanceof Workspace;
+            && class_exists($workspaceClass)
+            && is_a($workspace, $workspaceClass);
     }
 
     private function notifyFrontendAuthoringSaved(string $status = 'published'): void

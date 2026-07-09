@@ -6,7 +6,6 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Capell\PublishingStudio\WorkspaceRegistry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Arrayable;
@@ -15,7 +14,7 @@ use Override;
 
 class RegisteredAssetWidgetAssetForm extends AbstractWidgetAssetConfigurator
 {
-    private const string WORKSPACE_REGISTRY_CLASS = WorkspaceRegistry::class;
+    private const string WORKSPACE_REGISTRY_CLASS = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
     /**
      * @return array<array-key, mixed>

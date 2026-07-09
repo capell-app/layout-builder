@@ -9,7 +9,6 @@
         ->mapWithKeys(fn (LayoutBreakpoint $breakpoint): array => [$breakpoint->value => $breakpoint->maxCanvasWidth()])
         ->all();
     $editorPageLabel = (string) (data_get($this->page, 'title') ?: data_get($this->page, 'name') ?: $this->layout->name);
-    $editorSiteLabel = (string) (data_get($this->site, 'name') ?: __('capell-layout-builder::generic.site'));
     $previewContainerActions = [];
     $previewWidgetActions = [];
 
@@ -18,6 +17,16 @@
         $containerMeta = is_array($container['meta'] ?? null) ? $container['meta'] : [];
         $containerColspan = min(12, max(1, (int) ($containerMeta['colspan'] ?? 12)));
         $containerArea = $this->layoutAreaForContainer(is_array($container) ? $container : []);
+
+        $containerColspanLabel = match ($containerColspan) {
+            12 => __('capell-layout-builder::generic.full_width'),
+            9 => __('capell-layout-builder::generic.three_quarters'),
+            8 => __('capell-layout-builder::generic.two_thirds'),
+            6 => __('capell-layout-builder::generic.half_width'),
+            4 => __('capell-layout-builder::generic.third_width'),
+            3 => __('capell-layout-builder::generic.quarter_width'),
+            default => __('capell-layout-builder::message.container_columns', ['columns' => $containerColspan]),
+        };
 
         $previewContainerActions[$treeContainer->nodeId] = [
             'type' => 'container',
@@ -28,7 +37,7 @@
             'widgetCount' => $treeContainer->widgetCount,
             'widgetCountLabel' => trans_choice('capell-layout-builder::message.layout_tree_widget_count', $treeContainer->widgetCount, ['count' => $treeContainer->widgetCount]),
             'colspan' => $containerColspan,
-            'colspanLabel' => __('capell-layout-builder::message.container_colspan_value', ['columns' => $containerColspan]),
+            'colspanLabel' => __('capell-layout-builder::message.container_colspan_value', ['columns' => $containerColspan, 'label' => $containerColspanLabel]),
             'position' => $containerPosition,
             'canEditLayout' => $this->canEditLayout(),
         ];
@@ -87,6 +96,7 @@
             previewWidgetActions: config.previewWidgetActions || {},
             previewContainerActions: config.previewContainerActions || {},
             actionLabels: config.actionLabels || {},
+            previewStatus: config.previewStatus || 'stale',
             previewSignature: config.previewSignature || '',
             init() {
                 this.closePreviewMenusFromDocument = (event) => {
@@ -97,12 +107,32 @@
                     this.closePreviewMenus()
                 }
                 document.addEventListener('click', this.closePreviewMenusFromDocument)
+                this.beforeUnloadHandler = (event) => {
+                    if (!this.hasUnsavedLayoutChanges()) return
+
+                    event.preventDefault()
+                    event.returnValue = ''
+                }
+                this.livewireNavigateHandler = (event) => {
+                    if (!this.hasUnsavedLayoutChanges()) return
+                    if (window.confirm(this.actionLabels.unsavedNavigationWarning))
+                        return
+
+                    event.preventDefault()
+                }
+                window.addEventListener('beforeunload', this.beforeUnloadHandler)
+                document.addEventListener(
+                    'livewire:navigate',
+                    this.livewireNavigateHandler,
+                )
                 this.syncPanelLayout()
                 this.previewResizeObserver = new ResizeObserver(() =>
                     this.syncPanelLayout(),
                 )
                 this.previewResizeObserver.observe(this.$el)
                 this.renderPreview()
+                this.previewStatus =
+                    this.$wire.visualPreviewStatus || this.previewStatus
                 this.applyPreviewBreakpoint()
             },
             destroy() {
@@ -110,6 +140,11 @@
                 document.removeEventListener(
                     'click',
                     this.closePreviewMenusFromDocument,
+                )
+                window.removeEventListener('beforeunload', this.beforeUnloadHandler)
+                document.removeEventListener(
+                    'livewire:navigate',
+                    this.livewireNavigateHandler,
                 )
             },
             shadowStyles() {
@@ -548,7 +583,10 @@
             makeInsertControl(label, callback, className = '') {
                 const control = document.createElement('div')
                 control.className = `clb-preview-insert ${className}`.trim()
-                control.innerHTML = `<button type="button" class="clb-preview-insert-button" title="${this.escapeHtml(label)}" aria-label="${this.escapeHtml(label)}">${this.icon('plus')}</button>`
+                const actionName = className.includes('clb-preview-container-insert')
+                    ? 'add-container'
+                    : 'add-widget'
+                control.innerHTML = `<button type="button" class="clb-preview-insert-button" data-layout-builder-action="${actionName}" title="${this.escapeHtml(label)}" aria-label="${this.escapeHtml(label)}">${this.icon('plus')}</button>`
                 control.querySelector('button').addEventListener('click', (event) => {
                     event.preventDefault()
                     event.stopPropagation()
@@ -590,7 +628,7 @@
                 const labels = this.actionLabels
 
                 return `
-                    <button type="button" class="clb-preview-action-button" data-clb-action="editWidget" title="${this.escapeHtml(labels.edit)}" aria-label="${this.escapeHtml(labels.edit)}">${this.icon('edit')}</button>
+                    <button type="button" class="clb-preview-action-button" data-clb-action="editWidget" data-layout-builder-action="edit-widget" title="${this.escapeHtml(labels.edit)}" aria-label="${this.escapeHtml(labels.edit)}">${this.icon('edit')}</button>
                     ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button" data-clb-action="duplicateWidget" title="${this.escapeHtml(labels.duplicate)}" aria-label="${this.escapeHtml(labels.duplicate)}">${this.icon('copy')}</button>` : ''}
                     ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeWidget" title="${this.escapeHtml(labels.remove)}" aria-label="${this.escapeHtml(labels.remove)}">${this.icon('trash')}</button>` : ''}
                     <button type="button" class="clb-preview-action-button" data-clb-action="openInspector" title="${this.escapeHtml(labels.openInspector)}" aria-label="${this.escapeHtml(labels.openInspector)}">${this.icon('inspector')}</button>
@@ -600,7 +638,7 @@
                 const labels = this.actionLabels
 
                 return `
-                    <button type="button" class="clb-preview-action-button" data-clb-action="editContainer" title="${this.escapeHtml(labels.editContainer)}" aria-label="${this.escapeHtml(labels.editContainer)}">${this.icon('edit')}</button>
+                    <button type="button" class="clb-preview-action-button" data-clb-action="editContainer" data-layout-builder-action="edit-container" title="${this.escapeHtml(labels.editContainer)}" aria-label="${this.escapeHtml(labels.editContainer)}">${this.icon('edit')}</button>
                     <button type="button" class="clb-preview-action-button" data-clb-action="duplicateContainer" title="${this.escapeHtml(labels.duplicateContainer)}" aria-label="${this.escapeHtml(labels.duplicateContainer)}">${this.icon('copy')}</button>
                     <button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeContainer" title="${this.escapeHtml(labels.removeContainer)}" aria-label="${this.escapeHtml(labels.removeContainer)}">${this.icon('trash')}</button>
                 `
@@ -668,13 +706,7 @@
                 host.style.minWidth = minWidth
             },
             activeBreakpointMaxCanvasWidth() {
-                const width = this.breakpointWidths[this.activeBreakpoint] || '100%'
-
-                if (this.activeBreakpoint === 'desktop' && width === '100%') {
-                    return 'min(100%, 76rem)'
-                }
-
-                return width
+                return this.breakpointWidths[this.activeBreakpoint] || '100%'
             },
             activeBreakpointMinCanvasWidth() {
                 return '0'
@@ -774,17 +806,28 @@
                     return
                 }
 
-                if (this.treeOpen) {
-                    this.closeTree()
+                if (this.treeOpen) this.closeTree()
+            },
+            hasUnsavedLayoutChanges() {
+                return Boolean(this.$wire.layoutModified)
+            },
+            returnToContentEditor() {
+                this.$wire.$call('showContentEditor')
+            },
+            refreshPreview(trigger = null) {
+                this.previewStatus = 'refreshing'
+                this.markPreviewActionLoading(trigger, true)
 
-                    return
-                }
-
-                if (!this.treeCollapsed) {
-                    this.treeCollapsed = true
-
-                    return
-                }
+                return Promise.resolve(this.$wire.$call('refreshVisualPreview'))
+                    .then(() => this.afterLivewirePreviewMutation())
+                    .then(() => {
+                        this.previewStatus = this.$wire.visualPreviewStatus || 'current'
+                    })
+                    .catch((error) => {
+                        this.previewStatus = 'error'
+                        throw error
+                    })
+                    .finally(() => this.markPreviewActionLoading(trigger, false))
             },
             handleGlobalShortcut(event) {
                 if (!event || event.defaultPrevented || event.isComposing) return
@@ -1152,6 +1195,7 @@
                 breakpointWidths: {{ Js::from($breakpointWidths) }},
                 previewWidgetActions: {{ Js::from($previewWidgetActions) }},
                 previewContainerActions: {{ Js::from($previewContainerActions) }},
+                previewStatus: {{ Js::from($this->visualPreviewStatus) }},
                 actionLabels:
                     {{
                     Js::from([
@@ -1162,6 +1206,7 @@
                         'appearance' => __('capell-layout-builder::generic.appearance'),
                         'canvas' => __('capell-layout-builder::generic.canvas'),
                         'container' => __('capell-layout-builder::button.container'),
+                        'content' => __('capell-layout-builder::generic.content'),
                         'emptySelection' => __('capell-layout-builder::message.select_layout_item'),
                         'widgetSettings' => __('capell-layout-builder::button.edit_layout_widget'),
                         'controls' => __('capell-layout-builder::button.controls'),
@@ -1172,6 +1217,7 @@
                         'inspector' => __('capell-layout-builder::generic.inspector'),
                         'openInspector' => __('capell-layout-builder::button.open_inspector'),
                         'layout' => __('capell-layout-builder::generic.layout'),
+                        'layoutMode' => __('capell-layout-builder::button.advanced_layout'),
                         'page' => __('capell-layout-builder::generic.page'),
                         'placement' => __('capell-layout-builder::generic.placement'),
                         'properties' => __('capell-layout-builder::generic.properties'),
@@ -1181,6 +1227,7 @@
                         'treeSearchResult' => __('capell-layout-builder::message.layout_tree_search_result'),
                         'treeSearchResults' => __('capell-layout-builder::message.layout_tree_search_results'),
                         'type' => __('capell-layout-builder::generic.type'),
+                        'unsavedNavigationWarning' => __('capell-layout-builder::message.layout_unsaved_navigation_warning'),
                         'widget' => __('capell-layout-builder::button.widget'),
                         'widgets' => __('capell-layout-builder::generic.widgets'),
                         'width' => __('capell-layout-builder::generic.width'),
@@ -1192,12 +1239,16 @@
     x-on:keydown.window="handleGlobalShortcut($event)"
     x-bind:data-tree-collapsed="treeCollapsed ? 'true' : 'false'"
     x-bind:data-inspector-open="selectedPreviewAction() ? 'true' : 'false'"
+    data-layout-builder-surface="visual-editor"
     @class ([
         'layout-builder-visual-editor',
         'layout-builder-visual-editor-empty' => $tree->widgetCount === 0,
     ])
 >
-    <div class="layout-builder-visual-toolbar">
+    <div
+        class="layout-builder-visual-toolbar"
+        data-layout-builder-surface="toolbar"
+    >
         <div class="layout-builder-visual-toolbar-start">
             <button
                 type="button"
@@ -1215,31 +1266,31 @@
 
             <div class="layout-builder-editor-title">
                 <strong>{{ $this->layout->name }}</strong>
-
-                @if ($this->layoutModified)
-                    <span
-                        class="layout-builder-editor-status layout-builder-editor-status-unsaved"
-                    >
-                        @svg ('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
-                        {{ __('capell-layout-builder::message.layout_unsaved') }}
-                    </span>
-                @endif
-            </div>
-
-            <div class="layout-builder-editor-context">
-                <span>
-                    @svg ('heroicon-o-globe-alt', 'h-4 w-4')
-                    {{ $editorSiteLabel }}
-                </span>
-
-                <span>
-                    @svg ('heroicon-o-home', 'h-4 w-4')
-                    {{ $editorPageLabel }}
-                </span>
             </div>
         </div>
 
         <div class="layout-builder-visual-actions">
+            <div
+                class="layout-builder-editor-mode-toggle"
+                role="group"
+                aria-label="{{ __('capell-layout-builder::button.edit_mode') }}"
+            >
+                <button
+                    type="button"
+                    class="layout-builder-editor-mode-button"
+                    x-on:click="returnToContentEditor()"
+                >
+                    {{ __('capell-layout-builder::generic.content') }}
+                </button>
+                <button
+                    type="button"
+                    class="layout-builder-editor-mode-button layout-builder-editor-mode-button-active"
+                    aria-pressed="true"
+                >
+                    {{ __('capell-layout-builder::button.advanced_layout') }}
+                </button>
+            </div>
+
             <div
                 x-show="actionLoading"
                 x-cloak
@@ -1254,6 +1305,7 @@
             <div
                 class="layout-builder-breakpoint-controls layout-builder-command-group"
                 aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
+                data-layout-builder-surface="breakpoint-controls"
             >
                 <div class="layout-builder-preview-command-label">
                     @svg ('heroicon-o-eye', 'h-4 w-4')
@@ -1274,6 +1326,7 @@
                         <button
                             type="button"
                             class="layout-builder-breakpoint-button"
+                            data-layout-builder-action="preview-{{ $breakpoint->value }}"
                             x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
                             x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
                             title="{{ $breakpointLabel }} · {{ $shortcutKey }}"
@@ -1296,7 +1349,10 @@
                 aria-hidden="true"
             ></div>
 
-            <div class="layout-builder-history-actions">
+            <div
+                class="layout-builder-history-actions"
+                data-layout-builder-surface="history-actions"
+            >
                 {{ $this->undoLayoutMutationAction }} {{ $this->redoLayoutMutationAction }}
             </div>
 
@@ -1305,33 +1361,21 @@
                 aria-hidden="true"
             ></div>
 
+            @if ($this->layoutModified)
+                <span
+                    class="layout-builder-editor-status layout-builder-editor-status-unsaved"
+                >
+                    @svg ('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
+                    {{ __('capell-layout-builder::message.layout_unsaved') }}
+                </span>
+            @endif
+
             <div class="layout-builder-command-save">
                 @if ($this->saveLayoutAction->isVisible())
                     {{ $this->saveLayoutAction }}
                 @endif
             </div>
         </div>
-    </div>
-
-    <div class="layout-builder-editor-summary">
-        <div class="layout-builder-editor-summary-group">
-            <span class="layout-builder-editor-summary-item">
-                @svg ('heroicon-o-rectangle-stack', 'h-4 w-4')
-                {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
-            </span>
-
-            <span class="layout-builder-editor-summary-item">
-                @svg ('heroicon-o-cube', 'h-4 w-4')
-                {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
-            </span>
-        </div>
-
-        @if ($this->layoutModified)
-            <span class="layout-builder-editor-summary-status">
-                @svg ('heroicon-o-exclamation-circle', 'h-4 w-4')
-                {{ __('capell-layout-builder::message.layout_unsaved') }}
-            </span>
-        @endif
     </div>
 
     <div
@@ -1393,11 +1437,12 @@
             <button
                 type="button"
                 class="layout-builder-studio-rail-button"
-                title="{{ __('capell-layout-builder::heading.settings') }}"
+                title="{{ __('capell-layout-builder::button.refresh_preview') }}"
+                x-on:click="refreshPreview($event.currentTarget)"
             >
-                @svg ('heroicon-o-cog-6-tooth', 'h-5 w-5')
+                @svg ('heroicon-o-arrow-path', 'h-5 w-5')
                 <span class="sr-only">
-                    {{ __('capell-layout-builder::heading.settings') }}
+                    {{ __('capell-layout-builder::button.refresh_preview') }}
                 </span>
             </button>
         </nav>
@@ -1412,9 +1457,11 @@
         <div
             class="layout-builder-visual-canvas layout-builder-canvas-scroll"
             x-ref="previewCanvas"
+            data-layout-builder-surface="preview-canvas"
             data-match-frontend-container-layout="{{ config('capell-layout-builder.preview.match_frontend_container_layout', true) ? 'true' : 'false' }}"
             data-layout-empty="{{ $tree->containerCount === 0 ? 'true' : 'false' }}"
             x-bind:data-active-breakpoint="activeBreakpoint"
+            x-bind:data-layout-builder-breakpoint="activeBreakpoint"
             x-bind:data-stack-containers="
                 shouldStackContainersForActiveBreakpoint() ? 'true' : 'false'
             "
@@ -1425,6 +1472,34 @@
                     activeBreakpointMinCanvasWidth(),
             }"
         >
+            <div
+                class="layout-builder-preview-status-overlay"
+                x-show="previewStatus !== 'current'"
+                x-cloak
+                x-bind:data-preview-status="previewStatus"
+            >
+                <span>
+                    @svg ('heroicon-o-exclamation-triangle', 'h-4 w-4')
+                    <span
+                        x-text="
+                            previewStatus === 'error'
+                                ? @js(__('capell-layout-builder::message.preview_status_error'))
+                                : previewStatus === 'refreshing'
+                                    ? @js(__('capell-layout-builder::message.preview_status_refreshing'))
+                                    : @js(__('capell-layout-builder::message.preview_status_stale'))
+                        "
+                    ></span>
+                </span>
+                <button
+                    type="button"
+                    x-show="previewStatus !== 'refreshing'"
+                    x-on:click="refreshPreview($event.currentTarget)"
+                >
+                    @svg ('heroicon-o-arrow-path', 'h-4 w-4')
+                    {{ __('capell-layout-builder::button.refresh_preview') }}
+                </button>
+            </div>
+
             @if ($tree->containerCount === 0 && $this->canEditLayout())
                 <div class="layout-builder-canvas-empty-state">
                     <span
@@ -1494,7 +1569,10 @@
             ></div>
         </div>
 
-        <aside class="layout-builder-inspector-panel">
+        <aside
+            class="layout-builder-inspector-panel"
+            data-layout-builder-surface="inspector"
+        >
             <div
                 class="layout-builder-inspector-empty"
                 x-show="!selectedPreviewAction()"
@@ -1550,6 +1628,12 @@
                             <button
                                 type="button"
                                 class="layout-builder-inspector-action"
+                                x-bind:data-layout-builder-action="
+                                    selectedPreviewAction()?.type ===
+                                    'container'
+                                        ? 'edit-container'
+                                        : 'edit-widget'
+                                "
                                 x-on:click="
                                     selectedPreviewAction()?.type ===
                                     'container'
@@ -1627,6 +1711,7 @@
                             <button
                                 type="button"
                                 class="layout-builder-inspector-row-button"
+                                data-layout-builder-action="edit-layout-widget"
                                 x-show="
                                     selectedPreviewAction()?.hasLayoutSettings
                                 "
