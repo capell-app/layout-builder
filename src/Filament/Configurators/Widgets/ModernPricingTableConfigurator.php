@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernPricingBillingOption;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -39,11 +40,7 @@ class ModernPricingTableConfigurator
 
                     Select::make('data.billingOptions')
                         ->label(__('capell-layout-builder::widgets.modern.pricing_table.billing_label'))
-                        ->options([
-                            'monthly' => __('capell-layout-builder::widgets.modern.pricing_table.billing_monthly'),
-                            'annual' => __('capell-layout-builder::widgets.modern.pricing_table.billing_annual'),
-                            'both' => __('capell-layout-builder::widgets.modern.pricing_table.billing_both'),
-                        ])
+                        ->options(ModernPricingBillingOption::class)
                         ->default('monthly')
                         ->helperText(__('capell-layout-builder::widgets.modern.pricing_table.billing_helper')),
                 ])->columns(2),

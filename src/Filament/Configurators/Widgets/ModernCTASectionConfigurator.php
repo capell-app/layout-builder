@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernAccentColor;
+use Capell\LayoutBuilder\Enums\ModernCtaLayout;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -80,20 +82,13 @@ class ModernCTASectionConfigurator
                 ->schema([
                     Select::make('data.layout')
                         ->label(__('capell-layout-builder::widgets.modern.cta_section.layout_label'))
-                        ->options([
-                            'centered' => __('capell-layout-builder::widgets.modern.cta_section.layout_centered'),
-                            'split' => __('capell-layout-builder::widgets.modern.cta_section.layout_split'),
-                        ])
+                        ->options(ModernCtaLayout::class)
                         ->default('centered')
                         ->helperText(__('capell-layout-builder::widgets.modern.cta_section.layout_helper')),
 
                     Select::make('data.accentColor')
                         ->label(__('capell-layout-builder::widgets.common.accent_color_label'))
-                        ->options([
-                            'primary' => __('capell-layout-builder::widgets.common.accent_violet'),
-                            'secondary' => __('capell-layout-builder::widgets.common.accent_indigo'),
-                            'tertiary' => __('capell-layout-builder::widgets.common.accent_gold'),
-                        ])
+                        ->options(ModernAccentColor::class)
                         ->default('tertiary'),
 
                     TextInput::make('data.backgroundGradient')

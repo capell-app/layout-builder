@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernAccentColor;
+use Capell\LayoutBuilder\Enums\ModernHeroHeight;
+use Capell\LayoutBuilder\Enums\ModernTextAlignment;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -80,31 +83,18 @@ class ModernHeroBannerConfigurator
                 ->schema([
                     Select::make('data.height')
                         ->label(__('capell-layout-builder::widgets.modern.hero_banner.height_label'))
-                        ->options([
-                            'sm' => __('capell-layout-builder::widgets.modern.hero_banner.height_sm'),
-                            'md' => __('capell-layout-builder::widgets.modern.hero_banner.height_md'),
-                            'lg' => __('capell-layout-builder::widgets.modern.hero_banner.height_lg'),
-                            'xl' => __('capell-layout-builder::widgets.modern.hero_banner.height_xl'),
-                        ])
+                        ->options(ModernHeroHeight::class)
                         ->default('lg')
                         ->helperText(__('capell-layout-builder::widgets.modern.hero_banner.height_helper')),
 
                     Select::make('data.textAlign')
                         ->label(__('capell-layout-builder::widgets.modern.hero_banner.text_align_label'))
-                        ->options([
-                            'left' => __('capell-layout-builder::widgets.modern.hero_banner.align_left'),
-                            'center' => __('capell-layout-builder::widgets.modern.hero_banner.align_center'),
-                            'right' => __('capell-layout-builder::widgets.modern.hero_banner.align_right'),
-                        ])
+                        ->options(ModernTextAlignment::class)
                         ->default('center'),
 
                     Select::make('data.accentColor')
                         ->label(__('capell-layout-builder::widgets.common.accent_color_label'))
-                        ->options([
-                            'primary' => __('capell-layout-builder::widgets.modern.hero_banner.accent_primary'),
-                            'secondary' => __('capell-layout-builder::widgets.modern.hero_banner.accent_secondary'),
-                            'tertiary' => __('capell-layout-builder::widgets.modern.hero_banner.accent_tertiary'),
-                        ])
+                        ->options(ModernAccentColor::class)
                         ->default('tertiary')
                         ->helperText(__('capell-layout-builder::widgets.modern.hero_banner.accent_helper')),
 

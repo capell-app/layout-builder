@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernTestimonialsColumnCount;
+use Capell\LayoutBuilder\Enums\ModernTestimonialsDisplayMode;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -37,20 +39,13 @@ class ModernTestimonialsConfigurator
                 ->schema([
                     Select::make('data.displayMode')
                         ->label(__('capell-layout-builder::widgets.modern.testimonials.display_mode_label'))
-                        ->options([
-                            'grid' => __('capell-layout-builder::widgets.modern.testimonials.display_mode_grid'),
-                            'carousel' => __('capell-layout-builder::widgets.modern.testimonials.display_mode_carousel'),
-                        ])
+                        ->options(ModernTestimonialsDisplayMode::class)
                         ->default('grid')
                         ->helperText(__('capell-layout-builder::widgets.modern.testimonials.display_mode_helper')),
 
                     Select::make('data.columns')
                         ->label(__('capell-layout-builder::widgets.modern.testimonials.columns_label'))
-                        ->options([
-                            '1' => __('capell-layout-builder::widgets.modern.testimonials.columns_1'),
-                            '2' => __('capell-layout-builder::widgets.common.columns_2'),
-                            '3' => __('capell-layout-builder::widgets.common.columns_3'),
-                        ])
+                        ->options(ModernTestimonialsColumnCount::class)
                         ->default('2')
                         ->helperText(__('capell-layout-builder::widgets.modern.testimonials.columns_helper'))
                         ->visible(fn (callable $get): bool => $get('data.displayMode') === 'grid'),

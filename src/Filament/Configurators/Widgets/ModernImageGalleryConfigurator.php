@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernGridColumnCount;
+use Capell\LayoutBuilder\Enums\ModernImageGalleryLayout;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -42,20 +44,13 @@ class ModernImageGalleryConfigurator
                 ->schema([
                     Select::make('data.columns')
                         ->label(__('capell-layout-builder::widgets.common.grid_columns_label'))
-                        ->options([
-                            '2' => __('capell-layout-builder::widgets.common.columns_2'),
-                            '3' => __('capell-layout-builder::widgets.common.columns_3'),
-                            '4' => __('capell-layout-builder::widgets.common.columns_4'),
-                        ])
+                        ->options(ModernGridColumnCount::class)
                         ->default('3')
                         ->helperText(__('capell-layout-builder::widgets.common.grid_columns_helper')),
 
                     Select::make('data.layout')
                         ->label(__('capell-layout-builder::widgets.modern.image_gallery.layout_label'))
-                        ->options([
-                            'grid' => __('capell-layout-builder::widgets.modern.image_gallery.layout_grid'),
-                            'masonry' => __('capell-layout-builder::widgets.modern.image_gallery.layout_masonry'),
-                        ])
+                        ->options(ModernImageGalleryLayout::class)
                         ->default('grid')
                         ->helperText(__('capell-layout-builder::widgets.modern.image_gallery.layout_helper')),
                 ])->columns(2),

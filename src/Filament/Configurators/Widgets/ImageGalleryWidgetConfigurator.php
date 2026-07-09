@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ImageGalleryColumnCount;
+use Capell\LayoutBuilder\Enums\ImageGalleryLayout;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
 use Filament\Forms\Components\Select;
@@ -41,11 +43,11 @@ class ImageGalleryWidgetConfigurator extends DefaultWidgetConfigurator
                     ->schema([
                         Select::make('layout')
                             ->label(__('capell-layout-builder::form.layout'))
-                            ->options(['grid' => 'Grid', 'carousel' => 'Carousel'])
+                            ->options(ImageGalleryLayout::class)
                             ->default('grid'),
                         Select::make('columns')
                             ->label(__('capell-layout-builder::form.columns'))
-                            ->options([1 => '1', 2 => '2', 3 => '3', 4 => '4'])
+                            ->options(ImageGalleryColumnCount::class)
                             ->default(3)
                             ->visible(fn (callable $get): bool => $get('layout') === 'grid'),
                         Toggle::make('lightbox')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\FeatureListLayout;
 use Capell\LayoutBuilder\Filament\Components\Forms\ColorSchemeComponent;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
 use Filament\Forms\Components\Select;
@@ -40,7 +41,7 @@ class FeatureListWidgetConfigurator extends DefaultWidgetConfigurator
                     ->schema([
                         Select::make('layout')
                             ->label(__('capell-layout-builder::form.layout'))
-                            ->options(['vertical' => 'Vertical', 'horizontal' => 'Horizontal'])
+                            ->options(FeatureListLayout::class)
                             ->default('vertical'),
                     ]),
             ]);

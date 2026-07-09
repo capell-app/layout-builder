@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernProcessStepsLayout;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -42,10 +43,7 @@ class ModernProcessStepsConfigurator
                 ->schema([
                     Select::make('data.layout')
                         ->label(__('capell-layout-builder::widgets.modern.process_steps.layout_label'))
-                        ->options([
-                            'horizontal' => __('capell-layout-builder::widgets.modern.process_steps.layout_horizontal'),
-                            'vertical' => __('capell-layout-builder::widgets.modern.process_steps.layout_vertical'),
-                        ])
+                        ->options(ModernProcessStepsLayout::class)
                         ->default('horizontal')
                         ->helperText(__('capell-layout-builder::widgets.modern.process_steps.layout_helper')),
                 ])->columns(1),

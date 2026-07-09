@@ -4,6 +4,27 @@ declare(strict_types=1);
 
 use Capell\Admin\Filament\Components\Forms\ComponentSelect;
 use Capell\Admin\Filament\Components\Forms\ConfiguratorSelect;
+use Capell\LayoutBuilder\Enums\FeatureListLayout;
+use Capell\LayoutBuilder\Enums\ImageGalleryColumnCount;
+use Capell\LayoutBuilder\Enums\ImageGalleryLayout;
+use Capell\LayoutBuilder\Enums\ModernAccentColor;
+use Capell\LayoutBuilder\Enums\ModernCardGridColumnCount;
+use Capell\LayoutBuilder\Enums\ModernCardGridHoverEffect;
+use Capell\LayoutBuilder\Enums\ModernCardGridVariant;
+use Capell\LayoutBuilder\Enums\ModernCtaLayout;
+use Capell\LayoutBuilder\Enums\ModernFeatureListAnimation;
+use Capell\LayoutBuilder\Enums\ModernFeatureListLayout;
+use Capell\LayoutBuilder\Enums\ModernGridColumnCount;
+use Capell\LayoutBuilder\Enums\ModernHeroHeight;
+use Capell\LayoutBuilder\Enums\ModernImageGalleryLayout;
+use Capell\LayoutBuilder\Enums\ModernPricingBillingOption;
+use Capell\LayoutBuilder\Enums\ModernProcessStepsLayout;
+use Capell\LayoutBuilder\Enums\ModernStatsLayout;
+use Capell\LayoutBuilder\Enums\ModernTestimonialsColumnCount;
+use Capell\LayoutBuilder\Enums\ModernTestimonialsDisplayMode;
+use Capell\LayoutBuilder\Enums\ModernTextAlignment;
+use Capell\LayoutBuilder\Enums\WidgetBasicSpacingValue;
+use Capell\LayoutBuilder\Enums\WidgetSizeValue;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\AdminSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
@@ -40,6 +61,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
 
 /**
@@ -108,6 +130,48 @@ it('exposes static modern widget configurator schemas and defaults', function (
     'stats section' => [ModernStatsSectionConfigurator::class, 'title', 'By The Numbers'],
     'team members' => [ModernTeamMembersConfigurator::class, 'title', 'Our Team'],
     'testimonials' => [ModernTestimonialsConfigurator::class, 'title', 'What Customers Say'],
+]);
+
+/**
+ * @param  class-string<BackedEnum>  $enumClass
+ * @param  list<int|string>  $expectedValues
+ */
+it('backs persisted widget select options with labelled enums', function (string $enumClass, array $expectedValues): void {
+    $cases = $enumClass::cases();
+
+    expect(array_map(static fn (BackedEnum $case): int|string => $case->value, $cases))->toBe($expectedValues);
+
+    foreach ($cases as $case) {
+        expect($case)->toBeInstanceOf(HasLabel::class);
+
+        if (! $case instanceof HasLabel) {
+            throw new RuntimeException(sprintf('Expected %s to implement HasLabel.', $enumClass));
+        }
+
+        expect($case->getLabel())->not->toBe('');
+    }
+})->with([
+    'feature list layout' => [FeatureListLayout::class, ['vertical', 'horizontal']],
+    'image gallery columns' => [ImageGalleryColumnCount::class, [1, 2, 3, 4]],
+    'image gallery layout' => [ImageGalleryLayout::class, ['grid', 'carousel']],
+    'modern accent color' => [ModernAccentColor::class, ['primary', 'secondary', 'tertiary']],
+    'modern card grid columns' => [ModernCardGridColumnCount::class, [2, 3, 4]],
+    'modern card grid hover effect' => [ModernCardGridHoverEffect::class, ['scale', 'shadow', 'lift']],
+    'modern card grid variant' => [ModernCardGridVariant::class, ['default', 'elevated', 'glass']],
+    'modern cta layout' => [ModernCtaLayout::class, ['centered', 'split']],
+    'modern feature list animation' => [ModernFeatureListAnimation::class, ['fade-in', 'slide-up', 'zoom', 'bounce']],
+    'modern feature list layout' => [ModernFeatureListLayout::class, ['vertical', 'grid']],
+    'modern grid columns' => [ModernGridColumnCount::class, ['2', '3', '4']],
+    'modern hero height' => [ModernHeroHeight::class, ['sm', 'md', 'lg', 'xl']],
+    'modern image gallery layout' => [ModernImageGalleryLayout::class, ['grid', 'masonry']],
+    'modern pricing billing option' => [ModernPricingBillingOption::class, ['monthly', 'annual', 'both']],
+    'modern process steps layout' => [ModernProcessStepsLayout::class, ['horizontal', 'vertical']],
+    'modern stats layout' => [ModernStatsLayout::class, ['horizontal', 'vertical']],
+    'modern testimonials columns' => [ModernTestimonialsColumnCount::class, ['1', '2', '3']],
+    'modern testimonials display mode' => [ModernTestimonialsDisplayMode::class, ['grid', 'carousel']],
+    'modern text alignment' => [ModernTextAlignment::class, ['left', 'center', 'right']],
+    'widget basic spacing' => [WidgetBasicSpacingValue::class, ['none', 'sm', 'md', 'lg']],
+    'widget size' => [WidgetSizeValue::class, ['sm', 'md', 'lg']],
 ]);
 
 it('exposes create actions for widget admin configurator fields', function (): void {

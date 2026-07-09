@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernGridColumnCount;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -37,11 +38,7 @@ class ModernTeamMembersConfigurator
                 ->schema([
                     Select::make('data.columns')
                         ->label(__('capell-layout-builder::widgets.common.grid_columns_label'))
-                        ->options([
-                            '2' => __('capell-layout-builder::widgets.common.columns_2'),
-                            '3' => __('capell-layout-builder::widgets.common.columns_3'),
-                            '4' => __('capell-layout-builder::widgets.common.columns_4'),
-                        ])
+                        ->options(ModernGridColumnCount::class)
                         ->default('3')
                         ->helperText(__('capell-layout-builder::widgets.common.grid_columns_helper')),
                 ])->columns(1),

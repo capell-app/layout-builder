@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
+use Capell\LayoutBuilder\Enums\ModernAccentColor;
+use Capell\LayoutBuilder\Enums\ModernCardGridColumnCount;
+use Capell\LayoutBuilder\Enums\ModernCardGridHoverEffect;
+use Capell\LayoutBuilder\Enums\ModernCardGridVariant;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -97,41 +101,25 @@ class ModernCardGridConfigurator
                 ->schema([
                     Select::make('data.columns')
                         ->label(__('capell-layout-builder::widgets.modern.card_grid.columns_label'))
-                        ->options([
-                            2 => __('capell-layout-builder::widgets.common.columns_2'),
-                            3 => __('capell-layout-builder::widgets.common.columns_3'),
-                            4 => __('capell-layout-builder::widgets.common.columns_4'),
-                        ])
+                        ->options(ModernCardGridColumnCount::class)
                         ->default(3)
                         ->helperText(__('capell-layout-builder::widgets.modern.card_grid.columns_helper')),
 
                     Select::make('data.variant')
                         ->label(__('capell-layout-builder::widgets.modern.card_grid.variant_label'))
-                        ->options([
-                            'default' => __('capell-layout-builder::widgets.modern.card_grid.variant_default'),
-                            'elevated' => __('capell-layout-builder::widgets.modern.card_grid.variant_elevated'),
-                            'glass' => __('capell-layout-builder::widgets.modern.card_grid.variant_glass'),
-                        ])
+                        ->options(ModernCardGridVariant::class)
                         ->default('default')
                         ->helperText(__('capell-layout-builder::widgets.modern.card_grid.variant_helper')),
 
                     Select::make('data.accentColor')
                         ->label(__('capell-layout-builder::widgets.common.accent_color_label'))
-                        ->options([
-                            'primary' => __('capell-layout-builder::widgets.common.accent_violet'),
-                            'secondary' => __('capell-layout-builder::widgets.common.accent_indigo'),
-                            'tertiary' => __('capell-layout-builder::widgets.common.accent_gold'),
-                        ])
+                        ->options(ModernAccentColor::class)
                         ->default('primary')
                         ->helperText(__('capell-layout-builder::widgets.modern.card_grid.accent_helper')),
 
                     Select::make('data.hoverEffect')
                         ->label(__('capell-layout-builder::widgets.modern.card_grid.hover_label'))
-                        ->options([
-                            'scale' => __('capell-layout-builder::widgets.modern.card_grid.hover_scale'),
-                            'shadow' => __('capell-layout-builder::widgets.modern.card_grid.hover_shadow'),
-                            'lift' => __('capell-layout-builder::widgets.modern.card_grid.hover_lift'),
-                        ])
+                        ->options(ModernCardGridHoverEffect::class)
                         ->default('scale')
                         ->helperText(__('capell-layout-builder::widgets.modern.card_grid.hover_helper')),
                 ])->columns(2),
