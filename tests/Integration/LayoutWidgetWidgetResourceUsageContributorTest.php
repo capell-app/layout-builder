@@ -113,6 +113,36 @@ it('deduplicates lazy resource requirements when a widget resource is used multi
         ->and($requirements[0]->condition)->toBe($publicId);
 });
 
+it('applies an explicit widget usage strategy before the registered resource default', function (): void {
+    $registry = new FrontendResourceRegistry;
+    $registry
+        ->group('theme.carousel')
+        ->js('resources/js/widgets/carousel.js', buildPath: 'build', loading: PresentationLoadingStrategy::Interaction);
+
+    $publicId = LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId('theme.carousel');
+    $requirements = (new LayoutWidgetResourceAssetContributor($registry, new ThemeResourceResolver))->requirements(new FrontendAssetContextData(
+        page: null,
+        site: null,
+        language: null,
+        layout: null,
+        theme: null,
+        runtime: FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::FullLivewire),
+        widgetResourceUsages: [
+            new LayoutWidgetResourceUsageData(
+                widgetKey: 'carousel',
+                resourceGroup: 'theme.carousel',
+                publicId: $publicId,
+                presentation: resolve(ResolvePresentationSettingsAction::class)->handle(),
+                loadingStrategy: PresentationLoadingStrategy::Visible,
+            ),
+        ],
+    ));
+
+    expect($requirements)->toHaveCount(1)
+        ->and($requirements[0]->condition)->toBe($publicId)
+        ->and($requirements[0]->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible);
+});
+
 it('resolves widget resource groups from the active theme resource layer', function (): void {
     $theme = new Theme;
     $theme->meta = [

@@ -85,6 +85,7 @@ it('carries global and per-group loading defaults through the legacy resource us
     expect($usages)->toHaveCount(2)
         ->and($usages[0]->resourceGroup)->toBe('capell-app.widget-slideshow')
         ->and($usages[0]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
+        ->and($usages[0]->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
         ->and($usages[1]->resourceGroup)->toBe('capell-app.widget-slideshow.interaction')
         ->and($usages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Interaction);
 
@@ -101,6 +102,68 @@ it('carries global and per-group loading defaults through the legacy resource us
 
     expect($overriddenUsages[0]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle)
         ->and($overriddenUsages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle);
+});
+
+it('collects canonical resource groups recursively and lets valid per-group instance overrides win', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+
+    $usages = BuildLayoutWidgetResourceUsagesAction::run([
+        [
+            'type' => 'capell-app.slideshow',
+            'data' => [
+                '__capell' => [
+                    'instance_id' => 'outer-widget',
+                    'resources' => [
+                        'loading_overrides' => [
+                            [
+                                'group' => 'capell-app.widget-slideshow.interaction',
+                                'loading_strategy' => PresentationLoadingStrategy::Idle->value,
+                            ],
+                            [
+                                'group' => 'not-declared',
+                                'loading_strategy' => PresentationLoadingStrategy::Eager->value,
+                            ],
+                        ],
+                    ],
+                ],
+                'interaction' => [
+                    'target_widget' => [
+                        'type' => 'capell-app.slideshow',
+                        'data' => [
+                            '__capell' => [
+                                'instance_id' => 'nested-widget',
+                                'resources' => [
+                                    'loading_overrides' => [
+                                        [
+                                            'group' => 'capell-app.widget-slideshow',
+                                            'loading_strategy' => PresentationLoadingStrategy::Eager->value,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+        [
+            'type' => 'third-party.unknown',
+            'data' => [
+                '__capell' => ['instance_id' => 'opaque-widget'],
+                'target_widget' => [
+                    'type' => 'capell-app.slideshow',
+                    'data' => ['__capell' => ['instance_id' => 'must-stay-opaque']],
+                ],
+            ],
+        ],
+    ], LayoutWidgetTarget::FrontendBlade);
+
+    expect($usages)->toHaveCount(4)
+        ->and(collect($usages)->where('widgetKey', 'capell-app.slideshow')->count())->toBe(4)
+        ->and($usages[0]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
+        ->and($usages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Idle)
+        ->and($usages[2]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Eager)
+        ->and($usages[3]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Interaction);
 });
 
 it('makes canonical adapters authoritative when ordinary registrations arrive first', function (): void {
