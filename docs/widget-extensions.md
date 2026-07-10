@@ -56,7 +56,11 @@ Resource loading defaults use `PresentationLoadingStrategy`. The definition-wide
 
 At render time, `WidgetExtensionViewResolver` checks the stable `capell::widgets.{key}` theme slot on every call. The active theme and its parent may override that slot. If neither provides it, the package fallback is used; a missing fallback raises a diagnostic exception naming the widget and package.
 
-Canonical registrations are authoritative in both the legacy Blade registry and Filament discovery, so ordinary same-key registration order cannot replace them. Until the typed public render DTO pipeline hydrates extension state, legacy public rendering routes canonical extension keys to an inert internal gate and never passes raw saved arrays to a package or theme view. The typed pipeline must use `WidgetExtensionViewResolver`; package fallback views are not registered as legacy runtime components.
+Canonical registrations are authoritative in both the legacy Blade registry and Filament discovery, so ordinary same-key registration order cannot replace them. Before Blade enters the public query guard, Layout Builder recursively discovers registered blocks, upcasts their state, removes reserved authoring metadata, calls `InputData::validateAndCreate()`, and batches instances by definition. A batch resolver receives `WidgetExtensionPayloadBatchData`, whose items contain only typed input Data, and must return the declared render Data object keyed by instance identity. It is called once per definition per public payload build. Definitions without a resolver are converted from validated input Data to render Data.
+
+Package and theme views receive exactly two named values: the declared render Data object as `$widget` and a deliberately small `WidgetExtensionRenderContextData` as `$context`. They never receive saved arrays, instance identities, package metadata, editor paths, selectors, or signed URLs. Views remain responsible for context-appropriate escaping and field-specific rich-text sanitization; the platform does not blanket-sanitize final widget HTML because that would remove legitimate controls, media, and SVG. Payload validation or resolution failures produce a generic inert fallback without making the page unavailable.
+
+`WidgetExtensionViewResolver` resolves the stable `capell::widgets.{key}` slot for every render, so active-theme and parent-theme switching remains request-safe. Package fallback views are not registered as legacy runtime components. All resolver work, including media hydration, must finish during the payload build: package and theme Blade views must execute zero queries.
 
 Duplicate identical definitions are harmless. A different definition using an occupied key cannot replace the first registration and is exposed through `WidgetExtensionRegistry::collisions()` for diagnostics.
 
@@ -71,3 +75,12 @@ Canonical widget extensions also reserve `data.__capell.state_version`. Missing 
 Unknown widget blocks are opaque. Content Builder shows a generic unavailable-widget placeholder, does not render editable fields for the unknown payload, and restores the original type, data, and extension-owned keys on dehydration. State processors must therefore act only on keys present in Admin's `WidgetDiscovery`; they must never recursively inspect an unavailable widget's payload.
 
 Layout Builder connects state versioning through Admin's tagged `ContentWidgetStateProcessor` seam. Admin owns identity normalization and remains fully functional when Layout Builder is absent; packages must not call Layout Builder directly from Content Builder.
+
+## Content dependencies
+
+An optional `WidgetExtensionDependencyResolver` receives the same validated input Data used by the public payload builder. It runs during content-graph rebuilds, never from Blade, and returns stable identifiers using this grammar:
+
+- `media:<positive-integer>` for a media record.
+- `content:<type>:<positive-integer>` where `type` is `page`, `layout`, or `widget`.
+
+Malformed values, unknown types, zero/negative identifiers, resolver exceptions, and invalid widget input are ignored and recorded as non-sensitive diagnostics. Valid dependencies are deduplicated before strong content-graph edges are emitted for Page or Layout sources.

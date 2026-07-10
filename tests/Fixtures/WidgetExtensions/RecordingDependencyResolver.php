@@ -7,10 +7,13 @@ namespace Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions;
 use Capell\LayoutBuilder\Contracts\WidgetExtensions\WidgetExtensionDependencyResolver;
 use Spatie\LaravelData\Data;
 
-final class ExampleDependencyResolver implements WidgetExtensionDependencyResolver
+final class RecordingDependencyResolver implements WidgetExtensionDependencyResolver
 {
+    /** @var list<string> */
+    public static array $identifiers = [];
+
     public function resolve(Data $input): array
     {
-        return ['media:123'];
+        return self::$identifiers;
     }
 }

@@ -17,6 +17,8 @@ final class ExampleWidgetExtensionDefinition
     public static function make(
         string $packageName = 'capell-app/widget-slideshow',
         string $fallbackView = 'capell-widget-slideshow::widget',
+        ?string $batchPayloadResolver = ExampleBatchPayloadResolver::class,
+        ?string $dependencyResolver = ExampleDependencyResolver::class,
     ): WidgetExtensionDefinitionData {
         return new WidgetExtensionDefinitionData(
             key: 'capell-app.slideshow',
@@ -53,8 +55,8 @@ final class ExampleWidgetExtensionDefinition
                 supportedInteractionTargetTypes: [InteractionTargetType::Widget],
             ),
             stateUpcaster: ExampleStateUpcaster::class,
-            batchPayloadResolver: ExampleBatchPayloadResolver::class,
-            dependencyResolver: ExampleDependencyResolver::class,
+            batchPayloadResolver: $batchPayloadResolver,
+            dependencyResolver: $dependencyResolver,
         );
     }
 }

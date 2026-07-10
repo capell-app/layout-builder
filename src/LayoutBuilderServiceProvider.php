@@ -11,11 +11,13 @@ use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
+use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
+use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
@@ -37,6 +39,7 @@ use Capell\LayoutBuilder\Support\Assets\LayoutWidgetResourceAssetContributor;
 use Capell\LayoutBuilder\Support\Assets\PageContentLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutWidgetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\PageWidgetExtensionContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\WidgetAssetContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\WidgetContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicLayoutWidgetPayloadResolver;
@@ -54,8 +57,10 @@ use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionContentStateProcessor;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionDefinitionAdapter;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionInputFactory;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistrar;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Capell\LayoutBuilder\Support\WidgetPresentationPublicLayoutWidgetPayloadContributor;
 use Illuminate\Support\Facades\Gate;
@@ -91,6 +96,8 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->singleton(WidgetExtensionRegistrar::class);
         $this->app->singleton(WidgetExtensionViewResolver::class);
         $this->app->singleton(WidgetExtensionContentStateProcessor::class);
+        $this->app->singleton(WidgetExtensionStateWalker::class);
+        $this->app->singleton(WidgetExtensionInputFactory::class);
         $this->app->singleton(
             WidgetExtensionRegistry::class,
             fn (): WidgetExtensionRegistry => new WidgetExtensionRegistry(
@@ -108,6 +115,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(PublicLayoutWidgetAssetsRenderer::class, LayoutBuilderPublicWidgetAssetsRenderer::class);
         $this->app->scoped(WidgetAssetReferenceRepointer::class, RepointWidgetAssetReferencesAction::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
+        $this->app->scoped(PublicContentWidgetPayloadBuilder::class, BuildPublicWidgetPayloadsAction::class);
         $this->app->tag([WidgetPresentationPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([LayoutWidgetResourceAssetContributor::class], FrontendAssetContributor::TAG);
@@ -117,6 +125,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             WidgetAssetContentGraphExtractor::class,
             WidgetContentGraphExtractor::class,
             LayoutWidgetContentGraphExtractor::class,
+            PageWidgetExtensionContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
         $this->registerPageTypes();

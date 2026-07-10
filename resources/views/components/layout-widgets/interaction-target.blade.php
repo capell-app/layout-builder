@@ -10,6 +10,7 @@
     use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
     use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
     use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+    use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
 
     throw_unless(is_array($widgetData), WidgetLibraryException::class, 'The lazy widget payload must be an array.', ['widgetData' => $widgetData]);
 
@@ -18,7 +19,9 @@
     $widgetType = $widgetData['type'] ?? null;
 
     if (is_string($widgetType) && resolve(WidgetExtensionRegistry::class)->definition($widgetType) !== null) {
-        return '';
+        echo resolve(RenderPublicWidgetExtensionAction::class)->render($widgetData);
+
+        return;
     }
 
     $widget = is_string($widgetType) ? $registry->get($widgetType, LayoutWidgetTarget::FrontendBlade) : null;
