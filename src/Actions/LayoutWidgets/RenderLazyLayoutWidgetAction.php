@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions\LayoutWidgets;
 
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
-use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Exceptions\WidgetLibraryException;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
-use Capell\Frontend\Support\Widgets\OpaqueWidgetReference;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
-use Capell\LayoutBuilder\Actions\WidgetExtensions\RestoreWidgetInteractionContextAction;
-use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
-use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
-use Illuminate\Support\Arr;
+use Capell\LayoutBuilder\Actions\WidgetSnapshots\ResolvePublicWidgetSnapshotAction;
+use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -25,34 +22,19 @@ class RenderLazyLayoutWidgetAction
     public function __construct(
         private readonly BuildPublicWidgetPayloadsAction $payloadBuilder,
         private readonly PublicViewQueryGuard $queryGuard,
-        private readonly RestoreWidgetInteractionContextAction $contextRestorer,
+        private readonly ResolvePublicWidgetSnapshotAction $snapshotResolver,
+        private readonly WidgetExtensionRegistry $registry,
     ) {}
 
     public function handle(string $reference): ?Response
     {
         try {
-            $data = OpaqueWidgetReference::decode($reference);
-
-            if ($data === null) {
+            $resolved = $this->snapshotResolver->handle($reference);
+            if ($resolved === null) {
                 return null;
             }
-
-            $widgetData = $this->widgetData($data);
-            $contextEnvelope = $data['context'] ?? null;
-            if (! is_array($contextEnvelope)) {
-                return null;
-            }
-
-            $contextEnvelope = array_filter(
-                $contextEnvelope,
-                static fn (int|string $key): bool => is_string($key),
-                ARRAY_FILTER_USE_KEY,
-            );
-
-            $renderContext = $this->contextRestorer->handle($contextEnvelope);
-            if (! $renderContext instanceof FrontendRenderContextData) {
-                return null;
-            }
+            $widgetData = $resolved['widget'];
+            $renderContext = $resolved['context'];
             $widgetPayloads = $this->payloadBuilder->buildForSources([$widgetData], $renderContext);
 
             $html = $this->queryGuard->guard($renderContext, fn (): string => view(
@@ -65,9 +47,25 @@ class RenderLazyLayoutWidgetAction
             )->render());
             throw_unless(is_string($html), WidgetLibraryException::class, 'Lazy widget view did not render HTML.');
 
-            $response = response($html, Response::HTTP_OK, [
+            $definition = $this->registry->definition($resolved['snapshot']->widget_key);
+            if ($definition === null) {
+                return null;
+            }
+
+            $response = request()->expectsJson()
+                || request()->header('Accept') === 'application/vnd.capell.widget.v2+json'
+                ? response()->json([
+                    'version' => 2,
+                    'status' => 'ok',
+                    'html' => $html,
+                    'resource_ids' => array_values(array_unique(array_map(
+                        LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId(...),
+                        $definition->resourceGroups,
+                    ))),
+                ], Response::HTTP_OK)
+                : response($html, Response::HTTP_OK);
+            $response->headers->add([
                 'Cache-Control' => 'private, no-store',
-                'Content-Type' => 'text/html; charset=UTF-8',
                 'X-Robots-Tag' => 'noindex, nofollow',
             ]);
 
@@ -79,26 +77,5 @@ class RenderLazyLayoutWidgetAction
 
             return null;
         }
-    }
-
-    /**
-     * @param  array<string, mixed>  $data
-     * @return array{type: string, data: array<string, mixed>}
-     */
-    private function widgetData(array $data): array
-    {
-        $type = $data['type'] ?? null;
-        $widgetPayload = $data['data'] ?? [];
-
-        throw_unless(is_string($type) && $type !== '', WidgetLibraryException::class, 'Lazy widget reference is missing a widget type.');
-        throw_unless(is_array($widgetPayload), WidgetLibraryException::class, 'Lazy widget reference data must be an array.');
-        throw_unless(resolve(LayoutWidgetRegistry::class)->get($type, LayoutWidgetTarget::FrontendBlade) !== null, WidgetLibraryException::class, 'Lazy widget type is not registered.');
-
-        Arr::forget($widgetPayload, '__capell.editor');
-
-        return [
-            'type' => $type,
-            'data' => $widgetPayload,
-        ];
     }
 }

@@ -6,6 +6,8 @@ namespace Capell\LayoutBuilder;
 
 use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
 use Capell\Core\Data\PageTypeData;
+use Capell\Core\Events\PageDeleted;
+use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
@@ -13,13 +15,17 @@ use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
+use Capell\Frontend\Contracts\WidgetInteractionLocatorResolver;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
+use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
+use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
@@ -33,6 +39,7 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
+use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\LayoutBuilder\Support\Assets\LayoutWidgetResourceAssetContributor;
@@ -63,6 +70,8 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Capell\LayoutBuilder\Support\WidgetPresentationPublicLayoutWidgetPayloadContributor;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\PrebuiltWidgetInteractionLocatorResolver;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Override;
@@ -116,6 +125,8 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(WidgetAssetReferenceRepointer::class, RepointWidgetAssetReferencesAction::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
         $this->app->scoped(PublicContentWidgetPayloadBuilder::class, BuildPublicWidgetPayloadsAction::class);
+        $this->app->scoped(PublicWidgetInteractionLocatorBuilder::class, BuildPublicWidgetInteractionLocatorsAction::class);
+        $this->app->scoped(WidgetInteractionLocatorResolver::class, PrebuiltWidgetInteractionLocatorResolver::class);
         $this->app->tag([WidgetPresentationPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([LayoutWidgetResourceAssetContributor::class], FrontendAssetContributor::TAG);
@@ -147,6 +158,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 WidgetVisualRegressionCommand::class,
                 InstallCommand::class,
                 LayoutBulkChangeCommand::class,
+                PrunePublicWidgetSnapshotsCommand::class,
             ]);
         }
     }
@@ -154,6 +166,9 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     public function packageBooted(): void
     {
         Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
+
+        Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
+        Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
 
         if (! $this->isPackageInstalled()) {
             return;

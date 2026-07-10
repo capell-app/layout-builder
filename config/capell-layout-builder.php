@@ -29,5 +29,10 @@ return [
         'skip_render_empty' => env('CAPELL_LAYOUT_BUILDER_SKIP_RENDER_EMPTY_WIDGETS', true),
     ],
 
+    'public_widget_snapshots' => [
+        'ttl_seconds' => (int) env('CAPELL_WIDGET_SNAPSHOT_TTL', 86400),
+        'stale_while_revalidate_seconds' => (int) env('CAPELL_WIDGET_SNAPSHOT_STALE_TTL', 3600),
+    ],
+
     'default_widget' => 'capell.widget.default',
 ];

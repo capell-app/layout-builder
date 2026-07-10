@@ -19,6 +19,7 @@ final class CapellLayoutBuilderManager
             '2026_05_10_190841_05_add_container_widgets_to_layouts_table',
             '2026_05_10_190841_06_create_layout_presets_table',
             '2026_06_07_000001_create_layout_bulk_change_tables',
+            '2026_07_09_000001_create_public_widget_snapshots_table',
         ];
     }
 }
