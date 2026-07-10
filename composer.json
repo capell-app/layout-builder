@@ -22,6 +22,11 @@
             "Capell\\LayoutBuilder\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\LayoutBuilder\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
