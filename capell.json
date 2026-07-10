@@ -173,7 +173,8 @@
             "layout_bulk_change_results",
             "layout_preset_usages",
             "layout_preset_sync_runs",
-            "layout_preset_sync_results"
+            "layout_preset_sync_results",
+            "public_widget_snapshots"
         ]
     },
     "commands": {

@@ -105,6 +105,7 @@ it('declares all package-owned storage tables in the manifest', function (): voi
         'layout_preset_usages',
         'layout_preset_sync_runs',
         'layout_preset_sync_results',
+        'public_widget_snapshots',
     ]);
 });
 
