@@ -12,6 +12,12 @@ use Throwable;
 
 final readonly class WidgetExtensionStateWalker
 {
+    /** @var list<string> */
+    private const array WIDGET_COLLECTION_KEYS = ['widgets', 'blocks', 'children', 'items', 'elements'];
+
+    /** @var list<string> */
+    private const array WIDGET_TARGET_KEYS = ['target_widget'];
+
     private const int MAX_DEPTH = 16;
 
     private const int MAX_NODES = 2000;
@@ -50,7 +56,7 @@ final readonly class WidgetExtensionStateWalker
         $found = [];
         $identities = [];
         $visited = 0;
-        $visit = function (mixed $value, int $depth) use (&$visit, &$found, &$identities, &$visited): void {
+        $visit = function (mixed $value, int $depth, bool $widgetPosition) use (&$visit, &$found, &$identities, &$visited): void {
             if (! is_array($value) || $depth > self::MAX_DEPTH || ++$visited > self::MAX_NODES) {
                 return;
             }
@@ -61,11 +67,11 @@ final readonly class WidgetExtensionStateWalker
 
             // Unknown widgets are immutable opaque state. Never inspect their
             // payload for canonical-looking nested blocks.
-            if (is_string($type) && is_array($data) && $definition === null) {
+            if ($widgetPosition && is_string($type) && is_array($data) && $definition === null) {
                 return;
             }
 
-            if ($definition !== null && is_array($data)) {
+            if ($widgetPosition && $definition !== null && is_array($data)) {
                 $capell = is_array($data['__capell'] ?? null) ? $data['__capell'] : [];
                 $instanceId = $capell['instance_id'] ?? null;
 
@@ -81,16 +87,58 @@ final readonly class WidgetExtensionStateWalker
                 }
             }
 
-            foreach ($value as $child) {
-                if (is_array($child)) {
-                    $visit($child, $depth + 1);
+            foreach ($value as $key => $child) {
+                if (! is_array($child)) {
+                    continue;
                 }
+
+                if (is_string($key) && in_array($key, self::WIDGET_TARGET_KEYS, true)) {
+                    $visit($child, $depth + 1, true);
+
+                    continue;
+                }
+
+                if (is_string($key) && in_array($key, self::WIDGET_COLLECTION_KEYS, true)) {
+                    foreach ($child as $widget) {
+                        $visit($widget, $depth + 1, true);
+                    }
+
+                    continue;
+                }
+
+                $visit($child, $depth + 1, false);
             }
         };
 
-        $visit($sources, 0);
+        foreach ($sources as $source) {
+            if (! is_array($source)) {
+                continue;
+            }
+
+            if ($this->isWidgetEnvelope($source)) {
+                $visit($source, 0, true);
+
+                continue;
+            }
+
+            if (array_is_list($source)) {
+                foreach ($source as $widget) {
+                    $visit($widget, 0, true);
+                }
+
+                continue;
+            }
+
+            $visit($source, 0, false);
+        }
 
         return $found;
+    }
+
+    /** @param array<mixed> $value */
+    private function isWidgetEnvelope(array $value): bool
+    {
+        return is_string($value['type'] ?? null) && is_array($value['data'] ?? null);
     }
 
     private function diagnostic(string $message, string $widgetKey): void

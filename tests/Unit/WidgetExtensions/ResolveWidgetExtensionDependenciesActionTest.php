@@ -23,7 +23,7 @@ it('extracts deduplicated validated dependencies from nested typed widget input'
     ));
 
     $dependencies = resolve(ResolveWidgetExtensionDependenciesAction::class)->resolve([[
-        'nested' => dependencyWidgetExtensionBlock('dependency-instance', ['title' => 'Dependencies']),
+        'target_widget' => dependencyWidgetExtensionBlock('dependency-instance', ['title' => 'Dependencies']),
     ]]);
 
     expect($dependencies)->toHaveCount(2)

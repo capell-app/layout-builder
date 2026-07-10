@@ -92,6 +92,22 @@ it('treats structurally recognized unknown widgets as terminal opaque state', fu
         ->and(RecordingBatchPayloadResolver::$calls)->toBe(0);
 });
 
+it('traverses typed generic wrappers to discover registered nested widget targets', function (): void {
+    $context = new FrontendRenderContextData(null, null, null, null, null);
+    $payloads = resolve(BuildPublicWidgetPayloadsAction::class)->buildForSources([[
+        'layout_wrapper' => [
+            'type' => 'container',
+            'data' => [
+                'target_widget' => widgetExtensionBlock('wrapped-target', ['title' => 'Wrapped']),
+            ],
+        ],
+    ]], $context);
+
+    expect($payloads)->toHaveKey('wrapped-target')
+        ->and($payloads['wrapped-target']->title)->toBe('Wrapped')
+        ->and(RecordingBatchPayloadResolver::$calls)->toBe(1);
+});
+
 /** @param array<int, mixed> $content */
 function widgetExtensionContext(array $content): FrontendRenderContextData
 {
