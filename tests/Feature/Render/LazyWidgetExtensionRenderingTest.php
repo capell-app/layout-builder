@@ -166,6 +166,40 @@ it('enforces one database-backed current row while repeated rebuilds remain idem
         ]))->toThrow(QueryException::class);
 });
 
+it('retries a unique race and supersedes a different-fingerprint competitor', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    $context = lazyWidgetContext('Race winner');
+    $injected = false;
+    PublicWidgetSnapshot::creating(function (PublicWidgetSnapshot $snapshot) use (&$injected): void {
+        if ($injected) {
+            return;
+        }
+        $injected = true;
+        DB::table('public_widget_snapshots')->insert([
+            ...$snapshot->getAttributes(),
+            'context_fingerprint' => str_repeat('c', 64),
+            'owner_revision' => str_repeat('d', 64),
+        ]);
+    });
+
+    try {
+        $result = resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+        $requested = $result['lazy-instance'];
+        $current = PublicWidgetSnapshot::query()->whereNotNull('current_key')->sole();
+        $competitor = PublicWidgetSnapshot::query()->whereNotNull('superseded_at')->sole();
+
+        expect($injected)->toBeTrue()
+            ->and(PublicWidgetSnapshot::query()->count())->toBe(2)
+            ->and(PublicWidgetSnapshot::query()->whereNull('superseded_at')->count())->toBe(1)
+            ->and($current->is($requested))->toBeTrue()
+            ->and($current->context_fingerprint)->not->toBe(str_repeat('c', 64))
+            ->and($competitor->context_fingerprint)->toBe(str_repeat('c', 64))
+            ->and($competitor->current_key)->toBeNull();
+    } finally {
+        PublicWidgetSnapshot::flushEventListeners();
+    }
+});
+
 it('keeps public render-data generation read-only and fails open when no snapshot exists', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Read only');
