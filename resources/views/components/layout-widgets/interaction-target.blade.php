@@ -1,6 +1,7 @@
 @props ([
     'widgetData' => [],
     'context' => [],
+    'widgetPayloads' => [],
 ])
 
 @php
@@ -19,7 +20,7 @@
     $widgetType = $widgetData['type'] ?? null;
 
     if (is_string($widgetType) && resolve(WidgetExtensionRegistry::class)->definition($widgetType) !== null) {
-        echo resolve(RenderPublicWidgetExtensionAction::class)->render($widgetData);
+        echo resolve(RenderPublicWidgetExtensionAction::class)->render($widgetData, $widgetPayloads);
 
         return;
     }

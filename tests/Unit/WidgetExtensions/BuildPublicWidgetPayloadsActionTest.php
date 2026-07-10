@@ -25,9 +25,7 @@ beforeEach(function (): void {
 it('upcasts validates and batches top-level and nested widget payloads exactly once', function (): void {
     $context = widgetExtensionContext([
         widgetExtensionBlock('first', ['title' => 'First'], stateVersion: 1),
-        ['type' => 'container', 'data' => [
-            'interaction' => ['target_widget' => widgetExtensionBlock('second', ['title' => 'Second'])],
-        ]],
+        ['interaction' => ['target_widget' => widgetExtensionBlock('second', ['title' => 'Second'])]],
         widgetExtensionBlock('first', ['title' => 'Duplicate']),
         ['type' => 'unknown.widget', 'data' => ['title' => 'Opaque']],
     ]);
@@ -80,6 +78,19 @@ it('quarantines invalid input types and configured field bounds before resolver 
     'wrong type' => 123,
     'over bound' => str_repeat('x', 41),
 ]);
+
+it('treats structurally recognized unknown widgets as terminal opaque state', function (): void {
+    $payloads = resolve(BuildPublicWidgetPayloadsAction::class)->build(widgetExtensionContext([[
+        'type' => 'unavailable.vendor-widget',
+        'data' => [
+            'preserve' => true,
+            'nested_target' => widgetExtensionBlock('hidden-canonical', ['title' => 'Must not resolve']),
+        ],
+    ]]));
+
+    expect($payloads)->toBe([])
+        ->and(RecordingBatchPayloadResolver::$calls)->toBe(0);
+});
 
 /** @param array<int, mixed> $content */
 function widgetExtensionContext(array $content): FrontendRenderContextData

@@ -21,8 +21,11 @@ final readonly class RenderPublicWidgetExtensionAction
         private Factory $views,
     ) {}
 
-    /** @param array<string, mixed> $widgetData */
-    public function render(array $widgetData, ?PublicPageRenderData $renderData = null): string
+    /**
+     * @param  array<string, mixed>  $widgetData
+     * @param  array<string, object>|PublicPageRenderData|null  $payloadSource
+     */
+    public function render(array $widgetData, PublicPageRenderData|array|null $payloadSource = null): string
     {
         $type = $widgetData['type'] ?? null;
         $definition = is_string($type) ? $this->registry->definition($type) : null;
@@ -33,8 +36,7 @@ final readonly class RenderPublicWidgetExtensionAction
         $data = is_array($widgetData['data'] ?? null) ? $widgetData['data'] : [];
         $capell = is_array($data['__capell'] ?? null) ? $data['__capell'] : [];
         $instanceId = $capell['instance_id'] ?? null;
-        $renderData ??= $this->currentRenderData();
-        $payload = is_string($instanceId) ? $renderData?->contentWidgetPayload($instanceId) : null;
+        $payload = is_string($instanceId) ? $this->payload($instanceId, $payloadSource) : null;
         $renderClass = $definition->renderData;
 
         if (! $payload instanceof $renderClass) {
@@ -51,6 +53,16 @@ final readonly class RenderPublicWidgetExtensionAction
 
             return $this->fallback();
         }
+    }
+
+    /** @param array<string, object>|PublicPageRenderData|null $payloadSource */
+    private function payload(string $instanceId, PublicPageRenderData|array|null $payloadSource): ?object
+    {
+        if (is_array($payloadSource)) {
+            return $payloadSource[$instanceId] ?? null;
+        }
+
+        return ($payloadSource ?? $this->currentRenderData())?->contentWidgetPayload($instanceId);
     }
 
     private function currentRenderData(): ?PublicPageRenderData

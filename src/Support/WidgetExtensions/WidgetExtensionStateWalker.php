@@ -59,6 +59,12 @@ final readonly class WidgetExtensionStateWalker
             $data = $value['data'] ?? null;
             $definition = is_string($type) ? $this->registry->definition($type) : null;
 
+            // Unknown widgets are immutable opaque state. Never inspect their
+            // payload for canonical-looking nested blocks.
+            if (is_string($type) && is_array($data) && $definition === null) {
+                return;
+            }
+
             if ($definition !== null && is_array($data)) {
                 $capell = is_array($data['__capell'] ?? null) ? $data['__capell'] : [];
                 $instanceId = $capell['instance_id'] ?? null;

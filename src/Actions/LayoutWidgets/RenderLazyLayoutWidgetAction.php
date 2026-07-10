@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions\LayoutWidgets;
 
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
+use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Exceptions\WidgetLibraryException;
+use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\Frontend\Support\Widgets\OpaqueWidgetReference;
+use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Illuminate\Support\Arr;
@@ -18,6 +21,11 @@ class RenderLazyLayoutWidgetAction
 {
     use AsObject;
 
+    public function __construct(
+        private readonly BuildPublicWidgetPayloadsAction $payloadBuilder,
+        private readonly PublicViewQueryGuard $queryGuard,
+    ) {}
+
     public function handle(string $reference): ?Response
     {
         try {
@@ -28,11 +36,18 @@ class RenderLazyLayoutWidgetAction
             }
 
             $widgetData = $this->widgetData($data);
+            $renderContext = new FrontendRenderContextData(null, null, null, null, null);
+            $widgetPayloads = $this->payloadBuilder->buildForSources([$widgetData], $renderContext);
 
-            $html = view('capell-layout-builder::components.layout-widgets.interaction-target', [
-                'widgetData' => $widgetData,
-                'context' => [],
-            ])->render();
+            $html = $this->queryGuard->guard($renderContext, fn (): string => view(
+                'capell-layout-builder::components.layout-widgets.interaction-target',
+                [
+                    'widgetData' => $widgetData,
+                    'widgetPayloads' => $widgetPayloads,
+                    'context' => [],
+                ],
+            )->render());
+            throw_unless(is_string($html), WidgetLibraryException::class, 'Lazy widget view did not render HTML.');
 
             $response = response($html, Response::HTTP_OK, [
                 'Cache-Control' => 'public, max-age=300, stale-while-revalidate=60',

@@ -9,11 +9,14 @@ use Spatie\LaravelData\Data;
 
 final class RecordingDependencyResolver implements WidgetExtensionDependencyResolver
 {
-    /** @var list<string> */
+    /** @var array<int, mixed> */
     public static array $identifiers = [];
 
     public function resolve(Data $input): array
     {
-        return self::$identifiers;
+        /** @var list<string> $identifiers */
+        $identifiers = self::$identifiers;
+
+        return $identifiers;
     }
 }

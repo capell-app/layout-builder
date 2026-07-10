@@ -19,6 +19,10 @@ use Throwable;
 
 final readonly class ResolveWidgetExtensionDependenciesAction
 {
+    private const int MAX_DEPENDENCIES_PER_WIDGET = 64;
+
+    private const int MAX_DEPENDENCIES_TOTAL = 512;
+
     /** @var array<string, class-string<Model>> */
     private const array CONTENT_TYPES = [
         'page' => Page::class,
@@ -38,6 +42,7 @@ final readonly class ResolveWidgetExtensionDependenciesAction
     public function resolve(array $sources): array
     {
         $dependencies = [];
+        $acceptedCount = 0;
 
         foreach ($this->walker->walk($sources) as $discovered) {
             $resolverClass = $discovered->definition->dependencyResolver;
@@ -52,14 +57,28 @@ final readonly class ResolveWidgetExtensionDependenciesAction
                 }
 
                 $identifiers = $resolver->resolve($this->inputFactory->make($discovered));
-                foreach ($identifiers as $identifier) {
+                foreach ($identifiers as $index => $identifier) {
+                    if ($index >= self::MAX_DEPENDENCIES_PER_WIDGET) {
+                        $this->diagnostic($discovered->definition->key, 'Widget dependency output exceeded the per-widget limit.');
+                        break;
+                    }
+
                     $dependency = is_string($identifier) ? $this->parse($identifier) : null;
                     if ($dependency !== null) {
                         $dependencies[$dependency->modelType . ':' . $dependency->modelId] = $dependency;
+                        $acceptedCount++;
+
+                        if ($acceptedCount >= self::MAX_DEPENDENCIES_TOTAL) {
+                            $this->diagnostic($discovered->definition->key, 'Widget dependency output exceeded the total limit.');
+
+                            return array_values($dependencies);
+                        }
+                    } else {
+                        $this->diagnostic($discovered->definition->key, 'Widget dependency identifier was rejected.');
                     }
                 }
             } catch (Throwable $throwable) {
-                $this->diagnostic($discovered->definition->key, $throwable);
+                $this->diagnostic($discovered->definition->key, 'Widget extension dependency resolution failed.', $throwable);
             }
         }
 
@@ -69,23 +88,42 @@ final readonly class ResolveWidgetExtensionDependenciesAction
     private function parse(string $identifier): ?WidgetExtensionDependencyData
     {
         if (preg_match('/^media:([1-9][0-9]*)$/', $identifier, $matches) === 1) {
-            return new WidgetExtensionDependencyData(Media::class, (int) $matches[1], 'uses_media');
+            $modelId = $this->positiveId($matches[1]);
+
+            return $modelId === null ? null : new WidgetExtensionDependencyData(Media::class, $modelId, 'uses_media');
         }
 
         if (preg_match('/^content:(page|layout|widget):([1-9][0-9]*)$/', $identifier, $matches) === 1) {
-            return new WidgetExtensionDependencyData(self::CONTENT_TYPES[$matches[1]], (int) $matches[2], 'uses_content');
+            $modelId = $this->positiveId($matches[2]);
+
+            return $modelId === null ? null : new WidgetExtensionDependencyData(self::CONTENT_TYPES[$matches[1]], $modelId, 'uses_content');
         }
 
         return null;
     }
 
-    private function diagnostic(string $widgetKey, Throwable $throwable): void
+    private function positiveId(string $digits): ?int
+    {
+        $maximum = (string) PHP_INT_MAX;
+        if (strlen($digits) > strlen($maximum)
+            || (strlen($digits) === strlen($maximum) && strcmp($digits, $maximum) > 0)) {
+            return null;
+        }
+
+        $identifier = filter_var($digits, FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1, 'max_range' => PHP_INT_MAX],
+        ]);
+
+        return is_int($identifier) ? $identifier : null;
+    }
+
+    private function diagnostic(string $widgetKey, string $message, ?Throwable $throwable = null): void
     {
         try {
-            Log::warning('Widget extension dependency resolution failed.', [
+            Log::warning($message, array_filter([
                 'widget_key' => $widgetKey,
-                'failure_type' => $throwable::class,
-            ]);
+                'failure_type' => $throwable === null ? null : $throwable::class,
+            ]));
         } catch (Throwable) {
             // Dependency extraction is best effort and diagnostics are isolated.
         }

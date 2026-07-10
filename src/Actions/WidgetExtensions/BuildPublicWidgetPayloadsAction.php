@@ -31,10 +31,31 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
     /** @return array<string, object> */
     public function build(FrontendRenderContextData $context): array
     {
+        return $this->buildDiscovered($this->walker->fromContext($context), $context);
+    }
+
+    /**
+     * Build an explicitly supplied interaction target without relying on
+     * request-scoped frontend state.
+     *
+     * @param  array<mixed>  $sources
+     * @return array<string, object>
+     */
+    public function buildForSources(array $sources, FrontendRenderContextData $context): array
+    {
+        return $this->buildDiscovered($this->walker->walk($sources), $context);
+    }
+
+    /**
+     * @param  list<DiscoveredWidgetExtensionData>  $discoveredWidgets
+     * @return array<string, object>
+     */
+    private function buildDiscovered(array $discoveredWidgets, FrontendRenderContextData $context): array
+    {
         /** @var array<string, array{definition: WidgetExtensionDefinitionData, items: list<WidgetExtensionPayloadInputData>}> $groups */
         $groups = [];
 
-        foreach ($this->walker->fromContext($context) as $discovered) {
+        foreach ($discoveredWidgets as $discovered) {
             $input = $this->validatedInput($discovered);
             if (! $input instanceof Data) {
                 continue;
