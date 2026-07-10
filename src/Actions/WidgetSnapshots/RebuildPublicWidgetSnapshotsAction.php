@@ -109,6 +109,20 @@ final readonly class RebuildPublicWidgetSnapshotsAction
             $snapshots[$discovered->instanceId] = $snapshot;
         }
 
+        $currentSnapshotIds = array_map(
+            static fn (PublicWidgetSnapshot $snapshot): int => $snapshot->id,
+            array_values($snapshots),
+        );
+        PublicWidgetSnapshot::query()
+            ->where('site_id', $siteId)
+            ->where('pageable_type', $pageableType)
+            ->where('pageable_id', $pageableId)
+            ->where('language_id', $languageId)
+            ->whereNull('superseded_at')
+            ->whereNull('revoked_at')
+            ->when($currentSnapshotIds !== [], fn ($query) => $query->whereNotIn('id', $currentSnapshotIds))
+            ->update(['superseded_at' => now(), 'expires_at' => $expiresAt]);
+
         return $snapshots;
     }
 

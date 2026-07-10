@@ -115,6 +115,19 @@ it('supersedes changed revisions while retaining the previous locator through gr
     expect((new LazyLayoutWidgetController)($firstLocator)->getStatusCode())->toBe(404);
 });
 
+it('supersedes snapshots for interaction targets removed by a later publication', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    $context = lazyWidgetContext('Removed later');
+    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+
+    $translation = $context->page->getRelation('translation');
+    $translation->forceFill(['content' => []])->save();
+    $context->page->setRelation('translation', $translation->fresh());
+    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+
+    expect(PublicWidgetSnapshot::query()->sole()->superseded_at)->not->toBeNull();
+});
+
 function lazyWidgetContext(string $title): FrontendRenderContextData
 {
     $language = Language::factory()->createOne(['code' => 'cy']);
