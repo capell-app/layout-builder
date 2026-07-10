@@ -1,0 +1,1 @@
+<div>{{ $renderData->title }}</div>
