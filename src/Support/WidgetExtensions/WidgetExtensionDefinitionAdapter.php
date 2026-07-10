@@ -1,0 +1,73 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Support\WidgetExtensions;
+
+use Capell\Admin\Support\Widgets\WidgetDiscovery;
+use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
+use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
+use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
+use Illuminate\Contracts\Container\Container;
+
+final class WidgetExtensionDefinitionAdapter
+{
+    public const string GATED_COMPONENT = 'capell-layout-builder::layout-widgets.extension-gated';
+
+    /** @var array<string, true> */
+    private array $adaptedLayoutDefinitions = [];
+
+    /** @var array<string, true> */
+    private array $adaptedFilamentWidgets = [];
+
+    public function __construct(
+        private readonly Container $container,
+    ) {}
+
+    public function adapt(WidgetExtensionDefinitionData $definition): void
+    {
+        $registerLayoutDefinition = function (LayoutWidgetRegistry $registry) use ($definition): void {
+            $registrationKey = spl_object_id($registry) . ':' . $definition->key;
+
+            if (isset($this->adaptedLayoutDefinitions[$registrationKey])) {
+                return;
+            }
+
+            $registry->registerAuthoritativeDefinition(LayoutWidgetDefinitionData::frontendBlade(
+                key: $definition->key,
+                component: self::GATED_COMPONENT,
+                resourceGroups: $definition->resourceGroups,
+                defaultPresentationSettings: array_replace(
+                    $definition->defaultPresentationSettings,
+                    ['loading_strategy' => $definition->defaultResourceLoadingStrategy->value],
+                ),
+                defaultInteractionTriggers: $definition->defaultInteractions,
+                defaultLoadingStrategy: $definition->defaultResourceLoadingStrategy,
+                resourceGroupLoadingStrategies: $definition->resourceGroupLoadingStrategies,
+            ));
+            $this->adaptedLayoutDefinitions[$registrationKey] = true;
+        };
+
+        $registerFilamentWidget = function (WidgetDiscovery $discovery) use ($definition): void {
+            $registrationKey = spl_object_id($discovery) . ':' . $definition->key;
+
+            if (isset($this->adaptedFilamentWidgets[$registrationKey])) {
+                return;
+            }
+
+            $discovery->registerAuthoritative($definition->filamentWidget);
+            $this->adaptedFilamentWidgets[$registrationKey] = true;
+        };
+
+        $this->container->afterResolving(LayoutWidgetRegistry::class, $registerLayoutDefinition);
+        $this->container->afterResolving(WidgetDiscovery::class, $registerFilamentWidget);
+
+        if ($this->container->resolved(LayoutWidgetRegistry::class)) {
+            $registerLayoutDefinition($this->container->make(LayoutWidgetRegistry::class));
+        }
+
+        if ($this->container->resolved(WidgetDiscovery::class)) {
+            $registerFilamentWidget($this->container->make(WidgetDiscovery::class));
+        }
+    }
+}

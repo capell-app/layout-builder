@@ -85,6 +85,10 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
     foreach ($manifestRequires as $requiredPackage) {
         expect($composerRequires)->toContain($requiredPackage);
     }
+
+    expect($composer['require']['capell-app/admin'] ?? null)->toBe('^4.1 || 4.x-dev')
+        ->and($composer['require']['capell-app/frontend'] ?? null)->toBe('^4.1 || 4.x-dev')
+        ->and($manifest['capellApiVersion'] ?? null)->toBe('^4.1');
 });
 
 it('declares all package-owned storage tables in the manifest', function (): void {

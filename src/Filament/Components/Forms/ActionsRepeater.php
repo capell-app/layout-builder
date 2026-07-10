@@ -7,7 +7,9 @@ namespace Capell\LayoutBuilder\Filament\Components\Forms;
 use Capell\Admin\Filament\Components\Forms\IconPicker;
 use Capell\Admin\Filament\Components\Forms\PageSelect;
 use Capell\Admin\Filament\Components\Forms\SiteSelect;
+use Capell\LayoutBuilder\Enums\ActionColorEnum;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
+use Capell\LayoutBuilder\Enums\ActionTargetEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -146,15 +148,10 @@ class ActionsRepeater extends Repeater
                             ->label(__('capell-admin::form.icon')),
                         Select::make('color')
                             ->label(__('capell-admin::form.color'))
-                            ->options([
-                                'primary' => __('capell-admin::generic.primary'),
-                                'secondary' => __('capell-admin::generic.secondary'),
-                            ]),
+                            ->options(ActionColorEnum::class),
                         Select::make('target')
                             ->label(__('capell-admin::form.url_target'))
-                            ->options([
-                                '_blank' => __('capell-admin::generic.new_tab'),
-                            ]),
+                            ->options(ActionTargetEnum::class),
                     ]),
             ]);
     }

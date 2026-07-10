@@ -4,20 +4,29 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder;
 
+use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
 use Capell\Core\Data\PageTypeData;
+use Capell\Core\Events\PageDeleted;
+use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Subscriber\SubscriberManager;
 use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
+use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
+use Capell\Frontend\Contracts\WidgetInteractionLocatorResolver;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
+use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
+use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
-use Capell\LayoutBuilder\Console\Commands\ResyncLayoutPresetCommand;
+use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
@@ -26,17 +35,20 @@ use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Contracts\WidgetAssetReferenceRepointer;
+use Capell\LayoutBuilder\Contracts\WidgetSnapshots\WidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
+use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\LayoutBuilder\Support\Assets\LayoutWidgetResourceAssetContributor;
 use Capell\LayoutBuilder\Support\Assets\PageContentLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutWidgetContentGraphExtractor;
+use Capell\LayoutBuilder\Support\ContentGraph\Extractors\PageWidgetExtensionContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\WidgetAssetContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\WidgetContentGraphExtractor;
 use Capell\LayoutBuilder\Support\DefaultPublicLayoutWidgetPayloadResolver;
@@ -52,7 +64,19 @@ use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionContentStateProcessor;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionDefinitionAdapter;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionInputFactory;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistrar;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Capell\LayoutBuilder\Support\WidgetPresentationPublicLayoutWidgetPayloadContributor;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\CurrentWidgetSnapshotLocatorCipher;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\PrebuiltWidgetInteractionLocatorResolver;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Override;
@@ -82,8 +106,22 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         $this->app->singleton(LayoutAreaRegistry::class, fn (): LayoutAreaRegistry => new LayoutAreaRegistry);
         $this->app->singleton(LayoutWidgetRegistry::class, fn (): LayoutWidgetRegistry => new LayoutWidgetRegistry);
+        $this->app->singleton(WidgetExtensionDefinitionAdapter::class);
+        $this->app->singleton(WidgetExtensionRegistrar::class);
+        $this->app->singleton(WidgetExtensionViewResolver::class);
+        $this->app->singleton(WidgetExtensionContentStateProcessor::class);
+        $this->app->singleton(WidgetExtensionStateWalker::class);
+        $this->app->singleton(WidgetExtensionInputFactory::class);
+        $this->app->singleton(WidgetSnapshotLocatorCipher::class, CurrentWidgetSnapshotLocatorCipher::class);
+        $this->app->singleton(
+            WidgetExtensionRegistry::class,
+            fn (): WidgetExtensionRegistry => new WidgetExtensionRegistry(
+                $this->app->make(WidgetExtensionDefinitionAdapter::class),
+            ),
+        );
         $this->registerDefaultLayoutWidgets();
         $this->app->tag([], LayoutContentGroupContributor::TAG);
+        $this->app->tag([WidgetExtensionContentStateProcessor::class], ContentWidgetStateProcessor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
         $this->app->scoped(LayoutWidgetResourceAssetContributor::class);
@@ -92,6 +130,9 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(PublicLayoutWidgetAssetsRenderer::class, LayoutBuilderPublicWidgetAssetsRenderer::class);
         $this->app->scoped(WidgetAssetReferenceRepointer::class, RepointWidgetAssetReferencesAction::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
+        $this->app->scoped(PublicContentWidgetPayloadBuilder::class, BuildPublicWidgetPayloadsAction::class);
+        $this->app->scoped(PublicWidgetInteractionLocatorBuilder::class, BuildPublicWidgetInteractionLocatorsAction::class);
+        $this->app->scoped(WidgetInteractionLocatorResolver::class, PrebuiltWidgetInteractionLocatorResolver::class);
         $this->app->tag([WidgetPresentationPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([LayoutWidgetResourceAssetContributor::class], FrontendAssetContributor::TAG);
@@ -101,11 +142,16 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             WidgetAssetContentGraphExtractor::class,
             WidgetContentGraphExtractor::class,
             LayoutWidgetContentGraphExtractor::class,
+            PageWidgetExtensionContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
         $this->registerPageTypes();
 
         $this->app->booting(function (): void {
+            // Resolve after every provider has registered so definitions declared
+            // before or after Layout Builder are adapted into WidgetDiscovery.
+            $this->app->make(WidgetExtensionRegistry::class);
+
             if (! $this->isPackageInstalled()) {
                 return;
             }
@@ -118,7 +164,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 WidgetVisualRegressionCommand::class,
                 InstallCommand::class,
                 LayoutBulkChangeCommand::class,
-                ResyncLayoutPresetCommand::class,
+                PrunePublicWidgetSnapshotsCommand::class,
             ]);
         }
     }
@@ -130,6 +176,26 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         if (! $this->isPackageInstalled()) {
             return;
         }
+
+        $registerWorkflowSubscriber = static function (SubscriberManager $manager): void {
+            $manager->subscribe(WidgetSnapshotWorkflowSubscriber::class);
+        };
+        $this->app->afterResolving(SubscriberManager::class, $registerWorkflowSubscriber);
+        if ($this->app->resolved(SubscriberManager::class)) {
+            $registerWorkflowSubscriber($this->app->make(SubscriberManager::class));
+        }
+        Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
+        Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $schedule->command('capell:widget-snapshots:prune')
+                ->dailyAt('02:30')
+                ->withoutOverlapping()
+                ->onOneServer();
+        });
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
@@ -184,8 +250,14 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         Route::middleware('web')
             ->name('capell-layout-builder.layout-widgets.')
             ->group(function (): void {
+                Route::get('/{siteDomainPath}/_capell/layout-widgets/{reference}', LazyLayoutWidgetController::class)
+                    ->where([
+                        'siteDomainPath' => '.+',
+                        'reference' => '[^/]+',
+                    ])
+                    ->name('localized.show');
                 Route::get('/_capell/layout-widgets/{reference}', LazyLayoutWidgetController::class)
-                    ->where('reference', '.*')
+                    ->where('reference', '[^/]+')
                     ->name('show');
             });
     }

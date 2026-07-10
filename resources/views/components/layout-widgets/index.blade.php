@@ -10,6 +10,8 @@
     use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
     use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
     use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
+    use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+    use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
 
     if (! $widgets) {
         return '';
@@ -19,6 +21,14 @@
 @endphp
 
 @foreach (array_values($widgets) as $widgetIndex => $widgetData)
+    @if (
+        is_array($widgetData)
+        && is_string($widgetData['type'] ?? null)
+        && resolve(WidgetExtensionRegistry::class)->definition($widgetData['type']) !== null
+    )
+        {!! resolve(RenderPublicWidgetExtensionAction::class)->render($widgetData) !!}
+        @continue
+    @endif
     {{-- format-ignore-start --}}
     @php
         /** @var LayoutWidgetRegistry $registry */

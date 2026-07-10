@@ -1,6 +1,7 @@
 @props ([
     'widgetData' => [],
     'context' => [],
+    'widgetPayloads' => [],
 ])
 
 @php
@@ -9,12 +10,21 @@
     use Capell\Frontend\Exceptions\WidgetLibraryException;
     use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
     use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
+    use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+    use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
 
     throw_unless(is_array($widgetData), WidgetLibraryException::class, 'The lazy widget payload must be an array.', ['widgetData' => $widgetData]);
 
     /** @var LayoutWidgetRegistry $registry */
     $registry = resolve(LayoutWidgetRegistry::class);
     $widgetType = $widgetData['type'] ?? null;
+
+    if (is_string($widgetType) && resolve(WidgetExtensionRegistry::class)->definition($widgetType) !== null) {
+        echo resolve(RenderPublicWidgetExtensionAction::class)->render($widgetData, $widgetPayloads);
+
+        return;
+    }
+
     $widget = is_string($widgetType) ? $registry->get($widgetType, LayoutWidgetTarget::FrontendBlade) : null;
     $definition = is_string($widgetType) ? $registry->definition($widgetType, LayoutWidgetTarget::FrontendBlade) : null;
 

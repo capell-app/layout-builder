@@ -10,6 +10,8 @@ use Capell\Core\Data\ContentGraph\ContentGraphEdgeData;
 use Capell\Core\Data\ContentGraph\ContentGraphNodeData;
 use Capell\Core\Enums\ContentGraph\ContentGraphEdgeStrength;
 use Capell\Core\Models\Layout;
+use Capell\Core\Models\Media;
+use Capell\LayoutBuilder\Actions\WidgetExtensions\ResolveWidgetExtensionDependenciesAction;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +19,10 @@ use Illuminate\Database\Eloquent\Model;
 final class LayoutWidgetContentGraphExtractor implements ContentGraphExtractor
 {
     private const string USES_LAYOUT_BLOCK = 'uses_layout_widget';
+
+    public function __construct(
+        private readonly ResolveWidgetExtensionDependenciesAction $extensionDependencies,
+    ) {}
 
     public static function sourceModel(): string
     {
@@ -35,13 +41,22 @@ final class LayoutWidgetContentGraphExtractor implements ContentGraphExtractor
             ->unique()
             ->values();
 
-        if ($widgetKeys->isEmpty()) {
-            return ContentGraphEdgeCollectionData::make();
-        }
-
         $source = ContentGraphNodeData::fromModel($model);
         $siteId = is_numeric($model->site_id) ? $model->site_id : null;
-        $edges = [];
+        $containers = is_array($model->containers) ? $model->containers : [];
+        $edges = collect($this->extensionDependencies->resolve([$containers]))
+            ->map(fn ($dependency): ContentGraphEdgeData => new ContentGraphEdgeData(
+                source: $source,
+                target: ContentGraphNodeData::fromModelIdentity($dependency->modelType, $dependency->modelId),
+                kind: $dependency->modelType === Media::class ? 'uses_media' : $dependency->kind,
+                strength: ContentGraphEdgeStrength::Strong,
+                sourcePackage: LayoutBuilderServiceProvider::$packageName,
+                siteId: is_numeric($siteId) ? (int) $siteId : null,
+            ))->all();
+
+        if ($widgetKeys->isEmpty()) {
+            return ContentGraphEdgeCollectionData::make($edges);
+        }
 
         Widget::query()
             ->whereIn('key', $widgetKeys)

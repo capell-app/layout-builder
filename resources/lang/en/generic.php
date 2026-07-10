@@ -506,4 +506,5 @@ return [
     'notes' => 'Notes',
     'review_bulk_change' => 'Review',
     'skipped' => 'Skipped',
+    'widget_unavailable' => 'This content is currently unavailable.',
 ];

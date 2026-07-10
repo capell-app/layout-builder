@@ -37,7 +37,8 @@ class LayoutWidgetResourceAssetContributor implements FrontendAssetContributor
             }
 
             foreach ($group->resources as $resource) {
-                $isLazy = $resource->loadingStrategy !== PresentationLoadingStrategy::Eager;
+                $loadingStrategy = $usage->loadingStrategy ?? $resource->loadingStrategy;
+                $isLazy = $loadingStrategy !== PresentationLoadingStrategy::Eager;
                 $requirements[] = new FrontendAssetRequirementData(
                     handle: $resource->handle . ':' . $usage->publicId,
                     kind: $resource->kind,
@@ -46,7 +47,7 @@ class LayoutWidgetResourceAssetContributor implements FrontendAssetContributor
                     defer: $resource->defer,
                     async: $resource->async,
                     condition: $isLazy ? $usage->publicId : null,
-                    loadingStrategy: $resource->loadingStrategy,
+                    loadingStrategy: $loadingStrategy,
                     module: $resource->module,
                 );
             }

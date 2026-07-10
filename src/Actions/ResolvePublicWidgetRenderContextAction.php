@@ -187,7 +187,6 @@ final class ResolvePublicWidgetRenderContextAction
             'page_id' => Frontend::page()?->getKey(),
             'page_type' => Frontend::page()?->getMorphClass(),
             'site_id' => Frontend::site()?->getKey(),
-            'widget_data' => $widgetData,
             'widget_index' => $widgetIndex,
         ]);
     }
