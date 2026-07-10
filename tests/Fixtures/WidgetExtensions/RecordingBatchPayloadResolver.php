@@ -14,9 +14,12 @@ final class RecordingBatchPayloadResolver implements WidgetExtensionBatchPayload
 
     public static string $mode = 'valid';
 
+    public static ?string $lastLanguageCode = null;
+
     public function resolve(WidgetExtensionPayloadBatchData $batch): array
     {
         self::$calls++;
+        self::$lastLanguageCode = $batch->context->languageCode;
 
         if (self::$mode === 'throw') {
             throw new RuntimeException('Sensitive resolver failure.');

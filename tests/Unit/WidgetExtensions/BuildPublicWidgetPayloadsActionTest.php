@@ -8,6 +8,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionInputFactory;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleRenderData;
@@ -106,6 +107,42 @@ it('traverses typed generic wrappers to discover registered nested widget target
     expect($payloads)->toHaveKey('wrapped-target')
         ->and($payloads['wrapped-target']->title)->toBe('Wrapped')
         ->and(RecordingBatchPayloadResolver::$calls)->toBe(1);
+});
+
+it('fingerprints the centralized API widget version and typed schema contract deterministically', function (): void {
+    $firstRegistry = new WidgetExtensionRegistry;
+    $firstRegistry->register(ExampleWidgetExtensionDefinition::make(stateVersion: 1));
+    $first = new BuildPublicWidgetPayloadsAction(
+        new WidgetExtensionStateWalker($firstRegistry),
+        resolve(WidgetExtensionInputFactory::class),
+        app(),
+        $firstRegistry,
+    );
+
+    $versionRegistry = new WidgetExtensionRegistry;
+    $versionRegistry->register(ExampleWidgetExtensionDefinition::make(stateVersion: 2));
+    $versioned = new BuildPublicWidgetPayloadsAction(
+        new WidgetExtensionStateWalker($versionRegistry),
+        resolve(WidgetExtensionInputFactory::class),
+        app(),
+        $versionRegistry,
+    );
+
+    $schemaRegistry = new WidgetExtensionRegistry;
+    $schemaRegistry->register(ExampleWidgetExtensionDefinition::make(
+        stateVersion: 1,
+        inputData: ExampleRenderData::class,
+    ));
+    $schemaChanged = new BuildPublicWidgetPayloadsAction(
+        new WidgetExtensionStateWalker($schemaRegistry),
+        resolve(WidgetExtensionInputFactory::class),
+        app(),
+        $schemaRegistry,
+    );
+
+    expect($first->fingerprint())->toBe($first->fingerprint())
+        ->not->toBe($versioned->fingerprint(), $schemaChanged->fingerprint())
+        ->and($first->fingerprint())->toMatch('/^[a-f0-9]{64}$/');
 });
 
 /** @param array<int, mixed> $content */

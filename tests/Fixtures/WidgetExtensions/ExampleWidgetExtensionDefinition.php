@@ -19,14 +19,17 @@ final class ExampleWidgetExtensionDefinition
         string $fallbackView = 'capell-widget-slideshow::widget',
         ?string $batchPayloadResolver = ExampleBatchPayloadResolver::class,
         ?string $dependencyResolver = ExampleDependencyResolver::class,
+        int $stateVersion = 2,
+        string $inputData = ExampleInputData::class,
+        string $renderData = ExampleRenderData::class,
     ): WidgetExtensionDefinitionData {
         return new WidgetExtensionDefinitionData(
             key: 'capell-app.slideshow',
             packageName: $packageName,
-            stateVersion: 2,
+            stateVersion: $stateVersion,
             filamentWidget: ExampleFilamentWidget::class,
-            inputData: ExampleInputData::class,
-            renderData: ExampleRenderData::class,
+            inputData: $inputData,
+            renderData: $renderData,
             fallbackView: $fallbackView,
             components: ['blade' => 'capell::widgets.capell-app.slideshow'],
             resourceGroups: [
