@@ -33,7 +33,7 @@ return new class extends Migration
             $table->index(['pageable_type', 'pageable_id', 'language_id'], 'widget_snapshots_page_language');
             $table->index(['site_id', 'target_instance_id', 'revoked_at'], 'widget_snapshots_active_target');
             $table->index(['superseded_at', 'expires_at'], 'widget_snapshots_retention');
-            $table->unique(['context_fingerprint', 'target_instance_id'], 'widget_snapshots_context_target');
+            $table->index(['context_fingerprint', 'target_instance_id'], 'widget_snapshots_context_target');
         });
     }
 

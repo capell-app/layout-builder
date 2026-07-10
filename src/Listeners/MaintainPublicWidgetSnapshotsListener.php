@@ -6,8 +6,10 @@ namespace Capell\LayoutBuilder\Listeners;
 
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
+use Capell\Core\EventSourcing\Enums\PageWorkflowStatus;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\Core\Models\PageWorkflowState;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RebuildPublicWidgetSnapshotsAction;
@@ -70,6 +72,14 @@ final readonly class MaintainPublicWidgetSnapshotsListener
 
     private function isNotPublic(Model $page): bool
     {
+        $pageUuid = $page->getAttribute('uuid');
+        if (is_string($pageUuid) && $pageUuid !== '') {
+            $workflow = PageWorkflowState::query()->where('page_uuid', $pageUuid)->first();
+            if ($workflow instanceof PageWorkflowState && $workflow->status !== PageWorkflowStatus::Published) {
+                return true;
+            }
+        }
+
         return (method_exists($page, 'isPending') && $page->isPending())
             || (method_exists($page, 'isExpired') && $page->isExpired())
             || $page->getAttribute('deleted_at') !== null;

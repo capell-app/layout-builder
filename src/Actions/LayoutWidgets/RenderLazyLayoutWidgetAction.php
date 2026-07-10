@@ -9,8 +9,8 @@ use Capell\Frontend\Exceptions\WidgetLibraryException;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\ResolvePublicWidgetSnapshotAction;
-use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotResourceIds;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -24,6 +24,7 @@ class RenderLazyLayoutWidgetAction
         private readonly PublicViewQueryGuard $queryGuard,
         private readonly ResolvePublicWidgetSnapshotAction $snapshotResolver,
         private readonly WidgetExtensionRegistry $registry,
+        private readonly WidgetSnapshotResourceIds $resourceIds,
     ) {}
 
     public function handle(string $reference): ?Response
@@ -51,6 +52,10 @@ class RenderLazyLayoutWidgetAction
             if ($definition === null) {
                 return null;
             }
+            $resourceIds = $this->resourceIds->resolve($definition->resourceGroups);
+            if ($resourceIds === null) {
+                return null;
+            }
 
             $response = request()->expectsJson()
                 || request()->header('Accept') === 'application/vnd.capell.widget.v2+json'
@@ -58,10 +63,7 @@ class RenderLazyLayoutWidgetAction
                     'version' => 2,
                     'status' => 'ok',
                     'html' => $html,
-                    'resource_ids' => array_values(array_unique(array_map(
-                        LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId(...),
-                        $definition->resourceGroups,
-                    ))),
+                    'resource_ids' => $resourceIds,
                 ], Response::HTTP_OK)
                 : response($html, Response::HTTP_OK);
             $response->headers->add([
@@ -69,7 +71,7 @@ class RenderLazyLayoutWidgetAction
                 'X-Robots-Tag' => 'noindex, nofollow',
             ]);
 
-            AssertPublicHtmlContainsNoAuthoringSurfaceAction::run($response);
+            AssertPublicHtmlContainsNoAuthoringSurfaceAction::run(response($html));
 
             return $response;
         } catch (Throwable $throwable) {

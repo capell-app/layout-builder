@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\RestoreWidgetInteractionContextAction;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotFingerprint;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 
 final readonly class ResolvePublicWidgetSnapshotAction
@@ -14,6 +15,7 @@ final readonly class ResolvePublicWidgetSnapshotAction
     public function __construct(
         private WidgetSnapshotLocatorCodec $codec,
         private RestoreWidgetInteractionContextAction $contextRestorer,
+        private WidgetSnapshotFingerprint $fingerprint,
     ) {}
 
     /** @return array{snapshot: PublicWidgetSnapshot, context: FrontendRenderContextData, widget: array<string, mixed>}|null */
@@ -58,6 +60,22 @@ final readonly class ResolvePublicWidgetSnapshotAction
 
         $capell = $data['__capell'] ?? null;
         if (! is_array($capell) || ($capell['instance_id'] ?? null) !== $snapshot->target_instance_id) {
+            return null;
+        }
+
+        if ($snapshot->render_profile !== 'blade' || ! hash_equals($snapshot->context_fingerprint, $this->fingerprint->make(
+            $snapshot->site_id,
+            $snapshot->pageable_type,
+            $snapshot->pageable_id,
+            $snapshot->language_id,
+            $snapshot->layout_id,
+            $snapshot->theme_id,
+            $snapshot->render_profile,
+            $snapshot->owner_revision,
+            $snapshot->target_instance_id,
+            $snapshot->definition_state_version,
+            $widget,
+        ))) {
             return null;
         }
 

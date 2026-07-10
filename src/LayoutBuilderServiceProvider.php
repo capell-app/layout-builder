@@ -11,6 +11,7 @@ use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Subscriber\SubscriberManager;
 use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
@@ -71,6 +72,7 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Capell\LayoutBuilder\Support\WidgetPresentationPublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\PrebuiltWidgetInteractionLocatorResolver;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -139,6 +141,13 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             PageWidgetExtensionContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
+        $registerWorkflowSubscriber = static function (SubscriberManager $manager): void {
+            $manager->subscribe(WidgetSnapshotWorkflowSubscriber::class);
+        };
+        $this->app->afterResolving(SubscriberManager::class, $registerWorkflowSubscriber);
+        if ($this->app->resolved(SubscriberManager::class)) {
+            $registerWorkflowSubscriber($this->app->make(SubscriberManager::class));
+        }
         $this->registerPageTypes();
 
         $this->app->booting(function (): void {

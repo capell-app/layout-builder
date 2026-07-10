@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Data\WidgetSnapshots\WidgetSnapshotLocatorData;
+use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
@@ -14,7 +15,7 @@ use Throwable;
 final readonly class BuildPublicWidgetInteractionLocatorsAction implements PublicWidgetInteractionLocatorBuilder
 {
     public function __construct(
-        private RebuildPublicWidgetSnapshotsAction $rebuilder,
+        private RebuildPublicWidgetSnapshotsAction $revisionResolver,
         private WidgetSnapshotLocatorCodec $codec,
     ) {}
 
@@ -23,15 +24,33 @@ final readonly class BuildPublicWidgetInteractionLocatorsAction implements Publi
     {
         try {
             $page = $context->page;
-            if (! $page instanceof Model) {
+            $siteId = $context->site?->getKey();
+            $languageId = $context->language?->getKey();
+            if (! $page instanceof Model || ! is_int($siteId) || ! is_int($languageId)) {
                 return [];
             }
 
             $locators = [];
-            foreach ($this->rebuilder->handle($context) as $instanceId => $snapshot) {
+            $snapshots = PublicWidgetSnapshot::query()
+                ->where('site_id', $siteId)
+                ->where('pageable_type', $page->getMorphClass())
+                ->where('pageable_id', $page->getKey())
+                ->where('language_id', $languageId)
+                ->where('layout_id', $context->layout?->getKey())
+                ->where('theme_id', $context->theme?->getKey())
+                ->where('render_profile', 'blade')
+                ->where('owner_revision', $this->revisionResolver->ownerRevision($context))
+                ->whereNull('superseded_at')
+                ->whereNull('revoked_at')
+                ->where('expires_at', '>', now())
+                ->get();
+
+            foreach ($snapshots as $snapshot) {
                 if (! is_int($snapshot->getKey())) {
                     continue;
                 }
+
+                $instanceId = $snapshot->target_instance_id;
 
                 $locator = $this->codec->encode(new WidgetSnapshotLocatorData(
                     version: WidgetSnapshotLocatorCodec::VERSION,

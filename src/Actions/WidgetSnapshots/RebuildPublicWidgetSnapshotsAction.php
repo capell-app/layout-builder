@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotFingerprint;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +18,10 @@ final readonly class RebuildPublicWidgetSnapshotsAction
 {
     use AsObject;
 
-    public function __construct(private WidgetExtensionStateWalker $walker) {}
+    public function __construct(
+        private WidgetExtensionStateWalker $walker,
+        private WidgetSnapshotFingerprint $fingerprint,
+    ) {}
 
     /** @return array<string, PublicWidgetSnapshot> */
     public function handle(FrontendRenderContextData $context): array
@@ -43,19 +47,19 @@ final readonly class RebuildPublicWidgetSnapshotsAction
         $snapshots = [];
 
         foreach ($this->walker->fromContext($context) as $discovered) {
-            $fingerprint = hash('sha256', $this->canonicalJson([
-                'site' => $siteId,
-                'pageable_type' => $pageableType,
-                'pageable_id' => $pageableId,
-                'language' => $languageId,
-                'layout' => $layoutId,
-                'theme' => $themeId,
-                'profile' => 'blade',
-                'revision' => $ownerRevision,
-                'instance' => $discovered->instanceId,
-                'definition_version' => $discovered->definition->stateVersion,
-                'widget' => $discovered->widget,
-            ]));
+            $fingerprint = $this->fingerprint->make(
+                $siteId,
+                $pageableType,
+                $pageableId,
+                $languageId,
+                $layoutId,
+                $themeId,
+                'blade',
+                $ownerRevision,
+                $discovered->instanceId,
+                $discovered->definition->stateVersion,
+                $discovered->widget,
+            );
 
             $snapshot = DB::transaction(function () use (
                 $siteId,
@@ -72,21 +76,27 @@ final readonly class RebuildPublicWidgetSnapshotsAction
                 $existing = PublicWidgetSnapshot::query()
                     ->where('context_fingerprint', $fingerprint)
                     ->where('target_instance_id', $discovered->instanceId)
+                    ->whereNull('superseded_at')
+                    ->whereNull('revoked_at')
+                    ->where('expires_at', '>', now())
                     ->first();
 
                 if ($existing instanceof PublicWidgetSnapshot) {
                     return $existing;
                 }
 
-                PublicWidgetSnapshot::query()
+                $previous = PublicWidgetSnapshot::query()
                     ->where('site_id', $siteId)
                     ->where('pageable_type', $pageableType)
                     ->where('pageable_id', $pageableId)
                     ->where('language_id', $languageId)
                     ->where('target_instance_id', $discovered->instanceId)
                     ->whereNull('superseded_at')
-                    ->whereNull('revoked_at')
+                    ->whereNull('revoked_at');
+                (clone $previous)->where('expires_at', '>', now())
                     ->update(['superseded_at' => now(), 'expires_at' => $expiresAt]);
+                (clone $previous)->where('expires_at', '<=', now())
+                    ->update(['superseded_at' => now()]);
 
                 return PublicWidgetSnapshot::query()->create([
                     'site_id' => $siteId,
@@ -113,20 +123,23 @@ final readonly class RebuildPublicWidgetSnapshotsAction
             static fn (PublicWidgetSnapshot $snapshot): int => $snapshot->id,
             array_values($snapshots),
         );
-        PublicWidgetSnapshot::query()
+        $removed = PublicWidgetSnapshot::query()
             ->where('site_id', $siteId)
             ->where('pageable_type', $pageableType)
             ->where('pageable_id', $pageableId)
             ->where('language_id', $languageId)
             ->whereNull('superseded_at')
             ->whereNull('revoked_at')
-            ->when($currentSnapshotIds !== [], fn ($query) => $query->whereNotIn('id', $currentSnapshotIds))
+            ->when($currentSnapshotIds !== [], fn ($query) => $query->whereNotIn('id', $currentSnapshotIds));
+        (clone $removed)->where('expires_at', '>', now())
             ->update(['superseded_at' => now(), 'expires_at' => $expiresAt]);
+        (clone $removed)->where('expires_at', '<=', now())
+            ->update(['superseded_at' => now()]);
 
         return $snapshots;
     }
 
-    private function ownerRevision(FrontendRenderContextData $context): string
+    public function ownerRevision(FrontendRenderContextData $context): string
     {
         $page = $context->page;
         $translation = $page instanceof Model && $page->relationLoaded('translation')

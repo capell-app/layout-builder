@@ -72,11 +72,13 @@ Cloning regenerates the root widget identity and every nested registered target 
 
 ## Secure lazy interaction targets
 
-Published nested widget targets are stored as immutable public snapshots. Snapshot payloads are encrypted at rest; only tenant, page, language, layout, theme/render profile, revision, instance, version, and retention indexes remain queryable. Public interaction URLs contain a short encrypted locator with the snapshot ID and parent/target identity. Saved widget content is never embedded in a URL.
+Published nested widget targets are stored as immutable public snapshots. Snapshot payloads are encrypted at rest; only tenant, page, language, layout, theme/render profile, revision, instance, version, and retention indexes remain queryable. Public interaction URLs contain a short encrypted locator with the snapshot ID, the owning page identity (the v1 parent interaction boundary), and target widget instance identity. Saved widget content is never embedded in a URL.
 
 The HTML endpoint is the no-JavaScript fallback. Clients requesting `application/vnd.capell.widget.v2+json` receive validated HTML and opaque, registry-owned resource IDs only. Both response forms use `private, no-store`, restore the original public context, build typed widget payloads before the public query guard, and return the same empty 404 for invalid, expired, revoked, cross-context, or tampered locators.
 
 Saving public content creates a new immutable revision when its context or widget fingerprint changes and supersedes the former revision. Superseded locators remain available for the configured public HTML/CDN TTL plus stale-while-revalidate period. Unpublish, visibility expiry, deletion, and explicit security withdrawal revoke every revision immediately. Run `php artisan capell:widget-snapshots:prune` to remove expired or revoked encrypted rows.
+
+Static-export standalone fragment materialization is intentionally deferred to the dedicated static-export integration slice. Exporters must use the snapshot rebuild/typed render actions rather than calling the public locator endpoint or embedding runtime locators in exported HTML.
 
 Canonical widget extensions also reserve `data.__capell.state_version`. Missing version metadata means version `1`. When saved state is older than the definition's `stateVersion`, Layout Builder resolves the declared `WidgetExtensionStateUpcaster` and calls it with the widget data and the source and target versions. Upcasters must be deterministic and side-effect free, must return an array, and must not query application state. The platform restores the reserved instance identity and writes the current state version after a successful upcast. Future, invalid, or non-upcastable versions are retained unchanged so an older application cannot corrupt newer package state.
 
