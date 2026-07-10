@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Facades\CapellCore;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -15,7 +17,7 @@ final class RevokePublicWidgetSnapshotsAction
 
     public function handle(Pageable $page): int
     {
-        if (! $page instanceof Model) {
+        if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName) || ! $page instanceof Model) {
             return 0;
         }
 

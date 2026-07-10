@@ -16,6 +16,7 @@ use Capell\LayoutBuilder\Actions\LayoutWidgets\RenderLazyLayoutWidgetAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RebuildPublicWidgetSnapshotsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RevokePublicWidgetSnapshotsAction;
+use Capell\LayoutBuilder\Contracts\WidgetSnapshots\WidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
@@ -23,7 +24,6 @@ use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotResourceIds;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\RecordingBatchPayloadResolver;
-use Illuminate\Contracts\Encryption\StringEncrypter;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -222,14 +222,14 @@ it('fails open without writes when locator encryption fails during ordinary publ
     $context = lazyWidgetContext('Encryption failure');
     resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
     $before = PublicWidgetSnapshot::query()->count();
-    app()->instance(WidgetSnapshotLocatorCodec::class, new WidgetSnapshotLocatorCodec(new class implements StringEncrypter
+    app()->instance(WidgetSnapshotLocatorCodec::class, new WidgetSnapshotLocatorCodec(new class implements WidgetSnapshotLocatorCipher
     {
-        public function encryptString($value): string
+        public function encrypt(string $plaintext): string
         {
             throw new RuntimeException('Unavailable key service.');
         }
 
-        public function decryptString($payload): string
+        public function decrypt(string $ciphertext): string
         {
             throw new RuntimeException('Unavailable key service.');
         }

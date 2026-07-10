@@ -35,6 +35,7 @@ use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Contracts\WidgetAssetReferenceRepointer;
+use Capell\LayoutBuilder\Contracts\WidgetSnapshots\WidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
@@ -71,8 +72,10 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Capell\LayoutBuilder\Support\WidgetPresentationPublicLayoutWidgetPayloadContributor;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\CurrentWidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\PrebuiltWidgetInteractionLocatorResolver;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -109,6 +112,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->singleton(WidgetExtensionContentStateProcessor::class);
         $this->app->singleton(WidgetExtensionStateWalker::class);
         $this->app->singleton(WidgetExtensionInputFactory::class);
+        $this->app->singleton(WidgetSnapshotLocatorCipher::class, CurrentWidgetSnapshotLocatorCipher::class);
         $this->app->singleton(
             WidgetExtensionRegistry::class,
             fn (): WidgetExtensionRegistry => new WidgetExtensionRegistry(
@@ -141,13 +145,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             PageWidgetExtensionContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
-        $registerWorkflowSubscriber = static function (SubscriberManager $manager): void {
-            $manager->subscribe(WidgetSnapshotWorkflowSubscriber::class);
-        };
-        $this->app->afterResolving(SubscriberManager::class, $registerWorkflowSubscriber);
-        if ($this->app->resolved(SubscriberManager::class)) {
-            $registerWorkflowSubscriber($this->app->make(SubscriberManager::class));
-        }
         $this->registerPageTypes();
 
         $this->app->booting(function (): void {
@@ -176,12 +173,29 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
 
-        Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
-        Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
-
         if (! $this->isPackageInstalled()) {
             return;
         }
+
+        $registerWorkflowSubscriber = static function (SubscriberManager $manager): void {
+            $manager->subscribe(WidgetSnapshotWorkflowSubscriber::class);
+        };
+        $this->app->afterResolving(SubscriberManager::class, $registerWorkflowSubscriber);
+        if ($this->app->resolved(SubscriberManager::class)) {
+            $registerWorkflowSubscriber($this->app->make(SubscriberManager::class));
+        }
+        Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
+        Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            if (! $this->isPackageInstalled()) {
+                return;
+            }
+
+            $schedule->command('capell:widget-snapshots:prune')
+                ->dailyAt('02:30')
+                ->withoutOverlapping()
+                ->onOneServer();
+        });
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();

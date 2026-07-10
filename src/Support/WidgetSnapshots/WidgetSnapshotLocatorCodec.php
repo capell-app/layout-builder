@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support\WidgetSnapshots;
 
+use Capell\LayoutBuilder\Contracts\WidgetSnapshots\WidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Data\WidgetSnapshots\WidgetSnapshotLocatorData;
-use Illuminate\Contracts\Encryption\StringEncrypter;
 use InvalidArgumentException;
 use Throwable;
 
@@ -19,7 +19,7 @@ final readonly class WidgetSnapshotLocatorCodec
 
     private const int MAX_DECODED_BYTES = 1024;
 
-    public function __construct(private StringEncrypter $encrypter) {}
+    public function __construct(private WidgetSnapshotLocatorCipher $cipher) {}
 
     public function encode(WidgetSnapshotLocatorData $data): string
     {
@@ -32,7 +32,7 @@ final readonly class WidgetSnapshotLocatorCodec
             throw new InvalidArgumentException('Widget snapshot locator is too large.');
         }
 
-        $encoded = 'v1.' . rtrim(strtr(base64_encode($this->encrypter->encryptString($json)), '+/', '-_'), '=');
+        $encoded = 'v1.' . rtrim(strtr(base64_encode($this->cipher->encrypt($json)), '+/', '-_'), '=');
         if (strlen($encoded) > self::MAX_ENCODED_BYTES) {
             throw new InvalidArgumentException('Widget snapshot locator is too large.');
         }
@@ -58,7 +58,7 @@ final readonly class WidgetSnapshotLocatorCodec
                 return null;
             }
 
-            $json = $this->encrypter->decryptString($ciphertext);
+            $json = $this->cipher->decrypt($ciphertext);
             if (strlen($json) > self::MAX_DECODED_BYTES) {
                 return null;
             }

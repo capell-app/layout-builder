@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Data\WidgetSnapshots\WidgetSnapshotLocatorData;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotRequestDomain;
@@ -24,6 +26,10 @@ final readonly class BuildPublicWidgetInteractionLocatorsAction implements Publi
     /** @return array<string, string> */
     public function build(FrontendRenderContextData $context): array
     {
+        if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {
+            return [];
+        }
+
         try {
             $page = $context->page;
             $siteId = $context->site?->getKey();

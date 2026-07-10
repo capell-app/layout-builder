@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\LayoutBuilder\Data\WidgetSnapshots\WidgetSnapshotLocatorData;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\CurrentWidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 use Illuminate\Encryption\Encrypter;
 
@@ -29,10 +30,24 @@ it('round trips only the short versioned locator identity contract', function ()
 });
 
 it('rejects locators encrypted by an old or unrelated key', function (): void {
-    $oldCodec = new WidgetSnapshotLocatorCodec(new Encrypter(random_bytes(32), 'AES-256-CBC'));
-    $currentCodec = new WidgetSnapshotLocatorCodec(new Encrypter(random_bytes(32), 'AES-256-CBC'));
+    $oldCodec = new WidgetSnapshotLocatorCodec(new CurrentWidgetSnapshotLocatorCipher(random_bytes(32), 'AES-256-CBC'));
+    $currentCodec = new WidgetSnapshotLocatorCodec(new CurrentWidgetSnapshotLocatorCipher(random_bytes(32), 'AES-256-CBC'));
 
     expect($currentCodec->decode($oldCodec->encode(snapshotLocatorData())))->toBeNull();
+});
+
+it('rejects an old-key locator even when the shared Laravel encrypter accepts previous keys', function (): void {
+    $currentKey = random_bytes(32);
+    $oldKey = random_bytes(32);
+    $oldEncrypter = new Encrypter($oldKey, 'AES-256-CBC');
+    $sharedEncrypter = (new Encrypter($currentKey, 'AES-256-CBC'))->previousKeys([$oldKey]);
+    $payload = json_encode(snapshotLocatorData()->toArray(), JSON_THROW_ON_ERROR);
+    $ciphertext = $oldEncrypter->encryptString($payload);
+    $locator = 'v1.' . rtrim(strtr(base64_encode($ciphertext), '+/', '-_'), '=');
+    $codec = new WidgetSnapshotLocatorCodec(new CurrentWidgetSnapshotLocatorCipher($currentKey, 'AES-256-CBC'));
+
+    expect($sharedEncrypter->decryptString($ciphertext))->toBe($payload)
+        ->and($codec->decode($locator))->toBeNull();
 });
 
 it('rejects the wrong purpose before generating a locator', function (): void {

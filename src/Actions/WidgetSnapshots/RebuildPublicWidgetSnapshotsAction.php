@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotFingerprint;
@@ -30,6 +32,10 @@ final readonly class RebuildPublicWidgetSnapshotsAction
     /** @return array<string, PublicWidgetSnapshot> */
     public function handle(FrontendRenderContextData $context): array
     {
+        if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {
+            return [];
+        }
+
         $page = $context->page;
         if (! $page instanceof Model || $context->site === null || $context->language === null) {
             return [];

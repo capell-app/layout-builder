@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Listeners;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\EventSourcing\Enums\PageWorkflowStatus;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageWorkflowState;
@@ -14,6 +15,7 @@ use Capell\Core\Models\Site;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RebuildPublicWidgetSnapshotsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RevokePublicWidgetSnapshotsAction;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
@@ -26,6 +28,10 @@ final readonly class MaintainPublicWidgetSnapshotsListener
 
     public function handleSaved(PageSaved $event): void
     {
+        if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {
+            return;
+        }
+
         try {
             $page = $event->page;
             if (! $page instanceof Model || $this->isNotPublic($page)) {
@@ -63,6 +69,10 @@ final readonly class MaintainPublicWidgetSnapshotsListener
 
     public function handleDeleted(PageDeleted $event): void
     {
+        if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {
+            return;
+        }
+
         try {
             $this->revoker->handle($event->page);
         } catch (Throwable $throwable) {

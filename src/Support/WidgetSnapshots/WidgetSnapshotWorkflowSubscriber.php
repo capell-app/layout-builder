@@ -8,8 +8,10 @@ use Capell\Core\Contracts\EventSubscriber;
 use Capell\Core\Enums\ListenerEnum;
 use Capell\Core\EventSourcing\Events\PageArchived;
 use Capell\Core\EventSourcing\Events\PageUnpublished;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RevokePublicWidgetSnapshotsAction;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Spatie\EventSourcing\StoredEvents\ShouldBeStored;
 
 final readonly class WidgetSnapshotWorkflowSubscriber implements EventSubscriber
@@ -18,6 +20,10 @@ final readonly class WidgetSnapshotWorkflowSubscriber implements EventSubscriber
 
     public function handle(string $event, object $context): void
     {
+        if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {
+            return;
+        }
+
         if (! in_array($event, [ListenerEnum::PageUnpublished->value, ListenerEnum::PageArchived->value], true)
             || ! $context instanceof PageUnpublished && ! $context instanceof PageArchived) {
             return;
