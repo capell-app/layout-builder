@@ -134,6 +134,12 @@
                 "2026_05_10_190841_06_create_layout_presets_table",
                 "2026_06_07_000001_create_layout_bulk_change_tables"
             ]
+        },
+        {
+            "type": "scheduled-job",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderSnapshotPruneScheduleContribution",
+            "command": "capell:layout-builder-prune-widget-snapshots",
+            "frequency": "daily"
         }
     ],
     "database": {

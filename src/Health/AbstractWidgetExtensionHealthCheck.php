@@ -55,7 +55,7 @@ abstract class AbstractWidgetExtensionHealthCheck implements ChecksExtensionHeal
             ->every(static fn (DoctorCheckResultData $result): bool => $result->passed);
     }
 
-    private static function result(string $label, bool $passed): DoctorCheckResultData
+    protected static function result(string $label, bool $passed): DoctorCheckResultData
     {
         return new DoctorCheckResultData(
             label: $label,

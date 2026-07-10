@@ -51,8 +51,9 @@ it('checks every required widget extension package surface', function (): void {
         loadingStrategy: PresentationLoadingStrategy::Visible,
     ));
 
-    expect(ExampleWidgetHealthCheck::runDiagnostics())
-        ->toHaveCount(4)
-        ->each(static fn (DoctorCheckResultData $result) => $result->passed->toBeTrue())
+    $diagnostics = ExampleWidgetHealthCheck::runDiagnostics();
+
+    expect($diagnostics)->toHaveCount(4)
+        ->and($diagnostics->every(static fn (DoctorCheckResultData $result): bool => $result->passed))->toBeTrue()
         ->and(ExampleWidgetHealthCheck::passed())->toBeTrue();
 });
