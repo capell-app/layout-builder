@@ -236,8 +236,14 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         Route::middleware('web')
             ->name('capell-layout-builder.layout-widgets.')
             ->group(function (): void {
+                Route::get('/{siteDomainPath}/_capell/layout-widgets/{reference}', LazyLayoutWidgetController::class)
+                    ->where([
+                        'siteDomainPath' => '.+',
+                        'reference' => '[^/]+',
+                    ])
+                    ->name('localized.show');
                 Route::get('/_capell/layout-widgets/{reference}', LazyLayoutWidgetController::class)
-                    ->where('reference', '.*')
+                    ->where('reference', '[^/]+')
                     ->name('show');
             });
     }

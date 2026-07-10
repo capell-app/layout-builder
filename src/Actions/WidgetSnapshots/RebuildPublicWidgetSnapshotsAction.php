@@ -61,7 +61,16 @@ final readonly class RebuildPublicWidgetSnapshotsAction
                 $discovered->definition->stateVersion,
                 $discovered->widget,
             );
-            $currentKey = hash('sha256', $fingerprint . ':' . $discovered->instanceId);
+            $currentKey = hash('sha256', json_encode([
+                'site' => $siteId,
+                'pageable_type' => $pageableType,
+                'pageable_id' => $pageableId,
+                'language' => $languageId,
+                'layout' => $layoutId,
+                'theme' => $themeId,
+                'render_profile' => 'blade',
+                'instance' => $discovered->instanceId,
+            ], JSON_THROW_ON_ERROR));
 
             try {
                 $snapshot = DB::transaction(function () use (
@@ -81,7 +90,9 @@ final readonly class RebuildPublicWidgetSnapshotsAction
                         ->where('current_key', $currentKey)
                         ->lockForUpdate()
                         ->first();
-                    if ($existing instanceof PublicWidgetSnapshot && $existing->isAvailable()) {
+                    if ($existing instanceof PublicWidgetSnapshot
+                        && $existing->isAvailable()
+                        && hash_equals($existing->context_fingerprint, $fingerprint)) {
                         return $existing;
                     }
 

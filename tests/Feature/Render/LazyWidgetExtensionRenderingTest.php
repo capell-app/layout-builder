@@ -12,10 +12,10 @@ use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\BuildPublicPageRenderDataAction;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
+use Capell\LayoutBuilder\Actions\LayoutWidgets\RenderLazyLayoutWidgetAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RebuildPublicWidgetSnapshotsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\RevokePublicWidgetSnapshotsAction;
-use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
@@ -27,7 +27,9 @@ use Illuminate\Contracts\Encryption\StringEncrypter;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
+use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function (): void {
     RecordingBatchPayloadResolver::$calls = 0;
@@ -57,7 +59,7 @@ it('stores an immutable encrypted snapshot and renders HTML and registry-owned V
         expect($rawPayload)->toBeString()->not->toContain('Lazy target', 'lazy-instance')
             ->and($snapshot->encrypted_payload['widget']['data']['title'])->toBe('<Lazy target>');
 
-        $htmlResponse = (new LazyLayoutWidgetController)($locator);
+        $htmlResponse = lazyWidgetResponse($locator);
         expect($htmlResponse->getStatusCode())->toBe(200)
             ->and($htmlResponse->headers->get('Cache-Control'))->toContain('private', 'no-store')
             ->and($htmlResponse->getContent())->toContain('LAZY &lt;Lazy target&gt;')
@@ -65,7 +67,7 @@ it('stores an immutable encrypted snapshot and renders HTML and registry-owned V
             ->and(RecordingBatchPayloadResolver::$lastLanguageCode)->toBe('cy');
 
         request()->headers->set('Accept', 'application/vnd.capell.widget.v2+json');
-        $jsonResponse = (new LazyLayoutWidgetController)($locator);
+        $jsonResponse = lazyWidgetResponse($locator);
         $json = json_decode($jsonResponse->getContent(), true, flags: JSON_THROW_ON_ERROR);
         expect($json)->toMatchArray([
             'version' => 2,
@@ -100,7 +102,7 @@ it('rejects tampered oversized expired and revoked locators with the same generi
         RevokePublicWidgetSnapshotsAction::run($context->page);
     }
 
-    $response = (new LazyLayoutWidgetController)($locator);
+    $response = lazyWidgetResponse($locator);
     expect($response->getStatusCode())->toBe(404)
         ->and($response->headers->get('Cache-Control'))->toContain('private', 'no-store')
         ->and($response->getContent())->toBe('');
@@ -111,18 +113,26 @@ it('supersedes changed revisions while retaining the previous locator through gr
     $context = lazyWidgetContext('First');
     registerLazyWidgetResources();
     $firstLocator = lazyWidgetLocator($context);
+    $firstSnapshot = PublicWidgetSnapshot::query()->sole();
+    $stableCurrentKey = $firstSnapshot->current_key;
+    $firstFingerprint = $firstSnapshot->context_fingerprint;
 
     $translation = $context->page->getRelation('translation');
     $translation->forceFill(['content' => [lazyWidgetBlock('Second')]])->save();
     $context->page->setRelation('translation', $translation->fresh());
     resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    $current = PublicWidgetSnapshot::query()->whereNotNull('current_key')->sole();
+    $historical = PublicWidgetSnapshot::query()->whereNotNull('superseded_at')->sole();
 
     expect(PublicWidgetSnapshot::query()->count())->toBe(2)
-        ->and(PublicWidgetSnapshot::query()->whereNotNull('superseded_at')->count())->toBe(1)
-        ->and((new LazyLayoutWidgetController)($firstLocator)->getStatusCode())->toBe(200);
+        ->and($current->current_key)->toBe($stableCurrentKey)
+        ->and($current->context_fingerprint)->not->toBe($firstFingerprint)
+        ->and($historical->current_key)->toBeNull()
+        ->and(PublicWidgetSnapshot::query()->whereNull('superseded_at')->count())->toBe(1)
+        ->and(lazyWidgetResponse($firstLocator)->getStatusCode())->toBe(200);
 
     PublicWidgetSnapshot::query()->whereNotNull('superseded_at')->update(['expires_at' => now()->subSecond()]);
-    expect((new LazyLayoutWidgetController)($firstLocator)->getStatusCode())->toBe(404);
+    expect(lazyWidgetResponse($firstLocator)->getStatusCode())->toBe(404);
 });
 
 it('keeps the immutable current snapshot available without expiry until superseded', function (): void {
@@ -137,7 +147,7 @@ it('keeps the immutable current snapshot available without expiry until supersed
 
     expect($snapshot->expires_at)->toBeNull()
         ->and(PublicWidgetSnapshot::query()->count())->toBe(1)
-        ->and((new LazyLayoutWidgetController)($locator)->getStatusCode())->toBe(200);
+        ->and(lazyWidgetResponse($locator)->getStatusCode())->toBe(200);
 });
 
 it('enforces one database-backed current row while repeated rebuilds remain idempotent', function (): void {
@@ -213,7 +223,7 @@ it('rejects unsafe package or theme HTML for both response formats', function (s
         $locator = lazyWidgetLocator(lazyWidgetContext('Unsafe'));
         request()->headers->set('Accept', $accept);
 
-        $response = (new LazyLayoutWidgetController)($locator);
+        $response = lazyWidgetResponse($locator);
 
         expect($response->getStatusCode())->toBe(404)
             ->and($response->getContent())->toBe('');
@@ -249,7 +259,7 @@ it('rejects unknown unsafe cross-origin inline and unsupported resource groups',
     $resources->register('capell-app.widget-slideshow.interaction', 'Valid', [['source' => 'vendor/widget.js', 'kind' => 'js']]);
     $locator = lazyWidgetLocator(lazyWidgetContext('Invalid resources'));
 
-    expect((new LazyLayoutWidgetController)($locator)->getStatusCode())->toBe(404);
+    expect(lazyWidgetResponse($locator)->getStatusCode())->toBe(404);
 })->with([
     'unknown', 'cross-origin', 'wrong-scheme', 'wrong-port', 'inline', 'unsupported',
     'raw-code', 'traversal', 'encoded-traversal', 'whitespace', 'wrong-extension',
@@ -271,7 +281,7 @@ it('rejects replay after any bound public context or revision field changes', fu
     };
     $snapshot->forceFill([$field => $value])->save();
 
-    $response = (new LazyLayoutWidgetController)($locator);
+    $response = lazyWidgetResponse($locator);
 
     expect($response->getStatusCode())->toBe(404)
         ->and($response->getContent())->toBe('');
@@ -289,7 +299,7 @@ it('rejects a directly encrypted locator with the wrong purpose', function (): v
     $ciphertext = resolve('encrypter')->encryptString($payload);
     $locator = 'v1.' . rtrim(strtr(base64_encode($ciphertext), '+/', '-_'), '=');
 
-    expect((new LazyLayoutWidgetController)($locator)->getStatusCode())->toBe(404);
+    expect(lazyWidgetResponse($locator)->getStatusCode())->toBe(404);
 });
 
 it('rejects an intact locator replayed on a different incoming host', function (): void {
@@ -298,7 +308,7 @@ it('rejects an intact locator replayed on a different incoming host', function (
     $locator = lazyWidgetLocator(lazyWidgetContext('Tenant bound'));
     app()->instance('request', Request::create('http://evil.test/_capell/layout-widgets/' . $locator));
 
-    expect((new LazyLayoutWidgetController)($locator)->getStatusCode())->toBe(404);
+    expect(lazyWidgetResponse($locator)->getStatusCode())->toBe(404);
 });
 
 it('rejects an intact locator through a domain path bound to another language', function (): void {
@@ -318,7 +328,7 @@ it('rejects an intact locator through a domain path bound to another language', 
     ]);
     app()->instance('request', Request::create('http://localhost/_capell/layout-widgets/' . $locator));
 
-    expect((new LazyLayoutWidgetController)($locator)->getStatusCode())->toBe(404);
+    expect(lazyWidgetResponse($locator)->getStatusCode())->toBe(404);
 });
 
 it('generates locators against the resolved language-domain origin and path', function (): void {
@@ -351,6 +361,33 @@ it('preserves the effective incoming port in generated locator origins', functio
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
 
     expect($url)->toStartWith('http://localhost:8080/_capell/layout-widgets/');
+});
+
+it('routes a localized path-domain locator through the explicit HTTP endpoint before the public fallback', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    registerLazyWidgetResources();
+    $context = lazyWidgetContext('Localized route');
+    SiteDomain::query()->where('site_id', $context->site->id)->update(['status' => false]);
+    SiteDomain::query()->create([
+        'site_id' => $context->site->id,
+        'language_id' => $context->language->id,
+        'domain' => 'localhost',
+        'scheme' => 'http',
+        'path' => '/cy',
+        'status' => true,
+        'default' => true,
+    ]);
+    app()->instance('request', Request::create('http://localhost/cy/page'));
+    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
+    $path = (string) parse_url($url, PHP_URL_PATH);
+
+    expect(Route::has('capell-layout-builder.layout-widgets.localized.show'))->toBeTrue()
+        ->and(Route::getRoutes()->match(Request::create($path))->getName())
+        ->toBe('capell-layout-builder.layout-widgets.localized.show');
+
+    $response = $this->get($path)->assertOk();
+    expect($response->headers->get('Cache-Control'))->toContain('private', 'no-store');
 });
 
 it('supersedes snapshots for interaction targets removed by a later publication', function (): void {
@@ -396,6 +433,12 @@ function lazyWidgetLocator(FrontendRenderContextData $context): string
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
 
     return rawurldecode((string) str(parse_url($url, PHP_URL_PATH))->afterLast('/'));
+}
+
+function lazyWidgetResponse(string $locator): Response
+{
+    return RenderLazyLayoutWidgetAction::make()->handle($locator)
+        ?? response('', Response::HTTP_NOT_FOUND, ['Cache-Control' => 'private, no-store']);
 }
 
 function registerLazyWidgetResources(): void
