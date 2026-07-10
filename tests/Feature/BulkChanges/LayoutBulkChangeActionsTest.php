@@ -21,6 +21,7 @@ use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
+use Spatie\Permission\Models\Permission;
 
 /**
  * @param  array<string, mixed>  $containers
@@ -337,6 +338,58 @@ it('queues a preview run for asynchronous apply', function (): void {
         ->and($queuedRun->queued_by)->toBe($user->getKey());
 
     Queue::assertPushed(ApplyLayoutBulkChangeRunJob::class);
+});
+
+it('does not apply a queued bulk change after its actor is deleted or de-authorized', function (bool $deleteActor): void {
+    $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1], ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1]]]]);
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::MoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'target_widget_key' => 'hero',
+        'placement' => 'after',
+    ]));
+    Permission::findOrCreate('Update:Layout', 'web');
+    $actor = User::factory()->createOne();
+    $actor->givePermissionTo('Update:Layout');
+    $queuedRun = QueueLayoutBulkChangeRunAction::run($run, (int) $actor->getKey());
+
+    if ($deleteActor) {
+        $actor->delete();
+    } else {
+        $actor->revokePermissionTo('Update:Layout');
+    }
+
+    (new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey(), (int) $actor->getKey()))->handle();
+
+    expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Failed)
+        ->and(bulkFreshRun($queuedRun)->summary)->toMatchArray([
+            'error' => __('capell-layout-builder::message.bulk_change_actor_unauthorized'),
+        ])
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe(['breadcrumbs', 'hero']);
+})->with([
+    'deleted actor' => true,
+    'revoked actor permission' => false,
+]);
+
+it('applies a redelivered queued bulk change only once', function (): void {
+    $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1], ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1]]]]);
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::MoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'target_widget_key' => 'hero',
+        'placement' => 'after',
+    ]));
+
+    $queuedRun = QueueLayoutBulkChangeRunAction::run($run);
+    $firstDelivery = new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey());
+    $secondDelivery = new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey());
+
+    $firstDelivery->handle();
+    $secondDelivery->handle();
+
+    expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Applied)
+        ->and(bulkFreshRun($queuedRun)->summary)->toMatchArray(['applied_layouts' => 1])
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe(['hero', 'breadcrumbs']);
 });
 
 it('previews and approves bulk changes through the artisan command with json output', function (): void {

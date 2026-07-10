@@ -230,6 +230,7 @@ return [
     'select_layout_item' => 'Select a container or widget from the structure panel or preview.',
     'bulk_change_applied' => 'Bulk layout change applied.',
     'bulk_change_applied_body' => ':count layouts were updated.',
+    'bulk_change_actor_unauthorized' => 'The queued bulk layout change actor is no longer authorized.',
     'bulk_change_criteria_description' => 'Select layouts and define the guided widget operation to preview.',
     'bulk_change_preview_missing' => 'The stored preview could not be found.',
     'bulk_change_queued' => 'Bulk layout change queued.',
