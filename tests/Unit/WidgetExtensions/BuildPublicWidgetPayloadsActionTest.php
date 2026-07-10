@@ -6,7 +6,11 @@ use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\Frontend\Data\FrontendRuntimeManifestData;
+use Capell\Frontend\Enums\RenderingStrategyEnum;
+use Capell\Frontend\Support\Cache\PublicPageRenderDataCache;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionInputFactory;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
@@ -14,6 +18,7 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleRenderData;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\RecordingBatchPayloadResolver;
+use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\RenamingStateUpcaster;
 
 beforeEach(function (): void {
     RecordingBatchPayloadResolver::$calls = 0;
@@ -140,9 +145,51 @@ it('fingerprints the centralized API widget version and typed schema contract de
         $schemaRegistry,
     );
 
+    $upcasterRegistry = new WidgetExtensionRegistry;
+    $upcasterRegistry->register(ExampleWidgetExtensionDefinition::make(
+        stateVersion: 1,
+        stateUpcaster: RenamingStateUpcaster::class,
+    ));
+    $upcasterChanged = new BuildPublicWidgetPayloadsAction(
+        new WidgetExtensionStateWalker($upcasterRegistry),
+        resolve(WidgetExtensionInputFactory::class),
+        app(),
+        $upcasterRegistry,
+    );
+
+    $resolverRegistry = new WidgetExtensionRegistry;
+    $resolverRegistry->register(ExampleWidgetExtensionDefinition::make(
+        stateVersion: 1,
+        batchPayloadResolver: RecordingBatchPayloadResolver::class,
+    ));
+    $resolverChanged = new BuildPublicWidgetPayloadsAction(
+        new WidgetExtensionStateWalker($resolverRegistry),
+        resolve(WidgetExtensionInputFactory::class),
+        app(),
+        $resolverRegistry,
+    );
+
     expect($first->fingerprint())->toBe($first->fingerprint())
-        ->not->toBe($versioned->fingerprint(), $schemaChanged->fingerprint())
+        ->not->toBe(
+            $versioned->fingerprint(),
+            $schemaChanged->fingerprint(),
+            $upcasterChanged->fingerprint(),
+            $resolverChanged->fingerprint(),
+        )
         ->and($first->fingerprint())->toMatch('/^[a-f0-9]{64}$/');
+
+    $context = widgetExtensionContext([]);
+    $context->runtimeManifest = FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::BladeOnly);
+    $cache = resolve(PublicPageRenderDataCache::class);
+    app()->instance(PublicContentWidgetPayloadBuilder::class, $first);
+    $firstKey = $cache->keyForContext($context);
+    app()->instance(PublicContentWidgetPayloadBuilder::class, $upcasterChanged);
+    $upcasterKey = $cache->keyForContext($context);
+    app()->instance(PublicContentWidgetPayloadBuilder::class, $resolverChanged);
+    $resolverKey = $cache->keyForContext($context);
+
+    expect($firstKey)->not->toBe($upcasterKey, $resolverKey)
+        ->and($upcasterKey)->not->toBe($resolverKey);
 });
 
 /** @param array<int, mixed> $content */

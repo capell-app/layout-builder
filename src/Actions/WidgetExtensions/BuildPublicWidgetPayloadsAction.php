@@ -47,6 +47,14 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
                 'input_code' => $this->classCodeFingerprint($definition->inputData),
                 'render_data' => $definition->renderData,
                 'render_code' => $this->classCodeFingerprint($definition->renderData),
+                'state_upcaster' => $definition->stateUpcaster,
+                'state_upcaster_code' => $definition->stateUpcaster === null
+                    ? null
+                    : $this->classCodeFingerprint($definition->stateUpcaster),
+                'batch_payload_resolver' => $definition->batchPayloadResolver,
+                'batch_payload_resolver_code' => $definition->batchPayloadResolver === null
+                    ? null
+                    : $this->classCodeFingerprint($definition->batchPayloadResolver),
             ];
         }
 

@@ -22,6 +22,7 @@ final class ExampleWidgetExtensionDefinition
         int $stateVersion = 2,
         string $inputData = ExampleInputData::class,
         string $renderData = ExampleRenderData::class,
+        ?string $stateUpcaster = ExampleStateUpcaster::class,
     ): WidgetExtensionDefinitionData {
         return new WidgetExtensionDefinitionData(
             key: 'capell-app.slideshow',
@@ -57,7 +58,7 @@ final class ExampleWidgetExtensionDefinition
                 supportedInteractionBehaviors: [InteractionBehavior::InlineReveal],
                 supportedInteractionTargetTypes: [InteractionTargetType::Widget],
             ),
-            stateUpcaster: ExampleStateUpcaster::class,
+            stateUpcaster: $stateUpcaster,
             batchPayloadResolver: $batchPayloadResolver,
             dependencyResolver: $dependencyResolver,
         );
