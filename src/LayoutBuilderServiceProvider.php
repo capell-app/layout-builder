@@ -26,6 +26,7 @@ use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsActio
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
+use Capell\LayoutBuilder\Console\Commands\PruneLayoutBulkChangeRunsCommand;
 use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
@@ -164,6 +165,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 WidgetVisualRegressionCommand::class,
                 InstallCommand::class,
                 LayoutBulkChangeCommand::class,
+                PruneLayoutBulkChangeRunsCommand::class,
                 PrunePublicWidgetSnapshotsCommand::class,
             ]);
         }
@@ -193,6 +195,10 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
             $schedule->command('capell:widget-snapshots:prune')
                 ->dailyAt('02:30')
+                ->withoutOverlapping()
+                ->onOneServer();
+            $schedule->command('capell:layout-builder:prune-bulk-change-runs')
+                ->daily()
                 ->withoutOverlapping()
                 ->onOneServer();
         });

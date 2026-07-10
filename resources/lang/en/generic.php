@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'bulk_change_runs_pruned' => 'Pruned :count expired Layout Builder bulk-change run(s).',
     'linked_preset' => 'Synced preset',
     '2xl' => '2 Extra Large',
     '3xl' => '3 Extra Large',

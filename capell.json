@@ -150,7 +150,13 @@
         {
             "type": "scheduled-job",
             "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderSnapshotPruneScheduleContribution",
-            "command": "capell:layout-builder-prune-widget-snapshots",
+            "command": "capell:widget-snapshots:prune",
+            "frequency": "daily"
+        },
+        {
+            "type": "scheduled-job",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderBulkChangePruneScheduleContribution",
+            "command": "capell:layout-builder:prune-bulk-change-runs",
             "frequency": "daily"
         }
     ],
@@ -174,10 +180,12 @@
         "install": "capell:layout-builder-install",
         "setup": null,
         "demo": null,
-        "doctor": null
+        "doctor": null,
+        "prune": "capell:layout-builder:prune-bulk-change-runs"
     },
     "actions": {
         "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction",
+        "pruneLayoutBulkChangeRuns": "Capell\\LayoutBuilder\\Actions\\PruneLayoutBulkChangeRunsAction",
         "setup": "Capell\\LayoutBuilder\\Actions\\SetupLayoutBuilderPackageAction"
     },
     "settings": [],

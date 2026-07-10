@@ -34,5 +34,7 @@ return [
         'stale_while_revalidate_seconds' => (int) env('CAPELL_WIDGET_SNAPSHOT_STALE_TTL', 3600),
     ],
 
+    'bulk_change_retention_days' => 90,
+
     'default_widget' => 'capell.widget.default',
 ];
