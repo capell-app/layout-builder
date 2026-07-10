@@ -153,3 +153,47 @@ it('uses stable selector interactions for admin screenshot captures that the wor
             ->and($entry['interactions'] ?? null)->toBe($interactions);
     }
 });
+
+it('keeps the canonical page-building guide captures deterministic and traceable', function (): void {
+    $documentationRepository = dirname(__DIR__, 5) . '/capell-4';
+    $manifest = json_decode(
+        (string) file_get_contents($documentationRepository . '/docs/screenshots.json'),
+        true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+    $entries = collect($manifest['entries'])->keyBy('id');
+
+    $expectedEntries = [
+        'page-building-layout-builder-editor' => [
+            'output' => 'docs/images/generated/page-building-layout-builder-editor.png',
+            'interactions' => [
+                ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
+                ['type' => 'click', 'selector' => '[data-layout-builder-action="add-container"]:visible'],
+                ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+            ],
+        ],
+        'page-building-layout-builder-add-widget' => [
+            'output' => 'docs/images/generated/page-building-layout-builder-add-widget.png',
+            'interactions' => [
+                ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
+                ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
+                ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
+                ['type' => 'click', 'selector' => '[data-layout-builder-action="add-widget"]:visible'],
+                ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+            ],
+        ],
+    ];
+
+    foreach ($expectedEntries as $id => $expectedEntry) {
+        $entry = $entries->get($id);
+
+        expect($entry)
+            ->not->toBeNull()
+            ->and($entry['docsPage'] ?? null)->toBe('docs/getting-started/building-pages.md')
+            ->and($entry['output'] ?? null)->toBe($expectedEntry['output'])
+            ->and(is_file($documentationRepository . '/' . ($entry['output'] ?? '')))->toBeTrue()
+            ->and($entry['notes'] ?? '')->not->toBe('')
+            ->and($entry['useCase'] ?? '')->not->toBe('')
+            ->and($entry['interactions'] ?? null)->toBe($expectedEntry['interactions']);
+    }
+});

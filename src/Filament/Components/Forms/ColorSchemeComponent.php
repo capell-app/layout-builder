@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
+use Capell\LayoutBuilder\Enums\ColorScheme;
 use Filament\Forms\Components\ToggleButtons;
 use Override;
 
@@ -15,10 +16,6 @@ class ColorSchemeComponent extends ToggleButtons
         $this->label(__('capell-admin::form.color'))
             ->inline()
             ->grouped()
-            ->options([
-                'auto' => __('capell-layout-builder::generic.auto'),
-                'light' => __('capell-layout-builder::generic.light'),
-                'dark' => __('capell-layout-builder::generic.dark'),
-            ]);
+            ->options(ColorScheme::class);
     }
 }
