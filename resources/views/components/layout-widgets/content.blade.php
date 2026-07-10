@@ -76,7 +76,7 @@
         <{{ $titleTag }}> {{ __($title, $pageVariables) }} </{{ $titleTag }}>
     @endif
 
-    {!! RenderHtmlContentAction::run((string) $content, $pageVariables) !!}
+    {{ RenderHtmlContentAction::run((string) $content, $pageVariables) }}
 
     @if ($resolvedMedia && $mediaOrdering === 'after')
         <x-capell::media
