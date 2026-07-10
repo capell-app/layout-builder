@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Actions\WidgetExtensions\RestoreWidgetInteractionContex
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotFingerprint;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotRequestDomain;
 
 final readonly class ResolvePublicWidgetSnapshotAction
 {
@@ -16,6 +17,7 @@ final readonly class ResolvePublicWidgetSnapshotAction
         private WidgetSnapshotLocatorCodec $codec,
         private RestoreWidgetInteractionContextAction $contextRestorer,
         private WidgetSnapshotFingerprint $fingerprint,
+        private WidgetSnapshotRequestDomain $requestDomain,
     ) {}
 
     /** @return array{snapshot: PublicWidgetSnapshot, context: FrontendRenderContextData, widget: array<string, mixed>}|null */
@@ -32,6 +34,9 @@ final readonly class ResolvePublicWidgetSnapshotAction
             || $snapshot->pageable_type !== $decoded->pageableType
             || $snapshot->pageable_id !== $decoded->pageableId
             || ! hash_equals($snapshot->target_instance_id, $decoded->targetInstanceId)) {
+            return null;
+        }
+        if ($this->requestDomain->resolve($snapshot->site_id, $snapshot->language_id) === null) {
             return null;
         }
 

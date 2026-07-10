@@ -76,7 +76,7 @@ Published nested widget targets are stored as immutable public snapshots. Snapsh
 
 The HTML endpoint is the no-JavaScript fallback. Clients requesting `application/vnd.capell.widget.v2+json` receive validated HTML and opaque, registry-owned resource IDs only. Both response forms use `private, no-store`, restore the original public context, build typed widget payloads before the public query guard, and return the same empty 404 for invalid, expired, revoked, cross-context, or tampered locators.
 
-Saving public content creates a new immutable revision when its context or widget fingerprint changes and supersedes the former revision. Superseded locators remain available for the configured public HTML/CDN TTL plus stale-while-revalidate period. Unpublish, visibility expiry, deletion, and explicit security withdrawal revoke every revision immediately. Run `php artisan capell:widget-snapshots:prune` to remove expired or revoked encrypted rows.
+Saving public content creates a new immutable revision when its context or widget fingerprint changes and supersedes the former revision. The database-enforced current row has no expiry; TTL plus stale-while-revalidate is assigned only when it becomes historical. Superseded locators remain available through that grace period. Unpublish, visibility expiry, deletion, and explicit security withdrawal revoke every revision immediately. Run `php artisan capell:widget-snapshots:prune` to remove expired or revoked encrypted rows.
 
 Static-export standalone fragment materialization is intentionally deferred to the dedicated static-export integration slice. Exporters must use the snapshot rebuild/typed render actions rather than calling the public locator endpoint or embedding runtime locators in exported HTML.
 

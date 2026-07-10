@@ -9,6 +9,7 @@ use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Data\WidgetSnapshots\WidgetSnapshotLocatorData;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
+use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotRequestDomain;
 use Illuminate\Database\Eloquent\Model;
 use Throwable;
 
@@ -17,6 +18,7 @@ final readonly class BuildPublicWidgetInteractionLocatorsAction implements Publi
     public function __construct(
         private RebuildPublicWidgetSnapshotsAction $revisionResolver,
         private WidgetSnapshotLocatorCodec $codec,
+        private WidgetSnapshotRequestDomain $requestDomain,
     ) {}
 
     /** @return array<string, string> */
@@ -27,6 +29,10 @@ final readonly class BuildPublicWidgetInteractionLocatorsAction implements Publi
             $siteId = $context->site?->getKey();
             $languageId = $context->language?->getKey();
             if (! $page instanceof Model || ! is_int($siteId) || ! is_int($languageId)) {
+                return [];
+            }
+            $domain = $this->requestDomain->resolve($siteId, $languageId);
+            if ($domain === null) {
                 return [];
             }
 
@@ -42,7 +48,8 @@ final readonly class BuildPublicWidgetInteractionLocatorsAction implements Publi
                 ->where('owner_revision', $this->revisionResolver->ownerRevision($context))
                 ->whereNull('superseded_at')
                 ->whereNull('revoked_at')
-                ->where('expires_at', '>', now())
+                ->whereNull('expires_at')
+                ->whereNotNull('current_key')
                 ->get();
 
             foreach ($snapshots as $snapshot) {
@@ -60,7 +67,7 @@ final readonly class BuildPublicWidgetInteractionLocatorsAction implements Publi
                     pageableId: $snapshot->pageable_id,
                     targetInstanceId: $instanceId,
                 ));
-                $locators[$instanceId] = url('/_capell/layout-widgets/' . rawurlencode($locator));
+                $locators[$instanceId] = $this->requestDomain->locatorUrl($domain, $locator);
             }
 
             return $locators;

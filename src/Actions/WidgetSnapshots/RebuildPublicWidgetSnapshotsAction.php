@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotFingerprint;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use JsonException;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -60,61 +61,69 @@ final readonly class RebuildPublicWidgetSnapshotsAction
                 $discovered->definition->stateVersion,
                 $discovered->widget,
             );
+            $currentKey = hash('sha256', $fingerprint . ':' . $discovered->instanceId);
 
-            $snapshot = DB::transaction(function () use (
-                $siteId,
-                $pageableType,
-                $pageableId,
-                $languageId,
-                $layoutId,
-                $themeId,
-                $ownerRevision,
-                $fingerprint,
-                $discovered,
-                $expiresAt,
-            ): PublicWidgetSnapshot {
-                $existing = PublicWidgetSnapshot::query()
-                    ->where('context_fingerprint', $fingerprint)
-                    ->where('target_instance_id', $discovered->instanceId)
-                    ->whereNull('superseded_at')
-                    ->whereNull('revoked_at')
-                    ->where('expires_at', '>', now())
-                    ->first();
+            try {
+                $snapshot = DB::transaction(function () use (
+                    $siteId,
+                    $pageableType,
+                    $pageableId,
+                    $languageId,
+                    $layoutId,
+                    $themeId,
+                    $ownerRevision,
+                    $fingerprint,
+                    $currentKey,
+                    $discovered,
+                    $expiresAt,
+                ): PublicWidgetSnapshot {
+                    $existing = PublicWidgetSnapshot::query()
+                        ->where('current_key', $currentKey)
+                        ->lockForUpdate()
+                        ->first();
+                    if ($existing instanceof PublicWidgetSnapshot && $existing->isAvailable()) {
+                        return $existing;
+                    }
 
-                if ($existing instanceof PublicWidgetSnapshot) {
-                    return $existing;
+                    PublicWidgetSnapshot::query()
+                        ->where('site_id', $siteId)
+                        ->where('pageable_type', $pageableType)
+                        ->where('pageable_id', $pageableId)
+                        ->where('language_id', $languageId)
+                        ->where('target_instance_id', $discovered->instanceId)
+                        ->whereNull('superseded_at')
+                        ->whereNull('revoked_at')
+                        ->lockForUpdate()
+                        ->update([
+                            'current_key' => null,
+                            'superseded_at' => now(),
+                            'expires_at' => $expiresAt,
+                        ]);
+
+                    return PublicWidgetSnapshot::query()->create([
+                        'site_id' => $siteId,
+                        'pageable_type' => $pageableType,
+                        'pageable_id' => $pageableId,
+                        'language_id' => $languageId,
+                        'layout_id' => $layoutId,
+                        'theme_id' => $themeId,
+                        'render_profile' => 'blade',
+                        'owner_revision' => $ownerRevision,
+                        'context_fingerprint' => $fingerprint,
+                        'current_key' => $currentKey,
+                        'target_instance_id' => $discovered->instanceId,
+                        'widget_key' => $discovered->definition->key,
+                        'definition_state_version' => $discovered->definition->stateVersion,
+                        'encrypted_payload' => ['widget' => $discovered->widget],
+                        'expires_at' => null,
+                    ]);
+                });
+            } catch (QueryException $queryException) {
+                $snapshot = PublicWidgetSnapshot::query()->where('current_key', $currentKey)->first();
+                if (! $snapshot instanceof PublicWidgetSnapshot) {
+                    throw $queryException;
                 }
-
-                $previous = PublicWidgetSnapshot::query()
-                    ->where('site_id', $siteId)
-                    ->where('pageable_type', $pageableType)
-                    ->where('pageable_id', $pageableId)
-                    ->where('language_id', $languageId)
-                    ->where('target_instance_id', $discovered->instanceId)
-                    ->whereNull('superseded_at')
-                    ->whereNull('revoked_at');
-                (clone $previous)->where('expires_at', '>', now())
-                    ->update(['superseded_at' => now(), 'expires_at' => $expiresAt]);
-                (clone $previous)->where('expires_at', '<=', now())
-                    ->update(['superseded_at' => now()]);
-
-                return PublicWidgetSnapshot::query()->create([
-                    'site_id' => $siteId,
-                    'pageable_type' => $pageableType,
-                    'pageable_id' => $pageableId,
-                    'language_id' => $languageId,
-                    'layout_id' => $layoutId,
-                    'theme_id' => $themeId,
-                    'render_profile' => 'blade',
-                    'owner_revision' => $ownerRevision,
-                    'context_fingerprint' => $fingerprint,
-                    'target_instance_id' => $discovered->instanceId,
-                    'widget_key' => $discovered->definition->key,
-                    'definition_state_version' => $discovered->definition->stateVersion,
-                    'encrypted_payload' => ['widget' => $discovered->widget],
-                    'expires_at' => $expiresAt,
-                ]);
-            });
+            }
 
             $snapshots[$discovered->instanceId] = $snapshot;
         }
@@ -123,18 +132,15 @@ final readonly class RebuildPublicWidgetSnapshotsAction
             static fn (PublicWidgetSnapshot $snapshot): int => $snapshot->id,
             array_values($snapshots),
         );
-        $removed = PublicWidgetSnapshot::query()
+        PublicWidgetSnapshot::query()
             ->where('site_id', $siteId)
             ->where('pageable_type', $pageableType)
             ->where('pageable_id', $pageableId)
             ->where('language_id', $languageId)
             ->whereNull('superseded_at')
             ->whereNull('revoked_at')
-            ->when($currentSnapshotIds !== [], fn ($query) => $query->whereNotIn('id', $currentSnapshotIds));
-        (clone $removed)->where('expires_at', '>', now())
-            ->update(['superseded_at' => now(), 'expires_at' => $expiresAt]);
-        (clone $removed)->where('expires_at', '<=', now())
-            ->update(['superseded_at' => now()]);
+            ->when($currentSnapshotIds !== [], fn ($query) => $query->whereNotIn('id', $currentSnapshotIds))
+            ->update(['current_key' => null, 'superseded_at' => now(), 'expires_at' => $expiresAt]);
 
         return $snapshots;
     }

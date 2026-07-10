@@ -57,7 +57,9 @@ it('treats an explicit unpublished workflow state as non-public even with null v
 
     PageSavedAction::run($context->page);
 
-    expect(PublicWidgetSnapshot::query()->sole()->revoked_at)->not->toBeNull();
+    $snapshot = PublicWidgetSnapshot::query()->sole();
+    expect($snapshot->revoked_at)->not->toBeNull()
+        ->and($snapshot->current_key)->toBeNull();
 });
 
 it('revokes through the workflow subscriber for unpublish and archive stored events', function (string $eventName, string $eventClass): void {

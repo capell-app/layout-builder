@@ -23,6 +23,6 @@ final class RevokePublicWidgetSnapshotsAction
             ->where('pageable_type', $page->getMorphClass())
             ->where('pageable_id', $page->getKey())
             ->whereNull('revoked_at')
-            ->update(['revoked_at' => now()]);
+            ->update(['revoked_at' => now(), 'current_key' => null]);
     }
 }

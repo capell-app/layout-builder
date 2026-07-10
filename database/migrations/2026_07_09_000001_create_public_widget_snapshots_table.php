@@ -21,12 +21,13 @@ return new class extends Migration
             $table->string('render_profile')->default('blade');
             $table->string('owner_revision', 64);
             $table->string('context_fingerprint', 64);
+            $table->string('current_key', 64)->nullable()->unique();
             $table->string('target_instance_id', 100);
             $table->string('widget_key', 150);
             $table->unsignedInteger('definition_state_version');
             $table->longText('encrypted_payload');
             $table->timestamp('superseded_at')->nullable();
-            $table->timestamp('expires_at');
+            $table->timestamp('expires_at')->nullable();
             $table->timestamp('revoked_at')->nullable();
             $table->timestamps();
 

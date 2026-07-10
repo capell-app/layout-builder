@@ -44,7 +44,26 @@ final readonly class WidgetSnapshotResourceIds
         }
 
         $source = trim($resource->source);
-        if ($source === '' || Str::startsWith(strtolower($source), ['data:', 'javascript:', 'blob:']) || str_contains($source, '<')) {
+        if ($source === ''
+            || preg_match('/[\x00-\x20\x7f]/', $source) === 1
+            || Str::startsWith(strtolower($source), ['data:', 'javascript:', 'blob:'])
+            || Str::contains($source, ['<', '>', '\\'])) {
+            return false;
+        }
+
+        $path = parse_url($source, PHP_URL_PATH);
+        if (! is_string($path) || $path === '') {
+            return false;
+        }
+        $decodedPath = rawurldecode($path);
+        if (in_array('..', explode('/', $decodedPath), true)) {
+            return false;
+        }
+        $extension = strtolower(pathinfo($decodedPath, PATHINFO_EXTENSION));
+        if ($resource->kind === 'css' && $extension !== 'css') {
+            return false;
+        }
+        if ($resource->kind === 'js' && ! in_array($extension, ['js', 'mjs'], true)) {
             return false;
         }
 

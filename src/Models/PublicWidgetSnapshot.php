@@ -18,12 +18,13 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $render_profile
  * @property string $owner_revision
  * @property string $context_fingerprint
+ * @property string|null $current_key
  * @property string $target_instance_id
  * @property string $widget_key
  * @property int $definition_state_version
  * @property array<string, mixed> $encrypted_payload
  * @property CarbonImmutable|null $superseded_at
- * @property CarbonImmutable $expires_at
+ * @property CarbonImmutable|null $expires_at
  * @property CarbonImmutable|null $revoked_at
  */
 final class PublicWidgetSnapshot extends Model
@@ -31,14 +32,15 @@ final class PublicWidgetSnapshot extends Model
     /** @var list<string> */
     protected $fillable = [
         'site_id', 'pageable_type', 'pageable_id', 'language_id', 'layout_id', 'theme_id',
-        'render_profile', 'owner_revision', 'context_fingerprint', 'target_instance_id',
+        'render_profile', 'owner_revision', 'context_fingerprint', 'current_key', 'target_instance_id',
         'widget_key', 'definition_state_version', 'encrypted_payload', 'superseded_at',
         'expires_at', 'revoked_at',
     ];
 
     public function isAvailable(): bool
     {
-        return $this->revoked_at === null && $this->expires_at->isFuture();
+        return $this->revoked_at === null
+            && ($this->expires_at === null || $this->expires_at->isFuture());
     }
 
     /** @return array<string, string> */
