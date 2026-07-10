@@ -16,6 +16,16 @@ final class LayoutPresetPolicy
 
     private const string SUBJECT = 'Layout';
 
+    public function viewAny(User $user): bool
+    {
+        return $this->allows(fn (): bool => $user->checkPermissionTo(self::permission('view_any', self::SUBJECT)));
+    }
+
+    public function view(User $user, LayoutPreset $preset): bool
+    {
+        return $this->update($user, $preset);
+    }
+
     public function create(User $user, Site $site): bool
     {
         return $this->canManagePresetsForSite($user, $site);

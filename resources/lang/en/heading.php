@@ -12,6 +12,7 @@ return [
     'create_type_type' => 'Create Type Type',
     'customise_dashboard' => 'Customize dashboard',
     'edit_container' => 'Edit Container',
+    'update_linked_container' => 'Update linked container: :key',
     'edit_layout_record' => 'Edit Layout Record',
     'edit_navigation_record' => 'Edit Navigation Record',
     'edit_page_record' => 'Edit Page Record',

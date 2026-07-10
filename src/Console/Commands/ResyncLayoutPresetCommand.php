@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Console\Commands;
+
+use Capell\LayoutBuilder\Actions\CreateLayoutPresetSyncRunAction;
+use Capell\LayoutBuilder\Enums\LayoutPresetMode;
+use Capell\LayoutBuilder\Models\LayoutPreset;
+use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Builder;
+
+final class ResyncLayoutPresetCommand extends Command
+{
+    protected $signature = 'layout-builder:resync-preset {preset : Linked layout preset ID or key}';
+
+    protected $description = 'Queue a recovery synchronization for a linked layout preset.';
+
+    public function handle(): int
+    {
+        $identifier = (string) $this->argument('preset');
+        $preset = LayoutPreset::query()
+            ->where('mode', LayoutPresetMode::Linked)
+            ->where(static function (Builder $query) use ($identifier): void {
+                $query->where('key', $identifier)->orWhereKey($identifier);
+            })
+            ->first();
+
+        if (! $preset instanceof LayoutPreset) {
+            $this->components->error('Linked layout preset not found.');
+
+            return self::FAILURE;
+        }
+
+        $run = CreateLayoutPresetSyncRunAction::run($preset);
+        $this->components->info(sprintf('Queued preset sync run %s.', $run->uuid));
+
+        return self::SUCCESS;
+    }
+}

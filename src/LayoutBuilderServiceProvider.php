@@ -17,6 +17,7 @@ use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
+use Capell\LayoutBuilder\Console\Commands\ResyncLayoutPresetCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
@@ -117,6 +118,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 WidgetVisualRegressionCommand::class,
                 InstallCommand::class,
                 LayoutBulkChangeCommand::class,
+                ResyncLayoutPresetCommand::class,
             ]);
         }
     }

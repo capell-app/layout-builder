@@ -17,6 +17,7 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\LayoutPresets\LayoutPresetResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
@@ -86,6 +87,11 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
             class: LayoutResource::class,
+            group: ResourceEnum::Layout->name,
+        ));
+
+        CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
+            class: LayoutPresetResource::class,
             group: ResourceEnum::Layout->name,
         ));
     }
@@ -216,13 +222,14 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private function hasRegisteredAdminSurface(): bool
     {
-        if (! class_exists(LayoutResource::class) || ! class_exists(WidgetResource::class)) {
+        if (! class_exists(LayoutResource::class) || ! class_exists(LayoutPresetResource::class) || ! class_exists(WidgetResource::class)) {
             return false;
         }
 
         $resources = CapellAdmin::getAdminSurfaceRegistry()->resources();
 
         return $this->containsResource($resources, LayoutResource::class, self::LEGACY_LAYOUT_RESOURCE)
+            && $this->containsResource($resources, LayoutPresetResource::class)
             && $this->containsResource($resources, WidgetResource::class, self::LEGACY_WIDGET_RESOURCE);
     }
 

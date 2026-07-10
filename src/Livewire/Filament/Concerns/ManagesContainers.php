@@ -19,6 +19,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use LogicException;
 use ReflectionMethod;
 
 trait ManagesContainers
@@ -62,6 +63,7 @@ trait ManagesContainers
     public function reorderContainers(string $containerKey, int $position): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         $result = ReorderLayoutContainerAction::run(
             state: LayoutBuilderStateData::fromLivewire($this->containers, $this->assets, $this->originalAssets, $this->selectedRecords),
@@ -98,6 +100,7 @@ trait ManagesContainers
     public function resizeContainer(string $containerKey, int $colspan, ?string $breakpoint = null): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         $this->ensureLoaded();
 
@@ -134,6 +137,13 @@ trait ManagesContainers
             [$newContainerKey => $this->containers[$containerKey]] +
             array_slice($this->containers, $insertPosition, null, true);
 
+        if ($this->containerIsLinkedToPreset($containerKey)) {
+            $this->containers[$newContainerKey]['meta'] = array_diff_key(
+                $this->containers[$newContainerKey]['meta'] ?? [],
+                ['preset' => true],
+            );
+        }
+
         $this->containerWidgets = array_slice($this->containerWidgets, 0, $insertPosition, true) +
             [$newContainerKey => $this->containerWidgets[$containerKey] ?? []] +
             array_slice($this->containerWidgets, $insertPosition, null, true);
@@ -161,7 +171,7 @@ trait ManagesContainers
     /**
      * @param  array<array-key, mixed>  $data
      */
-    public function saveContainer(array $data, ?string $key = null, ?int $position = null): void
+    public function saveContainer(array $data, ?string $key = null, ?int $position = null, bool $allowLinked = false): void
     {
         $this->assertCanUpdateLayout();
 
@@ -169,6 +179,10 @@ trait ManagesContainers
 
         if (in_array($key, [null, '', '0'], true)) {
             $key = $data['key'];
+        }
+
+        if (! $allowLinked && is_string($key)) {
+            $this->assertContainerIsDetached($key);
         }
 
         if ($key !== $data['key']) {
@@ -192,6 +206,7 @@ trait ManagesContainers
     public function removeContainer(string $containerKey): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         unset($this->containers[$containerKey], $this->containerWidgets[$containerKey], $this->assets[$containerKey]);
 
@@ -374,6 +389,15 @@ trait ManagesContainers
         $widgets = $this->containers[$containerKey]['widgets'] ?? [];
 
         return is_array($widgets) ? $widgets : [];
+    }
+
+    protected function assertContainerIsDetached(string $containerKey): void
+    {
+        throw_if(
+            $this->containerIsLinkedToPreset($containerKey),
+            LogicException::class,
+            'Detach the linked preset before changing this container.',
+        );
     }
 
     private function moveContainer(string $containerKey, int $direction): void

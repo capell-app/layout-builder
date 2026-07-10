@@ -45,6 +45,16 @@ trait HasLayoutActions
         return $this->layoutBuilderActionFactory()->editContainerAction();
     }
 
+    public function editLinkedContainerAction(): Action
+    {
+        return $this->layoutBuilderActionFactory()->editLinkedContainerAction();
+    }
+
+    public function detachContainerFromPresetAction(): Action
+    {
+        return $this->layoutBuilderActionFactory()->detachContainerFromPresetAction();
+    }
+
     public function removeContainerAction(): Action
     {
         return $this->layoutBuilderActionFactory()->removeContainerAction();

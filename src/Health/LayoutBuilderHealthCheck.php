@@ -12,6 +12,9 @@ use Capell\LayoutBuilder\Models\Layout;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\LayoutPresetSyncResult;
+use Capell\LayoutBuilder\Models\LayoutPresetSyncRun;
+use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\WidgetWidget;
@@ -38,6 +41,9 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
         WidgetAsset::class,
         WidgetWidget::class,
         LayoutPreset::class,
+        LayoutPresetUsage::class,
+        LayoutPresetSyncRun::class,
+        LayoutPresetSyncResult::class,
         LayoutBulkChangeRun::class,
         LayoutBulkChangeResult::class,
     ];

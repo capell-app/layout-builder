@@ -13,6 +13,10 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\ApplyStarterLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutBuilderTreeAction;
+use Capell\LayoutBuilder\Actions\CountLinkedLayoutPresetUsagesAction;
+use Capell\LayoutBuilder\Actions\CreateLayoutPresetSyncRunAction;
+use Capell\LayoutBuilder\Actions\CreateLinkedLayoutPresetAction;
+use Capell\LayoutBuilder\Actions\InsertLinkedLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\ListLayoutPresetsAction;
 use Capell\LayoutBuilder\Actions\Mutations\CreateLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
@@ -22,13 +26,16 @@ use Capell\LayoutBuilder\Actions\Mutations\UndoLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
 use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
+use Capell\LayoutBuilder\Actions\StripLayoutPresetLinkAction;
 use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
 use Capell\LayoutBuilder\Data\LayoutPresetData;
+use Capell\LayoutBuilder\Data\LayoutPresetLinkData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode;
+use Capell\LayoutBuilder\Enums\LayoutPresetMode;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\AuthorizesLayoutBuilderAccess;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\HasLayoutActions;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesAssets;
@@ -36,9 +43,11 @@ use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesContainers;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesLayoutBuilderState;
 use Capell\LayoutBuilder\Livewire\Filament\Concerns\ManagesWidgets;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
 use Filament\Facades\Filament;
@@ -89,6 +98,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
     #[Locked]
     public Layout $layout;
+
+    #[Locked]
+    public ?string $expectedLayoutUpdatedAt = null;
 
     /**
      * @var array<array-key, mixed>
@@ -198,6 +210,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->assertCanUseLayoutBuilder();
 
         $this->loadNew();
+        $this->rememberLayoutVersion();
         $this->initializeVisualEditor($initialContainerKey, $initialWidgetIndex);
     }
 
@@ -294,7 +307,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     #[On('save-layout')]
-    public function saveLayout(bool $withNotifications = false): bool
+    public function saveLayout(bool $withNotifications = false, ?LayoutPreset $linkedPreset = null, ?LayoutPresetLinkData $linkedPresetLink = null, ?string $linkedContainerKey = null): bool
     {
         $this->assertCanUpdateLayout();
 
@@ -314,14 +327,28 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return false;
         }
 
-        PersistLayoutBuilderStateAction::run(
-            layout: $this->layout,
-            page: $this->page instanceof Model ? $this->page : null,
-            containers: $this->containers,
-            persistWidgetAssets: function (): void {
-                $this->persistWidgetAssets();
-            },
-        );
+        try {
+            $this->layout = PersistLayoutBuilderStateAction::run(
+                layout: $this->layout,
+                page: $this->page instanceof Model ? $this->page : null,
+                containers: $this->containers,
+                persistWidgetAssets: function (): void {
+                    $this->persistWidgetAssets();
+                },
+                expectedUpdatedAt: $this->expectedLayoutUpdatedAt === null ? null : CarbonImmutable::parse($this->expectedLayoutUpdatedAt),
+                linkedPreset: $linkedPreset,
+                linkedPresetLink: $linkedPresetLink,
+                linkedContainerKey: $linkedContainerKey,
+            );
+        } catch (LogicException $exception) {
+            $this->reload();
+            $this->rememberLayoutVersion();
+            $this->addError('layoutConflict', $exception->getMessage());
+
+            return false;
+        }
+
+        $this->rememberLayoutVersion();
 
         $this->dispatch('layout-builder-reset');
 
@@ -808,6 +835,153 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             ->send();
     }
 
+    /**
+     * @param  list<string>  $containerKeys
+     * @param  list<string>  $tags
+     */
+    public function saveLinkedLayoutPreset(array $containerKeys, string $name, string $category = 'general', array $tags = [], ?string $description = null, ?string $themeKey = null): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+
+        if (! $this->site instanceof Site) {
+            throw new LogicException('A linked layout preset requires a site.');
+        }
+
+        $this->assertCanCreateLayoutPreset($this->site);
+        $preset = CreateLinkedLayoutPresetAction::run(
+            layout: $this->layout,
+            site: $this->site,
+            containerKeys: $containerKeys,
+            name: $name,
+            category: $category,
+            tags: $tags,
+            description: $description,
+            themeKey: $themeKey,
+            containers: $this->containers,
+        );
+
+        foreach ($preset->snapshot['items'] ?? [] as $item) {
+            if (! is_array($item) || ! is_string($item['source_key'] ?? null) || ! is_string($item['id'] ?? null)) {
+                continue;
+            }
+
+            $container = $this->containers[$item['source_key']] ?? null;
+            if (! is_array($container)) {
+                continue;
+            }
+
+            $meta = is_array($container['meta'] ?? null) ? $container['meta'] : [];
+            $meta['preset'] = new LayoutPresetLinkData((int) $preset->getKey(), $item['id'], $preset->key)->toArray();
+            $container['meta'] = $meta;
+            $this->containers[$item['source_key']] = $container;
+        }
+
+        $this->layoutUpdated();
+    }
+
+    public function containerIsLinkedToPreset(string $containerKey): bool
+    {
+        return $this->linkedPresetLink($containerKey) !== null;
+    }
+
+    public function linkedPresetForContainer(string $containerKey): ?LayoutPreset
+    {
+        $link = $this->linkedPresetLink($containerKey);
+
+        if ($link === null) {
+            return null;
+        }
+
+        $preset = LayoutPreset::query()->find($link->presetId);
+
+        return $preset instanceof LayoutPreset && $preset->mode === LayoutPresetMode::Linked ? $preset : null;
+    }
+
+    public function detachContainerFromPreset(string $containerKey): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+        $this->assertValidContainerKey($containerKey);
+
+        $container = $this->containers[$containerKey] ?? null;
+        if (! is_array($container)) {
+            return;
+        }
+
+        $this->containers[$containerKey] = StripLayoutPresetLinkAction::run($container);
+        $this->layoutUpdated();
+    }
+
+    public function linkedPresetUsageCount(string $containerKey): int
+    {
+        $preset = $this->linkedPresetForContainer($containerKey);
+
+        if (! $preset instanceof LayoutPreset) {
+            return 0;
+        }
+
+        return CountLinkedLayoutPresetUsagesAction::run($preset, $this->layout);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function saveLinkedContainer(array $data, string $containerKey): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+
+        $link = $this->linkedPresetLink($containerKey);
+        $preset = $this->linkedPresetForContainer($containerKey);
+
+        throw_unless($link instanceof LayoutPresetLinkData && $preset instanceof LayoutPreset, LogicException::class, 'The selected container is not linked to a preset.');
+        $this->assertCanUpdateLayoutPreset($preset, $this->site);
+
+        $this->saveContainer($data, $containerKey, allowLinked: true);
+
+        if (! $this->saveLayout(linkedPreset: $preset, linkedPresetLink: $link, linkedContainerKey: $containerKey)) {
+            return;
+        }
+
+        $updatedPreset = $preset->fresh();
+        throw_unless($updatedPreset instanceof LayoutPreset, LogicException::class, 'The linked layout preset no longer exists.');
+
+        $sourceUsage = LayoutPresetUsage::query()
+            ->where('preset_id', $updatedPreset->getKey())
+            ->where('layout_id', $this->layout->getKey())
+            ->where('container_key', $containerKey)
+            ->first();
+
+        CreateLayoutPresetSyncRunAction::run(
+            $updatedPreset,
+            $sourceUsage instanceof LayoutPresetUsage ? $sourceUsage : null,
+            Filament::auth()->id(),
+        );
+
+        Notification::make('linked-layout-preset-updated')
+            ->body(__('capell-layout-builder::message.linked_layout_preset_sync_queued'))
+            ->success()
+            ->send();
+    }
+
+    public function updateLinkedPresetFromContainer(string $containerKey): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->ensureLoaded();
+
+        $link = $this->linkedPresetLink($containerKey);
+        $preset = $this->linkedPresetForContainer($containerKey);
+        $container = $this->containers[$containerKey] ?? null;
+
+        throw_unless($link instanceof LayoutPresetLinkData && $preset instanceof LayoutPreset && is_array($container), LogicException::class, 'The selected container is not linked to a preset.');
+
+        $this->saveLinkedContainer([
+            'key' => $containerKey,
+            'meta' => $container['meta'] ?? [],
+        ], $containerKey);
+    }
+
     public function insertLayoutPreset(string $name, string $targetContainerKey): void
     {
         $this->assertCanUpdateLayout();
@@ -839,6 +1013,18 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
         $this->assertCanApplyLayoutPreset($preset, $this->site);
+
+        if ($preset->mode === LayoutPresetMode::Linked) {
+            $knownContainerKeys = array_keys($this->containers ?? []);
+            $this->applyLayoutMutationResult(InsertLinkedLayoutPresetAction::run(
+                state: $this->layoutState(),
+                preset: $preset,
+                targetContainerKey: $targetContainerKey,
+            ));
+            $this->trackNewContainerKeysSince($knownContainerKeys);
+
+            return;
+        }
 
         $containers = is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [];
         $containers = resolve(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
@@ -1228,5 +1414,18 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         return $query
             ->where('name', $name)
             ->orWhere('key', $name);
+    }
+
+    private function rememberLayoutVersion(): void
+    {
+        $this->expectedLayoutUpdatedAt = $this->layout->updated_at?->toIso8601String();
+    }
+
+    private function linkedPresetLink(string $containerKey): ?LayoutPresetLinkData
+    {
+        $container = $this->containers[$containerKey] ?? null;
+        $meta = is_array($container) && is_array($container['meta'] ?? null) ? $container['meta'] : [];
+
+        return LayoutPresetLinkData::fromMeta($meta);
     }
 }

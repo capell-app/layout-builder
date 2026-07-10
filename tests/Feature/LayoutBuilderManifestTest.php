@@ -18,6 +18,9 @@ use Capell\LayoutBuilder\Manifest\LayoutBuilderRoutesContribution;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\LayoutPresetSyncResult;
+use Capell\LayoutBuilder\Models\LayoutPresetSyncRun;
+use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\WidgetWidget;
@@ -95,6 +98,9 @@ it('declares all package-owned storage tables in the manifest', function (): voi
         'layout_presets',
         'layout_bulk_change_runs',
         'layout_bulk_change_results',
+        'layout_preset_usages',
+        'layout_preset_sync_runs',
+        'layout_preset_sync_results',
     ]);
 });
 
@@ -125,6 +131,9 @@ it('declares runtime model page type route and migration contribution metadata',
             WidgetAsset::class,
             WidgetWidget::class,
             LayoutPreset::class,
+            LayoutPresetUsage::class,
+            LayoutPresetSyncRun::class,
+            LayoutPresetSyncResult::class,
             LayoutBulkChangeRun::class,
             LayoutBulkChangeResult::class,
         ])
@@ -158,6 +167,9 @@ it('declares runtime model page type route and migration contribution metadata',
             '2026_05_10_190841_05_add_container_widgets_to_layouts_table',
             '2026_05_10_190841_06_create_layout_presets_table',
             '2026_06_07_000001_create_layout_bulk_change_tables',
+            '2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table',
+            '2026_07_10_000002_create_layout_preset_usages_table',
+            '2026_07_10_000003_create_layout_preset_sync_runs_table',
         ])
         ->and(class_implements(LayoutBuilderMigrationsContribution::class))->toContain(RunsExtensionMigration::class);
 });

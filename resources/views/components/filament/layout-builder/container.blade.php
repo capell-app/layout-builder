@@ -18,6 +18,7 @@
     $containerTitle = str($containerKey)->title();
     $containerArea = $this->layoutAreaForContainer($container);
     $containerAreaLabel = $this->layoutAreaLabel($containerArea);
+    $isLinkedPresetContainer = $this->containerIsLinkedToPreset($containerKey);
 
     $containerWidgets = $container['widgets'] ?? [];
     $widgetCount = count($containerWidgets);
@@ -235,6 +236,14 @@
                             </span>
                         @endif
 
+                        @if ($isLinkedPresetContainer)
+                            <span
+                                class="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-[0.6875rem] font-medium text-amber-800 dark:bg-amber-400/20 dark:text-amber-200"
+                            >
+                                {{ __('capell-layout-builder::generic.linked_preset') }}
+                            </span>
+                        @endif
+
                         <span
                             class="mx-2 text-gray-300 dark:text-gray-600"
                             x-show="activeResponsiveOverrideLabel()"
@@ -267,17 +276,23 @@
                             <x-filament::dropdown.list>
                                 {{ ($this->editContainerAction)(['containerKey' => $containerKey]) }}
 
+                                {{ ($this->editLinkedContainerAction)(['containerKey' => $containerKey]) }}
+
+                                {{ ($this->detachContainerFromPresetAction)(['containerKey' => $containerKey]) }}
+
                                 {{ ($this->duplicateContainerAction)(['containerKey' => $containerKey]) }}
 
-                                @if (($this->moveContainerUpAction)(['containerKey' => $containerKey])?->isVisible())
+                                @if (! $this->containerIsLinkedToPreset($containerKey) && ($this->moveContainerUpAction)(['containerKey' => $containerKey])?->isVisible())
                                     {{ ($this->moveContainerUpAction)(['containerKey' => $containerKey]) }}
                                 @endif
 
-                                @if (($this->moveContainerDownAction)(['containerKey' => $containerKey])?->isVisible())
+                                @if (! $this->containerIsLinkedToPreset($containerKey) && ($this->moveContainerDownAction)(['containerKey' => $containerKey])?->isVisible())
                                     {{ ($this->moveContainerDownAction)(['containerKey' => $containerKey]) }}
                                 @endif
 
-                                {{ ($this->removeContainerAction)(['containerKey' => $containerKey]) }}
+                                @if (! $this->containerIsLinkedToPreset($containerKey))
+                                    {{ ($this->removeContainerAction)(['containerKey' => $containerKey]) }}
+                                @endif
                             </x-filament::dropdown.list>
                         </x-filament::dropdown>
                     </div>

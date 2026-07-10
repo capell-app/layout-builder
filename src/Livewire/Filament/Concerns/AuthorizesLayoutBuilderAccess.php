@@ -97,6 +97,16 @@ trait AuthorizesLayoutBuilderAccess
         Gate::forUser($actor)->authorize('apply', [$preset, $site]);
     }
 
+    protected function assertCanUpdateLayoutPreset(LayoutPreset $preset, ?Site $site): void
+    {
+        $actor = Filament::auth()->user();
+
+        throw_if($actor === null, AuthenticationException::class);
+        throw_unless($site instanceof Site, AuthorizationException::class);
+
+        Gate::forUser($actor)->authorize('update', [$preset, $site]);
+    }
+
     protected function assertLayoutMatchesPageSite(): void
     {
         if ($this->site instanceof Site) {

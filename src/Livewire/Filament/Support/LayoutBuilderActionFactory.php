@@ -217,8 +217,66 @@ final class LayoutBuilderActionFactory
                 'key' => $arguments['containerKey'],
                 'meta' => $livewire->containers[$arguments['containerKey']]['meta'] ?? [],
             ])
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']))
             ->action(function (Action $action, LayoutBuilder $livewire, array $data, array $arguments): void {
                 $livewire->saveContainer($data, $arguments['containerKey']);
+
+                $action->success();
+            });
+    }
+
+    public function editLinkedContainerAction(): Action
+    {
+        return Action::make('editLinkedContainer')
+            ->label(__('capell-layout-builder::button.update_linked_container'))
+            ->groupedIcon('heroicon-o-arrow-path')
+            ->size(Size::Small)
+            ->color('warning')
+            ->grouped()
+            ->record(fn (): Layout => $this->livewire->layout)
+            ->modalWidth(Width::ScreenLarge)
+            ->modalHeading(
+                fn (array $arguments): string|array => __(
+                    'capell-layout-builder::heading.update_linked_container',
+                    ['key' => (string) str($arguments['containerKey'])->title()],
+                ),
+            )
+            ->modalDescription(
+                fn (array $arguments, LayoutBuilder $livewire): string => __(
+                    'capell-layout-builder::message.update_linked_container_confirmation',
+                    ['count' => $livewire->linkedPresetUsageCount($arguments['containerKey'])],
+                ),
+            )
+            ->modalSubmitActionLabel(fn (Action $action): string => $this->labelText($action->getLabel()))
+            ->schema(
+                static fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $schema->operation('editOption')
+                    ->schema($livewire->getContainerSchema($schema, $arguments)),
+            )
+            ->fillForm(fn (LayoutBuilder $livewire, array $arguments): array => [
+                'key' => $arguments['containerKey'],
+                'meta' => $livewire->containers[$arguments['containerKey']]['meta'] ?? [],
+            ])
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->containerIsLinkedToPreset($arguments['containerKey']))
+            ->action(function (Action $action, LayoutBuilder $livewire, array $data, array $arguments): void {
+                $livewire->saveLinkedContainer($data, $arguments['containerKey']);
+
+                $action->success();
+            });
+    }
+
+    public function detachContainerFromPresetAction(): Action
+    {
+        return Action::make('detachContainerFromPreset')
+            ->label(__('capell-layout-builder::button.detach_linked_container'))
+            ->groupedIcon('heroicon-o-link-slash')
+            ->color('gray')
+            ->size(Size::Small)
+            ->grouped()
+            ->requiresConfirmation()
+            ->modalDescription(__('capell-layout-builder::message.detach_linked_container_confirmation'))
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->containerIsLinkedToPreset($arguments['containerKey']))
+            ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
+                $livewire->detachContainerFromPreset($arguments['containerKey']);
 
                 $action->success();
             });
@@ -296,7 +354,7 @@ final class LayoutBuilderActionFactory
             ->color('gray')
             ->grouped()
             ->visible(
-                fn (array $arguments, LayoutBuilder $livewire): bool => (bool) $livewire->getContainerWidgetConfigurator(
+                fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']) && (bool) $livewire->getContainerWidgetConfigurator(
                     $arguments['containerKey'],
                     $arguments['widgetIndex'],
                 ),
@@ -345,7 +403,8 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->color('primary')
             ->button()
-            ->visible(fn (): bool => (bool) $this->livewire->containers)
+            ->visible(fn (array $arguments): bool => (bool) $this->livewire->containers
+                && (! isset($arguments['containerKey']) || ! $this->livewire->containerIsLinkedToPreset($arguments['containerKey'])))
             ->modalWidth(Width::ScreenLarge)
             ->extraAttributes(['data-layout-builder-action' => 'add-widget'])
             ->extraModalWindowAttributes([
@@ -458,6 +517,7 @@ final class LayoutBuilderActionFactory
             ->groupedIcon('heroicon-o-square-2-stack')
             ->color('gray')
             ->size('sm')
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']))
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
                 $livewire->duplicateWidget(containerKey: $arguments['containerKey'], originalIndex: $arguments['widgetIndex']);
 
@@ -473,7 +533,7 @@ final class LayoutBuilderActionFactory
             ->groupedIcon('heroicon-o-arrow-up')
             ->color('gray')
             ->size(Size::Small)
-            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveWidgetUp(
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']) && $livewire->canMoveWidgetUp(
                 $arguments['containerKey'],
                 $arguments['widgetIndex'],
             ))
@@ -492,7 +552,7 @@ final class LayoutBuilderActionFactory
             ->groupedIcon('heroicon-o-arrow-down')
             ->color('gray')
             ->size(Size::Small)
-            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveWidgetDown(
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']) && $livewire->canMoveWidgetDown(
                 $arguments['containerKey'],
                 $arguments['widgetIndex'],
             ))
@@ -513,7 +573,7 @@ final class LayoutBuilderActionFactory
             ->size(Size::Small)
             ->modalWidth(Width::ScreenSmall)
             ->modalHeading(__('capell-layout-builder::button.move_to_container'))
-            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => $livewire->canMoveWidgetToAnotherContainer(
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']) && $livewire->canMoveWidgetToAnotherContainer(
                 $arguments['containerKey'],
                 $arguments['widgetIndex'],
             ))

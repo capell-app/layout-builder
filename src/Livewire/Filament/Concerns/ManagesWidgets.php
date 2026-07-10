@@ -21,6 +21,7 @@ trait ManagesWidgets
     public function addWidgetToContainer(Widget $widget, string $containerKey): int
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         $occurrence = $this->getLastContainerWidgetOccurrence($containerKey, $widget->key) + 1;
 
@@ -60,6 +61,8 @@ trait ManagesWidgets
         $this->ensureLoaded();
 
         [$originalContainer, $originalIndex] = explode('.', $containerWidgetIndex);
+        $this->assertContainerIsDetached($containerKey);
+        $this->assertContainerIsDetached($originalContainer);
 
         $originalIndex = (int) $originalIndex;
 
@@ -167,6 +170,7 @@ trait ManagesWidgets
     public function duplicateWidget(string $containerKey, int $originalIndex, bool $withAssets = true): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         $this->ensureLoaded();
 
@@ -189,6 +193,7 @@ trait ManagesWidgets
     public function removeWidget(string $containerKey, int $widgetIndex): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         if (isset($this->containers[$containerKey]['widgets'][$widgetIndex])) {
             unset($this->containers[$containerKey]['widgets'][$widgetIndex]);
@@ -219,6 +224,7 @@ trait ManagesWidgets
     public function editLayoutWidget(string $containerKey, int $widgetIndex, array $data): void
     {
         $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
 
         $this->ensureLoaded();
 

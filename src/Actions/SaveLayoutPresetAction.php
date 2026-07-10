@@ -135,6 +135,18 @@ final class SaveLayoutPresetAction
     }
 
     /**
+     * @param  array<string, mixed>  $container
+     * @return array<string, mixed>
+     */
+    public function sanitizeLinkedPresetContainer(array $container): array
+    {
+        $container = StripLayoutPresetLinkAction::run($container);
+        $sanitized = $this->scrubUnsafePresetData($container);
+
+        return is_array($sanitized) ? $sanitized : [];
+    }
+
+    /**
      * @param  array<array-key, mixed>|null  $containers
      * @return array<array-key, mixed>
      */

@@ -50,6 +50,12 @@
             "group": "Widget"
         },
         {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutPresets\\LayoutPresetResource",
+            "group": "Layout"
+        },
+        {
             "type": "configurator",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
             "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
@@ -92,6 +98,9 @@
                 "Capell\\LayoutBuilder\\Models\\WidgetAsset",
                 "Capell\\LayoutBuilder\\Models\\WidgetWidget",
                 "Capell\\LayoutBuilder\\Models\\LayoutPreset",
+                "Capell\\LayoutBuilder\\Models\\LayoutPresetUsage",
+                "Capell\\LayoutBuilder\\Models\\LayoutPresetSyncRun",
+                "Capell\\LayoutBuilder\\Models\\LayoutPresetSyncResult",
                 "Capell\\LayoutBuilder\\Models\\LayoutBulkChangeRun",
                 "Capell\\LayoutBuilder\\Models\\LayoutBulkChangeResult"
             ],
@@ -132,7 +141,10 @@
                 "2026_05_10_190841_04_create_widget_widgets_table",
                 "2026_05_10_190841_05_add_container_widgets_to_layouts_table",
                 "2026_05_10_190841_06_create_layout_presets_table",
-                "2026_06_07_000001_create_layout_bulk_change_tables"
+                "2026_06_07_000001_create_layout_bulk_change_tables",
+                "2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table",
+                "2026_07_10_000002_create_layout_preset_usages_table",
+                "2026_07_10_000003_create_layout_preset_sync_runs_table"
             ]
         }
     ],
@@ -146,7 +158,10 @@
             "widget_widgets",
             "layout_presets",
             "layout_bulk_change_runs",
-            "layout_bulk_change_results"
+            "layout_bulk_change_results",
+            "layout_preset_usages",
+            "layout_preset_sync_runs",
+            "layout_preset_sync_results"
         ]
     },
     "commands": {
