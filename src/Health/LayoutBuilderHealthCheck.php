@@ -50,7 +50,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
 
     public static function compatibleCapellApiVersion(): string
     {
-        return '^4.1';
+        return '^1.0';
     }
 
     /**
