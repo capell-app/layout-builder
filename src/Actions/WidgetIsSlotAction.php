@@ -17,7 +17,7 @@ final class WidgetIsSlotAction
             return true;
         }
 
-        if (! $widget->relationLoaded('type')) {
+        if (! $widget->relationLoaded('blueprint')) {
             return false;
         }
 

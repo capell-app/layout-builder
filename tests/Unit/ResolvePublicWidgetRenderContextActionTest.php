@@ -14,7 +14,7 @@ it('resolves public widget render context outside the blade view', function (): 
         'key' => 'promo-card',
         'meta' => ['resource_groups' => ['type-gallery', 'shared']],
     ]);
-    $widget->type?->forceFill([
+    $widget->blueprint?->forceFill([
         'meta' => [
             'presentation' => ['delivery_mode' => PresentationDeliveryMode::ServerRendered->value],
             'resource_groups' => ['type-gallery', 'shared'],

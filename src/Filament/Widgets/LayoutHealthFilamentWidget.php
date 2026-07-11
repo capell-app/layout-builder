@@ -88,11 +88,11 @@ final class LayoutHealthFilamentWidget extends FilamentWidget implements CapellF
      */
     private function getWidgetsByGroup(string $widgetModel): Collection
     {
-        $widgets = $widgetModel::query()->with('type')->get();
+        $widgets = $widgetModel::query()->with('blueprint')->get();
         $groups = [];
 
         foreach ($widgets as $widget) {
-            $group = $widget->type->group ?? 'default';
+            $group = $widget->blueprint->group ?? 'default';
             if (! isset($groups[$group])) {
                 $groups[$group] = ['total' => 0, 'published' => 0, 'pending' => 0, 'expired' => 0];
             }
@@ -130,7 +130,7 @@ final class LayoutHealthFilamentWidget extends FilamentWidget implements CapellF
     private function getLeastUsedWidgets(string $widgetModel): Collection
     {
         $leastUsed = $widgetModel::query()
-            ->with('type')
+            ->with('blueprint')
             ->withCount(['assets' => fn (Builder $query) => $query->distinct('container')])
             ->orderBy('assets_count', 'asc')
             ->limit(5)
@@ -138,7 +138,7 @@ final class LayoutHealthFilamentWidget extends FilamentWidget implements CapellF
             ->map(fn (Widget $widget): LeastUsedWidgetData => new LeastUsedWidgetData(
                 name: $widget->name ?? $widget->class,
                 layoutCount: $widget->assets_count ?? 0,
-                group: $widget->type->group ?? 'default',
+                group: $widget->blueprint->group ?? 'default',
             ));
 
         return LeastUsedWidgetData::collect($leastUsed, Collection::class);
@@ -151,12 +151,12 @@ final class LayoutHealthFilamentWidget extends FilamentWidget implements CapellF
     private function getUnusedWidgets(string $widgetModel): Collection
     {
         $unused = $widgetModel::query()
-            ->with('type')
+            ->with('blueprint')
             ->doesntHave('assets')
             ->get()
             ->map(fn (Widget $widget): UnusedWidgetData => new UnusedWidgetData(
                 name: $widget->name ?? $widget->class,
-                group: $widget->type->group ?? 'default',
+                group: $widget->blueprint->group ?? 'default',
             ));
 
         return UnusedWidgetData::collect($unused, Collection::class);

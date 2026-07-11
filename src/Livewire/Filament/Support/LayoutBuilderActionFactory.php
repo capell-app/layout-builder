@@ -942,7 +942,7 @@ final class LayoutBuilderActionFactory
 
                 $assetTypes = isset($widget->admin['asset_types']) && $widget->admin['asset_types'] !== []
                     ? $widget->admin['asset_types']
-                    : ($widget->type->admin['asset_types'] ?? null);
+                    : ($widget->blueprint->admin['asset_types'] ?? null);
 
                 if ($assetTypes === null) {
                     return false;

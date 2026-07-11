@@ -39,7 +39,7 @@ final class ResolvePublicWidgetRenderContextAction
 
         $presentation = ResolvePresentationSettingsAction::run(
             instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
-            typeDefaults: is_array($widget->type?->meta['presentation'] ?? null) ? $widget->type->meta['presentation'] : [],
+            typeDefaults: is_array($widget->blueprint?->meta['presentation'] ?? null) ? $widget->blueprint->meta['presentation'] : [],
         );
         $isLazyFragment = $presentation->deliveryMode === PresentationDeliveryMode::LazyFragment;
 
@@ -54,7 +54,7 @@ final class ResolvePublicWidgetRenderContextAction
             widgetIndex: $widgetIndex,
         );
         $typeDefaultInteractions = $this->triggersWithCurrentWidgetFragment(
-            triggers: is_array($widget->type?->meta['interactions'] ?? null) ? $widget->type->meta['interactions'] : [],
+            triggers: is_array($widget->blueprint?->meta['interactions'] ?? null) ? $widget->blueprint->meta['interactions'] : [],
             widgetReference: $widgetReference,
             containerKey: $containerKey,
             layoutKey: $layoutKey,
@@ -199,7 +199,7 @@ final class ResolvePublicWidgetRenderContextAction
     private function resourcePublicIds(Widget $widget, array $widgetData, string $containerKey, int $occurrence, array $widgetMeta): array
     {
         $resourceGroups = collect([
-            ...(is_array($widget->type?->meta['resource_groups'] ?? null) ? $widget->type->meta['resource_groups'] : []),
+            ...(is_array($widget->blueprint?->meta['resource_groups'] ?? null) ? $widget->blueprint->meta['resource_groups'] : []),
             ...(is_array($widgetMeta['resource_groups'] ?? null) ? $widgetMeta['resource_groups'] : []),
         ])
             ->filter(static fn (mixed $resourceGroup): bool => is_string($resourceGroup) && $resourceGroup !== '')

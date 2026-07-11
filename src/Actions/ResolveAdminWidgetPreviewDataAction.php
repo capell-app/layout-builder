@@ -49,7 +49,7 @@ final class ResolveAdminWidgetPreviewDataAction
     private function view(Widget $widget, bool $usesPageContent): string
     {
         $customView = Arr::get($widget->admin ?? [], 'admin_preview_view')
-            ?? Arr::get($widget->type->admin ?? [], 'admin_preview_view');
+            ?? Arr::get($widget->blueprint->admin ?? [], 'admin_preview_view');
 
         if (is_string($customView) && $customView !== '' && $this->isPreviewView($customView)) {
             return $customView;
@@ -154,7 +154,7 @@ final class ResolveAdminWidgetPreviewDataAction
     private function typeLabel(Widget $widget): ?string
     {
         $type = Arr::get($widget->admin ?? [], 'type')
-            ?? Arr::get($widget->type->admin ?? [], 'type');
+            ?? Arr::get($widget->blueprint->admin ?? [], 'type');
 
         return is_string($type) && $type !== '' ? $type : null;
     }
@@ -162,7 +162,7 @@ final class ResolveAdminWidgetPreviewDataAction
     private function icon(Widget $widget): ?string
     {
         $icon = Arr::get($widget->admin ?? [], 'icon')
-            ?? Arr::get($widget->type->admin ?? [], 'icon');
+            ?? Arr::get($widget->blueprint->admin ?? [], 'icon');
 
         return is_string($icon) && $icon !== '' ? $icon : null;
     }

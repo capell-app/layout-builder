@@ -83,7 +83,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
     private function layoutUsesLivewireWidgets(array $widgetKeys): bool
     {
         return Widget::query()
-            ->with('type')
+            ->with('blueprint')
             ->whereIn('key', $widgetKeys)
             ->whereHas('type', fn (Builder $query): Builder => $query->enabled()->accessible())
             ->enabled()

@@ -52,7 +52,7 @@ final class ResolveWidgetPresentationDataAction
             return trim($configuredKey);
         }
 
-        $typeKey = $widget->type?->key;
+        $typeKey = $widget->blueprint?->key;
         if (is_string($typeKey) && $registry->has($typeKey)) {
             return $typeKey;
         }

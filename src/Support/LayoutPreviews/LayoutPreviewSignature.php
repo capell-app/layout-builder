@@ -77,7 +77,7 @@ final class LayoutPreviewSignature
 
         /** @var EloquentCollection<int, Widget> $widgets */
         $widgets = Widget::query()
-            ->with('type')
+            ->with('blueprint')
             ->whereIn('key', $widgetKeys)
             ->get();
 
@@ -138,9 +138,9 @@ final class LayoutPreviewSignature
                 'key' => $widgetKey,
                 'occurrence' => LayoutWidgetData::occurrence($containerWidget),
                 'name' => $widget?->name,
-                'icon' => $widget?->admin['icon'] ?? $widget?->type?->admin['icon'] ?? null,
-                'type_name' => $widget?->type?->name,
-                'type_icon' => $widget?->type?->admin['icon'] ?? null,
+                'icon' => $widget?->admin['icon'] ?? $widget?->blueprint?->admin['icon'] ?? null,
+                'type_name' => $widget?->blueprint?->name,
+                'type_icon' => $widget?->blueprint?->admin['icon'] ?? null,
                 'meta_name' => $containerWidget['meta']['name'] ?? null,
             ];
         }

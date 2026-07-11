@@ -136,7 +136,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
         $blueprint = $this->relationLoaded('blueprint')
             ? $this->getRelation('blueprint')
-            : ($this->relationLoaded('type') ? $this->getRelation('type') : null);
+            : ($this->relationLoaded('blueprint') ? $this->getRelation('type') : null);
 
         if ($blueprint instanceof CoreBlueprint && $blueprint->is_livewire !== null) {
             return $blueprint->is_livewire ? 'livewire' : 'blade';
@@ -375,7 +375,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     {
         $blueprint = $this->relationLoaded('blueprint')
             ? $this->getRelation('blueprint')
-            : ($this->relationLoaded('type') ? $this->getRelation('type') : null);
+            : ($this->relationLoaded('blueprint') ? $this->getRelation('type') : null);
 
         return $blueprint instanceof CoreBlueprint ? $blueprint : null;
     }

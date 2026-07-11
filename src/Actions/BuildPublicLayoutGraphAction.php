@@ -135,7 +135,7 @@ class BuildPublicLayoutGraphAction
         return new PublicLayoutWidgetData(
             key: $widgetKey,
             occurrence: $occurrence,
-            type: $widget->type?->key,
+            type: $widget->blueprint?->key,
             data: $resolver->data($publicWidget, $page, $language, $containerKey, $occurrence),
             html: $includeHtml ? $resolver->html($publicWidget, $page, $language, $containerKey, $occurrence) : null,
         );
