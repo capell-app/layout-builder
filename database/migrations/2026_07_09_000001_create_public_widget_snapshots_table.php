@@ -10,6 +10,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('public_widget_snapshots')) {
+            return;
+        }
+
         Schema::create('public_widget_snapshots', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('site_id')->constrained()->cascadeOnDelete();
