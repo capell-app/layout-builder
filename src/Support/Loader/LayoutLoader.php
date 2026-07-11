@@ -84,10 +84,9 @@ class LayoutLoader
 
         $layout->setRelation('layoutWidgets', Widget::query()
             ->whereIn('key', $selectedWidgetKeys)
-            ->whereHas('type', fn (BuilderContract $query): BuilderContract => $query->enabled()->accessible())
+            ->whereHas('blueprint', fn (BuilderContract $query): BuilderContract => $query->enabled()->accessible())
             ->with([
                 'blueprint',
-                'type',
                 'media' => fn (BuilderContract $query): BuilderContract => $query->ordered(),
                 'translation' => fn (BuilderContract $query): BuilderContract => $query->where('language_id', $language->id),
             ])
