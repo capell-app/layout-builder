@@ -340,34 +340,34 @@
                 "caption": "Layout Builder extension preview"
             },
             {
-                "path": "docs/assets/marketplace/bulk-change-criteria.svg",
-                "alt": "Layout Builder bulk change criteria wizard",
-                "caption": "Admins define filters and guided widget operations before any shared layout is mutated."
+                "path": "docs/screenshots/layout-builder-add-widget-action.png",
+                "alt": "Layout Builder Add Widget action showing available widget records",
+                "caption": "Choose an existing reusable widget and add it to the selected layout container."
             },
             {
-                "path": "docs/assets/marketplace/bulk-change-review.svg",
-                "alt": "Layout Builder bulk change review table",
-                "caption": "Review affected layouts, page counts, widget order diffs, warnings, and skipped records before approval."
+                "path": "docs/screenshots/layout-builder-add-container-action.png",
+                "alt": "Layout Builder Add Container action with area and presentation controls",
+                "caption": "Create a named layout container and assign it to an explicit theme area."
             },
             {
-                "path": "docs/assets/marketplace/bulk-change-approved.svg",
-                "alt": "Layout Builder approved bulk change run",
-                "caption": "Hash-guarded apply skips layouts that changed after preview instead of overwriting newer editor work."
+                "path": "docs/screenshots/layout-builder-edit-widget-action.png",
+                "alt": "Layout Builder widget editor with translation and presentation tabs",
+                "caption": "Edit reusable widget copy, translations, placement, items, appearance, rendering, and settings."
             },
             {
-                "path": "docs/assets/marketplace/content-first-editor.svg",
-                "alt": "Layout Builder content-first page editor",
-                "caption": "Editors update assigned widget assets without opening the full layout canvas."
+                "path": "docs/screenshots/layout-builder-edit-container-action.png",
+                "alt": "Layout Builder container editor with area and background controls",
+                "caption": "Adjust a container's key, theme area, settings, and background from the live admin workflow."
             },
             {
-                "path": "docs/assets/marketplace/layout-areas.svg",
-                "alt": "Layout Builder named layout areas",
-                "caption": "Header, main, sidebar, and footer placement stay explicit across themes."
+                "path": "docs/screenshots/widgets-admin-index.png",
+                "alt": "Layout Builder reusable Widgets admin index",
+                "caption": "Review reusable widgets, blueprint types, layout usage, status, and update history."
             },
             {
-                "path": "docs/assets/marketplace/public-render-output.svg",
-                "alt": "Layout Builder public render output",
-                "caption": "Resolved widgets render as clean visitor HTML without exposing editor metadata."
+                "path": "docs/screenshots/sections-admin-index.png",
+                "alt": "Layout Builder layouts admin index with seeded layout cards",
+                "caption": "Manage reusable layouts, container counts, status, and live usage from the admin index."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

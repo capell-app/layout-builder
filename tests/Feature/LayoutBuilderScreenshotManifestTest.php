@@ -4,18 +4,24 @@ declare(strict_types=1);
 
 use Illuminate\Support\Arr;
 
-it('declares the required layout builder screenshot surfaces', function (): void {
+it('separates inspected release evidence from optional replacement targets', function (): void {
     $manifestPath = dirname(__DIR__, 2) . '/docs/screenshots.json';
     $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
     $entries = collect(Arr::get($manifest, 'entries', []));
 
     $requiredIds = [
-        'layout-builder-editor-main-sidebar',
-        'layout-builder-editor-content-first',
         'layout-builder-add-widget-action',
         'layout-builder-add-container-action',
         'layout-builder-edit-widget-action',
         'layout-builder-edit-container-action',
+        'widgets-admin-index',
+        'create-edit-widget-form',
+        'sections-admin-index',
+    ];
+
+    $optionalReplacementIds = [
+        'layout-builder-editor-main-sidebar',
+        'layout-builder-editor-content-first',
         'layout-builder-responsive-preview',
         'layout-builder-tree-selection',
         'layout-builder-preset-action',
@@ -25,12 +31,11 @@ it('declares the required layout builder screenshot surfaces', function (): void
         'layout-example-main-sidebar-admin',
         'layout-example-main-sidebar-public',
         'layout-example-full-width-public',
-        'widgets-admin-index',
-        'create-edit-widget-form',
-        'sections-admin-index',
     ];
 
-    expect($entries->pluck('id')->all())->toContain(...$requiredIds);
+    expect($entries->pluck('id')->all())
+        ->toContain(...$requiredIds)
+        ->toContain(...$optionalReplacementIds);
 
     foreach ($requiredIds as $requiredId) {
         $entry = $entries->firstWhere('id', $requiredId);
@@ -41,6 +46,15 @@ it('declares the required layout builder screenshot surfaces', function (): void
             ->and($entry['screenshotPath'] ?? '')->toStartWith('packages/layout-builder/docs/screenshots/')
             ->and($entry['useCase'] ?? '')->not->toBe('')
             ->and($entry['notes'] ?? '')->not->toBe('');
+    }
+
+    foreach ($optionalReplacementIds as $optionalReplacementId) {
+        $entry = $entries->firstWhere('id', $optionalReplacementId);
+
+        expect($entry)
+            ->not->toBeNull()
+            ->and($entry['required'] ?? true)->toBeFalse()
+            ->and($entry['notes'] ?? '')->toStartWith('Optional replacement target.');
     }
 });
 
@@ -100,6 +114,8 @@ it('keeps unstable action-state screenshots on deterministic anonymous fixture r
             ->and($entry['user'] ?? null)->toBeFalse()
             ->and($entry['targetType'] ?? null)->toBe('frontend-url')
             ->and($entry['waitFor'] ?? null)->toBe('body')
+            ->and($entry['required'] ?? true)->toBeFalse()
+            ->and($entry['notes'] ?? '')->toContain('illustration-only')
             ->and($entry)->not->toHaveKey('interactions');
     }
 });
