@@ -26,7 +26,7 @@ class PageContentLayoutWidgetResourceUsageContributor implements LayoutWidgetRes
             return [];
         }
 
-        $type = $page->relationLoaded('type') ? $page->type : null;
+        $type = $page->relationLoaded('blueprint') ? $page->blueprint : null;
         if (($type->content_structure ?? null) !== ContentStructure::Blocks) {
             return [];
         }

@@ -33,7 +33,7 @@ class WidgetAssetForm implements FormConfigurator
             $widget = $record->widget;
 
             $adminSchema = $widget->admin['widget_asset_configurator'][$assetType]
-                ?? $widget->type->admin['widget_asset_configurator'][$assetType]
+                ?? $widget->blueprint->admin['widget_asset_configurator'][$assetType]
                 ?? null;
         }
 

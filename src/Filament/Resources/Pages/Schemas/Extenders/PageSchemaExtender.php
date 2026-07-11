@@ -63,7 +63,7 @@ class PageSchemaExtender implements Extenders\PageSchemaExtender
             return true;
         }
 
-        $type = $record->getRelationValue('type');
+        $type = $record->getRelationValue('blueprint');
 
         if (! $type instanceof Blueprint) {
             return true;

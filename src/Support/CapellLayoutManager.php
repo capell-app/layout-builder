@@ -44,7 +44,7 @@ class CapellLayoutManager
     public static function getContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget
     {
         return static::getStoredContainerWidget($containerKey, $widgetKey, $occurrence)
-            ?? Widget::query()->with('type')->firstWhere('key', $widgetKey);
+            ?? Widget::query()->with('blueprint')->firstWhere('key', $widgetKey);
     }
 
     public static function getStoredContainerWidget(string $containerKey, string $widgetKey, int $occurrence = 1): ?Widget

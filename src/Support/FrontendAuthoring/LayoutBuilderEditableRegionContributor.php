@@ -59,7 +59,7 @@ final class LayoutBuilderEditableRegionContributor
 
         $widgets = Widget::query()
             ->whereIn('key', $widgetKeys)
-            ->with('type')
+            ->with('blueprint')
             ->get()
             ->keyBy('key');
 
@@ -113,7 +113,7 @@ final class LayoutBuilderEditableRegionContributor
             selector: self::widgetSelector((int) $layout->getKey(), $containerKey, $widgetIndex),
             regionKey: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
             target: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
-            description: $widget->type?->name,
+            description: $widget->blueprint?->name,
             containerKey: $containerKey,
             widgetIndex: $widgetIndex,
         );

@@ -49,7 +49,7 @@ class GetWidgetContainerWidthAction
 
         $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
 
-        if (! $blueprint instanceof Blueprint && $widget->relationLoaded('type')) {
+        if (! $blueprint instanceof Blueprint && $widget->relationLoaded('blueprint')) {
             $blueprint = $widget->getRelation('type');
         }
 

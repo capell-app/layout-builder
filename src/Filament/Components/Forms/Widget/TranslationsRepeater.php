@@ -83,8 +83,8 @@ class TranslationsRepeater
 
         $type = null;
 
-        if ($record->relationLoaded('type')) {
-            $loadedType = $record->getRelationValue('type');
+        if ($record->relationLoaded('blueprint')) {
+            $loadedType = $record->getRelationValue('blueprint');
             $type = $loadedType instanceof Blueprint ? $loadedType : null;
         }
 

@@ -662,7 +662,7 @@ trait ManagesAssets
     {
         $assetTypes = isset($widget->admin['asset_types']) && $widget->admin['asset_types'] !== []
             ? $widget->admin['asset_types']
-            : ($widget->type->admin['asset_types'] ?? []);
+            : ($widget->blueprint->admin['asset_types'] ?? []);
 
         if ($assetTypes === []) {
             return CapellCore::getAssets()

@@ -23,8 +23,8 @@ class WidgetForm implements FormConfigurator
         $record = $configurator->getRecord();
         $type = null;
 
-        if ($record instanceof Model && $record->relationLoaded('type')) {
-            $loadedType = $record->getRelationValue('type');
+        if ($record instanceof Model && $record->relationLoaded('blueprint')) {
+            $loadedType = $record->getRelationValue('blueprint');
             $type = $loadedType instanceof Blueprint ? $loadedType : null;
         }
 
