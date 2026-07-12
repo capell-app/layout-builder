@@ -358,7 +358,7 @@ it('covers edit widget page relation metadata and relation manager table setup',
         'name' => 'Editable Hero',
         'blueprint_id' => $type->getKey(),
     ]);
-    $widget->setRelation('type', $type);
+    $widget->setRelation('blueprint', $type);
 
     $page = new LayoutBuilderResidualEditWidgetPage($widget);
     $title = $page->getTitle();

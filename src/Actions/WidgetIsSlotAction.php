@@ -21,7 +21,7 @@ final class WidgetIsSlotAction
             return false;
         }
 
-        $type = $widget->getRelation('type');
+        $type = $widget->getRelation('blueprint');
 
         return is_object($type) && method_exists($type, 'getMeta') && $type->getMeta('type') === 'slot';
     }
