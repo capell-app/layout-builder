@@ -10,6 +10,6 @@ final class LayoutBuilderSnapshotPruneScheduleContribution implements RunsSchedu
 {
     public static function compatibleCapellApiVersion(): string
     {
-        return '^1.0';
+        return '^0.0';
     }
 }
