@@ -55,7 +55,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
                         'pageable_type' => resolve(Page::class)->getMorphClass(),
                         'pageable_id' => Page::query()->where('site_id', $siteId)
                             ->whereHas(
-                                'type',
+                                'blueprint',
                                 /** @param Blueprint $query */
                                 fn (BuilderContract $query): BuilderContract => $query->listable()->enabled()->accessible(),
                             )
@@ -111,7 +111,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
                         'pageable_type' => resolve(Page::class)->getMorphClass(),
                         'pageable_id' => Page::query()->where('site_id', $siteId)
                             ->whereHas(
-                                'type',
+                                'blueprint',
                                 /** @param Blueprint $query */
                                 fn (BuilderContract $query): BuilderContract => $query->listable()->enabled()->accessible(),
                             )
@@ -389,7 +389,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
             'site_id' => $site->id,
         ])
             ->whereHas(
-                'type',
+                'blueprint',
                 /** @param  Blueprint  $query */
                 fn (BuilderContract $query): BuilderContract => $query->where('type', 'page')
                     ->enabled()
@@ -502,7 +502,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
                             'pageable_type' => resolve(Page::class)->getMorphClass(),
                             'pageable_id' => Page::query()->where('site_id', $site->id)
                                 ->whereHas(
-                                    'type',
+                                    'blueprint',
                                     /** @param Blueprint $query */
                                     fn (BuilderContract $query): BuilderContract => $query->listable()->enabled()->accessible(),
                                 )
@@ -515,7 +515,7 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
                             'pageable_type' => resolve(Page::class)->getMorphClass(),
                             'pageable_id' => Page::query()->where('site_id', $site->id)
                                 ->whereHas(
-                                    'type',
+                                    'blueprint',
                                     /** @param Blueprint $query */
                                     fn (BuilderContract $query): BuilderContract => $query->listable()->enabled()->accessible(),
                                 )

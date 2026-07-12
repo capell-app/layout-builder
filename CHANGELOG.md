@@ -11,7 +11,7 @@ All notable changes to `capell-app/layout-builder` will be documented in this fi
 - Removed the unused `CapellLayoutCacheKeyEnum` so future cache work follows the active `LayoutLoader` cache path.
 - Reconciled `docs/screenshots.json` with committed light/dark layout-builder screenshots and added manifest tests that require referenced screenshots to exist.
 
-- Prepared package metadata and documentation for ongoing Capell 4.x package work.
+- Prepared package metadata and documentation for ongoing Capell 0.0.x package work.
 
 ## 2026-06-03
 

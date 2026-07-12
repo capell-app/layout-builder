@@ -86,8 +86,8 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
         expect($composerRequires)->toContain($requiredPackage);
     }
 
-    expect($composer['require']['capell-app/admin'] ?? null)->toBe('^1.0')
-        ->and($composer['require']['capell-app/frontend'] ?? null)->toBe('^1.0')
+    expect($composer['require']['capell-app/admin'] ?? null)->toBe('^0.0 || 0.0.x-dev')
+        ->and($composer['require']['capell-app/frontend'] ?? null)->toBe('^0.0 || 0.0.x-dev')
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^1.0');
 });
 
