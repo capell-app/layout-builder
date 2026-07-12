@@ -20,6 +20,12 @@ use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
+use Capell\PublishingStudio\Facades\CapellPublishingStudio;
+
+it('registers the widget snapshot subscriber only with the core lifecycle manager', function (): void {
+    expect(CapellCore::subscriberManager()->hasSubscriber(WidgetSnapshotWorkflowSubscriber::class))->toBeTrue()
+        ->and(CapellPublishingStudio::getSubscribers())->not->toContain(WidgetSnapshotWorkflowSubscriber::class);
+});
 
 it('rebuilds public snapshots after save and immediately revokes every revision after delete', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());

@@ -11,7 +11,6 @@ use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Core\Support\Subscriber\SubscriberManager;
 use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
@@ -179,13 +178,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        $registerWorkflowSubscriber = static function (SubscriberManager $manager): void {
-            $manager->subscribe(WidgetSnapshotWorkflowSubscriber::class);
-        };
-        $this->app->afterResolving(SubscriberManager::class, $registerWorkflowSubscriber);
-        if ($this->app->resolved(SubscriberManager::class)) {
-            $registerWorkflowSubscriber($this->app->make(SubscriberManager::class));
-        }
+        CapellCore::subscriberManager()->subscribe(WidgetSnapshotWorkflowSubscriber::class);
         Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
         Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
