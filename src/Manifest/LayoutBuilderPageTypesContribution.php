@@ -11,6 +11,6 @@ final class LayoutBuilderPageTypesContribution implements ExtensionContribution,
 {
     public static function compatibleCapellApiVersion(): string
     {
-        return '^4.1';
+        return '^0.0';
     }
 }

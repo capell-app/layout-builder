@@ -11,7 +11,7 @@ use Capell\LayoutBuilder\Health\LayoutBuilderHealthCheck;
 use Illuminate\Support\Facades\Schema;
 
 it('reports a compatible capell api version', function (): void {
-    expect(LayoutBuilderHealthCheck::compatibleCapellApiVersion())->toBe('^4.1');
+    expect(LayoutBuilderHealthCheck::compatibleCapellApiVersion())->toBe('^0.0');
 });
 
 it('runs real diagnostics returning check results', function (): void {

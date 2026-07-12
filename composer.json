@@ -12,10 +12,10 @@
     "license": "proprietary",
     "require": {
         "php": "^8.4",
-        "capell-app/admin": "^1.0 || 1.x-dev",
-        "capell-app/block-library": "^1.0 || 1.x-dev",
-        "capell-app/core": "^1.0 || 1.x-dev",
-        "capell-app/frontend": "^1.0 || 1.x-dev"
+        "capell-app/admin": "^0.0 || 0.0.x-dev",
+        "capell-app/block-library": "^0.0 || 0.0.x-dev",
+        "capell-app/core": "^0.0 || 0.0.x-dev",
+        "capell-app/frontend": "^0.0 || 0.0.x-dev"
     },
     "autoload": {
         "psr-4": {
@@ -34,7 +34,7 @@
             ]
         },
         "branch-alias": {
-            "dev-main": "1.x-dev"
+            "dev-main": "0.0.x-dev"
         }
     },
     "config": {
