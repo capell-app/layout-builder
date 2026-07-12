@@ -46,7 +46,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     public static function compatibleCapellApiVersion(): string
     {
-        return '^0.0';
+        return '^4.0';
     }
 
     public function register(): void
