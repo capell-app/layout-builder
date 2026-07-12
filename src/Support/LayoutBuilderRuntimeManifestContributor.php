@@ -85,7 +85,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
         return Widget::query()
             ->with('blueprint')
             ->whereIn('key', $widgetKeys)
-            ->whereHas('type', fn (Builder $query): Builder => $query->enabled()->accessible())
+            ->whereHas('blueprint', fn (Builder $query): Builder => $query->enabled()->accessible())
             ->enabled()
             ->publishedDate()
             ->get()

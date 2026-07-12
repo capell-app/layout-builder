@@ -118,12 +118,6 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         return $this->belongsTo(CoreBlueprint::class, 'blueprint_id');
     }
 
-    /** @return BelongsTo<CoreBlueprint, $this> */
-    public function type(): BelongsTo
-    {
-        return $this->blueprint();
-    }
-
     public function getMetaComponentType(): string
     {
         if ($this->is_livewire !== null) {
@@ -136,7 +130,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
         $blueprint = $this->relationLoaded('blueprint')
             ? $this->getRelation('blueprint')
-            : ($this->relationLoaded('blueprint') ? $this->getRelation('type') : null);
+            : null;
 
         if ($blueprint instanceof CoreBlueprint && $blueprint->is_livewire !== null) {
             return $blueprint->is_livewire ? 'livewire' : 'blade';
@@ -375,7 +369,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     {
         $blueprint = $this->relationLoaded('blueprint')
             ? $this->getRelation('blueprint')
-            : ($this->relationLoaded('blueprint') ? $this->getRelation('type') : null);
+            : null;
 
         return $blueprint instanceof CoreBlueprint ? $blueprint : null;
     }
