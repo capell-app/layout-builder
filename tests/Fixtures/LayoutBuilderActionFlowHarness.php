@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Tests\Fixtures;
 
+use Capell\LayoutBuilder\Data\LayoutPresetLinkData;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\Widget;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -50,8 +52,12 @@ final class LayoutBuilderActionFlowHarness extends LayoutBuilder
     public ?Schema $mountedActionSchemaForTest = null;
 
     #[Override]
-    public function saveLayout(bool $withNotifications = false): bool
-    {
+    public function saveLayout(
+        bool $withNotifications = false,
+        ?LayoutPreset $linkedPreset = null,
+        ?LayoutPresetLinkData $linkedPresetLink = null,
+        ?string $linkedContainerKey = null,
+    ): bool {
         $this->record('saveLayout', [$withNotifications]);
 
         return $this->saveLayoutResult;
@@ -79,8 +85,12 @@ final class LayoutBuilderActionFlowHarness extends LayoutBuilder
      * @param  array<array-key, mixed>  $data
      */
     #[Override]
-    public function saveContainer(array $data, ?string $key = null, ?int $position = null): void
-    {
+    public function saveContainer(
+        array $data,
+        ?string $key = null,
+        ?int $position = null,
+        bool $allowLinked = false,
+    ): void {
         $this->record('saveContainer', [$data, $key, $position]);
     }
 
