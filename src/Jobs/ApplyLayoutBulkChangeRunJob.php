@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Jobs;
 use Capell\LayoutBuilder\Actions\BulkChanges\ApplyLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
+use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -85,6 +86,6 @@ final class ApplyLayoutBulkChangeRunJob implements ShouldQueue
         $actor = $userModel::query()->find($this->actorId);
 
         return $actor instanceof Authenticatable
-            && Gate::forUser($actor)->allows('Update:Layout');
+            && Gate::forUser($actor)->allows(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
     }
 }

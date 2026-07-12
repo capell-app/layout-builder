@@ -49,11 +49,15 @@ final class ApplyLayoutBulkChangeRunAction
             $results = LayoutBulkChangeResult::query()->where('run_id', $run->id)->where('status', LayoutBulkChangeResultStatus::Changed)->lockForUpdate()->get();
 
             foreach ($results as $result) {
-                $layout = $result->layout_id === null ? null : Layout::query()->whereKey($result->layout_id)->lockForUpdate()->first();
+                $layout = $result->layout_id === null
+                    ? null
+                    : ScopeLayoutBulkChangeQueryForActorAction::run(Layout::query()->whereKey($result->layout_id), $actorId)
+                        ->lockForUpdate()
+                        ->first();
 
                 if (! $layout instanceof Layout) {
                     $skipped++;
-                    $result->update(['status' => LayoutBulkChangeResultStatus::Skipped, 'skipped_reason' => 'The layout no longer exists.']);
+                    $result->update(['status' => LayoutBulkChangeResultStatus::Skipped, 'skipped_reason' => 'The layout is unavailable or outside the current actor scope.']);
 
                     continue;
                 }

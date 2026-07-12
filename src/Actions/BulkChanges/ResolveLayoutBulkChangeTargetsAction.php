@@ -11,22 +11,24 @@ use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 /**
- * @method static Collection<int, Layout> run(LayoutBulkChangeCriteriaData $criteria)
+ * @method static Collection<int, Layout> run(LayoutBulkChangeCriteriaData $criteria, ?int $actorId = null)
  */
 final class ResolveLayoutBulkChangeTargetsAction
 {
     use AsAction;
 
     /** @return Collection<int, Layout> */
-    public function handle(LayoutBulkChangeCriteriaData $criteria): Collection
+    public function handle(LayoutBulkChangeCriteriaData $criteria, ?int $actorId = null): Collection
     {
-        return Layout::query()
+        $query = Layout::query()
             ->when($criteria->activeOnly, fn (Builder $query): Builder => $query->where('status', true))
             ->when($criteria->siteIds !== [], fn (Builder $query): Builder => $query->whereIn('site_id', $criteria->siteIds))
             ->when($criteria->themeIds !== [], fn (Builder $query): Builder => $query->whereIn('theme_id', $criteria->themeIds))
             ->when($criteria->groups !== [], fn (Builder $query): Builder => $query->whereIn('group', $criteria->groups))
             ->when($criteria->layoutKeys !== [], fn (Builder $query): Builder => $query->whereIn('key', $criteria->layoutKeys))
-            ->when($criteria->requireWidgetKey !== null, fn (Builder $query): Builder => $this->whereContainsWidgetKey($query, (string) $criteria->requireWidgetKey))
+            ->when($criteria->requireWidgetKey !== null, fn (Builder $query): Builder => $this->whereContainsWidgetKey($query, (string) $criteria->requireWidgetKey));
+
+        return ScopeLayoutBulkChangeQueryForActorAction::run($query, $actorId)
             ->ordered()
             ->get();
     }

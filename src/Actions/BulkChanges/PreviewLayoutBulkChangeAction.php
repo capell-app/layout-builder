@@ -44,7 +44,7 @@ final class PreviewLayoutBulkChangeAction
 
             $summary = ['target_layouts' => 0, 'target_pages' => 0, 'changed_layouts' => 0, 'blocked_layouts' => 0, 'skipped_layouts' => 0, 'unchanged_layouts' => 0];
 
-            ResolveLayoutBulkChangeTargetsAction::run($criteria)->each(function (Layout $layout) use ($run, $operation, &$summary): void {
+            ResolveLayoutBulkChangeTargetsAction::run($criteria, $actorId)->each(function (Layout $layout) use ($run, $operation, &$summary): void {
                 $summary['target_layouts']++;
                 $original = is_array($layout->containers) ? $layout->containers : [];
                 $operationResult = ApplyLayoutWidgetOperationToContainersAction::run($original, $operation);

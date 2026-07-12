@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\BulkChanges\ApplyLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Actions\BulkChanges\PreviewLayoutBulkChangeAction;
 use Capell\LayoutBuilder\Actions\BulkChanges\QueueLayoutBulkChangeRunAction;
@@ -18,6 +19,8 @@ use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBulkChangeScopedUser;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
@@ -348,15 +351,15 @@ it('does not apply a queued bulk change after its actor is deleted or de-authori
         'target_widget_key' => 'hero',
         'placement' => 'after',
     ]));
-    Permission::findOrCreate('Update:Layout', 'web');
+    Permission::findOrCreate(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission(), 'web');
     $actor = User::factory()->createOne();
-    $actor->givePermissionTo('Update:Layout');
+    $actor->givePermissionTo(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
     $queuedRun = QueueLayoutBulkChangeRunAction::run($run, (int) $actor->getKey());
 
     if ($deleteActor) {
         $actor->delete();
     } else {
-        $actor->revokePermissionTo('Update:Layout');
+        $actor->revokePermissionTo(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
     }
 
     (new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey(), (int) $actor->getKey()))->handle();
@@ -370,6 +373,49 @@ it('does not apply a queued bulk change after its actor is deleted or de-authori
     'deleted actor' => true,
     'revoked actor permission' => false,
 ]);
+
+it('scopes previews and revalidates mutations to the queued actor sites', function (): void {
+    $allowedSite = Site::factory()->create();
+    $otherSite = Site::factory()->create();
+    $allowedLayout = bulkLayout([
+        'main' => ['widgets' => [
+            ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1],
+            ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1],
+        ]],
+    ], ['site_id' => $allowedSite->getKey()]);
+    $otherLayout = bulkLayout([
+        'main' => ['widgets' => [
+            ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1],
+            ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1],
+        ]],
+    ], ['site_id' => $otherSite->getKey()]);
+    config()->set('auth.providers.users.model', LayoutBulkChangeScopedUser::class);
+    $actor = LayoutBulkChangeScopedUser::query()->create([
+        'name' => 'Layout site editor',
+        'email' => 'layout-site-editor@example.test',
+        'password' => 'password',
+    ]);
+    LayoutBulkChangeScopedUser::$assignedSiteIdsByUser[(int) $actor->getKey()] = [(int) $allowedSite->getKey()];
+    $operation = bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::MoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'target_widget_key' => 'hero',
+        'placement' => 'after',
+    ]);
+
+    $scopedRun = PreviewLayoutBulkChangeAction::run(bulkCriteria([
+        'layout_keys' => [$allowedLayout->key, $otherLayout->key],
+    ]), $operation, (int) $actor->getKey());
+
+    expect($scopedRun->results()->pluck('layout_id')->all())->toBe([$allowedLayout->getKey()]);
+
+    $unscopedRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$otherLayout->key]]), $operation);
+    $summary = ApplyLayoutBulkChangeRunAction::run($unscopedRun, (int) $actor->getKey());
+
+    expect($summary)->toMatchArray(['applied_layouts' => 0, 'apply_skipped_layouts' => 1])
+        ->and(bulkWidgetKeys($otherLayout, 'main'))->toBe(['breadcrumbs', 'hero'])
+        ->and(bulkFreshRun($unscopedRun)->status)->toBe(LayoutBulkChangeRunStatus::PartiallyApplied);
+});
 
 it('applies a redelivered queued bulk change only once', function (): void {
     $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1], ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1]]]]);
