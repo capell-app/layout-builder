@@ -1,0 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Facades;
+
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
+use Illuminate\Support\Facades\Facade;
+
+/**
+ * @mixin CapellLayoutManager
+ */
+class CapellLayout extends Facade
+{
+    protected static function getFacadeAccessor(): string
+    {
+        return CapellLayoutManager::class;
+    }
+}

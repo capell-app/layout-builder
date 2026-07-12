@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Filament\Components\Forms;
+
+use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\LayoutBuilder\Enums\BackgroundAttachment;
+use Capell\LayoutBuilder\Enums\BackgroundPosition;
+use Capell\LayoutBuilder\Enums\BackgroundRepeat;
+use Capell\LayoutBuilder\Enums\BackgroundSize;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+use Closure;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Illuminate\Database\Eloquent\Model;
+
+class BackgroundSchema
+{
+    /**
+     * @return array<array-key, mixed>
+     */
+    public static function make(string $backgroundName = 'background_image', ?Closure $backgroundCollectionUsing = null): array
+    {
+        return [
+            Group::make()
+                ->statePath('meta')
+                ->schema([
+                    CustomColorInput::make(
+                        name: 'background_color',
+                        label: __('capell-admin::form.background_color'),
+                    ),
+                ]),
+
+            MediaLibraryFileUpload::make($backgroundName)
+                ->label(__('capell-layout-builder::form.background_image'))
+                ->reactive()
+                ->columnSpan(['md' => 2])
+                ->when(
+                    $backgroundCollectionUsing instanceof Closure,
+                    function (Field $component) use ($backgroundCollectionUsing): Field {
+                        if (! method_exists($component, 'collection')) {
+                            return $component;
+                        }
+
+                        return $component->collection(
+                            fn (Field $component): string => $component->evaluate($backgroundCollectionUsing),
+                        );
+                    },
+                ),
+
+            Grid::make(['sm' => 2, 'md' => 3])
+                ->visibleJs(<<<JS
+                \$get('{$backgroundName}')
+            JS)
+                ->columnSpanFull()
+                ->statePath('meta')
+                ->schema([
+                    Select::make('background_size')
+                        ->label(__('capell-layout-builder::form.background_size'))
+                        ->default('cover')
+                        ->options(BackgroundSize::class)
+                        ->helperText(self::getHelperText(...)),
+
+                    Select::make('background_position')
+                        ->label(__('capell-layout-builder::form.background_position'))
+                        ->default('center')
+                        ->helperText(self::getHelperText(...))
+                        ->options(BackgroundPosition::class),
+
+                    Select::make('background_repeat')
+                        ->label(__('capell-layout-builder::form.background_repeat'))
+                        ->default('no-repeat')
+                        ->helperText(self::getHelperText(...))
+                        ->options(BackgroundRepeat::class),
+
+                    Select::make('background_attachment')
+                        ->label(__('capell-layout-builder::form.background_attachment'))
+                        ->helperText(self::getHelperText(...))
+                        ->options(BackgroundAttachment::class),
+
+                    Checkbox::make('background_overlay')
+                        ->label(__('capell-layout-builder::form.background_overlay'))
+                        ->helperText(__('capell-admin::generic.background_overlay_helper_text')),
+                ]),
+        ];
+    }
+
+    private static function getHelperText(Field $component, ?Model $record): ?string
+    {
+        if (! $record instanceof Model) {
+            return null;
+        }
+
+        if (! $record instanceof WidgetAsset) {
+            return null;
+        }
+
+        $widget = $record->widget;
+
+        if (! $widget instanceof Widget) {
+            return null;
+        }
+
+        $backgroundColor = $widget->getMeta($component->getName());
+
+        if (blank($backgroundColor)) {
+            return null;
+        }
+
+        return __('capell-layout-builder::generic.default_value', ['value' => $backgroundColor]);
+    }
+}

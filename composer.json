@@ -1,0 +1,56 @@
+{
+    "name": "capell-app/layout-builder",
+    "description": "The visual layout and widget composition engine for Capell CMS — content-first and drag-drop editing, responsive containers, reusable widgets, and safe public rendering.",
+    "keywords": [
+        "capell",
+        "layout-builder",
+        "cms",
+        "filament",
+        "livewire"
+    ],
+    "homepage": "https://github.com/capell-app/layout-builder",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.4",
+        "capell-app/admin": "^0.0.4 || 0.0.x-dev",
+        "capell-app/block-library": "^0.0.4 || 0.0.x-dev",
+        "capell-app/core": "^0.0.4 || 0.0.x-dev",
+        "capell-app/frontend": "^0.0.4 || 0.0.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Capell\\LayoutBuilder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Capell\\LayoutBuilder\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "0.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true,
+    "type": "library",
+    "authors": [
+        {
+            "name": "Capell Team",
+            "email": "team@capell.app",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/capell-app/capell-packages",
+        "docs": "https://docs.capell.app/packages/layout-builder"
+    }
+}

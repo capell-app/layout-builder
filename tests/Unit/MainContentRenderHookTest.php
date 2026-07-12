@@ -1,0 +1,192 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
+use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Data\MainContentRenderHookData;
+use Capell\Frontend\Data\RenderHookContext;
+use Capell\Frontend\Enums\RenderHookLocation;
+use Capell\Frontend\Support\Render\RenderHookRegistry;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\CapellLayoutManager;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContextForLoadedLayout;
+use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
+use Illuminate\Support\Facades\Blade;
+
+beforeEach(function (): void {
+    CapellLayoutManager::clearContainerWidgets();
+    Blade::component(PackageAlert::class, 'capell::widget.default');
+    resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
+        key: 'capell.widget.default',
+        type: 'layout-widget',
+        blade: 'capell::widget.default',
+    ));
+});
+
+afterEach(function (): void {
+    CapellLayoutManager::clearContainerWidgets();
+});
+
+it('registers the shared main content render hook', function (): void {
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
+    $registry = resolve(RenderHookRegistry::class);
+
+    expect($registry->get(RenderHookLocation::MainContent))->not->toBeEmpty();
+});
+
+it('returns no output when no layout containers are available', function (): void {
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
+    $registry = resolve(RenderHookRegistry::class);
+
+    $output = $registry->renderAll(
+        RenderHookLocation::MainContent,
+        new MainContentRenderHookData(
+            layout: (object) ['containers' => null],
+            page: null,
+        ),
+        scenario: 'frontend-main-layout',
+        target: 'capell::layout.main',
+    );
+
+    expect($output)->toBe('');
+});
+
+it('renders stored layout containers through the shared hook and updates render state', function (): void {
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
+    $registry = resolve(RenderHookRegistry::class);
+
+    $pageContentWidget = new Widget([
+        'key' => 'page-content',
+        'meta' => [],
+    ]);
+    $slotWidget = new Widget([
+        'key' => 'slot',
+        'meta' => ['type' => 'slot'],
+    ]);
+
+    CapellLayoutManager::storeContainerWidget('main', 'page-content', $pageContentWidget);
+    CapellLayoutManager::storeContainerWidget('sidebar', 'slot', $slotWidget);
+
+    $context = new MainContentRenderHookData(
+        layout: (object) [
+            'containers' => [
+                'main' => [
+                    'widgets' => [
+                        ['widget_key' => 'page-content', 'occurrence' => 1],
+                    ],
+                    'meta' => [
+                        'colspan' => 8,
+                        'container' => 'full',
+                        'border' => 'subtle',
+                        'theme_settings' => [
+                            'saas' => [
+                                'surface_tone' => 'muted',
+                                'admin_schema' => 'private',
+                                'signed_url' => 'https://admin.test/signed',
+                            ],
+                        ],
+                    ],
+                ],
+                'sidebar' => [
+                    'widgets' => [
+                        ['widget_key' => 'slot', 'occurrence' => 1],
+                    ],
+                    'meta' => ['colspan' => 4, 'container' => 'full'],
+                ],
+            ],
+        ],
+        page: null,
+        pageSlot: '<p>Deferred slot</p>',
+    );
+
+    $output = $registry->renderAll(
+        RenderHookLocation::MainContent,
+        $context,
+        scenario: 'frontend-main-layout',
+        target: 'capell::layout.main',
+    );
+
+    expect($output)->toContain('id="layout-container-main"')
+        ->and($output)->toContain('id="layout-container-sidebar"')
+        ->and($output)->toContain('border-slate-200/80')
+        ->and($output)->not->toContain('theme_settings')
+        ->and($output)->not->toContain('surface_tone')
+        ->and($output)->not->toContain('admin_schema')
+        ->and($output)->not->toContain('signed_url')
+        ->and($context->pageContentWidgetRendered)->toBeTrue()
+        ->and($context->slotRendered)->toBeTrue();
+});
+
+it('preloads layout widgets during hook rendering when the layout manager is empty', function (): void {
+    /** @var RenderHookRegistry<RenderHookContext> $registry */
+    $registry = resolve(RenderHookRegistry::class);
+
+    $layout = (new Layout)->forceFill([
+        'id' => 10,
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => 'package-alert', 'occurrence' => 1],
+                ],
+                'meta' => ['colspan' => 12, 'container' => 'full'],
+            ],
+        ],
+    ]);
+    $language = (new Language)->forceFill(['id' => 20]);
+    $page = (new Page)->forceFill(['id' => 30]);
+    $widget = (new Widget)->forceFill([
+        'id' => 40,
+        'key' => 'package-alert',
+        'name' => 'Package alert',
+        'component' => 'capell.widget.default',
+        'meta' => [],
+    ]);
+
+    $loader = Mockery::mock(LayoutLoader::class);
+    $loader->shouldReceive('preloadLayoutWidgets')
+        ->once()
+        ->with($layout, $language, $page);
+    $loader->shouldReceive('getLayoutWidget')
+        ->once()
+        ->with($layout, 'package-alert', $language, $page, 'main', 1)
+        ->andReturn($widget);
+    app()->instance(LayoutLoader::class, $loader);
+    app()->instance('capell.frontend.context', new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
+
+    $output = $registry->renderAll(
+        RenderHookLocation::MainContent,
+        new MainContentRenderHookData(
+            layout: $layout,
+            page: $page,
+        ),
+        scenario: 'frontend-main-layout',
+        target: 'capell::layout.main',
+    );
+
+    expect($output)->toContain('id="layout-container-main"')
+        ->and(CapellLayoutManager::getStoredContainerWidget('main', 'package-alert'))->toBe($widget);
+});
+
+it('owns the main content layout rendering views', function (): void {
+    $basePath = dirname(__DIR__, 2);
+    $registrar = file_get_contents($basePath . '/src/Support/LayoutBuilderCoreRegistrar.php');
+    $mainContent = file_get_contents($basePath . '/resources/views/components/layout/main-content.blade.php');
+    $area = file_get_contents($basePath . '/resources/views/components/layout/area.blade.php');
+
+    expect($registrar)->toContain('RegisterMainContentLayoutHook')
+        ->and($mainContent)->toContain('WidgetIsSlotAction')
+        ->and($mainContent)->toContain('ResolveLayoutAreaContainersAction::run')
+        ->and($mainContent)->toContain('LayoutAreaRegistry::MAIN')
+        ->and($mainContent)->toContain('CapellLayoutManager::getStoredContainerWidget')
+        ->and($mainContent)->toContain('capell-layout-builder::components.layout.container')
+        ->and($area)->toContain('ResolveLayoutAreaContainersAction::run')
+        ->and($area)->toContain('CapellLayoutManager::getStoredContainerWidget')
+        ->and($area)->not->toContain('::query()')
+        ->and($area)->not->toContain('DB::')
+        ->and($area)->not->toContain('signed');
+});

@@ -1,0 +1,3 @@
+<div class="capell-layout-widget capell-layout-widget-{{ name }}">
+    {{ $widget->name ?? '{{ class }}' }}
+</div>

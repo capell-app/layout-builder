@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+    <title id="title">Named layout areas</title>
+    <desc id="desc">A Capell Layout Builder screen showing named containers for header, main, sidebar, and footer placement.</desc>
+    <rect width="1440" height="900" fill="#f6f8f7"/>
+    <rect x="0" y="0" width="1440" height="66" fill="#ffffff" stroke="#d8dedb"/>
+    <text x="64" y="42" font-family="Georgia, serif" font-size="34" fill="#0b2845">CAPELL</text>
+    <rect x="0" y="66" width="96" height="834" fill="#ffffff" stroke="#d8dedb"/>
+    <rect x="32" y="318" width="32" height="32" rx="8" fill="#2e6a56"/>
+    <text x="154" y="122" font-family="Inter, Arial, sans-serif" font-size="15" fill="#69746f">Layouts / Areas</text>
+    <text x="154" y="166" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#141a17">Theme layout areas</text>
+    <rect x="154" y="214" width="1212" height="646" rx="18" fill="#ffffff" stroke="#d8dedb"/>
+    <rect x="214" y="278" width="1092" height="82" rx="14" fill="#eaf4ef" stroke="#bcd9ca"/>
+    <text x="246" y="326" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#255846">header</text>
+    <text x="1018" y="326" font-family="Inter, Arial, sans-serif" font-size="15" fill="#255846">announcement, navigation</text>
+    <rect x="214" y="398" width="720" height="310" rx="14" fill="#f8fbf9" stroke="#d8dedb"/>
+    <text x="246" y="444" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#255846">main</text>
+    <rect x="246" y="476" width="620" height="48" rx="10" fill="#ffffff" stroke="#d8dedb"/>
+    <text x="274" y="506" font-family="Inter, Arial, sans-serif" font-size="15" fill="#141a17">hero</text>
+    <rect x="246" y="546" width="620" height="48" rx="10" fill="#ffffff" stroke="#d8dedb"/>
+    <text x="274" y="576" font-family="Inter, Arial, sans-serif" font-size="15" fill="#141a17">breadcrumb</text>
+    <rect x="246" y="616" width="620" height="48" rx="10" fill="#ffffff" stroke="#d8dedb"/>
+    <text x="274" y="646" font-family="Inter, Arial, sans-serif" font-size="15" fill="#141a17">content cards</text>
+    <rect x="974" y="398" width="332" height="310" rx="14" fill="#f8fbf9" stroke="#d8dedb"/>
+    <text x="1006" y="444" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#255846">sidebar</text>
+    <rect x="1006" y="476" width="236" height="48" rx="10" fill="#ffffff" stroke="#d8dedb"/>
+    <text x="1030" y="506" font-family="Inter, Arial, sans-serif" font-size="15" fill="#141a17">related links</text>
+    <rect x="1006" y="546" width="236" height="48" rx="10" fill="#ffffff" stroke="#d8dedb"/>
+    <text x="1030" y="576" font-family="Inter, Arial, sans-serif" font-size="15" fill="#141a17">newsletter</text>
+    <rect x="214" y="746" width="1092" height="82" rx="14" fill="#eaf4ef" stroke="#bcd9ca"/>
+    <text x="246" y="794" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700" fill="#255846">footer</text>
+    <text x="1018" y="794" font-family="Inter, Arial, sans-serif" font-size="15" fill="#255846">cta, legal, menus</text>
+</svg>

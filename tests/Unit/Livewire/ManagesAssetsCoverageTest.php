@@ -1,0 +1,274 @@
+<?php
+
+declare(strict_types=1);
+
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
+use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderAssetHarness;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+
+uses(CreatesAdminUser::class);
+
+beforeEach(function (): void {
+    test()->actingAsAdmin();
+});
+
+it('reorders selects and removes in-memory widget assets predictably', function (): void {
+    $widget = Widget::factory()->create(['key' => 'hero']);
+    $harness = new LayoutBuilderAssetHarness;
+    $harness->layout = Layout::factory()->create();
+    $harness->containers = [
+        'main' => [
+            'widgets' => [
+                ['widget_key' => 'hero', 'occurrence' => 1],
+            ],
+        ],
+    ];
+    $harness->assets = [
+        'main' => [
+            [
+                ['asset_type' => 'page', 'asset_id' => 10, 'order' => 1],
+                ['asset_type' => 'page', 'asset_id' => 20, 'order' => 2],
+                ['asset_type' => 'page', 'asset_id' => 30, 'order' => 3],
+            ],
+        ],
+    ];
+    $harness->selectedRecords = ['main' => [[]]];
+    $harness->setContainerWidgets(['main' => [$widget]]);
+
+    expect($harness->canMoveAssetUp('main', 0, 0))->toBeFalse()
+        ->and($harness->canMoveAssetDown('main', 0, 0))->toBeTrue()
+        ->and($harness->countWidgetAssets('main', 0))->toBe(3)
+        ->and($harness->getWidgetAssetsByType('main', 0, 'page'))->toBe([10, 20, 30]);
+
+    $harness->moveAssetDown('main', 0, 0);
+
+    $firstAssetAfterMove = capell_test_array($harness->getWidgetAsset('main', 0, 0));
+    $secondAssetAfterMove = capell_test_array($harness->getWidgetAsset('main', 0, 1));
+
+    expect($firstAssetAfterMove['asset_id'] ?? null)->toBe(20)
+        ->and($secondAssetAfterMove['asset_id'] ?? null)->toBe(10)
+        ->and($firstAssetAfterMove['order'] ?? null)->toBe(1)
+        ->and($harness->layoutModified)->toBeTrue();
+
+    $harness->selectAllAssets('main', 0);
+
+    expect($harness->getSelectedAssets('main', 0))->toBe(['page.20', 'page.10', 'page.30']);
+
+    $harness->selectedRecords['main'][0] = ['page.20', 'page.30'];
+    $harness->removeSelectedAssets('main', 0);
+
+    $remainingAsset = capell_test_array($harness->getWidgetAsset('main', 0, 0));
+
+    expect($harness->getWidgetAssets('main', 0))
+        ->toHaveCount(1)
+        ->and($remainingAsset['asset_id'] ?? null)->toBe(10)
+        ->and($harness->getSelectedAssets('main', 0))->toBe([]);
+
+    $harness->deSelectAllAssets('main', 0);
+
+    expect($harness->getSelectedAssets('main', 0))->toBe([]);
+});
+
+it('maps filters and restores persisted widget assets for page scoped state', function (): void {
+    $page = Page::factory()->withTranslations()->create();
+    $otherPage = Page::factory()->withTranslations()->create();
+    $layout = Layout::factory()->create();
+    $widget = Widget::factory()->create(['key' => 'hero']);
+    $globalAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($page)
+        ->create(['container' => null, 'occurrence' => 1, 'order' => 2, 'workspace_id' => 0]);
+    $pageAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($page)
+        ->create([
+            'container' => 'main',
+            'occurrence' => 1,
+            'order' => 1,
+            'workspace_id' => 0,
+            'pageable_id' => $page->getKey(),
+            'pageable_type' => $page->getMorphClass(),
+        ]);
+    $otherPageAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($otherPage)
+        ->create([
+            'container' => 'main',
+            'occurrence' => 1,
+            'order' => 3,
+            'workspace_id' => 0,
+            'pageable_id' => $otherPage->getKey(),
+            'pageable_type' => $otherPage->getMorphClass(),
+        ]);
+
+    $widget->setRelation('assets', new EloquentCollection([$globalAsset, $pageAsset, $otherPageAsset]));
+
+    $harness = new LayoutBuilderAssetHarness;
+    $harness->layout = $layout;
+    $harness->page = $page;
+    $harness->containers = [
+        'main' => [
+            'widgets' => [
+                ['widget_key' => $widget->key, 'occurrence' => 1],
+            ],
+        ],
+    ];
+    $harness->assets = ['main' => [[]]];
+    $harness->selectedRecords = ['main' => [[]]];
+    $harness->setContainerWidgets(['main' => [$widget]]);
+
+    $allWidgetAssets = WidgetAsset::query()
+        ->whereKey([$globalAsset->getKey(), $pageAsset->getKey(), $otherPageAsset->getKey()])
+        ->get();
+
+    $mappedAssets = $harness->exposeMapWidgetAssets($widget, 'main', 'old-main');
+
+    expect($mappedAssets[1])
+        ->toMatchArray([
+            'id' => $pageAsset->getKey(),
+            'asset_id' => $page->getKey(),
+            'pageable_id' => $page->getKey(),
+            'container' => 'main',
+            'old_container' => 'old-main',
+        ]);
+
+    $filteredAssets = $harness->exposeFilterContainerWidgetAssets(
+        $allWidgetAssets,
+        'main',
+        1,
+        $widget,
+    );
+
+    expect($filteredAssets->pluck('id')->all())->toBe([$globalAsset->getKey()]);
+
+    $restoredAssets = $harness->exposeSetupWidgetAssets(
+        'main',
+        0,
+        [
+            [
+                'id' => $pageAsset->getKey(),
+                'asset_type' => $pageAsset->asset_type,
+                'asset_id' => $pageAsset->asset_id,
+                'old_container' => 'main',
+                'order' => 9,
+            ],
+            [
+                'asset_type' => $otherPageAsset->asset_type,
+                'asset_id' => $otherPageAsset->asset_id,
+                'old_container' => 'main',
+            ],
+        ],
+        $allWidgetAssets,
+        $widget,
+    );
+
+    $restoredAsset = capell_test_instance($restoredAssets->first(), WidgetAsset::class);
+
+    expect($restoredAssets)->toHaveCount(1)
+        ->and($restoredAsset->getKey())->toBe($pageAsset->getKey())
+        ->and($restoredAsset->order)->toBe(9);
+
+    $harness->assets = [
+        'main' => [
+            [
+                [
+                    'id' => $pageAsset->getKey(),
+                    'asset_type' => $pageAsset->asset_type,
+                    'asset_id' => $pageAsset->asset_id,
+                    'order' => 1,
+                    'occurrence' => 1,
+                    'workspace_id' => 0,
+                    'pageable_id' => null,
+                    'pageable_type' => null,
+                ],
+            ],
+        ],
+    ];
+
+    expect($harness->hasPageAssets('main', 0))->toBeFalse()
+        ->and($harness->shouldAddPageAssets('main', 0))->toBeFalse();
+
+    $harness->exposeUpdatePageAssets('main', 0, true);
+
+    expect($harness->hasPageAssets('main', 0))->toBeTrue()
+        ->and($harness->assets['main'][0][0]['pageable_id'])->toBe($page->getKey())
+        ->and($harness->shouldAddPageAssets('main', 0))->toBeTrue();
+
+    $harness->exposeUpdatePageAssets('main', 0, false);
+
+    expect($harness->hasPageAssets('main', 0))->toBeFalse()
+        ->and($harness->assets['main'][0][0]['pageable_id'])->toBeNull();
+});
+
+it('captures original assets and deletes only removed persisted asset records', function (): void {
+    $page = Page::factory()->withTranslations()->create();
+    $removedPage = Page::factory()->withTranslations()->create();
+    $layout = Layout::factory()->create();
+    $widget = Widget::factory()->create(['key' => 'hero']);
+    $keptAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($page)
+        ->create(['container' => null, 'occurrence' => 1, 'order' => 1, 'workspace_id' => 0]);
+    $removedAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($removedPage)
+        ->create(['container' => null, 'occurrence' => 1, 'order' => 2, 'workspace_id' => 0]);
+
+    $widget->setRelation('assets', new EloquentCollection([$keptAsset, $removedAsset]));
+
+    $harness = new LayoutBuilderAssetHarness;
+    $harness->layout = $layout;
+    $harness->containers = [
+        'main' => [
+            'widgets' => [
+                ['widget_key' => $widget->key, 'occurrence' => 1],
+            ],
+        ],
+    ];
+    $harness->assets = [
+        'main' => [
+            [
+                [
+                    'id' => $keptAsset->getKey(),
+                    'asset_type' => $keptAsset->asset_type,
+                    'asset_id' => $keptAsset->asset_id,
+                    'order' => 1,
+                    'occurrence' => 1,
+                    'workspace_id' => 0,
+                ],
+                [
+                    'id' => $removedAsset->getKey(),
+                    'asset_type' => $removedAsset->asset_type,
+                    'asset_id' => $removedAsset->asset_id,
+                    'order' => 2,
+                    'occurrence' => 1,
+                    'workspace_id' => 0,
+                ],
+            ],
+        ],
+    ];
+    $harness->selectedRecords = ['main' => [[]]];
+    $harness->setContainerWidgets(['main' => [$widget]]);
+
+    $harness->exposeSaveOriginalAssets();
+
+    $harness->assets['main'][0] = [
+        [
+            'id' => $keptAsset->getKey(),
+            'asset_type' => $keptAsset->asset_type,
+            'asset_id' => $keptAsset->asset_id,
+            'order' => 1,
+            'occurrence' => 1,
+            'workspace_id' => 0,
+        ],
+    ];
+
+    $harness->exposeDeleteRemovedWidgetAssets();
+
+    expect(WidgetAsset::query()->whereKey($keptAsset->getKey())->exists())->toBeTrue()
+        ->and(WidgetAsset::query()->whereKey($removedAsset->getKey())->exists())->toBeFalse();
+});

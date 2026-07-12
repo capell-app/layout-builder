@@ -1,0 +1,378 @@
+{
+    "manifest-version": 3,
+    "name": "capell-app/layout-builder",
+    "slug": "layout-builder",
+    "displayName": "Layout Builder",
+    "kind": "package",
+    "capellApiVersion": "^0.0.1",
+    "version": "0.0.x-dev",
+    "description": "Compose pages visually with reusable widgets and named layout areas — edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
+    "product": {
+        "group": "Capell Foundation",
+        "tier": "free",
+        "bundle": "foundation"
+    },
+    "namespace": "Capell\\LayoutBuilder",
+    "surfaces": ["admin", "frontend", "console"],
+    "dependencies": {
+        "requires": [
+            "capell-app/core",
+            "capell-app/admin",
+            "capell-app/block-library",
+            "capell-app/frontend"
+        ],
+        "supports": [
+            "capell-app/content-sections",
+            "capell-app/frontend-authoring",
+            "capell-app/publishing-studio",
+            "capell-app/structured-content-library"
+        ],
+        "conflicts": []
+    },
+    "providers": {
+        "metadata": [],
+        "install": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "runtime": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "admin": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
+        "frontend": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"]
+    },
+    "contributes": [
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource",
+            "group": "Layout"
+        },
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
+            "group": "Widget"
+        },
+        {
+            "type": "admin-resource",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutPresets\\LayoutPresetResource",
+            "group": "Layout"
+        },
+        {
+            "type": "configurator",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "configuratorEnum": "Capell\\LayoutBuilder\\Enums\\ConfiguratorTypeEnum",
+            "groups": [
+                "LayoutContainers",
+                "LayoutWidgets",
+                "Widgets",
+                "WidgetAssets"
+            ]
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Pages\\Schemas\\Extenders\\PageSchemaExtender",
+            "tag": "Page"
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\LayoutBuilder\\Filament\\Extenders\\Page\\HeroPageSchemaExtender",
+            "tag": "Page"
+        },
+        {
+            "type": "schema-extender",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "extenderClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\Schemas\\Extenders\\LayoutSchemaExtender",
+            "tag": "Layout"
+        },
+        {
+            "type": "asset",
+            "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
+            "package": "capell-layout-builder",
+            "surface": "admin"
+        },
+        {
+            "type": "model",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderModelsContribution",
+            "modelClasses": [
+                "Capell\\LayoutBuilder\\Models\\Widget",
+                "Capell\\LayoutBuilder\\Models\\WidgetAsset",
+                "Capell\\LayoutBuilder\\Models\\WidgetWidget",
+                "Capell\\LayoutBuilder\\Models\\LayoutPreset",
+                "Capell\\LayoutBuilder\\Models\\LayoutPresetUsage",
+                "Capell\\LayoutBuilder\\Models\\LayoutPresetSyncRun",
+                "Capell\\LayoutBuilder\\Models\\LayoutPresetSyncResult",
+                "Capell\\LayoutBuilder\\Models\\LayoutBulkChangeRun",
+                "Capell\\LayoutBuilder\\Models\\LayoutBulkChangeResult"
+            ],
+            "morphAliases": {
+                "widget": "Capell\\LayoutBuilder\\Models\\Widget",
+                "widget_asset": "Capell\\LayoutBuilder\\Models\\WidgetAsset",
+                "widget_widget": "Capell\\LayoutBuilder\\Models\\WidgetWidget"
+            }
+        },
+        {
+            "type": "page-type",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderPageTypesContribution",
+            "pageTypes": [
+                {
+                    "name": "widget",
+                    "modelClass": "Capell\\LayoutBuilder\\Models\\Widget"
+                }
+            ]
+        },
+        {
+            "type": "route",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderRoutesContribution",
+            "routes": [
+                "capell-layout-builder.fragments.show",
+                "capell-layout-builder.layout-widgets.show"
+            ],
+            "prefix": "_fragments",
+            "middleware": ["web"],
+            "reservedFrontendPath": "_fragments"
+        },
+        {
+            "type": "migration",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderMigrationsContribution",
+            "migrationFiles": [
+                "2026_05_10_190841_01_create_layouts_table",
+                "2026_05_10_190841_02_create_widgets_table",
+                "2026_05_10_190841_03_create_widget_assets_table",
+                "2026_05_10_190841_04_create_widget_widgets_table",
+                "2026_05_10_190841_05_add_container_widgets_to_layouts_table",
+                "2026_05_10_190841_06_create_layout_presets_table",
+                "2026_06_07_000001_create_layout_bulk_change_tables",
+                "2026_07_09_000001_create_public_widget_snapshots_table",
+                "2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table",
+                "2026_07_10_000002_create_layout_preset_usages_table",
+                "2026_07_10_000003_create_layout_preset_sync_runs_table"
+            ]
+        },
+        {
+            "type": "scheduled-job",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderSnapshotPruneScheduleContribution",
+            "command": "capell:widget-snapshots:prune",
+            "frequency": "daily"
+        },
+        {
+            "type": "scheduled-job",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderBulkChangePruneScheduleContribution",
+            "command": "capell:layout-builder:prune-bulk-change-runs",
+            "frequency": "daily"
+        }
+    ],
+    "database": {
+        "migrations": true,
+        "settings": false,
+        "requiredTables": [
+            "layouts",
+            "widgets",
+            "widget_assets",
+            "widget_widgets",
+            "layout_presets",
+            "layout_bulk_change_runs",
+            "layout_bulk_change_results",
+            "layout_preset_usages",
+            "layout_preset_sync_runs",
+            "layout_preset_sync_results",
+            "public_widget_snapshots"
+        ]
+    },
+    "commands": {
+        "install": "capell:layout-builder-install",
+        "setup": null,
+        "demo": null,
+        "doctor": null,
+        "prune": "capell:layout-builder:prune-bulk-change-runs"
+    },
+    "actions": {
+        "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction",
+        "pruneLayoutBulkChangeRuns": "Capell\\LayoutBuilder\\Actions\\PruneLayoutBulkChangeRunsAction",
+        "setup": "Capell\\LayoutBuilder\\Actions\\SetupLayoutBuilderPackageAction"
+    },
+    "settings": [],
+    "permissions": [
+        "ViewAny:Layout",
+        "View:Layout",
+        "Create:Layout",
+        "EditContent:Layout",
+        "EditLayout:Layout",
+        "Update:Layout",
+        "Delete:Layout",
+        "DeleteAny:Layout",
+        "Restore:Layout",
+        "ForceDelete:Layout",
+        "Replicate:Layout",
+        "Reorder:Layout",
+        "BulkMutate:Layout"
+    ],
+    "capabilities": [
+        "layout-builder",
+        "layout-builder-admin",
+        "layout-builder-content-first",
+        "layout-builder-public-rendering"
+    ],
+    "security": {
+        "riskTier": "standard",
+        "publicSurface": {
+            "routeNames": [
+                "capell-layout-builder.fragments.show",
+                "capell-layout-builder.layout-widgets.show"
+            ],
+            "auth": "public",
+            "csrfExemptRoutes": [],
+            "signedRoutes": [],
+            "tokenizedRoutes": [],
+            "webhookRoutes": [],
+            "throttledRoutes": []
+        },
+        "sensitiveData": {
+            "encryptedFields": [],
+            "hashedTokenFields": [
+                "layout_bulk_change_runs.original_container_hash",
+                "layout_bulk_change_runs.proposed_container_hash"
+            ],
+            "redactedOutputClasses": [
+                "Capell\\LayoutBuilder\\Actions\\SaveLayoutPresetAction"
+            ],
+            "plaintextJustifications": []
+        },
+        "publicOutput": {
+            "cacheSafe": true,
+            "forbidAuthoringSurface": true,
+            "forbidSecrets": true,
+            "forbidPublicBladeQueries": true
+        },
+        "externalHttpClients": {
+            "requiresTimeouts": false,
+            "requiresSecretRedaction": false,
+            "clients": []
+        },
+        "adminSurface": {
+            "authorization": "permissions",
+            "permissions": [
+                "ViewAny:Layout",
+                "View:Layout",
+                "Create:Layout",
+                "EditContent:Layout",
+                "EditLayout:Layout",
+                "Update:Layout",
+                "Delete:Layout",
+                "DeleteAny:Layout",
+                "Restore:Layout",
+                "ForceDelete:Layout",
+                "Replicate:Layout",
+                "Reorder:Layout",
+                "BulkMutate:Layout"
+            ]
+        }
+    },
+    "performance": {
+        "frontendRenderBudgetMs": 20,
+        "adminQueryBudget": 50,
+        "cacheTags": ["layout-builder"],
+        "cacheSafety": {
+            "cacheable": true,
+            "variesBy": ["site", "locale", "page"],
+            "sensitiveOutput": false,
+            "invalidationSources": [
+                {
+                    "model": "Capell\\Core\\Models\\Page",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\PageUrl",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\SiteDomain",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\Core\\Models\\Translation",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\Layout",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\Widget",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\WidgetAsset",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\WidgetWidget",
+                    "events": ["saved", "deleted"]
+                },
+                {
+                    "model": "Capell\\LayoutBuilder\\Models\\LayoutPreset",
+                    "events": ["saved", "deleted"]
+                }
+            ],
+            "queueInvalidation": true
+        }
+    },
+    "healthChecks": [
+        {
+            "key": "layout-builder.package-health",
+            "label": "Layout Builder package surfaces, providers, and install health are discoverable by Diagnostics.",
+            "class": "Capell\\LayoutBuilder\\Health\\LayoutBuilderHealthCheck",
+            "severity": "critical",
+            "surface": "admin"
+        }
+    ],
+    "commercial": {
+        "proposedLicense": "free",
+        "requestedCertification": "first-party",
+        "supportPolicy": "capell-first-party",
+        "privateDocsRequested": false
+    },
+    "marketplace": {
+        "summary": "Compose pages visually with reusable widgets and named layout areas — edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
+        "screenshots": [
+            {
+                "path": "docs/assets/marketplace/extension-card.jpg",
+                "alt": "Layout Builder extension preview image",
+                "caption": "Layout Builder extension preview"
+            },
+            {
+                "path": "docs/screenshots/layout-builder-add-widget-action.png",
+                "alt": "Layout Builder Add Widget action showing available widget records",
+                "caption": "Choose an existing reusable widget and add it to the selected layout container."
+            },
+            {
+                "path": "docs/screenshots/layout-builder-add-container-action.png",
+                "alt": "Layout Builder Add Container action with area and presentation controls",
+                "caption": "Create a named layout container and assign it to an explicit theme area."
+            },
+            {
+                "path": "docs/screenshots/layout-builder-edit-widget-action.png",
+                "alt": "Layout Builder widget editor with translation and presentation tabs",
+                "caption": "Edit reusable widget copy, translations, placement, items, appearance, rendering, and settings."
+            },
+            {
+                "path": "docs/screenshots/layout-builder-edit-container-action.png",
+                "alt": "Layout Builder container editor with area and background controls",
+                "caption": "Adjust a container's key, theme area, settings, and background from the live admin workflow."
+            },
+            {
+                "path": "docs/screenshots/widgets-admin-index.png",
+                "alt": "Layout Builder reusable Widgets admin index",
+                "caption": "Review reusable widgets, blueprint types, layout usage, status, and update history."
+            },
+            {
+                "path": "docs/screenshots/sections-admin-index.png",
+                "alt": "Layout Builder layouts admin index with seeded layout cards",
+                "caption": "Manage reusable layouts, container counts, status, and live usage from the admin index."
+            }
+        ],
+        "categories": ["admin", "foundation", "frontend"]
+    },
+    "contributionTraceability": {
+        "deferredContributions": []
+    }
+}

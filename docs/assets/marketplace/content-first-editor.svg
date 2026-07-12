@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+    <title id="title">Content first layout editor</title>
+    <desc id="desc">A Capell Layout Builder content-first editor surface with widget asset groups.</desc>
+    <rect width="1440" height="900" fill="#fbfaf7"/>
+    <rect x="0" y="0" width="1440" height="66" fill="#ffffff" stroke="#ded8cf"/>
+    <text x="64" y="42" font-family="Georgia, serif" font-size="34" fill="#0b2845">CAPELL</text>
+    <rect x="0" y="66" width="96" height="834" fill="#ffffff" stroke="#ded8cf"/>
+    <rect x="32" y="194" width="32" height="32" rx="8" fill="#c78a25"/>
+    <text x="154" y="122" font-family="Inter, Arial, sans-serif" font-size="15" fill="#756e66">Pages / Edit</text>
+    <text x="154" y="166" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700" fill="#181614">Product landing page</text>
+    <rect x="154" y="202" width="1212" height="66" rx="14" fill="#ffffff" stroke="#ded8cf"/>
+    <rect x="184" y="218" width="180" height="34" rx="17" fill="#152d4a"/>
+    <text x="226" y="241" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#ffffff">Content first</text>
+    <rect x="378" y="218" width="154" height="34" rx="17" fill="#f5f1e8" stroke="#ded8cf"/>
+    <text x="420" y="241" font-family="Inter, Arial, sans-serif" font-size="14" fill="#756e66">Layout first</text>
+    <rect x="154" y="304" width="810" height="514" rx="16" fill="#ffffff" stroke="#ded8cf"/>
+    <text x="184" y="352" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#181614">Assigned widget content</text>
+    <g font-family="Inter, Arial, sans-serif">
+        <rect x="184" y="384" width="720" height="82" rx="12" fill="#faf8f3" stroke="#ded8cf"/>
+        <text x="212" y="416" font-size="15" font-weight="700" fill="#181614">Hero</text>
+        <text x="212" y="444" font-size="14" fill="#756e66">Heading, supporting copy, primary CTA, and hero media.</text>
+        <rect x="184" y="490" width="720" height="82" rx="12" fill="#faf8f3" stroke="#ded8cf"/>
+        <text x="212" y="522" font-size="15" font-weight="700" fill="#181614">Breadcrumb</text>
+        <text x="212" y="550" font-size="14" fill="#756e66">Moved below hero across matching layouts.</text>
+        <rect x="184" y="596" width="720" height="82" rx="12" fill="#faf8f3" stroke="#ded8cf"/>
+        <text x="212" y="628" font-size="15" font-weight="700" fill="#181614">Proof cards</text>
+        <text x="212" y="656" font-size="14" fill="#756e66">Three reusable cards with page-scoped assets.</text>
+        <rect x="184" y="702" width="720" height="82" rx="12" fill="#faf8f3" stroke="#ded8cf"/>
+        <text x="212" y="734" font-size="15" font-weight="700" fill="#181614">CTA band</text>
+        <text x="212" y="762" font-size="14" fill="#756e66">Form prompt, copy, and destination URL.</text>
+    </g>
+    <rect x="994" y="304" width="372" height="514" rx="16" fill="#ffffff" stroke="#ded8cf"/>
+    <text x="1024" y="352" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#181614">Layout summary</text>
+    <text x="1024" y="400" font-family="Inter, Arial, sans-serif" font-size="14" fill="#756e66">Container</text>
+    <text x="1024" y="430" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#181614">main</text>
+    <text x="1024" y="484" font-family="Inter, Arial, sans-serif" font-size="14" fill="#756e66">Widgets</text>
+    <text x="1024" y="514" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#181614">4 active</text>
+    <text x="1024" y="568" font-family="Inter, Arial, sans-serif" font-size="14" fill="#756e66">Editor mode</text>
+    <text x="1024" y="598" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#181614">Content first</text>
+    <rect x="1024" y="664" width="278" height="48" rx="10" fill="#152d4a"/>
+    <text x="1116" y="694" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#ffffff">Save content</text>
+</svg>

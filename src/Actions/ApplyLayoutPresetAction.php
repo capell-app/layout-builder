@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Capell\LayoutBuilder\Actions;
+
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Models\LayoutPreset;
+use Illuminate\Support\Str;
+use LogicException;
+use Lorisleiva\Actions\Concerns\AsObject;
+
+final class ApplyLayoutPresetAction
+{
+    use AsObject;
+
+    public function handle(LayoutPreset $preset, Layout $layout, Site $site, bool $persist = false): Layout
+    {
+        throw_if($preset->site_id !== $site->getKey() || ($layout->site_id !== null && $layout->site_id !== $site->getKey()), LogicException::class, 'Layout presets can only be applied within the same site.');
+
+        $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
+        $containers = is_array($snapshot['containers'] ?? null) ? $snapshot['containers'] : [];
+        $containers = resolve(SaveLayoutPresetAction::class)->sanitizePresetContainers($containers);
+
+        $layout->setAttribute('containers', $this->withUniqueAnchors($containers));
+
+        if ($persist) {
+            $layout->save();
+
+            return $layout->refresh();
+        }
+
+        return $layout;
+    }
+
+    /**
+     * @param  array<string, mixed>  $containers
+     * @return array<string, mixed>
+     */
+    private function withUniqueAnchors(array $containers): array
+    {
+        $usedAnchors = [];
+
+        foreach ($containers as &$container) {
+            if (! is_array($container)) {
+                continue;
+            }
+
+            $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+
+            foreach ($widgets as &$widget) {
+                if (! is_array($widget)) {
+                    continue;
+                }
+
+                $anchor = $widget['meta']['widget_settings']['anchor_id'] ?? null;
+                if (! is_string($anchor)) {
+                    continue;
+                }
+
+                if (trim($anchor) === '') {
+                    continue;
+                }
+
+                $baseAnchor = Str::slug($anchor);
+                $uniqueAnchor = $baseAnchor;
+                $suffix = 2;
+
+                while (isset($usedAnchors[$uniqueAnchor])) {
+                    $uniqueAnchor = $baseAnchor . '-' . $suffix;
+                    $suffix++;
+                }
+
+                $widget['meta']['widget_settings']['anchor_id'] = $uniqueAnchor;
+                $usedAnchors[$uniqueAnchor] = true;
+            }
+
+            $container['widgets'] = $widgets;
+        }
+
+        return $containers;
+    }
+}
