@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Data\AdminWidgetPreviewData;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
@@ -49,7 +50,7 @@ final class ResolveAdminWidgetPreviewDataAction
     private function view(Widget $widget, bool $usesPageContent): string
     {
         $customView = Arr::get($widget->admin ?? [], 'admin_preview_view')
-            ?? Arr::get($widget->blueprint->admin ?? [], 'admin_preview_view');
+            ?? Arr::get($this->blueprintAdmin($widget), 'admin_preview_view');
 
         if (is_string($customView) && $customView !== '' && $this->isPreviewView($customView)) {
             return $customView;
@@ -154,7 +155,7 @@ final class ResolveAdminWidgetPreviewDataAction
     private function typeLabel(Widget $widget): ?string
     {
         $type = Arr::get($widget->admin ?? [], 'type')
-            ?? Arr::get($widget->blueprint->admin ?? [], 'type');
+            ?? Arr::get($this->blueprintAdmin($widget), 'type');
 
         return is_string($type) && $type !== '' ? $type : null;
     }
@@ -162,7 +163,7 @@ final class ResolveAdminWidgetPreviewDataAction
     private function icon(Widget $widget): ?string
     {
         $icon = Arr::get($widget->admin ?? [], 'icon')
-            ?? Arr::get($widget->blueprint->admin ?? [], 'icon');
+            ?? Arr::get($this->blueprintAdmin($widget), 'icon');
 
         return is_string($icon) && $icon !== '' ? $icon : null;
     }
@@ -170,5 +171,13 @@ final class ResolveAdminWidgetPreviewDataAction
     private function isPageContentWidget(Widget $widget): bool
     {
         return $widget->getMetaComponent() === WidgetComponentEnum::PageContent->value;
+    }
+
+    /** @return array<string, mixed> */
+    private function blueprintAdmin(Widget $widget): array
+    {
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
+
+        return $blueprint instanceof Blueprint && is_array($blueprint->admin) ? $blueprint->admin : [];
     }
 }

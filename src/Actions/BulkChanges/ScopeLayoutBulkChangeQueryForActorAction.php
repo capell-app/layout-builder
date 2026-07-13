@@ -8,7 +8,6 @@ use Capell\Admin\Support\SiteScope;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class ScopeLayoutBulkChangeQueryForActorAction
@@ -42,7 +41,7 @@ final class ScopeLayoutBulkChangeQueryForActorAction
 
         $assignedSiteIds = $actor->getAssignedSiteIds();
 
-        if (! $assignedSiteIds instanceof Collection || $assignedSiteIds->isEmpty()) {
+        if ($assignedSiteIds->isEmpty()) {
             return $query->whereRaw('1 = 0');
         }
 

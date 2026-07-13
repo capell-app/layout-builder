@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -131,11 +132,12 @@ class BuildPublicLayoutGraphAction
         }
 
         $publicWidget = $this->widgetWithPublicOccurrenceMeta($widget, $widgetData);
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
 
         return new PublicLayoutWidgetData(
             key: $widgetKey,
             occurrence: $occurrence,
-            type: $widget->blueprint?->key,
+            type: $blueprint instanceof Blueprint ? $blueprint->key : null,
             data: $resolver->data($publicWidget, $page, $language, $containerKey, $occurrence),
             html: $includeHtml ? $resolver->html($publicWidget, $page, $language, $containerKey, $occurrence) : null,
         );

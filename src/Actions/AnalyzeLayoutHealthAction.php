@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\BlockLibrary\Data\BlockDefinitionData;
 use Capell\BlockLibrary\Support\BlockRegistry;
 use Capell\BlockLibrary\Support\NullBlockDefinition;
+use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
@@ -180,7 +181,8 @@ final class AnalyzeLayoutHealthAction
             return trim($configuredKey);
         }
 
-        $typeKey = $widget->blueprint?->key;
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
+        $typeKey = $blueprint instanceof Blueprint ? $blueprint->key : null;
 
         if (is_string($typeKey) && $registry->has($typeKey)) {
             return $typeKey;

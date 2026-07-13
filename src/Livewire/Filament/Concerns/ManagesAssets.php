@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 use BackedEnum;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -660,9 +661,10 @@ trait ManagesAssets
      */
     protected function getAllowedAssetTypes(Widget $widget): array
     {
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
         $assetTypes = isset($widget->admin['asset_types']) && $widget->admin['asset_types'] !== []
             ? $widget->admin['asset_types']
-            : ($widget->blueprint->admin['asset_types'] ?? []);
+            : ($blueprint instanceof Blueprint ? ($blueprint->admin['asset_types'] ?? []) : []);
 
         if ($assetTypes === []) {
             return CapellCore::getAssets()

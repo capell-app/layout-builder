@@ -7,8 +7,10 @@ namespace Capell\LayoutBuilder\Console\Commands;
 use Capell\LayoutBuilder\Actions\CreateLayoutPresetSyncRunAction;
 use Capell\LayoutBuilder\Enums\LayoutPresetMode;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\LayoutPresetSyncRun;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
+use UnexpectedValueException;
 
 final class ResyncLayoutPresetCommand extends Command
 {
@@ -18,11 +20,12 @@ final class ResyncLayoutPresetCommand extends Command
 
     public function handle(): int
     {
-        $identifier = (string) $this->argument('preset');
+        $argument = $this->argument('preset');
+        $identifier = is_string($argument) || is_int($argument) ? (string) $argument : '';
         $preset = LayoutPreset::query()
             ->where('mode', LayoutPresetMode::Linked)
             ->where(static function (Builder $query) use ($identifier): void {
-                $query->where('key', $identifier)->orWhereKey($identifier);
+                $query->where('key', $identifier)->orWhere('id', $identifier);
             })
             ->first();
 
@@ -33,6 +36,9 @@ final class ResyncLayoutPresetCommand extends Command
         }
 
         $run = CreateLayoutPresetSyncRunAction::run($preset);
+        if (! $run instanceof LayoutPresetSyncRun) {
+            throw new UnexpectedValueException('Expected a layout preset sync run.');
+        }
         $this->components->info(sprintf('Queued preset sync run %s.', $run->uuid));
 
         return self::SUCCESS;

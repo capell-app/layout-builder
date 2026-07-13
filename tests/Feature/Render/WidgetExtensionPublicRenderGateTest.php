@@ -31,7 +31,7 @@ it('does not pass raw extension state to package or theme views', function (stri
         fallbackView: 'widget-gate-test::extension',
     ));
 
-    $html = view($view, $data)->render();
+    $html = app('view')->make($view, $data)->render();
 
     expect($html)->not->toContain('RAW_EXTENSION_SECRET')
         ->and($html)->not->toContain('unhydrated title')

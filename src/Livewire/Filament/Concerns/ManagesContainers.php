@@ -65,7 +65,7 @@ trait ManagesContainers
         $this->assertCanUpdateLayout();
         $this->assertContainerIsDetached($containerKey);
 
-        $result = ReorderLayoutContainerAction::run(
+        $result = resolve(ReorderLayoutContainerAction::class)->handle(
             state: LayoutBuilderStateData::fromLivewire($this->containers, $this->assets, $this->originalAssets, $this->selectedRecords),
             containerKey: $containerKey,
             position: $position,
@@ -138,8 +138,9 @@ trait ManagesContainers
             array_slice($this->containers, $insertPosition, null, true);
 
         if ($this->containerIsLinkedToPreset($containerKey)) {
+            $meta = $this->containers[$newContainerKey]['meta'] ?? [];
             $this->containers[$newContainerKey]['meta'] = array_diff_key(
-                $this->containers[$newContainerKey]['meta'] ?? [],
+                is_array($meta) ? $meta : [],
                 ['preset' => true],
             );
         }

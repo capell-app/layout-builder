@@ -64,7 +64,14 @@ final class PersistLayoutBuilderStateAction
                     continue;
                 }
 
-                $items[$itemIndex]['container'] = resolve(SaveLayoutPresetAction::class)->sanitizeLinkedPresetContainer($containers[$linkedContainerKey]);
+                $linkedContainer = $containers[$linkedContainerKey];
+                /** @var array<string, mixed> $linkedContainer */
+                $item = $items[$itemIndex] ?? null;
+                if (! is_array($item)) {
+                    continue;
+                }
+                $item['container'] = resolve(SaveLayoutPresetAction::class)->sanitizeLinkedPresetContainer($linkedContainer);
+                $items[$itemIndex] = $item;
                 $updated = true;
                 break;
             }

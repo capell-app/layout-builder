@@ -14,6 +14,9 @@ use InvalidArgumentException;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static LayoutPreset run(Layout $layout, Site $site, list<string> $containerKeys, string $name, string $category = 'general', list<string> $tags = [], ?string $description = null, ?string $themeKey = null, ?array<string, array<string, mixed>> $containers = null)
+ */
 final class CreateLinkedLayoutPresetAction
 {
     use AsObject;
@@ -34,12 +37,17 @@ final class CreateLinkedLayoutPresetAction
         ?string $themeKey = null,
         ?array $containers = null,
     ): LayoutPreset {
-        throw_if($layout->site_id === null || (int) $layout->site_id !== (int) $site->getKey(), LogicException::class, 'Linked layout presets require a layout owned by the preset site.');
+        $siteKey = $site->getKey();
+        throw_if($layout->site_id === null || ! is_numeric($siteKey) || (int) $layout->site_id !== (int) $siteKey, LogicException::class, 'Linked layout presets require a layout owned by the preset site.');
 
         $presetKey = Str::slug($name);
         throw_if($presetKey === '', InvalidArgumentException::class, 'Linked layout preset key must not be empty.');
 
         $layoutContainers = $containers ?? (is_array($layout->containers) ? $layout->containers : []);
+        if (array_filter(array_keys($layoutContainers), static fn (mixed $key): bool => ! is_string($key)) !== []) {
+            throw new InvalidArgumentException('Layout container keys must be strings.');
+        }
+        /** @var array<string, array<string, mixed>> $layoutContainers */
         $items = collect($containerKeys)
             ->unique()
             ->map(function (string $containerKey) use ($layoutContainers): array {

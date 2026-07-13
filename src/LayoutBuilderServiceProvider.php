@@ -76,6 +76,7 @@ use Capell\LayoutBuilder\Support\WidgetSnapshots\CurrentWidgetSnapshotLocatorCip
 use Capell\LayoutBuilder\Support\WidgetSnapshots\PrebuiltWidgetInteractionLocatorResolver;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -181,6 +182,15 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         CapellCore::subscriberManager()->subscribe(WidgetSnapshotWorkflowSubscriber::class);
         Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
         Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
+        Event::listen(RequestHandled::class, function (RequestHandled $event): void {
+            if (! $event->request->is('_fragments/*') || ! $event->response->isSuccessful()) {
+                return;
+            }
+
+            $event->response->headers->remove('Set-Cookie');
+            $event->response->headers->set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+            $event->response->headers->set('X-Robots-Tag', 'noindex');
+        });
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
             if (! $this->isPackageInstalled()) {
                 return;
@@ -225,8 +235,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     private function registerPublicFragmentRoute(): void
     {
-        Route::middleware('web')
-            ->name('capell-layout-builder.fragments.')
+        Route::name('capell-layout-builder.fragments.')
             ->prefix('_fragments')
             ->group(function (): void {
                 Route::get('{reference}', PublicFragmentController::class)

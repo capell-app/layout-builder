@@ -41,6 +41,8 @@ it('forces migrations when installing layout builder directly', function (): voi
 });
 
 it('installs layout builder from its package manifest', function (): void {
+    Artisan::command('capell:publish-migrations {--items=*}', fn (): int => Command::SUCCESS);
+    Artisan::command('migrate {--force} {--path=*} {--realpath}', fn (): int => Command::SUCCESS);
     $installRecorder = new LayoutBuilderInstallRecorder;
 
     test()->instance(InstallLayoutBuilderPackageAction::class, new readonly class($installRecorder) implements PackageLifecycleAction

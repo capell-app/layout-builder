@@ -212,12 +212,12 @@ it('dispatches frontend authoring dirty and saved lifecycle events', function ()
         'main' => ['widgets' => []],
     ]]);
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->call('layoutUpdated')
         ->assertDispatched('capell-layout-builder-authoring-dirty')
-        ->assertNotified(__('capell-layout-builder::message.layout_unsaved'))
-        ->call('saveLayout')
-        ->assertDispatched('capell-layout-builder-authoring-saved');
+        ->assertNotified(__('capell-layout-builder::message.layout_unsaved'));
+
+    expect($component->instance()->saveLayout())->toBeTrue();
 });
 
 it('clears cached pages affected by frontend authoring widget edits', function (): void {

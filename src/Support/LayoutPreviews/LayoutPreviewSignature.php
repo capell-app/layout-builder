@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support\LayoutPreviews;
 
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
@@ -133,14 +134,17 @@ final class LayoutPreviewSignature
             }
 
             $widget = $widgets[$widgetKey] ?? null;
+            $blueprint = $widget !== null && $widget->relationLoaded('blueprint')
+                ? $widget->getRelation('blueprint')
+                : null;
 
             $normalizedWidgets[] = [
                 'key' => $widgetKey,
                 'occurrence' => LayoutWidgetData::occurrence($containerWidget),
                 'name' => $widget?->name,
-                'icon' => $widget?->admin['icon'] ?? $widget?->blueprint?->admin['icon'] ?? null,
-                'type_name' => $widget?->blueprint?->name,
-                'type_icon' => $widget?->blueprint?->admin['icon'] ?? null,
+                'icon' => $widget?->admin['icon'] ?? ($blueprint instanceof Blueprint ? $blueprint->admin['icon'] ?? null : null),
+                'type_name' => $blueprint instanceof Blueprint ? $blueprint->name : null,
+                'type_icon' => $blueprint instanceof Blueprint ? $blueprint->admin['icon'] ?? null : null,
                 'meta_name' => $containerWidget['meta']['name'] ?? null,
             ];
         }

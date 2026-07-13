@@ -24,6 +24,7 @@ use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotResourceIds;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\RecordingBatchPayloadResolver;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,7 +58,7 @@ it('stores an immutable encrypted snapshot and renders HTML and registry-owned V
         $rawPayload = DB::table('public_widget_snapshots')->value('encrypted_payload');
 
         expect($rawPayload)->toBeString()->not->toContain('Lazy target', 'lazy-instance')
-            ->and($snapshot->encrypted_payload['widget']['data']['title'])->toBe('<Lazy target>');
+            ->and(data_get($snapshot->encrypted_payload, 'widget.data.title'))->toBe('<Lazy target>');
 
         $htmlResponse = lazyWidgetResponse($locator);
         expect($htmlResponse->getStatusCode())->toBe(200)
@@ -68,7 +69,8 @@ it('stores an immutable encrypted snapshot and renders HTML and registry-owned V
 
         request()->headers->set('Accept', 'application/vnd.capell.widget.v2+json');
         $jsonResponse = lazyWidgetResponse($locator);
-        $json = json_decode($jsonResponse->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        $json = json_decode((string) $jsonResponse->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        $json = is_array($json) ? $json : [];
         expect($json)->toMatchArray([
             'version' => 2,
             'status' => 'ok',
@@ -117,7 +119,13 @@ it('supersedes changed revisions while retaining the previous locator through gr
     $stableCurrentKey = $firstSnapshot->current_key;
     $firstFingerprint = $firstSnapshot->context_fingerprint;
 
+    if ($context->page === null) {
+        throw new RuntimeException('Expected a render context page.');
+    }
     $translation = $context->page->getRelation('translation');
+    if (! $translation instanceof Model) {
+        throw new RuntimeException('Expected a page translation.');
+    }
     $translation->forceFill(['content' => [lazyWidgetBlock('Second')]])->save();
     $context->page->setRelation('translation', $translation->fresh());
     resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
@@ -210,7 +218,7 @@ it('keeps public render-data generation read-only and fails open when no snapsho
         }
     });
 
-    $renderData = BuildPublicPageRenderDataAction::run($context);
+    $renderData = resolve(BuildPublicPageRenderDataAction::class)->handle($context);
 
     expect($renderData->widgetInteractionLocators)->toBe([])
         ->and(PublicWidgetSnapshot::query()->count())->toBe(0)
@@ -236,7 +244,7 @@ it('fails open without writes when locator encryption fails during ordinary publ
     }));
     app()->forgetInstance(BuildPublicWidgetInteractionLocatorsAction::class);
 
-    $renderData = BuildPublicPageRenderDataAction::run($context);
+    $renderData = resolve(BuildPublicPageRenderDataAction::class)->handle($context);
 
     expect($renderData->widgetInteractionLocators)->toBe([])
         ->and(PublicWidgetSnapshot::query()->count())->toBe($before);
@@ -349,6 +357,9 @@ it('rejects an intact locator through a domain path bound to another language', 
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     registerLazyWidgetResources();
     $context = lazyWidgetContext('Locale bound');
+    if ($context->site === null) {
+        throw new RuntimeException('Expected a render context site.');
+    }
     $locator = lazyWidgetLocator($context);
     $otherLanguage = Language::factory()->createOne(['code' => 'fr']);
     SiteDomain::query()->create([
@@ -368,6 +379,9 @@ it('rejects an intact locator through a domain path bound to another language', 
 it('generates locators against the resolved language-domain origin and path', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Domain path');
+    if ($context->site === null || $context->language === null) {
+        throw new RuntimeException('Expected render context site and language.');
+    }
     SiteDomain::query()->where('site_id', $context->site->id)->update(['status' => false]);
     SiteDomain::query()->create([
         'site_id' => $context->site->id,
@@ -401,6 +415,9 @@ it('routes a localized path-domain locator through the explicit HTTP endpoint be
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     registerLazyWidgetResources();
     $context = lazyWidgetContext('Localized route');
+    if ($context->site === null || $context->language === null) {
+        throw new RuntimeException('Expected render context site and language.');
+    }
     SiteDomain::query()->where('site_id', $context->site->id)->update(['status' => false]);
     SiteDomain::query()->create([
         'site_id' => $context->site->id,
@@ -421,7 +438,7 @@ it('routes a localized path-domain locator through the explicit HTTP endpoint be
         ->toBe('capell-layout-builder.layout-widgets.localized.show');
 
     $response = $this->get($path)->assertOk();
-    expect($response->headers->get('Cache-Control'))->toContain('private', 'no-store');
+    expect($response->baseResponse->headers->get('Cache-Control'))->toContain('private', 'no-store');
 });
 
 it('supersedes snapshots for interaction targets removed by a later publication', function (): void {
@@ -429,7 +446,13 @@ it('supersedes snapshots for interaction targets removed by a later publication'
     $context = lazyWidgetContext('Removed later');
     resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
 
+    if ($context->page === null) {
+        throw new RuntimeException('Expected a render context page.');
+    }
     $translation = $context->page->getRelation('translation');
+    if (! $translation instanceof Model) {
+        throw new RuntimeException('Expected a page translation.');
+    }
     $translation->forceFill(['content' => []])->save();
     $context->page->setRelation('translation', $translation->fresh());
     resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
@@ -465,8 +488,9 @@ function lazyWidgetLocator(FrontendRenderContextData $context): string
 {
     resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
+    $path = parse_url($url, PHP_URL_PATH);
 
-    return rawurldecode((string) str(parse_url($url, PHP_URL_PATH))->afterLast('/'));
+    return rawurldecode((string) str(is_string($path) ? $path : '')->afterLast('/'));
 }
 
 function lazyWidgetResponse(string $locator): Response

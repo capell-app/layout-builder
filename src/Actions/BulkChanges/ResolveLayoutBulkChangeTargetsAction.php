@@ -28,7 +28,7 @@ final class ResolveLayoutBulkChangeTargetsAction
             ->when($criteria->layoutKeys !== [], fn (Builder $query): Builder => $query->whereIn('key', $criteria->layoutKeys))
             ->when($criteria->requireWidgetKey !== null, fn (Builder $query): Builder => $this->whereContainsWidgetKey($query, (string) $criteria->requireWidgetKey));
 
-        return ScopeLayoutBulkChangeQueryForActorAction::run($query, $actorId)
+        return resolve(ScopeLayoutBulkChangeQueryForActorAction::class)->handle($query, $actorId)
             ->ordered()
             ->get();
     }

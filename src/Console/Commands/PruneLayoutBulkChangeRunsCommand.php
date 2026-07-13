@@ -16,7 +16,9 @@ final class PruneLayoutBulkChangeRunsCommand extends Command
     public function handle(): int
     {
         $count = PruneLayoutBulkChangeRunsAction::run();
-        $this->components->info((string) __('capell-layout-builder::generic.bulk_change_runs_pruned', ['count' => $count]));
+        $this->components->info((string) __('capell-layout-builder::generic.bulk_change_runs_pruned', [
+            'count' => is_int($count) ? $count : 0,
+        ]));
 
         return self::SUCCESS;
     }

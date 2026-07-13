@@ -18,4 +18,9 @@ final class UnresolvableStateUpcaster implements WidgetExtensionStateUpcaster
     {
         return $state;
     }
+
+    public function dependency(): MissingStateUpcasterDependency
+    {
+        return $this->dependency;
+    }
 }

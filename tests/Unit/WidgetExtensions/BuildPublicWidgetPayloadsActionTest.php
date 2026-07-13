@@ -41,8 +41,8 @@ it('upcasts validates and batches top-level and nested widget payloads exactly o
     expect(RecordingBatchPayloadResolver::$calls)->toBe(1)
         ->and($payloads)->toHaveCount(2)
         ->and($payloads['first'])->toBeInstanceOf(ExampleRenderData::class)
-        ->and($payloads['first']->title)->toBe('First')
-        ->and($payloads['second']->title)->toBe('Second');
+        ->and(widgetExtensionRenderData($payloads['first'])->title)->toBe('First')
+        ->and(widgetExtensionRenderData($payloads['second'])->title)->toBe('Second');
 });
 
 it('quarantines invalid input and failed or incomplete resolver results', function (string $mode): void {
@@ -70,7 +70,7 @@ it('converts validated input to the declared render data without a resolver', fu
     ]));
 
     expect($payloads['direct'])->toBeInstanceOf(ExampleRenderData::class)
-        ->and($payloads['direct']->title)->toBe('Direct');
+        ->and(widgetExtensionRenderData($payloads['direct'])->title)->toBe('Direct');
 });
 
 it('quarantines invalid input types and configured field bounds before resolver boundaries', function (mixed $title): void {
@@ -110,7 +110,7 @@ it('traverses typed generic wrappers to discover registered nested widget target
     ]], $context);
 
     expect($payloads)->toHaveKey('wrapped-target')
-        ->and($payloads['wrapped-target']->title)->toBe('Wrapped')
+        ->and(widgetExtensionRenderData($payloads['wrapped-target'])->title)->toBe('Wrapped')
         ->and(RecordingBatchPayloadResolver::$calls)->toBe(1);
 });
 
@@ -170,12 +170,10 @@ it('fingerprints the centralized API widget version and typed schema contract de
     );
 
     expect($first->fingerprint())->toBe($first->fingerprint())
-        ->not->toBe(
-            $versioned->fingerprint(),
-            $schemaChanged->fingerprint(),
-            $upcasterChanged->fingerprint(),
-            $resolverChanged->fingerprint(),
-        )
+        ->not->toBe($versioned->fingerprint())
+        ->not->toBe($schemaChanged->fingerprint())
+        ->not->toBe($upcasterChanged->fingerprint())
+        ->not->toBe($resolverChanged->fingerprint())
         ->and($first->fingerprint())->toMatch('/^[a-f0-9]{64}$/');
 
     $context = widgetExtensionContext([]);
@@ -188,7 +186,8 @@ it('fingerprints the centralized API widget version and typed schema contract de
     app()->instance(PublicContentWidgetPayloadBuilder::class, $resolverChanged);
     $resolverKey = $cache->keyForContext($context);
 
-    expect($firstKey)->not->toBe($upcasterKey, $resolverKey)
+    expect($firstKey)->not->toBe($upcasterKey)
+        ->and($firstKey)->not->toBe($resolverKey)
         ->and($upcasterKey)->not->toBe($resolverKey);
 });
 
@@ -205,6 +204,15 @@ function widgetExtensionContext(array $content): FrontendRenderContextData
     $page->setRelation('translation', $page->translations()->firstOrFail());
 
     return new FrontendRenderContextData($page, $site, $language, null, null);
+}
+
+function widgetExtensionRenderData(mixed $value): ExampleRenderData
+{
+    if (! $value instanceof ExampleRenderData) {
+        throw new RuntimeException('Expected example widget render data.');
+    }
+
+    return $value;
 }
 
 /** @param array<string, mixed> $data

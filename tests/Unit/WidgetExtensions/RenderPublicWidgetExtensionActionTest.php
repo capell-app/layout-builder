@@ -131,6 +131,9 @@ it('switches active parent and fallback views and payloads in one long-lived pro
 
     $viewFinder = app('view')->getFinder();
     expect($viewFinder)->toBeInstanceOf(FileViewFinder::class);
+    if (! $viewFinder instanceof FileViewFinder) {
+        throw new RuntimeException('Expected a file view finder.');
+    }
     $themeViews = new ThemeViewRegistrar($viewFinder, []);
     $themeViews->register([$activeRoot, $parentRoot], 'active-widget-theme');
     $active = $renderer->render($widgetData, widgetExtensionPublicRenderData([

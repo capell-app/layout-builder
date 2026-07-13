@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\BlockLibrary\Data\PublicBlockPresentationData;
 use Capell\BlockLibrary\Support\BlockRegistry;
 use Capell\BlockLibrary\Support\NullBlockDefinition;
+use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -52,7 +53,8 @@ final class ResolveWidgetPresentationDataAction
             return trim($configuredKey);
         }
 
-        $typeKey = $widget->blueprint?->key;
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
+        $typeKey = $blueprint instanceof Blueprint ? $blueprint->key : null;
         if (is_string($typeKey) && $registry->has($typeKey)) {
             return $typeKey;
         }

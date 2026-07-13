@@ -53,6 +53,8 @@ final class LayoutPresetLinkData extends Data
 
     public function matches(LayoutPreset $preset): bool
     {
-        return $this->presetId === (int) $preset->getKey();
+        $presetKey = $preset->getKey();
+
+        return is_numeric($presetKey) && $this->presetId === (int) $presetKey;
     }
 }

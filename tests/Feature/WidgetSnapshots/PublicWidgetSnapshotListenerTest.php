@@ -44,8 +44,12 @@ it('rebuilds public snapshots after save and immediately revokes every revision 
 it('revokes snapshots when a saved page is outside its public visibility window', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = snapshotListenerContext('Scheduled');
-    PageSavedAction::run($context->page);
-    $context->page->forceFill(['visible_until' => now()->subMinute()])->saveQuietly();
+    $page = $context->page;
+    if (! $page instanceof Page) {
+        throw new RuntimeException('Expected a page render context.');
+    }
+    PageSavedAction::run($page);
+    $page->forceFill(['visible_until' => now()->subMinute()])->saveQuietly();
 
     PageSavedAction::run($context->page);
 
@@ -55,8 +59,12 @@ it('revokes snapshots when a saved page is outside its public visibility window'
 it('treats an explicit unpublished workflow state as non-public even with null visibility dates', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = snapshotListenerContext('Workflow');
-    PageSavedAction::run($context->page);
-    PageWorkflowState::query()->where('page_uuid', $context->page->uuid)->update([
+    $page = $context->page;
+    if (! $page instanceof Page) {
+        throw new RuntimeException('Expected a page render context.');
+    }
+    PageSavedAction::run($page);
+    PageWorkflowState::query()->where('page_uuid', $page->uuid)->update([
         'status' => PageWorkflowStatus::Unpublished,
         'aggregate_version' => 2,
     ]);
@@ -72,8 +80,16 @@ it('revokes through the workflow subscriber for unpublish and archive stored eve
     expect(CapellCore::subscriberManager()->hasSubscriber(WidgetSnapshotWorkflowSubscriber::class))->toBeTrue();
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = snapshotListenerContext('Workflow event');
-    PageSavedAction::run($context->page);
-    $event = (new $eventClass)->setAggregateRootUuid($context->page->uuid);
+    $page = $context->page;
+    if (! $page instanceof Page) {
+        throw new RuntimeException('Expected a page render context.');
+    }
+    PageSavedAction::run($page);
+    $event = new $eventClass;
+    if (! method_exists($event, 'setAggregateRootUuid')) {
+        throw new RuntimeException('Expected a workflow aggregate event.');
+    }
+    $event = $event->setAggregateRootUuid($page->uuid);
 
     resolve(WidgetSnapshotWorkflowSubscriber::class)->handle($eventName, $event);
 

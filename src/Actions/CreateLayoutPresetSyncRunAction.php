@@ -39,7 +39,9 @@ final class CreateLayoutPresetSyncRunAction
                 ],
             );
 
-            SyncLinkedLayoutPresetJob::dispatch((int) $run->getKey())->afterCommit();
+            $runKey = $run->getKey();
+            throw_unless(is_numeric($runKey), LogicException::class, 'Layout preset sync run keys must be numeric.');
+            SyncLinkedLayoutPresetJob::dispatch((int) $runKey)->afterCommit();
 
             return $run;
         });

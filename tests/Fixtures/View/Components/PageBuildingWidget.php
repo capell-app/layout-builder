@@ -24,6 +24,6 @@ final class PageBuildingWidget extends Component
 
         $title = $this->widget->assets->first()?->asset?->translation?->title;
 
-        return view($viewFile, ['title' => $title]);
+        return app('view')->make($viewFile, ['title' => $title]);
     }
 }

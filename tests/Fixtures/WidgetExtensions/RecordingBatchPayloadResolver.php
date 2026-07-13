@@ -31,6 +31,10 @@ final class RecordingBatchPayloadResolver implements WidgetExtensionBatchPayload
                 continue;
             }
 
+            if (! $item->input instanceof ExampleInputData) {
+                throw new RuntimeException('Expected example widget input data.');
+            }
+
             $resolved[$item->instanceId] = self::$mode === 'wrong'
                 ? $item->input
                 : new ExampleRenderData(title: $item->input->title);

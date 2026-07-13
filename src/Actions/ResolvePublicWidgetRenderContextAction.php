@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Actions\Interactions\ResolveInteractionTriggersAction;
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Enums\PresentationDeliveryMode;
+use Capell\Core\Models\Blueprint;
 use Capell\Frontend\Facades\Frontend;
 use Capell\LayoutBuilder\Data\PublicWidgetRenderContextData;
 use Capell\LayoutBuilder\Models\Widget;
@@ -15,7 +16,7 @@ use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static PublicWidgetRenderContextData run(?object $layout, string $containerKey, int|string $widgetIndex, Widget $widget, array $widgetData, string $type)
+ * @method static PublicWidgetRenderContextData run(?object $layout, string $containerKey, int|string $widgetIndex, Widget $widget, array<string, mixed> $widgetData, string $type)
  */
 final class ResolvePublicWidgetRenderContextAction
 {
@@ -35,11 +36,13 @@ final class ResolvePublicWidgetRenderContextAction
         $occurrence = is_numeric($widgetData['occurrence'] ?? null) ? (int) $widgetData['occurrence'] : 1;
         $layoutKey = $this->layoutKey($layout);
         $widgetMeta = is_array($widgetData['meta'] ?? null) ? $widgetData['meta'] : [];
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
+        $blueprintMeta = $blueprint instanceof Blueprint && is_array($blueprint->meta) ? $blueprint->meta : [];
         $widgetReference = null;
 
-        $presentation = ResolvePresentationSettingsAction::run(
+        $presentation = resolve(ResolvePresentationSettingsAction::class)->handle(
             instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
-            typeDefaults: is_array($widget->blueprint?->meta['presentation'] ?? null) ? $widget->blueprint->meta['presentation'] : [],
+            typeDefaults: is_array($blueprintMeta['presentation'] ?? null) ? $blueprintMeta['presentation'] : [],
         );
         $isLazyFragment = $presentation->deliveryMode === PresentationDeliveryMode::LazyFragment;
 
@@ -54,7 +57,7 @@ final class ResolvePublicWidgetRenderContextAction
             widgetIndex: $widgetIndex,
         );
         $typeDefaultInteractions = $this->triggersWithCurrentWidgetFragment(
-            triggers: is_array($widget->blueprint?->meta['interactions'] ?? null) ? $widget->blueprint->meta['interactions'] : [],
+            triggers: is_array($blueprintMeta['interactions'] ?? null) ? $blueprintMeta['interactions'] : [],
             widgetReference: $widgetReference,
             containerKey: $containerKey,
             layoutKey: $layoutKey,
@@ -82,7 +85,7 @@ final class ResolvePublicWidgetRenderContextAction
             isLazyFragment: $isLazyFragment,
             widgetReference: $widgetReference,
             resourcePublicIds: $this->resourcePublicIds($widget, $widgetData, $containerKey, $occurrence, $widgetMeta),
-            interactions: ResolveInteractionTriggersAction::run(
+            interactions: resolve(ResolveInteractionTriggersAction::class)->handle(
                 instanceTriggers: $instanceInteractions,
                 typeDefaultTriggers: $typeDefaultInteractions,
             ),
@@ -118,9 +121,12 @@ final class ResolvePublicWidgetRenderContextAction
         $prepared = [];
 
         foreach ($triggers as $triggerKey => $trigger) {
-            $prepared[$triggerKey] = is_array($trigger)
-                ? $this->withCurrentWidgetFragment($trigger, $widgetReference, $containerKey, $layoutKey, $occurrence, $widget, $widgetData, $widgetIndex)
-                : $trigger;
+            if (is_array($trigger)) {
+                /** @var array<string, mixed> $trigger */
+                $prepared[$triggerKey] = $this->withCurrentWidgetFragment($trigger, $widgetReference, $containerKey, $layoutKey, $occurrence, $widget, $widgetData, $widgetIndex);
+            } else {
+                $prepared[$triggerKey] = $trigger;
+            }
         }
 
         return $prepared;
@@ -198,21 +204,23 @@ final class ResolvePublicWidgetRenderContextAction
      */
     private function resourcePublicIds(Widget $widget, array $widgetData, string $containerKey, int $occurrence, array $widgetMeta): array
     {
+        $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
+        $blueprintMeta = $blueprint instanceof Blueprint && is_array($blueprint->meta) ? $blueprint->meta : [];
         $resourceGroups = collect([
-            ...(is_array($widget->blueprint?->meta['resource_groups'] ?? null) ? $widget->blueprint->meta['resource_groups'] : []),
+            ...(is_array($blueprintMeta['resource_groups'] ?? null) ? $blueprintMeta['resource_groups'] : []),
             ...(is_array($widgetMeta['resource_groups'] ?? null) ? $widgetMeta['resource_groups'] : []),
         ])
             ->filter(static fn (mixed $resourceGroup): bool => is_string($resourceGroup) && $resourceGroup !== '')
             ->unique()
             ->values();
 
-        return $resourceGroups
+        return array_values($resourceGroups
             ->map(static fn (string $resourceGroup): string => LayoutBuilderLayoutWidgetResourceUsageContributor::publicId(
                 (string) ($widgetData['widget_key'] ?? $widget->key),
                 $resourceGroup,
                 $containerKey,
                 $occurrence,
             ))
-            ->all();
+            ->all());
     }
 }

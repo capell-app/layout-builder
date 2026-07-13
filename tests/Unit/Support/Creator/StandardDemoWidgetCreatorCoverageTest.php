@@ -41,7 +41,7 @@ function prepareStandardDemoCreatorHarness(Language $language): array
     resolve(TypeCreator::class)->createBuilderContentType();
 
     $defaultPageType = resolve(BlueprintCreator::class)->defaultPageType();
-    $layout = Layout::factory()->default()->create();
+    $layout = Layout::factory()->create(['default' => true]);
 
     LayoutBuilderStandardDemoContentPage::$defaultSiteId = $site->getKey();
     LayoutBuilderStandardDemoContentPage::$defaultLayoutId = $layout->getKey();

@@ -7,10 +7,12 @@ namespace Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Filament\Contracts\FormConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetAssetConfiguratorEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\PageWidgetAssetForm;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\RegisteredAssetWidgetAssetForm;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Arrayable;
@@ -32,8 +34,12 @@ class WidgetAssetForm implements FormConfigurator
         if ($record instanceof WidgetAsset && $record->exists) {
             $widget = $record->widget;
 
+            throw_unless($widget instanceof Widget, RuntimeException::class, 'Widget is required to load the asset schema');
+
+            $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
+
             $adminSchema = $widget->admin['widget_asset_configurator'][$assetType]
-                ?? $widget->blueprint->admin['widget_asset_configurator'][$assetType]
+                ?? ($blueprint instanceof Blueprint ? $blueprint->admin['widget_asset_configurator'][$assetType] ?? null : null)
                 ?? null;
         }
 

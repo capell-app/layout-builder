@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\FrontendAuthoring;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
 use Capell\FrontendAuthoring\Data\EditableRegionPayloadData;
@@ -113,7 +114,9 @@ final class LayoutBuilderEditableRegionContributor
             selector: self::widgetSelector((int) $layout->getKey(), $containerKey, $widgetIndex),
             regionKey: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
             target: sprintf('layout.widget.%s.%d', $containerKey, $widgetIndex),
-            description: $widget->blueprint?->name,
+            description: ($blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null) instanceof Blueprint
+                ? $blueprint->name
+                : null,
             containerKey: $containerKey,
             widgetIndex: $widgetIndex,
         );

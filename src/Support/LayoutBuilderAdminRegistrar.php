@@ -93,6 +93,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
             class: LayoutPresetResource::class,
             group: ResourceEnum::Layout->name,
+            name: 'preset',
         ));
     }
 

@@ -11,6 +11,9 @@ use InvalidArgumentException;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static LayoutPreset run(LayoutPreset $preset, string $presetItemId, array<string, mixed> $container)
+ */
 final class UpdateLinkedLayoutPresetItemAction
 {
     use AsObject;
@@ -34,7 +37,8 @@ final class UpdateLinkedLayoutPresetItemAction
                     continue;
                 }
 
-                $items[$index]['container'] = resolve(SaveLayoutPresetAction::class)->sanitizeLinkedPresetContainer($container);
+                $item['container'] = resolve(SaveLayoutPresetAction::class)->sanitizeLinkedPresetContainer($container);
+                $items[$index] = $item;
                 $updated = true;
                 break;
             }

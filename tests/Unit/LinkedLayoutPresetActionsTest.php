@@ -35,26 +35,29 @@ it('creates a linked preset with immutable items and no embedded link marker', f
     );
 
     $items = capell_test_array($preset->snapshot['items'] ?? null);
+    $firstItem = capell_test_array($items[0] ?? null);
 
     expect($preset->mode)->toBe(LayoutPresetMode::Linked)
         ->and($preset->revision)->toBe(1)
         ->and($items)->toHaveCount(2)
-        ->and($items[0]['id'])->toBeString()->not->toBeEmpty()
-        ->and(data_get($items[0], 'container.meta.preset'))->toBeNull()
-        ->and(data_get($items[0], 'container.widgets.0.meta.content.heading'))->toBe('Keep this');
+        ->and($firstItem['id'] ?? null)->toBeString()->not->toBeEmpty()
+        ->and(data_get($firstItem, 'container.meta.preset'))->toBeNull()
+        ->and(data_get($firstItem, 'container.widgets.0.meta.content.heading'))->toBe('Keep this');
 });
 
 it('projects linked container markers into exact usage rows', function (): void {
     $site = Site::factory()->create();
     $sourceLayout = Layout::factory()->site($site)->create(['containers' => ['main' => ['widgets' => []]]]);
     $preset = CreateLinkedLayoutPresetAction::run($sourceLayout, $site, ['main'], 'Shared main');
-    $itemId = (string) data_get($preset->snapshot, 'items.0.id');
+    $itemIdValue = data_get($preset->snapshot, 'items.0.id');
+    $itemId = is_string($itemIdValue) ? $itemIdValue : '';
+    $presetId = linkedLayoutPresetTestInteger($preset->getKey());
 
     $layout = Layout::factory()->site($site)->create([
         'containers' => [
             'consumer' => LinkLayoutPresetContainerAction::run(
                 ['widgets' => []],
-                new LayoutPresetLinkData((int) $preset->getKey(), $itemId, $preset->key),
+                new LayoutPresetLinkData($presetId, $itemId, $preset->key),
             ),
         ],
     ]);
@@ -64,7 +67,7 @@ it('projects linked container markers into exact usage rows', function (): void 
     $usage = LayoutPresetUsage::query()->where('layout_id', $layout->getKey())->first();
     $usage = capell_test_instance($usage, LayoutPresetUsage::class);
 
-    expect($usage->preset_id)->toBe((int) $preset->getKey())
+    expect($usage->preset_id)->toBe($presetId)
         ->and($usage->preset_item_id)->toBe($itemId)
         ->and($usage->container_key)->toBe('consumer');
 });
@@ -77,12 +80,14 @@ it('propagates one linked item while preserving the consumer container key', fun
         'containers' => ['main' => ['widgets' => [['widget_key' => 'hero', 'occurrence' => 1]]]],
     ]);
     $preset = CreateLinkedLayoutPresetAction::run($sourceLayout, $site, ['main'], 'Shared main');
-    $itemId = (string) data_get($preset->snapshot, 'items.0.id');
+    $itemIdValue = data_get($preset->snapshot, 'items.0.id');
+    $itemId = is_string($itemIdValue) ? $itemIdValue : '';
+    $presetId = linkedLayoutPresetTestInteger($preset->getKey());
     $consumerLayout = Layout::factory()->site($site)->create([
         'containers' => [
             'landing-main' => LinkLayoutPresetContainerAction::run(
                 ['widgets' => [['widget_key' => 'legacy', 'occurrence' => 1]]],
-                new LayoutPresetLinkData((int) $preset->getKey(), $itemId, $preset->key),
+                new LayoutPresetLinkData($presetId, $itemId, $preset->key),
             ),
         ],
     ]);
@@ -105,3 +110,12 @@ it('propagates one linked item while preserving the consumer container key', fun
         ->and(data_get($consumerLayout->containers['landing-main'], 'meta.preset.preset_item_id'))->toBe($itemId)
         ->and($run->status)->toBe(LayoutPresetSyncRunStatus::Completed);
 });
+
+function linkedLayoutPresetTestInteger(mixed $value): int
+{
+    if (! is_numeric($value)) {
+        throw new RuntimeException('Expected a numeric linked preset test value.');
+    }
+
+    return (int) $value;
+}

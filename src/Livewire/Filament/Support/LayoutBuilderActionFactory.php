@@ -10,6 +10,7 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
@@ -179,8 +180,14 @@ final class LayoutBuilderActionFactory
             ->modalWidth(Width::ThreeExtraLarge)
             ->modalSubmitActionLabel(fn (Action $action): string => $this->labelText($action->getTooltip()))
             ->schema(
-                static fn (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema => $schema->operation('createOption')
-                    ->schema($livewire->getContainerSchema($schema, $arguments)),
+                static function (LayoutBuilder $livewire, Schema $schema, array $arguments): Schema {
+                    $components = $livewire->getContainerSchema($schema, $arguments);
+
+                    return $schema->operation('createOption')->schema(array_values(array_filter(
+                        $components,
+                        static fn (mixed $component): bool => is_string($component) || $component instanceof Htmlable,
+                    )));
+                },
             )
             ->action(function (Action $action, LayoutBuilder $livewire, array $data, array $arguments): void {
                 $livewire->saveContainer(
@@ -939,10 +946,11 @@ final class LayoutBuilderActionFactory
                 $this->livewire->ensureLoaded();
 
                 $widget = $livewire->getContainerWidget($arguments['containerKey'], $arguments['widgetIndex']);
+                $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
 
                 $assetTypes = isset($widget->admin['asset_types']) && $widget->admin['asset_types'] !== []
                     ? $widget->admin['asset_types']
-                    : ($widget->blueprint->admin['asset_types'] ?? null);
+                    : ($blueprint instanceof Blueprint ? ($blueprint->admin['asset_types'] ?? null) : null);
 
                 if ($assetTypes === null) {
                     return false;
@@ -1653,6 +1661,7 @@ final class LayoutBuilderActionFactory
     /**
      * @return array<array-key, mixed>
      */
+    /** @return array<int, Htmlable|string> */
     private function getChangeLayoutSchema(): array
     {
         return [

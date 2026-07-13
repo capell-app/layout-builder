@@ -22,15 +22,31 @@ it('persists responsive container overrides separately from base colspan from th
         'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
     ]]);
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->call('setActiveBreakpoint', LayoutBreakpoint::Mobile->value)
         ->call('resizeContainer', 'main', 6)
         ->assertSet('containers.main.meta.colspan', 12)
-        ->assertSet('containers.main.meta.responsive.mobile.colspan', 6)
-        ->call('saveLayout');
+        ->assertSet('containers.main.meta.responsive.mobile.colspan', 6);
+
+    responsivePreviewLayoutBuilder($component)->saveLayout();
 
     expect($layout->fresh()->containers['main']['meta']['responsive']['mobile']['colspan'])->toBe(6);
 });
+
+function responsivePreviewLayoutBuilder(mixed $component): LayoutBuilder
+{
+    if (! is_object($component) || ! method_exists($component, 'instance')) {
+        throw new RuntimeException('Expected a Livewire test component.');
+    }
+
+    $instance = $component->instance();
+
+    if (! $instance instanceof LayoutBuilder) {
+        throw new RuntimeException('Expected a layout builder component.');
+    }
+
+    return $instance;
+}
 
 it('can resize the active responsive preview without waiting for breakpoint rerender from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [

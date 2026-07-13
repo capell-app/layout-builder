@@ -354,7 +354,7 @@ it('does not apply a queued bulk change after its actor is deleted or de-authori
     Permission::findOrCreate(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission(), 'web');
     $actor = User::factory()->createOne();
     $actor->givePermissionTo(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
-    $queuedRun = QueueLayoutBulkChangeRunAction::run($run, (int) $actor->getKey());
+    $queuedRun = QueueLayoutBulkChangeRunAction::run($run, bulkLayoutTestInteger($actor->getKey()));
 
     if ($deleteActor) {
         $actor->delete();
@@ -362,7 +362,7 @@ it('does not apply a queued bulk change after its actor is deleted or de-authori
         $actor->revokePermissionTo(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
     }
 
-    (new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey(), (int) $actor->getKey()))->handle();
+    (new ApplyLayoutBulkChangeRunJob(bulkLayoutTestInteger($queuedRun->getKey()), bulkLayoutTestInteger($actor->getKey())))->handle();
 
     expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Failed)
         ->and(bulkFreshRun($queuedRun)->summary)->toMatchArray([
@@ -395,7 +395,7 @@ it('scopes previews and revalidates mutations to the queued actor sites', functi
         'email' => 'layout-site-editor@example.test',
         'password' => 'password',
     ]);
-    LayoutBulkChangeScopedUser::$assignedSiteIdsByUser[(int) $actor->getKey()] = [(int) $allowedSite->getKey()];
+    LayoutBulkChangeScopedUser::$assignedSiteIdsByUser[bulkLayoutTestInteger($actor->getKey())] = [bulkLayoutTestInteger($allowedSite->getKey())];
     $operation = bulkWidgetOperation([
         'type' => LayoutBulkWidgetOperationType::MoveWidget->value,
         'source_widget_key' => 'breadcrumbs',
@@ -405,12 +405,12 @@ it('scopes previews and revalidates mutations to the queued actor sites', functi
 
     $scopedRun = PreviewLayoutBulkChangeAction::run(bulkCriteria([
         'layout_keys' => [$allowedLayout->key, $otherLayout->key],
-    ]), $operation, (int) $actor->getKey());
+    ]), $operation, bulkLayoutTestInteger($actor->getKey()));
 
     expect($scopedRun->results()->pluck('layout_id')->all())->toBe([$allowedLayout->getKey()]);
 
     $unscopedRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$otherLayout->key]]), $operation);
-    $summary = ApplyLayoutBulkChangeRunAction::run($unscopedRun, (int) $actor->getKey());
+    $summary = ApplyLayoutBulkChangeRunAction::run($unscopedRun, bulkLayoutTestInteger($actor->getKey()));
 
     expect($summary)->toMatchArray(['applied_layouts' => 0, 'apply_skipped_layouts' => 1])
         ->and(bulkWidgetKeys($otherLayout, 'main'))->toBe(['breadcrumbs', 'hero'])
@@ -427,8 +427,8 @@ it('applies a redelivered queued bulk change only once', function (): void {
     ]));
 
     $queuedRun = QueueLayoutBulkChangeRunAction::run($run);
-    $firstDelivery = new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey());
-    $secondDelivery = new ApplyLayoutBulkChangeRunJob((int) $queuedRun->getKey());
+    $firstDelivery = new ApplyLayoutBulkChangeRunJob(bulkLayoutTestInteger($queuedRun->getKey()));
+    $secondDelivery = new ApplyLayoutBulkChangeRunJob(bulkLayoutTestInteger($queuedRun->getKey()));
 
     $firstDelivery->handle();
     $secondDelivery->handle();
@@ -463,3 +463,12 @@ it('rejects specs missing required targets for operation type', function (): voi
 
     $this->artisan('capell:layouts:bulk-change', ['--spec' => $specPath, '--preview' => true, '--json' => true])->assertFailed();
 });
+
+function bulkLayoutTestInteger(mixed $value): int
+{
+    if (! is_numeric($value)) {
+        throw new RuntimeException('Expected a numeric bulk layout test value.');
+    }
+
+    return (int) $value;
+}

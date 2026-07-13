@@ -7,6 +7,9 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\LayoutBuilder\Data\LayoutPresetLinkData;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static array<string, mixed> run(array<string, mixed> $container, LayoutPresetLinkData $link)
+ */
 final class LinkLayoutPresetContainerAction
 {
     use AsObject;

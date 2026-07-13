@@ -14,9 +14,10 @@ final class PruneLayoutBulkChangeRunsAction
 
     public function handle(?int $retentionDays = null): int
     {
-        $retentionDays ??= (int) config('capell-layout-builder.bulk_change_retention_days', 90);
+        $configuredRetentionDays = config('capell-layout-builder.bulk_change_retention_days', 90);
+        $retentionDays ??= is_numeric($configuredRetentionDays) ? (int) $configuredRetentionDays : 90;
 
-        return LayoutBulkChangeRun::query()
+        $deleted = LayoutBulkChangeRun::query()
             ->whereIn('status', [
                 LayoutBulkChangeRunStatus::Applied->value,
                 LayoutBulkChangeRunStatus::PartiallyApplied->value,
@@ -27,5 +28,7 @@ final class PruneLayoutBulkChangeRunsAction
             ])
             ->where('updated_at', '<', now()->subDays(max(1, $retentionDays)))
             ->delete();
+
+        return is_int($deleted) ? $deleted : 0;
     }
 }

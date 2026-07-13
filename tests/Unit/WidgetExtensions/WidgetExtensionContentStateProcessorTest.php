@@ -16,7 +16,9 @@ use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\UnresolvableStateUpcast
 use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Mockery\MockInterface;
 
+/** @param class-string<WidgetExtensionStateUpcaster>|null $stateUpcaster */
 /** @param class-string<WidgetExtensionStateUpcaster>|null $stateUpcaster */
 function stateIntegrityDefinition(
     int $stateVersion = 2,
@@ -45,10 +47,13 @@ it('upcasts registered extension state and reserves the current state version', 
         ],
     ]);
 
-    expect($normalized[0]['data']['title'])->toBe('Migrated title')
-        ->and($normalized[0]['data'])->not->toHaveKey('old_title')
-        ->and($normalized[0]['data']['__capell']['state_version'])->toBe(2)
-        ->and(Str::isUuid($normalized[0]['data']['__capell']['instance_id']))->toBeTrue();
+    $first = capell_test_array(capell_test_array($normalized)[0] ?? null);
+    $data = capell_test_array($first['data'] ?? null);
+    $metadata = capell_test_array($data['__capell'] ?? null);
+    expect($data['title'] ?? null)->toBe('Migrated title')
+        ->and($data)->not->toHaveKey('old_title')
+        ->and($metadata['state_version'] ?? null)->toBe(2)
+        ->and(Str::isUuid(is_string($metadata['instance_id'] ?? null) ? $metadata['instance_id'] : ''))->toBeTrue();
 });
 
 it('applies upcasting recursively to registered nested targets', function (): void {
@@ -69,9 +74,9 @@ it('applies upcasting recursively to registered nested targets', function (): vo
         ],
     ]);
 
-    expect($normalized[0]['data']['title'])->toBe('Outer')
-        ->and($normalized[0]['data']['interaction']['target_widget']['data']['title'])->toBe('Nested')
-        ->and($normalized[0]['data']['interaction']['target_widget']['data']['__capell']['state_version'])->toBe(2);
+    expect(data_get($normalized, '0.data.title'))->toBe('Outer')
+        ->and(data_get($normalized, '0.data.interaction.target_widget.data.title'))->toBe('Nested')
+        ->and(data_get($normalized, '0.data.interaction.target_widget.data.__capell.state_version'))->toBe(2);
 });
 
 it('preserves future extension state unchanged apart from required identity normalization', function (): void {
@@ -102,10 +107,14 @@ it('versions initial state at one without requiring an upcaster', function (): v
         ['type' => 'capell-app.slideshow', 'data' => ['title' => 'Current']],
     ]);
 
-    expect($normalized[0]['data']['__capell']['state_version'])->toBe(1);
+    expect(data_get($normalized, '0.data.__capell.state_version'))->toBe(1);
 });
 
+/** @param class-string<WidgetExtensionStateUpcaster> $stateUpcaster */
 it('contains upcaster and container failures while logging only safe context', function (string $stateUpcaster): void {
+    if (! is_a($stateUpcaster, WidgetExtensionStateUpcaster::class, true)) {
+        throw new RuntimeException('Expected a widget extension state upcaster class.');
+    }
     Log::spy();
     resolve(WidgetExtensionRegistry::class)->register(stateIntegrityDefinition(stateUpcaster: $stateUpcaster));
     $identity = (string) Str::uuid();
@@ -121,7 +130,11 @@ it('contains upcaster and container failures while logging only safe context', f
 
     expect($normalized)->toBe([$widget]);
 
-    Log::shouldHaveReceived('warning')
+    $logger = Log::getFacadeRoot();
+    if (! $logger instanceof MockInterface) {
+        throw new RuntimeException('Expected a mocked logger.');
+    }
+    $logger->shouldHaveReceived('warning')
         ->once()
         ->with('Widget extension state upcast failed.', Mockery::on(
             static fn (array $context): bool => $context === [
@@ -156,7 +169,11 @@ it('contains a non-array upcaster return without exposing saved content', functi
 
     expect(NormalizeContentWidgetStateAction::run([$widget]))->toBe([$widget]);
 
-    Log::shouldHaveReceived('warning')
+    $logger = Log::getFacadeRoot();
+    if (! $logger instanceof MockInterface) {
+        throw new RuntimeException('Expected a mocked logger.');
+    }
+    $logger->shouldHaveReceived('warning')
         ->once()
         ->with('Widget extension state upcast failed.', [
             'widget_key' => 'capell-app.slideshow',
@@ -178,7 +195,11 @@ it('contains a container binding that resolves the wrong runtime type', function
 
     expect(NormalizeContentWidgetStateAction::run([$widget]))->toBe([$widget]);
 
-    Log::shouldHaveReceived('warning')
+    $logger = Log::getFacadeRoot();
+    if (! $logger instanceof MockInterface) {
+        throw new RuntimeException('Expected a mocked logger.');
+    }
+    $logger->shouldHaveReceived('warning')
         ->once()
         ->with('Widget extension state upcast failed.', [
             'widget_key' => 'capell-app.slideshow',

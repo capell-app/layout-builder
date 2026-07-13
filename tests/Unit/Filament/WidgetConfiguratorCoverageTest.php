@@ -136,17 +136,18 @@ it('exposes static modern widget configurator schemas and defaults', function (
  * @param  class-string<BackedEnum>  $enumClass
  * @param  list<int|string>  $expectedValues
  */
+/** @param class-string<BackedEnum> $enumClass */
 it('backs persisted widget select options with labelled enums', function (string $enumClass, array $expectedValues): void {
     $cases = $enumClass::cases();
 
     expect(array_map(static fn (BackedEnum $case): int|string => $case->value, $cases))->toBe($expectedValues);
 
     foreach ($cases as $case) {
-        expect($case)->toBeInstanceOf(HasLabel::class);
-
         if (! $case instanceof HasLabel) {
             throw new RuntimeException(sprintf('Expected %s to implement HasLabel.', $enumClass));
         }
+
+        expect($case->getLabel())->toBeString();
 
         expect($case->getLabel())->not->toBe('');
     }

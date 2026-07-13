@@ -80,9 +80,11 @@ it('rejects resource loading defaults for undeclared groups', function (): void 
 });
 
 it('validates explicit presentation and interaction capabilities', function (): void {
-    expect(fn (): WidgetExtensionCapabilitiesData => new WidgetExtensionCapabilitiesData(
-        presentationCapabilities: ['width'],
-    ))->toThrow(InvalidWidgetExtensionDefinitionException::class, 'presentation capability')
+    expect(fn (): object => (new ReflectionClass(WidgetExtensionCapabilitiesData::class))->newInstanceArgs([
+        false,
+        false,
+        ['width'],
+    ]))->toThrow(InvalidWidgetExtensionDefinitionException::class, 'presentation capability')
         ->and(fn (): WidgetExtensionCapabilitiesData => new WidgetExtensionCapabilitiesData(
             supportsInteractions: true,
             supportedInteractionEvents: [InteractionTriggerEvent::Click],
@@ -140,16 +142,16 @@ it('rejects invalid widget extension definition contracts', function (Closure $m
         'Blade runtime',
     ],
     'invalid input data class' => [
-        fn (): WidgetExtensionDefinitionData => new WidgetExtensionDefinitionData(
-            key: 'capell-app.slideshow',
-            packageName: 'capell-app/widget-slideshow',
-            stateVersion: 1,
-            filamentWidget: ExampleFilamentWidget::class,
-            inputData: stdClass::class,
-            renderData: ExampleRenderData::class,
-            fallbackView: 'capell-widget-slideshow::widget',
-            components: ['blade' => 'capell::widgets.capell-app.slideshow'],
-        ),
+        fn (): object => (new ReflectionClass(WidgetExtensionDefinitionData::class))->newInstanceArgs([
+            'capell-app.slideshow',
+            'capell-app/widget-slideshow',
+            1,
+            ExampleFilamentWidget::class,
+            stdClass::class,
+            ExampleRenderData::class,
+            'capell-widget-slideshow::widget',
+            ['blade' => 'capell::widgets.capell-app.slideshow'],
+        ]),
         'input Data class',
     ],
     'mismatched Filament widget key' => [

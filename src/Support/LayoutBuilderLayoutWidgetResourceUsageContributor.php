@@ -84,7 +84,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
 
                 $widgetMeta = is_array($widgetData['meta'] ?? null) ? $widgetData['meta'] : [];
 
-                $type = $widget->blueprint;
+                $type = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
                 $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
 
                 $presentation = ResolvePresentationSettingsAction::make()->handle(
@@ -117,7 +117,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
         $instanceGroups = is_array($widgetMeta['resource_groups'] ?? null)
             ? $widgetMeta['resource_groups']
             : [];
-        $type = $widget->blueprint;
+        $type = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
         $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
 
         $typeGroups = is_array($typeMeta['resource_groups'] ?? null)

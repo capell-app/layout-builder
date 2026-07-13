@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static void run(LayoutPresetSyncRun $run) */
 final class RunLinkedLayoutPresetSyncAction
 {
     use AsObject;
@@ -171,7 +172,10 @@ final class RunLinkedLayoutPresetSyncAction
                 continue;
             }
 
-            return ['container' => $item['container']];
+            /** @var array<string, mixed> $container */
+            $container = $item['container'];
+
+            return ['container' => $container];
         }
 
         return null;
@@ -183,7 +187,7 @@ final class RunLinkedLayoutPresetSyncAction
             return $usage->layout_updated_at === $layout->updated_at;
         }
 
-        return $usage->layout_updated_at->format('Y-m-d H:i:s.u') === $layout->updated_at->format('Y-m-d H:i:s.u');
+        return (string) $usage->layout_updated_at === (string) $layout->updated_at;
     }
 
     /**
@@ -265,7 +269,9 @@ final class RunLinkedLayoutPresetSyncAction
                 continue;
             }
 
-            foreach ($this->widgets($container) as $widget) {
+            /** @var array<string, mixed> $typedContainer */
+            $typedContainer = $container;
+            foreach ($this->widgets($typedContainer) as $widget) {
                 $anchor = data_get($widget, 'meta.widget_settings.anchor_id');
                 if (is_string($anchor) && trim($anchor) !== '') {
                     $usedAnchors[Str::slug($anchor)] = true;
@@ -288,7 +294,7 @@ final class RunLinkedLayoutPresetSyncAction
                 $suffix++;
             }
 
-            $widgets[$index]['meta']['widget_settings']['anchor_id'] = $candidate;
+            data_set($widgets[$index], 'meta.widget_settings.anchor_id', $candidate);
             $usedAnchors[$candidate] = true;
         }
 
@@ -305,13 +311,27 @@ final class RunLinkedLayoutPresetSyncAction
     {
         $widgets = $container['widgets'] ?? [];
 
-        return is_array($widgets) ? array_values(array_filter($widgets, static fn (mixed $widget): bool => is_array($widget))) : [];
+        if (! is_array($widgets)) {
+            return [];
+        }
+
+        $validWidgets = [];
+        foreach ($widgets as $widget) {
+            if (is_array($widget)) {
+                /** @var array<string, mixed> $widget */
+                $validWidgets[] = $widget;
+            }
+        }
+
+        return $validWidgets;
     }
 
     /** @param array<string, mixed> $widget */
     private function slotKey(array $widget): string
     {
-        return (string) ($widget['widget_key'] ?? '') . ':' . (is_numeric($widget['occurrence'] ?? null) ? (int) $widget['occurrence'] : 1);
+        $widgetKey = $widget['widget_key'] ?? '';
+
+        return (is_string($widgetKey) ? $widgetKey : '') . ':' . (is_numeric($widget['occurrence'] ?? null) ? (int) $widget['occurrence'] : 1);
     }
 
     /** @param array<string, int> $summary */

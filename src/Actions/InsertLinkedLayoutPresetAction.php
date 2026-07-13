@@ -26,7 +26,7 @@ final class InsertLinkedLayoutPresetAction
         $items = $this->items($preset);
         throw_if($items === [], InvalidArgumentException::class, 'The linked layout preset has no valid items.');
 
-        $containers = $state->containers;
+        $containers = $this->containers($state->containers);
         $assets = $state->assets;
         $originalAssets = $state->originalAssets;
         $selectedRecords = $state->selectedRecords;
@@ -38,9 +38,11 @@ final class InsertLinkedLayoutPresetAction
             $container = $this->withUniqueAnchors($item['container'], $usedAnchors);
 
             if ($linked) {
-                $container = LinkLayoutPresetContainerAction::run(
+                $presetKey = $preset->getKey();
+                throw_unless(is_numeric($presetKey), InvalidArgumentException::class, 'Layout preset keys must be numeric.');
+                $container = resolve(LinkLayoutPresetContainerAction::class)->handle(
                     $container,
-                    new LayoutPresetLinkData((int) $preset->getKey(), $item['id'], $preset->key),
+                    new LayoutPresetLinkData((int) $presetKey, $item['id'], $preset->key),
                 );
             }
 
@@ -76,12 +78,19 @@ final class InsertLinkedLayoutPresetAction
         $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
         $items = is_array($snapshot['items'] ?? null) ? $snapshot['items'] : [];
 
-        return array_values(array_filter($items, static fn (mixed $item): bool => is_array($item)
-                && is_string($item['id'] ?? null)
-                && trim($item['id']) !== ''
-                && is_string($item['source_key'] ?? null)
-                && trim($item['source_key']) !== ''
-                && is_array($item['container'] ?? null)));
+        $validItems = [];
+        foreach ($items as $item) {
+            if (! is_array($item) || ! is_string($item['id'] ?? null) || trim($item['id']) === ''
+                || ! is_string($item['source_key'] ?? null) || trim($item['source_key']) === ''
+                || ! is_array($item['container'] ?? null)) {
+                continue;
+            }
+            /** @var array<string, mixed> $container */
+            $container = $item['container'];
+            $validItems[] = ['id' => $item['id'], 'source_key' => $item['source_key'], 'container' => $container];
+        }
+
+        return $validItems;
     }
 
     /**
@@ -164,7 +173,7 @@ final class InsertLinkedLayoutPresetAction
                 $suffix++;
             }
 
-            $widgets[$index]['meta']['widget_settings']['anchor_id'] = $candidate;
+            data_set($widgets[$index], 'meta.widget_settings.anchor_id', $candidate);
             $usedAnchors[$candidate] = true;
         }
 
@@ -181,6 +190,35 @@ final class InsertLinkedLayoutPresetAction
     {
         $widgets = $container['widgets'] ?? [];
 
-        return is_array($widgets) ? array_values(array_filter($widgets, static fn (mixed $widget): bool => is_array($widget))) : [];
+        if (! is_array($widgets)) {
+            return [];
+        }
+
+        $validWidgets = [];
+        foreach ($widgets as $widget) {
+            if (is_array($widget)) {
+                /** @var array<string, mixed> $widget */
+                $validWidgets[] = $widget;
+            }
+        }
+
+        return $validWidgets;
+    }
+
+    /**
+     * @param  array<mixed>  $containers
+     * @return array<string, array<string, mixed>>
+     */
+    private function containers(array $containers): array
+    {
+        $normalized = [];
+        foreach ($containers as $key => $container) {
+            if (is_string($key) && is_array($container)) {
+                /** @var array<string, mixed> $container */
+                $normalized[$key] = $container;
+            }
+        }
+
+        return $normalized;
     }
 }

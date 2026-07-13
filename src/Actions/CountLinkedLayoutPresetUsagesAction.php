@@ -16,11 +16,13 @@ final class CountLinkedLayoutPresetUsagesAction
 
     public function handle(LayoutPreset $preset, ?Layout $excludingLayout = null): int
     {
+        $excludingLayoutKey = $excludingLayout?->getKey();
+
         return LayoutPresetUsage::query()
             ->where('preset_id', $preset->getKey())
             ->when(
                 $excludingLayout instanceof Layout,
-                static fn (Builder $query): Builder => $query->where('layout_id', '!=', $excludingLayout->getKey()),
+                static fn (Builder $query): Builder => $query->where('layout_id', '!=', $excludingLayoutKey),
             )
             ->count();
     }

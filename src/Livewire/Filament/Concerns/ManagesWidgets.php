@@ -567,6 +567,7 @@ trait ManagesWidgets
                     ])
                     ->with([
                         'type',
+                        'blueprint',
                         'backgroundImage',
                         'image',
                         'translation' => fn (BuilderContract $query): BuilderContract => $query->orderBy('language_id'),
@@ -611,6 +612,7 @@ trait ManagesWidgets
                         fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
                     ),
                 'type',
+                'blueprint',
                 'translation' => fn (BuilderContract $query): BuilderContract => $query->orderBy('language_id'),
             ]);
     }

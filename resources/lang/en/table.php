@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 return [
     'revision' => 'Revision',
-    'usage_count' => 'Linked uses',
     'action' => 'Action',
     'active_theme' => 'Active Theme',
     'admin_configurator' => 'Admin configurator',

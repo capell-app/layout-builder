@@ -15,6 +15,9 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static array<int, LayoutWidgetResourceUsageData> run(array<int|string, mixed> $content, LayoutWidgetTarget $target)
+ */
 class BuildLayoutWidgetResourceUsagesAction
 {
     use AsObject;

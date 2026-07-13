@@ -51,7 +51,7 @@ final class ApplyLayoutBulkChangeRunAction
             foreach ($results as $result) {
                 $layout = $result->layout_id === null
                     ? null
-                    : ScopeLayoutBulkChangeQueryForActorAction::run(Layout::query()->whereKey($result->layout_id), $actorId)
+                    : resolve(ScopeLayoutBulkChangeQueryForActorAction::class)->handle(Layout::query()->whereKey($result->layout_id), $actorId)
                         ->lockForUpdate()
                         ->first();
 

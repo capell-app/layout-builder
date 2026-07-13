@@ -29,6 +29,13 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
             return '';
         }
 
+        $containers = $context->item->layout instanceof Layout
+            ? $context->item->layout->getAttribute('containers')
+            : data_get($context->item->layout, 'containers');
+        if (! is_array($containers) || $containers === []) {
+            return '';
+        }
+
         $this->ensureLayoutWidgetsLoaded($context->item);
 
         $view = view('capell-layout-builder::components.layout.main-content', [

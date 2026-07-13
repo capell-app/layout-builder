@@ -7,7 +7,7 @@
         {{ $widget->key }}
     </h3>
     <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        {{ $widget->blueprint->name }}
+        {{ $widget->relationLoaded('blueprint') ? $widget->blueprint?->name : null }}
     </p>
 </div>
 <div class="mt-4 flex items-center justify-between">

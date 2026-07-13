@@ -317,7 +317,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return true;
         }
 
-        $this->loadFromStore();
+        $this->ensureLoaded();
         $this->assertKnownContainerStructure();
         $this->refreshLayoutDiagnostics();
 
@@ -328,10 +328,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         try {
-            $this->layout = PersistLayoutBuilderStateAction::run(
+            $this->layout = resolve(PersistLayoutBuilderStateAction::class)->handle(
                 layout: $this->layout,
                 page: $this->page instanceof Model ? $this->page : null,
-                containers: $this->containers,
+                containers: $this->containers ?? [],
                 persistWidgetAssets: function (): void {
                     $this->persistWidgetAssets();
                 },
@@ -447,7 +447,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public function getPageResource(): string
     {
         if ($this->page !== null) {
-            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $this->pageContext()->type);
+            $resource = GetResourceFromBlueprintAction::run($this->pageContext()->type);
 
             if (is_string($resource) && is_subclass_of($resource, Resource::class)) {
                 return $resource;
@@ -849,7 +849,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         $this->assertCanCreateLayoutPreset($this->site);
-        $preset = CreateLinkedLayoutPresetAction::run(
+        if (! $this->site instanceof Site) {
+            throw new LogicException('A site is required to create a linked layout preset.');
+        }
+        $preset = resolve(CreateLinkedLayoutPresetAction::class)->handle(
             layout: $this->layout,
             site: $this->site,
             containerKeys: $containerKeys,
@@ -861,7 +864,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             containers: $this->containers,
         );
 
-        foreach ($preset->snapshot['items'] ?? [] as $item) {
+        $snapshot = is_array($preset->snapshot) ? $preset->snapshot : [];
+        foreach (is_array($snapshot['items'] ?? null) ? $snapshot['items'] : [] as $item) {
             if (! is_array($item) || ! is_string($item['source_key'] ?? null) || ! is_string($item['id'] ?? null)) {
                 continue;
             }
@@ -872,7 +876,11 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             }
 
             $meta = is_array($container['meta'] ?? null) ? $container['meta'] : [];
-            $meta['preset'] = new LayoutPresetLinkData((int) $preset->getKey(), $item['id'], $preset->key)->toArray();
+            $presetKey = $preset->getKey();
+            if (! is_numeric($presetKey)) {
+                continue;
+            }
+            $meta['preset'] = new LayoutPresetLinkData((int) $presetKey, $item['id'], $preset->key)->toArray();
             $container['meta'] = $meta;
             $this->containers[$item['source_key']] = $container;
         }
@@ -909,7 +917,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        $this->containers[$containerKey] = StripLayoutPresetLinkAction::run($container);
+        $this->containers[$containerKey] = resolve(StripLayoutPresetLinkAction::class)->handle($container);
         $this->layoutUpdated();
     }
 
@@ -921,7 +929,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return 0;
         }
 
-        return CountLinkedLayoutPresetUsagesAction::run($preset, $this->layout);
+        return resolve(CountLinkedLayoutPresetUsagesAction::class)->handle($preset, $this->layout);
     }
 
     /**
@@ -1050,7 +1058,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $knownContainerKeys = array_keys($this->containers ?? []);
 
-        $this->applyLayoutMutationResult(PasteLayoutFragmentAction::run(
+        $this->applyLayoutMutationResult(resolve(PasteLayoutFragmentAction::class)->handle(
             state: $this->layoutState(),
             fragment: $fragment,
             targetContainerKey: $targetContainerKey,
