@@ -170,28 +170,28 @@ it('uses stable selector interactions for admin screenshot captures that the wor
     }
 });
 
-it('keeps the canonical page-building guide captures deterministic and traceable', function (): void {
+it('keeps the canonical page-building guide evidence package-owned and traceable', function (): void {
     $documentationRepository = dirname(__DIR__, 5) . '/capell-4';
+    $packageRepository = dirname(__DIR__, 4);
+    $guide = file_get_contents($documentationRepository . '/docs/getting-started/building-pages.md');
     $manifest = json_decode(
-        (string) file_get_contents($documentationRepository . '/docs/screenshots.json'),
+        (string) file_get_contents(dirname(__DIR__, 2) . '/docs/screenshots.json'),
         true,
         flags: JSON_THROW_ON_ERROR,
     );
     $entries = collect($manifest['entries'])->keyBy('id');
 
     $expectedEntries = [
-        'page-building-layout-builder-editor' => [
-            'output' => 'docs/images/generated/page-building-layout-builder-editor.png',
+        'layout-builder-add-container-action' => [
+            'screenshotPath' => 'packages/layout-builder/docs/screenshots/layout-builder-add-container-action.png',
             'interactions' => [
-                ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
                 ['type' => 'click', 'selector' => '[data-layout-builder-action="add-container"]:visible'],
                 ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
             ],
         ],
-        'page-building-layout-builder-add-widget' => [
-            'output' => 'docs/images/generated/page-building-layout-builder-add-widget.png',
+        'layout-builder-add-widget-action' => [
+            'screenshotPath' => 'packages/layout-builder/docs/screenshots/layout-builder-add-widget-action.png',
             'interactions' => [
-                ['type' => 'scrollIntoView', 'selector' => '[wire\\:name="capell-layout-builder::filament.layout-builder"]'],
                 ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
                 ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
                 ['type' => 'click', 'selector' => '[data-layout-builder-action="add-widget"]:visible'],
@@ -200,14 +200,20 @@ it('keeps the canonical page-building guide captures deterministic and traceable
         ],
     ];
 
+    expect($guide)
+        ->toBeString()
+        ->toContain('https://docs.capell.app/packages/layout-builder')
+        ->not->toContain('page-building-layout-builder-editor.png')
+        ->not->toContain('page-building-layout-builder-add-widget.png');
+
     foreach ($expectedEntries as $id => $expectedEntry) {
         $entry = $entries->get($id);
 
         expect($entry)
             ->not->toBeNull()
-            ->and($entry['docsPage'] ?? null)->toBe('docs/getting-started/building-pages.md')
-            ->and($entry['output'] ?? null)->toBe($expectedEntry['output'])
-            ->and(is_file($documentationRepository . '/' . ($entry['output'] ?? '')))->toBeTrue()
+            ->and($entry['required'] ?? false)->toBeTrue()
+            ->and($entry['screenshotPath'] ?? null)->toBe($expectedEntry['screenshotPath'])
+            ->and(is_file($packageRepository . '/' . ($entry['screenshotPath'] ?? '')))->toBeTrue()
             ->and($entry['notes'] ?? '')->not->toBe('')
             ->and($entry['useCase'] ?? '')->not->toBe('')
             ->and($entry['interactions'] ?? null)->toBe($expectedEntry['interactions']);

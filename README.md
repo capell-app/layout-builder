@@ -29,21 +29,25 @@ Status details:
 
 Screenshot contract: `docs/screenshots.json`.
 
-- Layout Builder visual editor with main and sidebar containers (admin, required).
-- Layout Builder content-first editing mode (admin, required).
+![Layout Builder add widget action](docs/screenshots/layout-builder-add-widget-action.png)
+
+![Layout Builder add container action](docs/screenshots/layout-builder-add-container-action.png)
+
+- Layout Builder visual editor with main and sidebar containers (admin, optional).
+- Layout Builder content-first editing mode (admin, optional).
 - Layout Builder add widget action (admin, required).
 - Layout Builder add container action (admin, required).
 - Layout Builder edit widget action (admin, required).
 - Layout Builder edit container action (admin, required).
-- Layout Builder responsive preview (admin, required).
-- Layout Builder tree selection (admin, required).
-- Layout Builder preset action fixture (frontend, required).
-- Layout Builder undo and redo actions fixture (frontend, required).
-- Layout Builder bulk change criteria fixture (frontend, required).
-- Layout Builder bulk change review fixture (frontend, required).
-- Layout Builder main and sidebar admin example (admin, required).
-- Layout Builder main and sidebar public example (frontend, required).
-- Layout Builder full-width public example (frontend, required).
+- Layout Builder responsive preview (admin, optional).
+- Layout Builder tree selection (admin, optional).
+- Layout Builder preset action fixture (frontend, optional).
+- Layout Builder undo and redo actions fixture (frontend, optional).
+- Layout Builder bulk change criteria fixture (frontend, optional).
+- Layout Builder bulk change review fixture (frontend, optional).
+- Layout Builder main and sidebar admin example (admin, optional).
+- Layout Builder main and sidebar public example (frontend, optional).
+- Layout Builder full-width public example (frontend, optional).
 - Widgets admin index (admin, required).
 - Create and edit widget form with widget assets (admin, required).
 - Sections admin index (admin, required).
