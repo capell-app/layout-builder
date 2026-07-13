@@ -73,7 +73,11 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
     $composer = layoutBuilderJson('composer.json');
 
     $manifestRequires = $manifest['dependencies']['requires'] ?? [];
-    $composerRequires = array_keys($composer['require'] ?? []);
+    $composerRequirements = $composer['require'] ?? null;
+
+    throw_unless(is_array($composerRequirements), RuntimeException::class, 'Expected Layout Builder Composer requirements to be an array.');
+
+    $composerRequires = array_keys($composerRequirements);
 
     expect($manifestRequires)->toContain(
         'capell-app/admin',
@@ -86,10 +90,10 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
         expect($composerRequires)->toContain($requiredPackage);
     }
 
-    expect($composer['require']['capell-app/admin'] ?? null)->toBe('^4.0')
-        ->and($composer['require']['capell-app/block-library'] ?? null)->toBe('^4.0')
-        ->and($composer['require']['capell-app/core'] ?? null)->toBe('^4.0')
-        ->and($composer['require']['capell-app/frontend'] ?? null)->toBe('^4.0')
+    expect($composerRequirements['capell-app/admin'] ?? null)->toBe('^4.0')
+        ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^4.0')
+        ->and($composerRequirements['capell-app/core'] ?? null)->toBe('^4.0')
+        ->and($composerRequirements['capell-app/frontend'] ?? null)->toBe('^4.0')
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^4.0');
 });
 

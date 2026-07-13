@@ -2,12 +2,8 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Arr;
-
 it('separates inspected release evidence from optional replacement targets', function (): void {
-    $manifestPath = dirname(__DIR__, 2) . '/docs/screenshots.json';
-    $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
-    $entries = collect(Arr::get($manifest, 'entries', []));
+    $entries = collect(layout_builder_screenshot_entries());
 
     $requiredIds = [
         'layout-builder-add-widget-action',
@@ -59,10 +55,7 @@ it('separates inspected release evidence from optional replacement targets', fun
 });
 
 it('marks frontend layout builder screenshots as anonymous visitor captures', function (): void {
-    $manifestPath = dirname(__DIR__, 2) . '/docs/screenshots.json';
-    $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
-
-    $frontendEntries = collect($manifest['entries'])
+    $frontendEntries = collect(layout_builder_screenshot_entries())
         ->where('surface', 'frontend')
         ->whereIn('id', [
             'layout-example-main-sidebar-public',
@@ -84,10 +77,7 @@ it('marks frontend layout builder screenshots as anonymous visitor captures', fu
 });
 
 it('keeps unstable action-state screenshots on deterministic anonymous fixture routes', function (): void {
-    $manifestPath = dirname(__DIR__, 2) . '/docs/screenshots.json';
-    $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
-
-    $fixtureEntries = collect($manifest['entries'])
+    $fixtureEntries = collect(layout_builder_screenshot_entries())
         ->whereIn('id', [
             'layout-builder-preset-action',
             'layout-builder-undo-redo-actions',
@@ -121,9 +111,7 @@ it('keeps unstable action-state screenshots on deterministic anonymous fixture r
 });
 
 it('uses stable selector interactions for admin screenshot captures that the workbench can drive', function (): void {
-    $manifestPath = dirname(__DIR__, 2) . '/docs/screenshots.json';
-    $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
-    $entries = collect($manifest['entries'])->keyBy('id');
+    $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
 
     $expectedInteractions = [
         'layout-builder-add-widget-action' => [
@@ -174,12 +162,7 @@ it('keeps the canonical page-building guide evidence package-owned and traceable
     $documentationRepository = dirname(__DIR__, 5) . '/capell-4';
     $packageRepository = dirname(__DIR__, 4);
     $guide = file_get_contents($documentationRepository . '/docs/getting-started/building-pages.md');
-    $manifest = json_decode(
-        (string) file_get_contents(dirname(__DIR__, 2) . '/docs/screenshots.json'),
-        true,
-        flags: JSON_THROW_ON_ERROR,
-    );
-    $entries = collect($manifest['entries'])->keyBy('id');
+    $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
 
     $expectedEntries = [
         'layout-builder-add-container-action' => [
@@ -209,13 +192,51 @@ it('keeps the canonical page-building guide evidence package-owned and traceable
     foreach ($expectedEntries as $id => $expectedEntry) {
         $entry = $entries->get($id);
 
+        throw_unless(is_array($entry), RuntimeException::class, sprintf('Expected the %s screenshot entry to be an array.', $id));
+
+        $screenshotPath = $entry['screenshotPath'] ?? null;
+
+        throw_unless(is_string($screenshotPath), RuntimeException::class, sprintf('Expected the %s screenshot path to be a string.', $id));
+
         expect($entry)
-            ->not->toBeNull()
             ->and($entry['required'] ?? false)->toBeTrue()
-            ->and($entry['screenshotPath'] ?? null)->toBe($expectedEntry['screenshotPath'])
-            ->and(is_file($packageRepository . '/' . ($entry['screenshotPath'] ?? '')))->toBeTrue()
+            ->and($screenshotPath)->toBe($expectedEntry['screenshotPath'])
+            ->and(is_file($packageRepository . '/' . $screenshotPath))->toBeTrue()
             ->and($entry['notes'] ?? '')->not->toBe('')
             ->and($entry['useCase'] ?? '')->not->toBe('')
             ->and($entry['interactions'] ?? null)->toBe($expectedEntry['interactions']);
     }
 });
+
+/**
+ * @return list<array<string, mixed>>
+ */
+function layout_builder_screenshot_entries(): array
+{
+    $manifestPath = dirname(__DIR__, 2) . '/docs/screenshots.json';
+    $manifest = json_decode((string) file_get_contents($manifestPath), true, flags: JSON_THROW_ON_ERROR);
+
+    throw_unless(is_array($manifest), RuntimeException::class, 'Expected the Layout Builder screenshot manifest to decode to an array.');
+
+    $entries = $manifest['entries'] ?? null;
+
+    throw_unless(is_array($entries), RuntimeException::class, 'Expected the Layout Builder screenshot manifest to contain an entries array.');
+
+    $normalizedEntries = [];
+
+    foreach ($entries as $entry) {
+        throw_unless(is_array($entry), RuntimeException::class, 'Expected every Layout Builder screenshot entry to be an array.');
+
+        $normalizedEntry = [];
+
+        foreach ($entry as $key => $value) {
+            throw_unless(is_string($key), RuntimeException::class, 'Expected every Layout Builder screenshot entry key to be a string.');
+
+            $normalizedEntry[$key] = $value;
+        }
+
+        $normalizedEntries[] = $normalizedEntry;
+    }
+
+    return $normalizedEntries;
+}

@@ -258,7 +258,7 @@ function A(e, t, n, i, o) {
     }
 }
 function de(e, t, n) {
-    for (var i = tt(e, !0), o = A(e)[t]; i; ) {
+    for (var i = tt(e, !0), o = A(e)[t]; i;) {
         var r = A(i)[n],
             a = void 0
         if ((n === 'top' || n === 'left' ? (a = o >= r) : (a = o <= r), !a))
@@ -269,7 +269,7 @@ function de(e, t, n) {
     return !1
 }
 function ft(e, t, n, i) {
-    for (var o = 0, r = 0, a = e.children; r < a.length; ) {
+    for (var o = 0, r = 0, a = e.children; r < a.length;) {
         if (
             a[r].style.display !== 'none' &&
             a[r] !== p.ghost &&
@@ -294,7 +294,7 @@ function oe(e, t) {
 function W(e, t) {
     var n = 0
     if (!e || !e.parentNode) return -1
-    for (; (e = e.previousElementSibling); )
+    for (; (e = e.previousElementSibling);)
         e.nodeName.toUpperCase() !== 'TEMPLATE' &&
             e !== p.clone &&
             (!t || Bt(e, t)) &&
@@ -1914,7 +1914,7 @@ function on(e) {
 }
 function rn(e) {
     Yt.length = 0
-    for (var t = e.getElementsByTagName('input'), n = t.length; n--; ) {
+    for (var t = e.getElementsByTagName('input'), n = t.length; n--;) {
         var i = t[n]
         i.checked && Yt.push(i)
     }
@@ -2243,7 +2243,7 @@ function ie(e, t) {
     let n = !1
     if ((t(e, () => (n = !0)), n)) return
     let i = e.firstElementChild
-    for (; i; ) (ie(i, t, !1), (i = i.nextElementSibling))
+    for (; i;) (ie(i, t, !1), (i = i.nextElementSibling))
 }
 function ln(e) {
     e.directive(
@@ -2344,7 +2344,7 @@ function dn(e, t, n, i) {
 }
 function fn(e) {
     let t = e.firstChild
-    for (; t.nextSibling; ) {
+    for (; t.nextSibling;) {
         if (t.textContent.trim() === '[if ENDBLOCK]><![endif]') {
             e.append(t)
             break
