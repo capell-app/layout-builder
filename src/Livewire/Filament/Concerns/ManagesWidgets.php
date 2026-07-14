@@ -612,6 +612,7 @@ trait ManagesWidgets
                         fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
                     ),
                 'blueprint',
+                'type',
                 'translation' => fn (BuilderContract $query): BuilderContract => $query->orderBy('language_id'),
             ]);
     }
