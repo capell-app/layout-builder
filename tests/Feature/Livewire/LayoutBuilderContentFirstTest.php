@@ -204,7 +204,10 @@ it('selects the requested widget when mounted from frontend authoring', function
         ->assertSet('selectedContainerKey', 'main')
         ->assertSet('selectedWidgetIndex', 1);
 
-    expect($component->instance()->selectedWidget()?->name)->toBe('Proof widget');
+    $selectedWidget = $component->instance()->selectedWidget();
+
+    expect($selectedWidget?->name)->toBe('Proof widget')
+        ->and($selectedWidget?->relationLoaded('type'))->toBeTrue();
 });
 
 it('dispatches frontend authoring dirty and saved lifecycle events', function (): void {

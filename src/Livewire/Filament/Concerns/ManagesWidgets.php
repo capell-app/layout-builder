@@ -569,6 +569,7 @@ trait ManagesWidgets
                         'blueprint',
                         'backgroundImage',
                         'image',
+                        'type',
                         'translation' => fn (BuilderContract $query): BuilderContract => $query->orderBy('language_id'),
                     ]),
             );
