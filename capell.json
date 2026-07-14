@@ -5,7 +5,7 @@
     "displayName": "Layout Builder",
     "kind": "package",
     "capellApiVersion": "^1.0",
-    "version": "1.x-dev",
+    "version": "1.0.0",
     "description": "Compose pages visually with reusable widgets and named layout areas — edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
     "product": {
         "group": "Capell Foundation",
