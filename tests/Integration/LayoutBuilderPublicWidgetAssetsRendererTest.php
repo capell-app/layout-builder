@@ -147,6 +147,40 @@ it('renders deferred placeholders before renderable dispatch', function (): void
         ->and($html)->not->toContain('Deferred Asset');
 });
 
+it('renders the asset normally when a deferred fragment has no public url', function (): void {
+    $language = Language::factory()->create();
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Deferred Asset', [
+        'kind' => 'feature',
+        'performance' => ['defer' => true],
+    ]);
+    $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
+    $widgetAsset->setRelation('asset', $asset);
+
+    app()->instance(DeferredFragmentReferenceBuilder::class, new class implements DeferredFragmentReferenceBuilder
+    {
+        /** @param  array<string, mixed>  $meta */
+        public function reference(Model $asset, array $meta): string
+        {
+            return 'unroutable';
+        }
+
+        public function url(string $fragmentReference): ?string
+        {
+            return null;
+        }
+    });
+
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetAssets: collect([$widgetAsset]),
+    );
+
+    expect($html)->toContain('Deferred Asset')
+        ->and($html)->not->toContain('data-deferred-fragment');
+});
+
 it('dispatches renderables with dynamic data and implementation options', function (): void {
     $language = Language::factory()->create();
     $widget = Widget::factory()->create();

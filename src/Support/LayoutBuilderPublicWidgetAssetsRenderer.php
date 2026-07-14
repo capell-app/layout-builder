@@ -149,7 +149,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
 
         $builder = app(DeferredFragmentReferenceBuilder::class);
         $reference = $builder->reference($asset, $meta);
-        $url = $reference === [] ? '' : $builder->url($reference);
+        $url = $reference === [] ? '' : ($builder->url($reference) ?? '');
 
         return ResolveDeferredFragmentPlaceholderDataAction::run($meta, $reference, $url);
     }
