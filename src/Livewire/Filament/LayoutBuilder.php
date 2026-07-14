@@ -450,7 +450,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $page = $this->page;
 
         if ($page instanceof Blueprintable) {
-            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $page->getBlueprint());
+            $resource = GetResourceFromBlueprintAction::run($page->getBlueprint());
 
             if (is_string($resource) && is_subclass_of($resource, Resource::class)) {
                 return $resource;

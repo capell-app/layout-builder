@@ -118,22 +118,15 @@ it('renders deferred placeholders before renderable dispatch', function (): void
 
     app()->instance(DeferredFragmentReferenceBuilder::class, new class implements DeferredFragmentReferenceBuilder
     {
-        /**
-         * @param  array<string, mixed>  $meta
-         * @return array<string, mixed>
-         */
-        public function reference(Model $asset, array $meta): array
+        /** @param  array<string, mixed>  $meta */
+        public function reference(Model $asset, array $meta): string
         {
-            return ['asset' => $asset->getKey(), 'kind' => $meta['kind'] ?? null];
+            return 'opaque-' . $asset->getKey();
         }
 
-        /**
-         * @param  array<string, mixed>  $reference
-         */
-        public function url(array $reference): string
+        public function url(string $fragmentReference): ?string
         {
-            $assetReference = $reference['asset'] ?? null;
-            $assetIdentifier = is_scalar($assetReference) ? (string) $assetReference : '';
+            $assetIdentifier = str_replace('opaque-', '', $fragmentReference);
 
             return '/deferred-fragments/' . $assetIdentifier;
         }

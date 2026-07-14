@@ -272,7 +272,7 @@
                 @endif
 
                 @php
-                    $resource = GetResourceFromBlueprintAction::run(ucfirst($widgetAsset->asset_type), $widgetAsset->asset->type);
+                    $resource = GetResourceFromBlueprintAction::run($widgetAsset->asset->type);
                 @endphp
 
                 @if ($resource)
