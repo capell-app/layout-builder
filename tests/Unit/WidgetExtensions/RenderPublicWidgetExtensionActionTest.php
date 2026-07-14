@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Capell\Frontend\Data\FrontendAssetManifestData;
+use Capell\Frontend\Data\Assets\FrontendResourcePlanData;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Data\PublicPageRenderData;
@@ -168,7 +168,7 @@ function widgetExtensionPublicRenderData(array $payloads): PublicPageRenderData
         theme: null,
         layoutGraph: null,
         runtimeManifest: $runtime,
-        assetManifest: new FrontendAssetManifestData([], [], [], [], $runtime),
+        resourcePlan: new FrontendResourcePlanData([], [], [], [], [], [], [], hash('sha256', 'empty')),
         surrogateKeys: [],
         contentWidgetPayloads: $payloads,
     );
