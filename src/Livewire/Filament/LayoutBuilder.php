@@ -9,6 +9,7 @@ use Capell\Admin\Filament\Contracts\HasPageResource;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Models\Contracts\Blueprintable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\ApplyStarterLayoutPresetAction;
@@ -446,8 +447,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
      */
     public function getPageResource(): string
     {
-        if ($this->page !== null) {
-            $resource = GetResourceFromBlueprintAction::run($this->pageContext()->type);
+        $page = $this->page;
+
+        if ($page instanceof Blueprintable) {
+            $resource = GetResourceFromBlueprintAction::run(ResourceEnum::Page, $page->getBlueprint());
 
             if (is_string($resource) && is_subclass_of($resource, Resource::class)) {
                 return $resource;

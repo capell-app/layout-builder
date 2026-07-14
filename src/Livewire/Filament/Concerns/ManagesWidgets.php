@@ -566,7 +566,6 @@ trait ManagesWidgets
                             ),
                     ])
                     ->with([
-                        'type',
                         'blueprint',
                         'backgroundImage',
                         'image',
@@ -611,7 +610,6 @@ trait ManagesWidgets
                         'asset',
                         fn (MorphTo $query): MorphTo => $query->morphWith($this->getAssetRelations()),
                     ),
-                'type',
                 'blueprint',
                 'translation' => fn (BuilderContract $query): BuilderContract => $query->orderBy('language_id'),
             ]);

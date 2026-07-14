@@ -123,7 +123,7 @@ final class AnalyzeLayoutHealthAction
 
         return $layoutWidgetKeys === []
             ? collect()
-            : Widget::query()->with('type:id,key')->whereIn('key', $layoutWidgetKeys)->get()->keyBy('key');
+            : Widget::query()->with('blueprint:id,key')->whereIn('key', $layoutWidgetKeys)->get()->keyBy('key');
     }
 
     private function anchorId(mixed $value): ?string
