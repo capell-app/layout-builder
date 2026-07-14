@@ -11,8 +11,10 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Core\Models\Translation;
 use Capell\Core\Support\Renderables\RenderableRegistry;
-use Capell\Frontend\Contracts\DeferredFragmentReferenceBuilder;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendContextReader;
+use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
+use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
@@ -104,11 +106,15 @@ it('falls back to frontend context and filters non-public translations', functio
 
 it('renders deferred placeholders before renderable dispatch', function (): void {
     $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create(['status' => true]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widget = Widget::factory()->create();
     $asset = layoutBuilderRendererWidgetAsset($language, 'Deferred Asset', [
         'kind' => 'feature',
         'performance' => [
             'defer' => true,
+            'fragment_owner' => 'test-owner',
             'defer_strategy' => 'idle',
             'defer_min_height' => '12rem',
         ],
@@ -116,27 +122,21 @@ it('renders deferred placeholders before renderable dispatch', function (): void
     $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
     $widgetAsset->setRelation('asset', $asset);
 
-    app()->instance(DeferredFragmentReferenceBuilder::class, new class implements DeferredFragmentReferenceBuilder
-    {
-        /** @param  array<string, mixed>  $meta */
-        public function reference(Model $asset, array $meta): string
+    app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
+    app()->instance(PublicFragmentUrlResolverRegistry::class, new PublicFragmentUrlResolverRegistry([
+        new class implements PublicFragmentUrlResolver
         {
-            $key = $asset->getKey();
-
-            if (! is_int($key) && ! is_string($key)) {
-                throw new RuntimeException('The deferred asset requires a scalar key.');
+            public function owner(): string
+            {
+                return 'test-owner';
             }
 
-            return 'opaque-' . $key;
-        }
-
-        public function url(string $fragmentReference): string
-        {
-            $assetIdentifier = str_replace('opaque-', '', $fragmentReference);
-
-            return '/deferred-fragments/' . $assetIdentifier;
-        }
-    });
+            public function url(PublicFragmentReferenceData $reference): string
+            {
+                return '/deferred-fragments/' . $reference->ownerContext['assetId'];
+            }
+        },
+    ]));
 
     $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
@@ -158,24 +158,10 @@ it('renders the asset normally when a deferred fragment has no public url', func
     $widget = Widget::factory()->create();
     $asset = layoutBuilderRendererWidgetAsset($language, 'Deferred Asset', [
         'kind' => 'feature',
-        'performance' => ['defer' => true],
+        'performance' => ['defer' => true, 'fragment_owner' => 'unregistered-owner'],
     ]);
     $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
     $widgetAsset->setRelation('asset', $asset);
-
-    app()->instance(DeferredFragmentReferenceBuilder::class, new class implements DeferredFragmentReferenceBuilder
-    {
-        /** @param  array<string, mixed>  $meta */
-        public function reference(Model $asset, array $meta): string
-        {
-            return 'unroutable';
-        }
-
-        public function url(string $fragmentReference): ?string
-        {
-            return null;
-        }
-    });
 
     $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,

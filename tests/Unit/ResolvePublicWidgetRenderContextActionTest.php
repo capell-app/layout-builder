@@ -4,12 +4,23 @@ declare(strict_types=1);
 
 use Capell\Core\Enums\InteractionTargetType;
 use Capell\Core\Enums\PresentationDeliveryMode;
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
+use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Support\CapellFrontendContext;
+use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetRenderContextAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
-use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 
 it('resolves public widget render context outside the blade view', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create(['status' => true]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
     $widget = Widget::factory()->create([
         'key' => 'promo-card',
         'meta' => ['resource_groups' => ['type-gallery', 'shared']],
@@ -20,6 +31,14 @@ it('resolves public widget render context outside the blade view', function (): 
             'resource_groups' => ['type-gallery', 'shared'],
         ],
     ])->save();
+    Frontend::clearResolvedInstance(CapellFrontendContext::class);
+    app()->instance(CapellFrontendContext::class, new CapellFrontendContext(
+        (new FrontendState)
+            ->withSite($site)
+            ->withLanguage($language)
+            ->withPage($page)
+            ->withLayout($layout),
+    ));
 
     $context = ResolvePublicWidgetRenderContextAction::run(
         layout: null,
@@ -43,7 +62,8 @@ it('resolves public widget render context outside the blade view', function (): 
         type: 'blade',
     );
 
-    $referenceData = OpaqueWidgetReference::decode((string) $context->widgetReference);
+    $referenceData = resolve(PublicFragmentReferenceCodec::class)
+        ->decode((string) $context->widgetReference);
     $expectedResourceIds = [
         LayoutBuilderLayoutWidgetResourceUsageContributor::publicId('promo-card', 'type-gallery', 'main', 3),
         LayoutBuilderLayoutWidgetResourceUsageContributor::publicId('promo-card', 'shared', 'main', 3),
@@ -58,10 +78,11 @@ it('resolves public widget render context outside the blade view', function (): 
         ->and($context->interactions)->toHaveCount(1)
         ->and($context->interactions[0]->target->type)->toBe(InteractionTargetType::Fragment)
         ->and($context->interactions[0]->target->fragmentReference)->toBe($context->widgetReference)
-        ->and($referenceData['container_key'])->toBe('main')
-        ->and($referenceData['widget_key'])->toBe('promo-card')
-        ->and($referenceData['occurrence'])->toBe(3)
-        ->and($referenceData['widget_index'])->toBe(2);
+        ->and($referenceData->owner)->toBe('layout-builder')
+        ->and($referenceData->ownerContext['containerKey'])->toBe('main')
+        ->and($referenceData->ownerContext['widgetKey'])->toBe('promo-card')
+        ->and($referenceData->ownerContext['occurrence'])->toBe(3)
+        ->and($context->fragmentUrl)->toStartWith('/_fragments/');
 });
 
 it('creates an opaque widget reference for livewire widgets without lazy presentation', function (): void {

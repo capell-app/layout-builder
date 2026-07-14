@@ -8,7 +8,10 @@ use Capell\Core\Actions\Interactions\ResolveInteractionTriggersAction;
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Enums\PresentationDeliveryMode;
 use Capell\Core\Models\Blueprint;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
 use Capell\Frontend\Facades\Frontend;
+use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
+use Capell\LayoutBuilder\Actions\Fragments\BuildLayoutBuilderFragmentReferenceAction;
 use Capell\LayoutBuilder\Data\PublicWidgetRenderContextData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
@@ -39,6 +42,7 @@ final class ResolvePublicWidgetRenderContextAction
         $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
         $blueprintMeta = $blueprint instanceof Blueprint && is_array($blueprint->meta) ? $blueprint->meta : [];
         $widgetReference = null;
+        $fragmentUrl = null;
 
         $presentation = resolve(ResolvePresentationSettingsAction::class)->handle(
             instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
@@ -67,14 +71,26 @@ final class ResolvePublicWidgetRenderContextAction
             widgetIndex: $widgetIndex,
         );
 
-        if ($isLazyFragment || $type === 'livewire') {
-            $widgetReference ??= $this->widgetReference(
+        if ($isLazyFragment) {
+            $widgetReference ??= BuildLayoutBuilderFragmentReferenceAction::make()->handle(
                 containerKey: $containerKey,
-                layoutKey: $layoutKey,
                 occurrence: $occurrence,
                 widget: $widget,
-                widgetData: $widgetData,
-                widgetIndex: $widgetIndex,
+            );
+
+            if ($widgetReference !== null) {
+                $fragmentUrl = resolve(PublicFragmentUrlResolverRegistry::class)->url(
+                    resolve(PublicFragmentReferenceCodec::class)->decode($widgetReference),
+                );
+            }
+        } elseif ($type === 'livewire') {
+            $widgetReference = $this->widgetReference(
+                $containerKey,
+                $layoutKey,
+                $occurrence,
+                $widget,
+                $widgetData,
+                $widgetIndex,
             );
         }
 
@@ -84,6 +100,7 @@ final class ResolvePublicWidgetRenderContextAction
             presentation: $presentation,
             isLazyFragment: $isLazyFragment,
             widgetReference: $widgetReference,
+            fragmentUrl: $fragmentUrl,
             resourcePublicIds: $this->resourcePublicIds($widget, $widgetData, $containerKey, $occurrence, $widgetMeta),
             interactions: resolve(ResolveInteractionTriggersAction::class)->handle(
                 instanceTriggers: $instanceInteractions,
@@ -160,7 +177,11 @@ final class ResolvePublicWidgetRenderContextAction
             return $trigger;
         }
 
-        $widgetReference ??= $this->widgetReference($containerKey, $layoutKey, $occurrence, $widget, $widgetData, $widgetIndex);
+        $widgetReference ??= BuildLayoutBuilderFragmentReferenceAction::make()->handle($containerKey, $occurrence, $widget);
+
+        if ($widgetReference === null) {
+            return $trigger;
+        }
 
         if ($target !== null) {
             $trigger['target']['fragment_reference'] = $widgetReference;

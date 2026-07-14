@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions\Fragments;
 
-use Capell\Core\Contracts\Pageable;
-use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
+use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentContextAction;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
+use Capell\Frontend\Data\Fragments\PublicFragmentContextData;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
 use Capell\LayoutBuilder\Data\PublicLayoutWidgetData;
-use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\Relation;
+use Capell\LayoutBuilder\Fragments\LayoutBuilderFragmentUrlResolver;
+use Capell\LayoutBuilder\Models\Widget;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
@@ -41,44 +42,56 @@ class RenderPublicFragmentAction
 
     private function render(string $reference): ?string
     {
-        $data = OpaqueWidgetReference::decode($reference);
+        $decoded = resolve(PublicFragmentReferenceCodec::class)->decode($reference);
 
-        $site = $this->model(Site::class, $data['site_id'] ?? null);
-        $layout = $this->model(Layout::class, $data['layout_id'] ?? null);
-        $language = $this->model(Language::class, $data['language_id'] ?? null);
-        $page = $this->page($data['page_type'] ?? null, $data['page_id'] ?? null);
-        $containerKey = $this->stringValue($data['container_key'] ?? null);
-        $widgetKey = $this->stringValue($data['widget_key'] ?? null);
-        $occurrence = $this->positiveInteger($data['occurrence'] ?? null);
+        if ($decoded->owner !== LayoutBuilderFragmentUrlResolver::OWNER) {
+            return null;
+        }
 
-        if (! $site instanceof Site
+        $context = ResolvePublicFragmentContextAction::make()->handle($decoded);
+        $page = $context->page;
+        $layout = $page->getRelationValue('layout');
+        $containerKey = $this->stringValue($decoded->ownerContext['containerKey'] ?? null);
+        $widgetKey = $this->stringValue($decoded->ownerContext['widgetKey'] ?? null);
+        $occurrence = $this->positiveInteger($decoded->ownerContext['occurrence'] ?? null);
+        $widgetVersion = $this->stringValue($decoded->ownerContext['widgetVersion'] ?? null);
+
+        if (! $page instanceof Page
             || ! $layout instanceof Layout
-            || ! $language instanceof Language
-            || ! $page instanceof Page
             || $containerKey === null
             || $widgetKey === null
-            || $occurrence === null) {
+            || $occurrence === null
+            || $widgetVersion === null) {
             return null;
         }
 
-        if ((int) $page->site_id !== (int) $site->getKey()) {
-            return null;
-        }
+        $widget = Widget::query()
+            ->where('key', $widgetKey)
+            ->whereHas('blueprint', fn (Builder $query): Builder => $query->enabled()->accessible())
+            ->enabled()
+            ->publishedDate()
+            ->first();
 
-        if ((int) $layout->getKey() !== (int) $page->layout_id) {
-            return null;
-        }
-
-        if ($layout->site_id !== null && (int) $layout->site_id !== (int) $site->getKey()) {
+        if (! $widget instanceof Widget
+            || ! hash_equals(
+                $widgetVersion,
+                ResolveLayoutBuilderFragmentWidgetVersionAction::make()->handle(
+                    $widget,
+                    $page,
+                    $context->language,
+                    $containerKey,
+                    $occurrence,
+                ),
+            )) {
             return null;
         }
 
         $previousFrontendContext = $this->resolvedFrontendContext();
 
         try {
-            $this->bindFrontendContext($site, $layout, $language, $page);
+            $this->bindFrontendContext($context, $layout, $page);
 
-            $graph = BuildPublicLayoutGraphAction::run($layout, $page, $language, [$containerKey], includeHtml: true);
+            $graph = BuildPublicLayoutGraphAction::run($layout, $page, $context->language, [$containerKey], includeHtml: true);
             $container = null;
 
             foreach ($graph->containers as $candidateContainer) {
@@ -115,43 +128,10 @@ class RenderPublicFragmentAction
         }
     }
 
-    /**
-     * @template TModel of \Illuminate\Database\Eloquent\Model
-     *
-     * @param  class-string<TModel>  $model
-     * @return TModel|null
-     */
-    private function model(string $model, mixed $id): ?Model
+    private function bindFrontendContext(PublicFragmentContextData $context, Layout $layout, Page $page): void
     {
-        if (! is_numeric($id)) {
-            return null;
-        }
-
-        $record = $model::query()->find((int) $id);
-
-        return $record instanceof $model ? $record : null;
-    }
-
-    private function page(mixed $pageType, mixed $id): ?Pageable
-    {
-        if (! is_numeric($id)) {
-            return null;
-        }
-
-        $pageClass = is_string($pageType) ? Relation::getMorphedModel($pageType) : null;
-        $pageClass ??= Page::class;
-
-        if (! is_a($pageClass, Pageable::class, true)) {
-            return null;
-        }
-
-        $page = $pageClass::query()->find((int) $id);
-
-        return $page instanceof Pageable ? $page : null;
-    }
-
-    private function bindFrontendContext(Site $site, Layout $layout, Language $language, Page $page): void
-    {
+        $site = $context->site;
+        $language = $context->language;
         $site->loadMissing('theme');
         $layout->loadMissing('theme');
 

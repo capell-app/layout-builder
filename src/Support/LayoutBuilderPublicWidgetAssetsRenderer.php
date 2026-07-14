@@ -5,12 +5,18 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Models\Site;
+use Capell\Core\Models\Translation;
+use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentContentVersionAction;
 use Capell\Frontend\Actions\RenderRenderableAction;
 use Capell\Frontend\Actions\ResolveDeferredFragmentPlaceholderDataAction;
-use Capell\Frontend\Contracts\DeferredFragmentReferenceBuilder;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
 use Capell\Frontend\Contracts\FrontendContextReader;
+use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
 use Capell\Frontend\Support\Fragments\DeferredFragmentPlaceholderData;
+use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
@@ -19,6 +25,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use LogicException;
 
 final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLayoutWidgetAssetsRenderer
 {
@@ -143,15 +150,92 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
      */
     private function deferredPlaceholder(Model $asset, array $meta): ?DeferredFragmentPlaceholderData
     {
-        if (! app()->bound(DeferredFragmentReferenceBuilder::class)) {
+        $performance = is_array($meta['performance'] ?? null) ? $meta['performance'] : [];
+        $owner = is_string($performance['fragment_owner'] ?? null)
+            ? trim($performance['fragment_owner'])
+            : '';
+        $context = $this->frontendContext();
+        $page = $context?->page();
+        $site = $context?->site();
+        $language = $context?->language();
+        $layout = $context?->layout();
+        $assetId = $asset->getKey();
+
+        if (($performance['defer'] ?? false) !== true
+            || $owner === ''
+            || ! $page instanceof Page
+            || ! $site instanceof Site
+            || ! $language instanceof Language
+            || ! $layout instanceof Layout
+            || (! is_int($assetId) && ! is_string($assetId))) {
             return null;
         }
 
-        $builder = app(DeferredFragmentReferenceBuilder::class);
-        $reference = $builder->reference($asset, $meta);
-        $url = $reference === [] ? '' : ($builder->url($reference) ?? '');
+        $registry = resolve(PublicFragmentUrlResolverRegistry::class);
 
-        return ResolveDeferredFragmentPlaceholderDataAction::run($meta, $reference, $url);
+        if (! $registry->has($owner)) {
+            return null;
+        }
+
+        $ownerContext = [
+            'layoutId' => $this->scalarKey($layout),
+            'assetType' => $asset->getMorphClass(),
+            'assetId' => $assetId,
+            'assetVersion' => $this->assetVersion($asset, $language),
+        ];
+        $reference = new PublicFragmentReferenceData(
+            owner: $owner,
+            formatVersion: 1,
+            pageableType: $page->getMorphClass(),
+            pageableId: $this->scalarKey($page),
+            siteId: $this->scalarKey($site),
+            languageId: $this->scalarKey($language),
+            contentVersion: ResolvePublicFragmentContentVersionAction::make()->handle(
+                $page,
+                $site,
+                $language,
+                $layout,
+                $ownerContext,
+            ),
+            ownerContext: $ownerContext,
+        );
+        $token = resolve(PublicFragmentReferenceCodec::class)->encode($reference);
+        $url = $registry->url($reference);
+
+        return ResolveDeferredFragmentPlaceholderDataAction::run($meta, $token, $url);
+    }
+
+    private function assetVersion(Model $asset, Language $language): string
+    {
+        $freshAsset = $asset->newQuery()->whereKey($asset->getKey())->firstOrFail();
+        $translation = Translation::query()
+            ->where('translatable_type', $freshAsset->getMorphClass())
+            ->where('translatable_id', $freshAsset->getKey())
+            ->where('language_id', $language->getKey())
+            ->first();
+        $assetAttributes = $freshAsset->getAttributes();
+        $translationAttributes = $translation?->getAttributes();
+
+        ksort($assetAttributes);
+        if (is_array($translationAttributes)) {
+            ksort($translationAttributes);
+        }
+
+        return hash('sha256', json_encode([
+            'asset' => $assetAttributes,
+            'translation' => $translationAttributes,
+        ], JSON_THROW_ON_ERROR));
+    }
+
+    private function scalarKey(Model $model): int|string
+    {
+        $key = $model->getKey();
+
+        if (! is_int($key) && ! is_string($key)) {
+            throw new LogicException('Public fragment context records require scalar identifiers.');
+        }
+
+        return $key;
     }
 
     private function frontendContext(): ?FrontendContextReader

@@ -15,15 +15,16 @@
     $presentation = $renderContext->presentation;
     $isLazyFragment = $renderContext->isLazyFragment;
     $widgetReference = $renderContext->widgetReference;
+    $fragmentUrl = $renderContext->fragmentUrl;
     $resourcePublicIds = $renderContext->resourcePublicIds;
     $interactions = $renderContext->interactions;
 @endphp
 
-@if ($isLazyFragment)
+@if ($isLazyFragment && $fragmentUrl !== null)
     <div
         id="{{ $widgetDomId }}"
         data-deferred-fragment
-        data-deferred-fragment-url="{{ url('/_fragments/' . rawurlencode($widgetReference)) }}"
+        data-deferred-fragment-url="{{ $fragmentUrl }}"
         class="deferred-fragment"
     ></div>
 @elseif ($type === 'blade')

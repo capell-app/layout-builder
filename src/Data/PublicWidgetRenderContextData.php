@@ -20,6 +20,7 @@ final class PublicWidgetRenderContextData extends Data
         public PresentationSettingsData $presentation,
         public bool $isLazyFragment,
         public ?string $widgetReference,
+        public ?string $fragmentUrl,
         public array $resourcePublicIds,
         public array $interactions,
     ) {}
