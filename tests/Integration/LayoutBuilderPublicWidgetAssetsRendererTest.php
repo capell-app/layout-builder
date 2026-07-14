@@ -121,10 +121,16 @@ it('renders deferred placeholders before renderable dispatch', function (): void
         /** @param  array<string, mixed>  $meta */
         public function reference(Model $asset, array $meta): string
         {
-            return 'opaque-' . $asset->getKey();
+            $key = $asset->getKey();
+
+            if (! is_int($key) && ! is_string($key)) {
+                throw new RuntimeException('The deferred asset requires a scalar key.');
+            }
+
+            return 'opaque-' . $key;
         }
 
-        public function url(string $fragmentReference): ?string
+        public function url(string $fragmentReference): string
         {
             $assetIdentifier = str_replace('opaque-', '', $fragmentReference);
 
