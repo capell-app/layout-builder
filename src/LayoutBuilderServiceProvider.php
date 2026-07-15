@@ -11,6 +11,7 @@ use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
@@ -39,6 +40,7 @@ use Capell\LayoutBuilder\Contracts\WidgetSnapshots\WidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
+use Capell\LayoutBuilder\Fragments\LayoutBuilderFragmentUrlResolver;
 use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
@@ -137,6 +139,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(WidgetInteractionLocatorResolver::class, PrebuiltWidgetInteractionLocatorResolver::class);
         $this->app->tag([WidgetPresentationPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
+        $this->app->tag([LayoutBuilderFragmentUrlResolver::class], PublicFragmentUrlResolver::TAG);
         $this->app->tag([LayoutBuilderLayoutWidgetResourceUsageContributor::class, PageContentLayoutWidgetResourceUsageContributor::class], LayoutWidgetResourceUsageContributor::TAG);
         $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
