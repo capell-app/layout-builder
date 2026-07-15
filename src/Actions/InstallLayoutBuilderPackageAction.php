@@ -23,6 +23,7 @@ final class InstallLayoutBuilderPackageAction implements PackageLifecycleAction
 
         PublishPackageMigrationsAction::run(new Collection([$package->name => $package]), $reporter, true, false);
         RunMigrationsAction::run($reporter);
+        PublishLayoutBuilderAdminAssetsAction::run();
 
         $reporter->report('Capell Layout Builder installed successfully.');
     }

@@ -48,11 +48,11 @@ it('checks every required widget extension package surface', function (): void {
     resolve(FrontendResourceRegistry::class)->register(new FrontendResourceGroupData(
         key: 'capell-app.widget-slideshow',
         label: 'Slideshow',
-        package: 'capell-app/layout-builder',
+        package: 'capell-app/widget-slideshow',
         resources: [FrontendResourceData::style(
-            handle: 'capell-app/layout-builder:slideshow',
-            package: 'capell-app/layout-builder',
-            source: new PublicResourceSourceData('vendor/capell/slideshow.css'),
+            handle: 'capell-app/widget-slideshow:style',
+            package: 'capell-app/widget-slideshow',
+            source: new PublicResourceSourceData('/vendor/capell/slideshow.css'),
             loadingStrategy: PresentationLoadingStrategy::Visible,
         )],
     ));

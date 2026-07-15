@@ -39,15 +39,15 @@ abstract class AbstractFoundationWidgetServiceProvider extends AbstractPackageSe
             package: static::$packageName,
             resources: [
                 FrontendResourceData::style(
-                    handle: static::resourceGroup() . ':css',
+                    handle: static::$packageName . ':widget-style',
                     package: static::$packageName,
-                    source: new PublicResourceSourceData('vendor/' . static::$name . '/widget.css'),
+                    source: new PublicResourceSourceData('/vendor/' . static::$name . '/widget.css'),
                     loadingStrategy: PresentationLoadingStrategy::Visible,
                 ),
                 FrontendResourceData::classicScript(
-                    handle: static::resourceGroup() . ':js',
+                    handle: static::$packageName . ':widget-script',
                     package: static::$packageName,
-                    source: new PublicResourceSourceData('vendor/' . static::$name . '/widget.js'),
+                    source: new PublicResourceSourceData('/vendor/' . static::$name . '/widget.js'),
                     loadingStrategy: static::scriptLoadingStrategy(),
                 ),
             ],
