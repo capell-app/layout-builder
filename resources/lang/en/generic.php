@@ -85,7 +85,7 @@ return [
     'three_quarters' => 'Three quarters',
     'two_thirds' => 'Two thirds',
     'theme_settings_description' => 'These fields come from the active theme and are stored on this layout container only.',
-    'theme_settings_heading' => 'Theme settings: :theme',
+    'theme_settings_heading' => 'Theme settings · :theme',
     'content' => 'Content',
     'content_first_editor' => 'Layout content editor',
     'content_placement' => ':container > :widget > Item :position',

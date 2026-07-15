@@ -62,6 +62,7 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
         return [
             Section::make(__('capell-layout-builder::generic.layout_and_appearance'))
                 ->statePath('meta')
+                ->extraAttributes(['data-layout-container-section' => 'appearance'])
                 ->icon(Heroicon::OutlinedAdjustmentsHorizontal)
                 ->columnSpanFull()
                 ->columns(['sm' => 2, 'md' => 3])
@@ -78,6 +79,7 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
                         ->helperText(__('capell-layout-builder::generic.padding_base_helper')),
                     Toggle::make('responsive_padding_enabled')
                         ->label(__('capell-layout-builder::form.customise_padding_by_breakpoint'))
+                        ->extraAttributes(['data-layout-container-control' => 'responsive-padding'])
                         ->helperText(__('capell-layout-builder::generic.responsive_padding_helper'))
                         ->live()
                         ->dehydrated(false)
@@ -94,6 +96,7 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
                         }),
                     PaddingSelect::make('padding_tablet')
                         ->label(__('capell-layout-builder::form.padding_tablet'))
+                        ->extraAttributes(['data-layout-container-field' => 'padding-tablet'])
                         ->visible(fn (Get $get): bool => $get('responsive_padding_enabled') === true),
                     PaddingSelect::make('padding_desktop')
                         ->label(__('capell-layout-builder::form.padding_desktop'))
@@ -177,11 +180,13 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
             ]))
                 ->description(__('capell-layout-builder::generic.theme_settings_description'))
                 ->statePath('meta.theme_settings.' . $themeKey)
+                ->extraAttributes(['data-layout-container-section' => 'theme'])
                 ->collapsed()
                 ->icon(Heroicon::OutlinedSwatch)
                 ->headerActions([
                     Action::make('reset_theme_settings')
                         ->label(__('capell-layout-builder::form.reset_theme_settings'))
+                        ->extraAttributes(['data-layout-container-action' => 'reset-theme-settings'])
                         ->icon(Heroicon::OutlinedArrowPath)
                         ->color('gray')
                         ->requiresConfirmation()

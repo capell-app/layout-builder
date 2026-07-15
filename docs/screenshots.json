@@ -173,8 +173,10 @@
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
             "required": true,
-            "notes": "Shows container settings with spacing, padding, background, border, alignment, and theme-scoped fields.",
-            "useCase": "An editor tunes a layout container while preserving structured page composition.",
+            "viewport": "desktop",
+            "colorSchemes": ["light", "dark"],
+            "notes": "Shows the expanded Layout & appearance section with the responsive padding controls enabled.",
+            "useCase": "An editor sets portable spacing, border, and base, tablet, and desktop padding on a layout container.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-edit-container-action.png",
             "interactions": [
                 {
@@ -192,6 +194,209 @@
                 {
                     "type": "waitFor",
                     "selector": ".fi-modal-window:visible"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-container-section=\"appearance\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-container-control=\"responsive-padding\"][role=\"switch\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-container-field=\"padding-tablet\"]"
+                }
+            ]
+        },
+        {
+            "id": "layout-builder-edit-container-theme-settings",
+            "title": "Layout Builder active-theme container settings.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/screenshot-fixtures/layout-builder-admin-editor",
+            "waitFor": ".layout-builder-visual-toolbar",
+            "beforeWait": [
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                }
+            ],
+            "targetType": "admin-surface",
+            "target": "PageResource/EditPage",
+            "required": true,
+            "viewport": "desktop",
+            "colorSchemes": ["light", "dark"],
+            "notes": "Shows the explicitly expanded branded Theme settings section and its reset action.",
+            "useCase": "An editor recognises which controls belong to the active theme and can reset only that container's active-theme values.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-edit-container-theme-settings.png",
+            "interactions": [
+                {
+                    "type": "click",
+                    "selector": "[data-layout-builder-tree-item=\"main\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-modal-window:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-container-section=\"theme\"] .fi-section-header"
+                },
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[data-layout-container-section=\"theme\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-container-action=\"reset-theme-settings\"]:visible"
+                }
+            ]
+        },
+        {
+            "id": "layout-builder-edit-container-action-mobile",
+            "title": "Layout Builder responsive padding controls on mobile.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/screenshot-fixtures/layout-builder-admin-editor",
+            "waitFor": ".layout-builder-visual-toolbar",
+            "beforeWait": [
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                }
+            ],
+            "targetType": "admin-surface",
+            "target": "PageResource/EditPage",
+            "required": true,
+            "viewport": "mobile",
+            "colorSchemes": ["light", "dark"],
+            "notes": "Shows the expanded Layout & appearance section and responsive padding fields at the mobile editor viewport.",
+            "useCase": "An editor can reach the portable container controls from a narrow admin viewport.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-edit-container-action-mobile.png",
+            "interactions": [
+                {
+                    "type": "click",
+                    "selector": ".layout-builder-panel-toggle[title=\"Layout structure\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible"
+                },
+                {
+                    "type": "press",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
+                    "value": "Escape"
+                },
+                {
+                    "type": "press",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
+                    "value": "Escape"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-modal-window:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-container-control=\"responsive-padding\"][role=\"switch\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-container-field=\"padding-tablet\"]"
+                }
+            ]
+        },
+        {
+            "id": "layout-builder-edit-container-theme-settings-mobile",
+            "title": "Layout Builder active-theme container settings on mobile.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/screenshot-fixtures/layout-builder-admin-editor",
+            "waitFor": ".layout-builder-visual-toolbar",
+            "beforeWait": [
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                }
+            ],
+            "targetType": "admin-surface",
+            "target": "PageResource/EditPage",
+            "required": true,
+            "viewport": "mobile",
+            "colorSchemes": ["light", "dark"],
+            "notes": "Shows the expanded branded Theme settings section and reset action at the mobile editor viewport.",
+            "useCase": "An editor can identify and reset active-theme container values from a narrow admin viewport.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-edit-container-theme-settings-mobile.png",
+            "interactions": [
+                {
+                    "type": "click",
+                    "selector": ".layout-builder-panel-toggle[title=\"Layout structure\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible"
+                },
+                {
+                    "type": "press",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
+                    "value": "Escape"
+                },
+                {
+                    "type": "press",
+                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
+                    "value": "Escape"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-modal-window:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": "[data-layout-container-section=\"theme\"] .fi-section-header"
+                },
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[data-layout-container-section=\"theme\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-container-action=\"reset-theme-settings\"]:visible"
                 }
             ]
         },

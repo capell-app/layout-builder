@@ -28,11 +28,21 @@ This guide is for editors who build pages and owners deciding how to use widgets
 ### How to tune a layout container
 
 1. Open the page editor and select the container that holds the widgets you want to adjust.
-2. In **Settings**, choose the container width, alignment, spacing, padding, margin, border, visibility, tag, or background options you need.
-3. If the active theme adds extra controls, use the **Theme settings** section in the same panel. These settings apply only to this container and this active theme.
-4. Save the page.
+2. Open **Layout & appearance**. Set width and alignment, then use:
+    - **Spacing** for the gap between widgets inside the container.
+    - **Padding** for space between the container edge and its widgets.
+    - **Border** for the container edge treatment.
+3. Leave a value at **Theme default** to inherit the theme's normal treatment. Choose **None** when the container must explicitly have no spacing, padding, or border, even if the theme supplies one.
+4. To vary padding by screen size, enable **Customise by breakpoint**. Base padding applies at every size, tablet replaces it from the tablet breakpoint, and desktop replaces the effective tablet or base value from the desktop breakpoint. An empty override inherits the preceding value; **None** removes padding at that breakpoint.
+5. Open **Background** only when the container needs its own background.
+6. Open **Theme settings · {Theme name}** for controls supplied by the active theme. The swatch icon and description identify these as theme-owned values for this container only.
+7. Use **Reset theme settings** to clear only this container's values for the active theme. Confirm the action, then save the container normally. Core settings and values saved for other themes are left in place.
+8. Open **Advanced** for column position, responsive visibility, tag, HTML class, column overrides, and legacy margin. Margin is outside the container; keep it for existing layouts, but prefer spacing and padding for new visual changes.
+9. Save the page.
 
-![Edit a layout container with spacing, padding, border, background, and active-theme settings.](screenshots/layout-container-theme-settings.png)
+![Set base, tablet, and desktop padding in the expanded Layout and appearance section.](screenshots/layout-builder-edit-container-action.png)
+
+![Recognise and reset the active theme's container-local settings.](screenshots/layout-builder-edit-container-theme-settings.png)
 
 ### How to upload an image or file for a widget
 
