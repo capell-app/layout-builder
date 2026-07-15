@@ -13,23 +13,9 @@ use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\FrontendResponseRenderer;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Http\Controllers\PageController;
-use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\Frontend\Support\Render\FrontendResponseRendererRegistry;
 use Capell\LayoutBuilder\Models\Widget;
-use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
-
-beforeEach(function (): void {
-    $frontendPackageRoot = dirname((new ReflectionClass(FrontendServiceProvider::class))->getFileName(), 3);
-    $publishedBuildPath = public_path('vendor/capell-frontend');
-
-    File::ensureDirectoryExists(dirname($publishedBuildPath));
-    File::copyDirectory($frontendPackageRoot . '/publishes/build', $publishedBuildPath);
-});
-
-afterEach(function (): void {
-    File::deleteDirectory(public_path('vendor/capell-frontend'));
-});
 
 it('does not force layout builder admin metadata into public responses', function (): void {
     $widget = Widget::factory()->create(['key' => 'hero']);
