@@ -83,7 +83,7 @@ final class ResolveLayoutContainerPresentationAction
      */
     private function padding(mixed $value): ?array
     {
-        return NormalizeLayoutContainerPaddingAction::run($value);
+        return NormalizeLayoutContainerPaddingAction::make()->handle($value);
     }
 
     private function reportProjectionFailure(string $themeKey, ?string $containerKey, Throwable $throwable): void
