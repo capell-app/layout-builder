@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
+use Capell\LayoutBuilder\Actions\NormalizeLayoutContainerPaddingAction;
 use Capell\LayoutBuilder\Enums\WidgetSpacingValue;
 use Filament\Forms\Components\Select;
 
@@ -18,15 +19,19 @@ class PaddingSelect extends Select
             ->afterStateHydrated(function (Select $component, mixed $state): void {
                 $component->state(self::normalizeHydratedState($state));
             })
+            ->afterStateUpdated(function (Select $component, mixed $state): void {
+                $component->state(self::normalizeHydratedState($state));
+            })
+            ->dehydrateStateUsing(self::normalizeHydratedState(...))
+            ->placeholder(__('capell-layout-builder::form.theme_default'))
             ->options(WidgetSpacingValue::class);
     }
 
-    public static function normalizeHydratedState(mixed $state): mixed
+    /**
+     * @return list<string>|null
+     */
+    public static function normalizeHydratedState(mixed $state): ?array
     {
-        if (is_string($state)) {
-            return [$state];
-        }
-
-        return $state;
+        return NormalizeLayoutContainerPaddingAction::run($state);
     }
 }

@@ -45,3 +45,12 @@ it('preserves current array spacing values during hydration', function (): void 
     expect(PaddingSelect::normalizeHydratedState(['lg']))->toBe(['lg'])
         ->and(MarginSelect::normalizeHydratedState(['t-sm', 'b-lg']))->toBe(['t-sm', 'b-lg']);
 });
+
+it('normalizes conflicting padding choices deterministically', function (): void {
+    expect(PaddingSelect::normalizeHydratedState(['sm', 'none', 't-lg']))->toBe(['none'])
+        ->and(PaddingSelect::normalizeHydratedState(['t-sm', 'b-lg']))->toBe(['t-sm', 'b-lg'])
+        ->and(PaddingSelect::normalizeHydratedState(['t-sm', 't-lg', 'b-md']))->toBe(['t-lg', 'b-md'])
+        ->and(PaddingSelect::normalizeHydratedState(['t-sm', 'md', 'b-lg']))->toBe(['md'])
+        ->and(PaddingSelect::normalizeHydratedState([]))->toBeNull()
+        ->and(PaddingSelect::normalizeHydratedState(['unsafe']))->toBeNull();
+});

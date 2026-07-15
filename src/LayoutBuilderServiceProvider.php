@@ -29,6 +29,7 @@ use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
+use Capell\LayoutBuilder\Contracts\LayoutContainerThemePresentationProjector;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
@@ -62,6 +63,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\View\LayoutContainerPresentationViewComposer;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionContentStateProcessor;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionDefinitionAdapter;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionInputFactory;
@@ -78,6 +80,7 @@ use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
 use Override;
 use Spatie\LaravelPackageTools\Package;
 
@@ -120,6 +123,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         );
         $this->registerDefaultLayoutWidgets();
         $this->app->tag([], LayoutContentGroupContributor::TAG);
+        $this->app->tag([], LayoutContainerThemePresentationProjector::TAG);
         $this->app->tag([WidgetExtensionContentStateProcessor::class], ContentWidgetStateProcessor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
@@ -169,6 +173,11 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     public function packageBooted(): void
     {
+        View::composer([
+            'capell-layout-builder::components.layout.container',
+            'capell::components.layout.container',
+        ], LayoutContainerPresentationViewComposer::class);
+
         Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
 
         if (! $this->isPackageInstalled()) {

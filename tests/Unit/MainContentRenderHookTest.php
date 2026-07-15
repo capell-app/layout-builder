@@ -82,6 +82,10 @@ it('renders stored layout containers through the shared hook and updates render 
                     'meta' => [
                         'colspan' => 8,
                         'container' => 'full',
+                        'spacing' => 'md',
+                        'padding' => ['sm'],
+                        'padding_tablet' => ['t-md', 'b-lg'],
+                        'padding_desktop' => ['none'],
                         'border' => 'subtle',
                         'theme_settings' => [
                             'saas' => [
@@ -113,7 +117,11 @@ it('renders stored layout containers through the shared hook and updates render 
 
     expect($output)->toContain('id="layout-container-main"')
         ->and($output)->toContain('id="layout-container-sidebar"')
-        ->and($output)->toContain('border-slate-200/80')
+        ->and($output)->toContain('capell-container-spacing-md')
+        ->and($output)->toContain('capell-container-padding-sm')
+        ->and($output)->toContain('capell-container-padding-tablet-t-md')
+        ->and($output)->toContain('capell-container-padding-desktop-none')
+        ->and($output)->toContain('capell-container-border-subtle')
         ->and($output)->not->toContain('theme_settings')
         ->and($output)->not->toContain('surface_tone')
         ->and($output)->not->toContain('admin_schema')

@@ -114,10 +114,23 @@ it('adds active theme layout container fields and excludes other theme fields', 
         ->filter(fn (mixed $component): bool => $component instanceof Section)
         ->filter(fn (Section $section): bool => $section->getStatePath() === 'meta.theme_settings.saas')
         ->values();
+    $sectionHeadings = collect($flattened)
+        ->filter(fn (mixed $component): bool => $component instanceof Section)
+        ->map(fn (Section $section): mixed => $section->getHeading())
+        ->values()
+        ->all();
+    $themeHeaderActions = $themeSections->first()?->getHeaderActions() ?? [];
 
     expect($fieldNames)->toContain('border', 'surface_tone')
         ->and($fieldNames)->not->toContain('menu_tone')
-        ->and($themeSections)->toHaveCount(1);
+        ->and($themeSections)->toHaveCount(1)
+        ->and($sectionHeadings)->toContain(
+            __('capell-layout-builder::generic.layout_and_appearance'),
+            __('capell-layout-builder::generic.advanced'),
+            __('capell-layout-builder::generic.theme_settings_heading', ['theme' => 'SaaS']),
+        )
+        ->and(collect($themeHeaderActions)->map(fn (mixed $action): string => $action->getName())->all())
+        ->toBe(['reset_theme_settings']);
 });
 
 it('does not add theme fields when the extender does not support the container context', function (): void {

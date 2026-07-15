@@ -14,6 +14,7 @@ class SpacingSelect extends Select
         parent::setUp();
 
         $this->label(__('capell-layout-builder::form.spacing'))
-            ->options(WidgetBasicSpacingValue::class);
+            ->options(WidgetBasicSpacingValue::class)
+            ->placeholder(__('capell-layout-builder::form.theme_default'));
     }
 }

@@ -10,10 +10,6 @@
     $containerWidth = ! empty($container['meta']['container'])
         ? ContainerWidthEnum::from($container['meta']['container'])
         : GetLayoutContainerWidthAction::run();
-    $spacing = $container['meta']['spacing'] ?? null;
-    $padding = $container['meta']['padding'] ?? [];
-    $margin = $container['meta']['margin'] ?? [];
-    $border = $container['meta']['border'] ?? null;
     $htmlClass = trim((string) ($htmlClass ?? ''));
 
     if (! empty($container['meta']['html_class'])) {
@@ -60,6 +56,7 @@
     id="layout-container-{{ $containerKey }}"
     @class([
         'layout-container',
+        ...$presentation->classes(),
         $htmlClass => $htmlClass !== '',
         'self-start justify-self-start' => $alignment === ContainerAlignmentEnum::Start,
         'self-center justify-self-center' => $alignment === ContainerAlignmentEnum::Center,
@@ -72,37 +69,6 @@
         'md:hidden' => ! $hideOnMobile && $hideOnTablet && $hideOnDesktop,
         'md:hidden lg:widget' => ! $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
         'lg:hidden' => ! $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
-        'space-y-4' => $spacing === 'sm',
-        'space-y-2' => $spacing === 'md',
-        'space-y-10' => $spacing === 'lg',
-        'border border-slate-200/80' => $border === 'subtle',
-        'border border-slate-300' => $border === 'strong',
-        'border-t border-slate-200/80' => $border === 'top',
-        'border-b border-slate-200/80' => $border === 'bottom',
-        'border-y border-slate-200/80' => $border === 'vertical',
-        'py-4' => in_array('sm', $padding, true),
-        'pt-4' => in_array('t-sm', $padding, true),
-        'pb-4' => in_array('b-sm', $padding, true),
-        'py-8' => in_array('md', $padding, true),
-        'pt-8' => in_array('t-md', $padding, true),
-        'pb-8' => in_array('b-md', $padding, true),
-        'py-10' => in_array('lg', $padding, true),
-        'pt-10' => in_array('t-lg', $padding, true),
-        'pb-10' => in_array('b-lg', $padding, true),
-        'pt-20' => in_array('t-xl', $padding, true),
-        'pb-20' => in_array('b-xl', $padding, true),
-        'my-4' => in_array('sm', $margin, true),
-        'mt-4' => in_array('t-sm', $margin, true),
-        'mb-4' => in_array('b-sm', $margin, true),
-        'my-6 lg:my-10' => in_array('md', $margin, true),
-        'mt-6' => in_array('t-md', $margin, true),
-        'mb-6' => in_array('b-md', $margin, true),
-        'my-10' => in_array('lg', $margin, true),
-        'mt-10' => in_array('t-lg', $margin, true),
-        'mb-10' => in_array('b-lg', $margin, true),
-        'm-20' => in_array('xl', $margin, true),
-        'mt-20' => in_array('t-xl', $margin, true),
-        'mb-20' => in_array('b-xl', $margin, true),
     ])
 >
     @foreach (LayoutWidgetData::fromContainer($container) as $widgetIndex => $widgetData)

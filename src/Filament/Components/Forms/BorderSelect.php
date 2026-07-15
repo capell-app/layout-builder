@@ -15,6 +15,6 @@ class BorderSelect extends Select
 
         $this->label(__('capell-layout-builder::form.border'))
             ->options(LayoutContainerBorderValue::class)
-            ->default(LayoutContainerBorderValue::None->value);
+            ->placeholder(__('capell-layout-builder::form.theme_default'));
     }
 }
