@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\WidgetSnapshots;
 
 use Capell\Frontend\Data\Assets\FrontendResourceData;
+use Capell\Frontend\Data\Assets\PublicResourceSourceData;
+use Capell\Frontend\Enums\FrontendResourceKind;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
-use Illuminate\Support\Str;
 
 final readonly class WidgetSnapshotResourceIds
 {
@@ -21,7 +22,7 @@ final readonly class WidgetSnapshotResourceIds
         $ids = [];
         foreach ($declaredGroups as $groupKey) {
             $group = $this->registry->get($groupKey);
-            if ($group === null || ! $group->validation->valid || $group->resources === []) {
+            if ($group === null || $group->resources === []) {
                 return null;
             }
 
@@ -39,48 +40,26 @@ final readonly class WidgetSnapshotResourceIds
 
     private function isSafe(FrontendResourceData $resource): bool
     {
-        if (! in_array($resource->kind, ['css', 'js'], true)) {
+        if (! in_array($resource->kind, [
+            FrontendResourceKind::Style,
+            FrontendResourceKind::ModuleScript,
+            FrontendResourceKind::ClassicScript,
+        ], true) || ! $resource->source instanceof PublicResourceSourceData) {
             return false;
         }
 
-        $source = trim($resource->source);
-        if ($source === ''
-            || preg_match('/[\x00-\x20\x7f]/', $source) === 1
-            || Str::startsWith(strtolower($source), ['data:', 'javascript:', 'blob:'])
-            || Str::contains($source, ['<', '>', '\\'])) {
-            return false;
-        }
-
-        $path = parse_url($source, PHP_URL_PATH);
-        if (! is_string($path) || $path === '') {
-            return false;
-        }
+        $path = $resource->source->path;
         $decodedPath = rawurldecode($path);
-        if (in_array('..', explode('/', $decodedPath), true)) {
+        if (preg_match('/[\x00-\x20\x7f]/', $path) === 1 || in_array('..', explode('/', $decodedPath), true)) {
             return false;
         }
+
         $extension = strtolower(pathinfo($decodedPath, PATHINFO_EXTENSION));
-        if ($resource->kind === 'css' && $extension !== 'css') {
-            return false;
-        }
-        if ($resource->kind === 'js' && ! in_array($extension, ['js', 'mjs'], true)) {
-            return false;
+
+        if ($resource->kind === FrontendResourceKind::Style) {
+            return $extension === 'css';
         }
 
-        $scheme = parse_url($source, PHP_URL_SCHEME);
-        if ($scheme === null) {
-            return ! str_starts_with($source, '//');
-        }
-
-        $host = parse_url($source, PHP_URL_HOST);
-        $port = parse_url($source, PHP_URL_PORT);
-        $normalizedScheme = strtolower((string) $scheme);
-        $effectivePort = is_int($port) ? $port : ($normalizedScheme === 'https' ? 443 : 80);
-
-        return in_array($normalizedScheme, ['http', 'https'], true)
-            && is_string($host)
-            && hash_equals(strtolower(request()->getScheme()), $normalizedScheme)
-            && hash_equals(strtolower(request()->getHost()), strtolower($host))
-            && request()->getPort() === $effectivePort;
+        return in_array($extension, ['js', 'mjs'], true);
     }
 }

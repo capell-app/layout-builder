@@ -10,6 +10,9 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\BuildPublicPageRenderDataAction;
+use Capell\Frontend\Data\Assets\FrontendResourceData;
+use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
+use Capell\Frontend\Data\Assets\PublicResourceSourceData;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
 use Capell\LayoutBuilder\Actions\LayoutWidgets\RenderLazyLayoutWidgetAction;
@@ -293,12 +296,15 @@ it('rejects unknown unsafe cross-origin inline and unsupported resource groups',
         default => 'vendor/widget.css',
     };
     if ($mode !== 'unknown') {
-        $resources->register('capell-app.widget-slideshow', 'Invalid', [[
-            'source' => $source,
-            'kind' => $mode === 'unsupported' ? 'image' : 'css',
-        ]]);
+        registerLazyWidgetResourceGroup(
+            $resources,
+            'capell-app.widget-slideshow',
+            'Invalid',
+            $source,
+            $mode === 'unsupported' ? 'image' : 'css',
+        );
     }
-    $resources->register('capell-app.widget-slideshow.interaction', 'Valid', [['source' => 'vendor/widget.js', 'kind' => 'js']]);
+    registerLazyWidgetResourceGroup($resources, 'capell-app.widget-slideshow.interaction', 'Valid', 'vendor/widget.js', 'js');
     $locator = lazyWidgetLocator(lazyWidgetContext('Invalid resources'));
 
     expect(lazyWidgetResponse($locator)->getStatusCode())->toBe(404);
@@ -502,8 +508,39 @@ function lazyWidgetResponse(string $locator): Response
 function registerLazyWidgetResources(): void
 {
     $resources = resolve(FrontendResourceRegistry::class);
-    $resources->register('capell-app.widget-slideshow', 'Slideshow', [['source' => 'vendor/slideshow.css', 'kind' => 'css']]);
-    $resources->register('capell-app.widget-slideshow.interaction', 'Slideshow interaction', [['source' => 'vendor/slideshow.js', 'kind' => 'js']]);
+    registerLazyWidgetResourceGroup($resources, 'capell-app.widget-slideshow', 'Slideshow', 'vendor/slideshow.css', 'css');
+    registerLazyWidgetResourceGroup($resources, 'capell-app.widget-slideshow.interaction', 'Slideshow interaction', 'vendor/slideshow.js', 'js');
+}
+
+function registerLazyWidgetResourceGroup(
+    FrontendResourceRegistry $registry,
+    string $key,
+    string $label,
+    string $source,
+    string $kind,
+): void {
+    try {
+        $resourceSource = new PublicResourceSourceData($source);
+        $handle = 'capell-app/layout-builder:' . hash('xxh128', $key . ':' . $source);
+        $resource = match ($kind) {
+            'css' => FrontendResourceData::style($handle, 'capell-app/layout-builder', $resourceSource),
+            'js' => FrontendResourceData::moduleScript($handle, 'capell-app/layout-builder', $resourceSource),
+            default => null,
+        };
+
+        if (! $resource instanceof FrontendResourceData) {
+            return;
+        }
+
+        $registry->register(new FrontendResourceGroupData(
+            key: $key,
+            label: $label,
+            package: 'capell-app/layout-builder',
+            resources: [$resource],
+        ));
+    } catch (Throwable) {
+        // Invalid definitions intentionally remain unregistered and fail closed.
+    }
 }
 
 /** @return array<string, mixed> */

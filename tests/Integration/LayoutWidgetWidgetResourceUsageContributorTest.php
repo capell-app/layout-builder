@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
@@ -10,16 +9,14 @@ use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
-use Capell\Frontend\Data\FrontendAssetContextData;
+use Capell\Frontend\Actions\BuildSelectedFrontendResourceContributionsAction;
+use Capell\Frontend\Actions\ResolveFrontendResourcePlanAction;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\Frontend\Data\FrontendResourceContextData;
 use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
-use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
-use Capell\Frontend\Support\Assets\ThemeResourceResolver;
-use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\LayoutBuilder\Support\Assets\LayoutWidgetResourceAssetContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 
 it('contributes layout widget resource usages from the public layout graph', function (): void {
@@ -78,72 +75,7 @@ it('contributes layout widget resource usages from the public layout graph', fun
         ->and($usages[1]->presentation->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible);
 });
 
-it('deduplicates lazy resource requirements when a widget resource is used multiple times', function (): void {
-    $registry = new FrontendResourceRegistry;
-    $registry
-        ->group('theme.carousel')
-        ->js('resources/js/widgets/carousel.js', buildPath: 'build', loading: PresentationLoadingStrategy::Visible);
-
-    $publicId = LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId('theme.carousel');
-    $requirements = (new LayoutWidgetResourceAssetContributor($registry, new ThemeResourceResolver))->requirements(new FrontendAssetContextData(
-        page: null,
-        site: null,
-        language: null,
-        layout: null,
-        theme: null,
-        runtime: FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::FullLivewire),
-        widgetResourceUsages: [
-            new LayoutWidgetResourceUsageData(
-                widgetKey: 'carousel',
-                resourceGroup: 'theme.carousel',
-                publicId: $publicId,
-                presentation: resolve(ResolvePresentationSettingsAction::class)->handle(),
-            ),
-            new LayoutWidgetResourceUsageData(
-                widgetKey: 'carousel',
-                resourceGroup: 'theme.carousel',
-                publicId: $publicId,
-                presentation: resolve(ResolvePresentationSettingsAction::class)->handle(),
-            ),
-        ],
-    ));
-
-    expect($requirements)->toHaveCount(1)
-        ->and($requirements[0]->source)->toBe('resources/js/widgets/carousel.js')
-        ->and($requirements[0]->condition)->toBe($publicId);
-});
-
-it('applies an explicit widget usage strategy before the registered resource default', function (): void {
-    $registry = new FrontendResourceRegistry;
-    $registry
-        ->group('theme.carousel')
-        ->js('resources/js/widgets/carousel.js', buildPath: 'build', loading: PresentationLoadingStrategy::Interaction);
-
-    $publicId = LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId('theme.carousel');
-    $requirements = (new LayoutWidgetResourceAssetContributor($registry, new ThemeResourceResolver))->requirements(new FrontendAssetContextData(
-        page: null,
-        site: null,
-        language: null,
-        layout: null,
-        theme: null,
-        runtime: FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::FullLivewire),
-        widgetResourceUsages: [
-            new LayoutWidgetResourceUsageData(
-                widgetKey: 'carousel',
-                resourceGroup: 'theme.carousel',
-                publicId: $publicId,
-                presentation: resolve(ResolvePresentationSettingsAction::class)->handle(),
-                loadingStrategy: PresentationLoadingStrategy::Visible,
-            ),
-        ],
-    ));
-
-    expect($requirements)->toHaveCount(1)
-        ->and($requirements[0]->condition)->toBe($publicId)
-        ->and($requirements[0]->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible);
-});
-
-it('resolves widget resource groups from the active theme resource layer', function (): void {
+it('resolves and deduplicates lazy widget resources through the frontend resource plan', function (): void {
     $theme = new Theme;
     $theme->meta = [
         'editor' => [
@@ -161,25 +93,27 @@ it('resolves widget resource groups from the active theme resource layer', funct
     ];
     $publicId = LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId('theme.carousel');
 
-    $requirements = (new LayoutWidgetResourceAssetContributor(new FrontendResourceRegistry, new ThemeResourceResolver))->requirements(new FrontendAssetContextData(
+    $context = new FrontendResourceContextData(
         page: null,
         site: null,
         language: null,
         layout: null,
         theme: $theme,
         runtime: FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::FullLivewire),
-        widgetResourceUsages: [
-            new LayoutWidgetResourceUsageData(
-                widgetKey: 'carousel',
-                resourceGroup: 'theme.carousel',
-                publicId: $publicId,
-                presentation: resolve(ResolvePresentationSettingsAction::class)->handle(),
-            ),
-        ],
-    ));
+    );
+    $usage = [
+        'resourceGroup' => 'theme.carousel',
+        'publicId' => $publicId,
+        'loadingStrategy' => PresentationLoadingStrategy::Visible,
+    ];
+    $contributions = BuildSelectedFrontendResourceContributionsAction::run($context, [$usage, $usage]);
+    $plan = ResolveFrontendResourcePlanAction::run($contributions);
 
-    expect($requirements)->toHaveCount(1)
-        ->and($requirements[0]->source)->toBe('resources/js/widgets/carousel.js')
-        ->and($requirements[0]->buildPath)->toBe('build')
-        ->and($requirements[0]->condition)->toBe($publicId);
+    expect($contributions)->toHaveCount(2)
+        ->and($contributions[0]->resource->source->path)->toBe('resources/js/widgets/carousel.js')
+        ->and($plan->lazyActivationGraphs)->toHaveCount(1)
+        ->and($plan->lazyActivationGraphs[0]->target)->toBe($publicId)
+        ->and($plan->lazyActivationGraphs[0]->loadingStrategy)->toBe(PresentationLoadingStrategy::Visible)
+        ->and($plan->headResources)->toBeEmpty()
+        ->and($plan->bodyEndResources)->toBeEmpty();
 });
