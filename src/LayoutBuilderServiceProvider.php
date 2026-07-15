@@ -12,7 +12,6 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
-use Capell\Frontend\Contracts\FrontendAssetContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
@@ -46,7 +45,6 @@ use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
-use Capell\LayoutBuilder\Support\Assets\LayoutWidgetResourceAssetContributor;
 use Capell\LayoutBuilder\Support\Assets\PageContentLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutWidgetContentGraphExtractor;
@@ -127,7 +125,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([WidgetExtensionContentStateProcessor::class], ContentWidgetStateProcessor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
-        $this->app->scoped(LayoutWidgetResourceAssetContributor::class);
         $this->app->scoped(PageContentLayoutWidgetResourceUsageContributor::class);
         $this->app->scoped(PublicLayoutWidgetPayloadResolver::class, DefaultPublicLayoutWidgetPayloadResolver::class);
         $this->app->scoped(PublicLayoutWidgetAssetsRenderer::class, LayoutBuilderPublicWidgetAssetsRenderer::class);
@@ -139,7 +136,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([WidgetPresentationPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([LayoutBuilderFragmentUrlResolver::class], PublicFragmentUrlResolver::TAG);
-        $this->app->tag([LayoutWidgetResourceAssetContributor::class], FrontendAssetContributor::TAG);
         $this->app->tag([LayoutBuilderLayoutWidgetResourceUsageContributor::class, PageContentLayoutWidgetResourceUsageContributor::class], LayoutWidgetResourceUsageContributor::TAG);
         $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
