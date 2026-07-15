@@ -1,0 +1,38 @@
+{
+    "whatThisPluginAdds": {
+        "text": "Layout Builder adds a visual page composition workflow with layout areas, widgets, reusable widgets, presets, and reversible layout edits.",
+        "evidence": [
+            "src/LayoutBuilderServiceProvider.php",
+            "src/Actions/PersistLayoutBuilderStateAction.php",
+            "src/Actions/SaveLayoutPresetAction.php",
+            "tests/Feature/Livewire/LayoutBuilderContentFirstTest.php"
+        ]
+    },
+    "surfaceOutcome": {
+        "text": "Editors can add, reorder, resize, and edit page widgets in admin. Visitors receive the saved layout graph as ordinary public output without authoring markers.",
+        "evidence": [
+            "src/Actions/BuildPublicLayoutGraphAction.php",
+            "tests/Feature/Render/LayoutBuilderPublicRenderingSafetyTest.php",
+            "tests/Feature/Livewire/LayoutPresetLivewireTest.php"
+        ]
+    },
+    "whyItMatters": {
+        "developers": {
+            "text": "Registries and typed Actions provide stable extension points for widget definitions, layout widgets, presets, and public render data.",
+            "evidence": [
+                "src/Support/LayoutWidgets/LayoutWidgetRegistry.php",
+                "src/Support/WidgetExtensions/WidgetExtensionRegistry.php",
+                "src/Actions/BuildPublicLayoutGraphAction.php",
+                "tests/Integration/PublicLayoutGraphActionTest.php"
+            ]
+        },
+        "teams": {
+            "text": "Teams can compose pages and reuse approved sections without asking a developer to build a new template for each page.",
+            "evidence": [
+                "docs/overview.admin.md",
+                "src/Actions/CreateLinkedLayoutPresetAction.php",
+                "src/Actions/InsertLinkedLayoutPresetAction.php"
+            ]
+        }
+    }
+}
