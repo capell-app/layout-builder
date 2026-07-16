@@ -6,11 +6,13 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class PruneLayoutBulkChangeRunsAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(?int $retentionDays = null): int
     {

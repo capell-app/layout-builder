@@ -7,10 +7,12 @@ namespace Capell\LayoutBuilder\Actions\WidgetSnapshots;
 use Capell\Core\Facades\CapellCore;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class PrunePublicWidgetSnapshotsAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(): int

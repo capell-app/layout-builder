@@ -7,11 +7,13 @@ namespace Capell\LayoutBuilder\Actions\Mutations;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ReorderLayoutWidgetAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(
         LayoutBuilderStateData $state,

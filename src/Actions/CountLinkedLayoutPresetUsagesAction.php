@@ -8,10 +8,12 @@ use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Illuminate\Database\Eloquent\Builder;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class CountLinkedLayoutPresetUsagesAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(LayoutPreset $preset, ?Layout $excludingLayout = null): int

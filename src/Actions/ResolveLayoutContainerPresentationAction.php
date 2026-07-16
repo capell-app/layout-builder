@@ -9,11 +9,13 @@ use Capell\LayoutBuilder\Data\LayoutContainerPresentationData;
 use Capell\LayoutBuilder\Data\LayoutContainerResponsivePaddingData;
 use Capell\LayoutBuilder\Data\LayoutContainerThemePresentationData;
 use Illuminate\Support\Facades\Log;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
 final class ResolveLayoutContainerPresentationAction
 {
+    use AsFake;
     use AsObject;
 
     private const array SPACING_VALUES = ['none', 'sm', 'md', 'lg'];
@@ -83,7 +85,7 @@ final class ResolveLayoutContainerPresentationAction
      */
     private function padding(mixed $value): ?array
     {
-        return NormalizeLayoutContainerPaddingAction::make()->handle($value);
+        return NormalizeLayoutContainerPaddingAction::run($value);
     }
 
     private function reportProjectionFailure(string $themeKey, ?string $containerKey, Throwable $throwable): void

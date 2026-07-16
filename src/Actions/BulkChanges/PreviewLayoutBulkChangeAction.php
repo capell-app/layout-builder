@@ -17,14 +17,16 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static LayoutBulkChangeRun run(LayoutBulkChangeCriteriaData $criteria, LayoutBulkWidgetOperationData $operation, ?int $actorId = null)
  */
 final class PreviewLayoutBulkChangeAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /** @param array<string, mixed> $containers */
     public static function hashContainers(array $containers): string

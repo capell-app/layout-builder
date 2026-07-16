@@ -18,14 +18,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use LogicException;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static array<string, mixed> run(LayoutBulkChangeRun $run, ?int $actorId = null)
  */
 final class ApplyLayoutBulkChangeRunAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /** @return array<string, mixed> */
     public function handle(LayoutBulkChangeRun $run, ?int $actorId = null): array
@@ -51,7 +53,7 @@ final class ApplyLayoutBulkChangeRunAction
             foreach ($results as $result) {
                 $layout = $result->layout_id === null
                     ? null
-                    : resolve(ScopeLayoutBulkChangeQueryForActorAction::class)->handle(Layout::query()->whereKey($result->layout_id), $actorId)
+                    : ScopeLayoutBulkChangeQueryForActorAction::run(Layout::query()->whereKey($result->layout_id), $actorId)
                         ->lockForUpdate()
                         ->first();
 

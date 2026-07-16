@@ -8,14 +8,16 @@ use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Data\LayoutBulkChangeCriteriaData;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static Collection<int, Layout> run(LayoutBulkChangeCriteriaData $criteria, ?int $actorId = null)
  */
 final class ResolveLayoutBulkChangeTargetsAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /** @return Collection<int, Layout> */
     public function handle(LayoutBulkChangeCriteriaData $criteria, ?int $actorId = null): Collection
@@ -28,7 +30,7 @@ final class ResolveLayoutBulkChangeTargetsAction
             ->when($criteria->layoutKeys !== [], fn (Builder $query): Builder => $query->whereIn('key', $criteria->layoutKeys))
             ->when($criteria->requireWidgetKey !== null, fn (Builder $query): Builder => $this->whereContainsWidgetKey($query, (string) $criteria->requireWidgetKey));
 
-        return resolve(ScopeLayoutBulkChangeQueryForActorAction::class)->handle($query, $actorId)
+        return ScopeLayoutBulkChangeQueryForActorAction::run($query, $actorId)
             ->ordered()
             ->get();
     }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use LogicException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class CreateLinkedLayoutPresetAction
 {
+    use AsFake;
     use AsObject;
 
     /**

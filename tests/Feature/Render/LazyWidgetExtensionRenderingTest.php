@@ -131,7 +131,7 @@ it('supersedes changed revisions while retaining the previous locator through gr
     }
     $translation->forceFill(['content' => [lazyWidgetBlock('Second')]])->save();
     $context->page->setRelation('translation', $translation->fresh());
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
     $current = PublicWidgetSnapshot::query()->whereNotNull('current_key')->sole();
     $historical = PublicWidgetSnapshot::query()->whereNotNull('superseded_at')->sole();
 
@@ -154,7 +154,7 @@ it('keeps the immutable current snapshot available without expiry until supersed
     $snapshot = PublicWidgetSnapshot::query()->sole();
 
     $this->travel(30)->days();
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
 
     expect($snapshot->expires_at)->toBeNull()
         ->and(PublicWidgetSnapshot::query()->count())->toBe(1)
@@ -165,8 +165,8 @@ it('enforces one database-backed current row while repeated rebuilds remain idem
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Idempotent');
 
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
     $snapshot = PublicWidgetSnapshot::query()->sole();
 
     expect($snapshot->current_key)->toBeString()
@@ -194,7 +194,7 @@ it('retries a unique race and supersedes a different-fingerprint competitor', fu
     });
 
     try {
-        $result = resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+        $result = RebuildPublicWidgetSnapshotsAction::run($context);
         $requested = $result['lazy-instance'];
         $current = PublicWidgetSnapshot::query()->whereNotNull('current_key')->sole();
         $competitor = PublicWidgetSnapshot::query()->whereNotNull('superseded_at')->sole();
@@ -221,7 +221,7 @@ it('keeps public render-data generation read-only and fails open when no snapsho
         }
     });
 
-    $renderData = resolve(BuildPublicPageRenderDataAction::class)->handle($context);
+    $renderData = BuildPublicPageRenderDataAction::run($context);
 
     expect($renderData->widgetInteractionLocators)->toBe([])
         ->and(PublicWidgetSnapshot::query()->count())->toBe(0)
@@ -231,7 +231,7 @@ it('keeps public render-data generation read-only and fails open when no snapsho
 it('fails open without writes when locator encryption fails during ordinary public rendering', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Encryption failure');
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
     $before = PublicWidgetSnapshot::query()->count();
     app()->instance(WidgetSnapshotLocatorCodec::class, new WidgetSnapshotLocatorCodec(new class implements WidgetSnapshotLocatorCipher
     {
@@ -247,7 +247,7 @@ it('fails open without writes when locator encryption fails during ordinary publ
     }));
     app()->forgetInstance(BuildPublicWidgetInteractionLocatorsAction::class);
 
-    $renderData = resolve(BuildPublicPageRenderDataAction::class)->handle($context);
+    $renderData = BuildPublicPageRenderDataAction::run($context);
 
     expect($renderData->widgetInteractionLocators)->toBe([])
         ->and(PublicWidgetSnapshot::query()->count())->toBe($before);
@@ -399,7 +399,7 @@ it('generates locators against the resolved language-domain origin and path', fu
         'default' => true,
     ]);
     app()->instance('request', Request::create('https://example.test/cy/page'));
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
 
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
 
@@ -410,7 +410,7 @@ it('preserves the effective incoming port in generated locator origins', functio
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Domain port');
     app()->instance('request', Request::create('http://localhost:8080/page'));
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
 
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
 
@@ -435,7 +435,7 @@ it('routes a localized path-domain locator through the explicit HTTP endpoint be
         'default' => true,
     ]);
     app()->instance('request', Request::create('http://localhost/cy/page'));
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
     $path = (string) parse_url($url, PHP_URL_PATH);
 
@@ -450,7 +450,7 @@ it('routes a localized path-domain locator through the explicit HTTP endpoint be
 it('supersedes snapshots for interaction targets removed by a later publication', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Removed later');
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
 
     if ($context->page === null) {
         throw new RuntimeException('Expected a render context page.');
@@ -461,7 +461,7 @@ it('supersedes snapshots for interaction targets removed by a later publication'
     }
     $translation->forceFill(['content' => []])->save();
     $context->page->setRelation('translation', $translation->fresh());
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
 
     expect(PublicWidgetSnapshot::query()->sole()->superseded_at)->not->toBeNull();
 });
@@ -492,7 +492,7 @@ function lazyWidgetContext(string $title): FrontendRenderContextData
 
 function lazyWidgetLocator(FrontendRenderContextData $context): string
 {
-    resolve(RebuildPublicWidgetSnapshotsAction::class)->handle($context);
+    RebuildPublicWidgetSnapshotsAction::run($context);
     $url = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context)['lazy-instance'];
     $path = parse_url($url, PHP_URL_PATH);
 
@@ -501,7 +501,7 @@ function lazyWidgetLocator(FrontendRenderContextData $context): string
 
 function lazyWidgetResponse(string $locator): Response
 {
-    return RenderLazyLayoutWidgetAction::make()->handle($locator)
+    return RenderLazyLayoutWidgetAction::run($locator)
         ?? response('', Response::HTTP_NOT_FOUND, ['Cache-Control' => 'private, no-store']);
 }
 

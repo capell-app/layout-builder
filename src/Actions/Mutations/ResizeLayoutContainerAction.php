@@ -8,11 +8,13 @@ use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ResizeLayoutContainerAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(
         LayoutBuilderStateData $state,

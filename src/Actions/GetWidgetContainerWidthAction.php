@@ -8,6 +8,7 @@ use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class GetWidgetContainerWidthAction
 {
+    use AsFake;
     use AsObject;
 
     private const string LAYOUT_CONTAINER_WIDTH_RESOLVER_SERVICE = 'capell.frontend.layout-container-width-resolver';

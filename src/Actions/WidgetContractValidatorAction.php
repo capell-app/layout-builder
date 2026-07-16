@@ -9,6 +9,7 @@ use Capell\BlockLibrary\Data\PublicBlockPresentationData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class WidgetContractValidatorAction
 {
+    use AsFake;
     use AsObject;
 
     /**

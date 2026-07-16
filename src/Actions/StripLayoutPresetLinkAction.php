@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class StripLayoutPresetLinkAction
 {
+    use AsFake;
     use AsObject;
 
     /**

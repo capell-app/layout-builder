@@ -9,10 +9,12 @@ use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Illuminate\Support\Str;
 use LogicException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ApplyLayoutPresetAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(LayoutPreset $preset, Layout $layout, Site $site, bool $persist = false): Layout

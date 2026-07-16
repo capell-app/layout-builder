@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Models\LayoutPreset;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use LogicException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class UpdateLinkedLayoutPresetItemAction
 {
+    use AsFake;
     use AsObject;
 
     /**

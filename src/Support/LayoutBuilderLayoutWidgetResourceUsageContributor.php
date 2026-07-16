@@ -87,7 +87,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
                 $type = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
                 $typeMeta = $type instanceof Blueprint && is_array($type->meta) ? $type->meta : [];
 
-                $presentation = ResolvePresentationSettingsAction::make()->handle(
+                $presentation = ResolvePresentationSettingsAction::run(
                     instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
                     typeDefaults: is_array($typeMeta['presentation'] ?? null) ? $typeMeta['presentation'] : [],
                 );

@@ -7,11 +7,13 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\LayoutBuilder\Contracts\WidgetAssetReferenceRepointer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class RepointWidgetAssetReferencesAction implements WidgetAssetReferenceRepointer
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(Model $asset, int|string $fromAssetId, int|string $toAssetId): int
     {

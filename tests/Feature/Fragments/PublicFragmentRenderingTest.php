@@ -76,7 +76,12 @@ it('revokes stale widget content and accepts its replacement reference', functio
 
     expect(RenderPublicFragmentAction::run($fixture['reference']))->toBeNull();
 
-    bindPublicFragmentFrontendContext($fixture);
+    bindPublicFragmentFrontendContext([
+        'language' => $fixture['language'],
+        'site' => $fixture['site'],
+        'layout' => $fixture['layout'],
+        'page' => $fixture['page'],
+    ]);
     $replacement = BuildLayoutBuilderFragmentReferenceAction::run('main', 1, $fixture['widget']);
 
     expect($replacement)->toBeString()
@@ -115,7 +120,7 @@ it('returns the same generic 404 without cache headers for every invalid referen
 
         $response->assertNotFound()
             ->assertHeaderMissing('X-Robots-Tag');
-        expect($response->headers->get('Cache-Control'))->not->toContain('public');
+        expect($response->baseResponse->headers->get('Cache-Control'))->not->toContain('public');
 
         $expectedBody ??= $response->getContent();
         expect($response->getContent())->toBe($expectedBody);
@@ -184,13 +189,34 @@ function publicFragmentFixture(string $html): array
     });
     app()->tag('test.public-fragment-payload-contributor', PublicLayoutWidgetPayloadContributor::TAG);
 
-    $fixture = compact('language', 'site', 'layout', 'page', 'widget');
-    bindPublicFragmentFrontendContext($fixture);
+    bindPublicFragmentFrontendContext([
+        'language' => $language,
+        'site' => $site,
+        'layout' => $layout,
+        'page' => $page,
+    ]);
     $reference = BuildLayoutBuilderFragmentReferenceAction::run('main', 1, $widget);
 
-    expect($reference)->toBeString();
+    if (! is_string($reference)) {
+        throw new RuntimeException('Expected the public fragment reference builder to return a string.');
+    }
 
-    return ['reference' => $reference, ...$fixture];
+    if (! $language instanceof Language
+        || ! $site instanceof Site
+        || ! $layout instanceof Layout
+        || ! $page instanceof Page
+        || ! $widget instanceof Widget) {
+        throw new RuntimeException('Expected public fragment factories to return their declared model types.');
+    }
+
+    return [
+        'reference' => $reference,
+        'language' => $language,
+        'site' => $site,
+        'layout' => $layout,
+        'page' => $page,
+        'widget' => $widget,
+    ];
 }
 
 /**

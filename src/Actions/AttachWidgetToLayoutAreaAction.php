@@ -8,6 +8,7 @@ use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use InvalidArgumentException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class AttachWidgetToLayoutAreaAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(private readonly LayoutAreaRegistry $areas) {}

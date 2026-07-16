@@ -16,10 +16,12 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use JsonException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final readonly class RebuildPublicWidgetSnapshotsAction
 {
+    use AsFake;
     use AsObject;
 
     private const int MAX_CURRENT_CREATE_ATTEMPTS = 3;

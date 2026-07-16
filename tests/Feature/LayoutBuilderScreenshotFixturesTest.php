@@ -72,6 +72,33 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         $this->get('/screenshot-fixtures/layout-builder/missing')->assertNotFound();
     }
 
+    public function test_it_renders_bounded_widget_editor_and_public_screenshot_fixtures(): void
+    {
+        foreach (array_keys(widgetScreenshotFixtureDefinitions()) as $widget) {
+            $editorResponse = $this->get(sprintf('/screenshot-fixtures/widgets/%s/editor', $widget));
+
+            self::assertSame(200, $editorResponse->getStatusCode(), $widget . ' editor fixture');
+
+            $editorResponse
+                ->assertSee('data-widget-screenshot-fixture="editor"', false);
+
+            $publicResponse = $this->get(sprintf('/screenshot-fixtures/widgets/%s/public', $widget));
+
+            self::assertSame(200, $publicResponse->getStatusCode(), $widget . ' public fixture');
+
+            $publicHtml = (string) $publicResponse
+                ->assertSee('data-widget-screenshot-fixture="public"', false)
+                ->getContent();
+
+            self::assertStringNotContainsString('wire:', $publicHtml);
+            self::assertStringNotContainsString('filament', $publicHtml);
+            self::assertStringNotContainsString('signed', $publicHtml);
+        }
+
+        $this->get('/screenshot-fixtures/widgets/not-a-widget/public')->assertNotFound();
+        $this->get('/screenshot-fixtures/widgets/youtube/unknown')->assertNotFound();
+    }
+
     #[Override]
     protected function getEnvironmentSetUp(mixed $app): void
     {
@@ -95,6 +122,11 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             require dirname(__DIR__, 4) . '/workbench/routes/screenshot-fixtures.php';
         }
 
+        if (! function_exists('widgetScreenshotFixtureDefinitions')) {
+            require dirname(__DIR__, 4) . '/workbench/routes/screenshot-fixtures-widgets.php';
+        }
+
         registerLayoutBuilderScreenshotFixtureRoutes();
+        registerWidgetScreenshotFixtureRoutes();
     }
 }

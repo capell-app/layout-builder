@@ -37,7 +37,7 @@ it('extracts layout widget content graph dependencies', function (): void {
         ],
     ]);
 
-    $edges = (new BuildContentGraphForModelAction)->handle($layout)->edges;
+    $edges = BuildContentGraphForModelAction::run($layout)->edges;
 
     expect(layoutBuilderContentGraphHasEdge($edges, LAYOUT_BUILDER_USES_LAYOUT_BLOCK, Widget::class, $widget->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
 });
@@ -48,7 +48,7 @@ it('extracts widget media and default asset dependencies', function (): void {
     $backgroundImage = Media::factory()->model($widget)->collection(MediaCollectionEnum::BackgroundImage)->create();
     $widgetAsset = WidgetAsset::factory()->widget($widget)->create();
 
-    $edges = (new BuildContentGraphForModelAction)->handle($widget)->edges;
+    $edges = BuildContentGraphForModelAction::run($widget)->edges;
 
     expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $image->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $backgroundImage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
@@ -71,7 +71,7 @@ it('extracts widget asset page links from pageable asset and linked page referen
             ],
         ]);
 
-    $edges = (new BuildContentGraphForModelAction)->handle($widgetAsset)->edges;
+    $edges = BuildContentGraphForModelAction::run($widgetAsset)->edges;
 
     expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::LinksToPage, Page::class, $pageablePage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::LinksToPage, Page::class, $assetPage->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
@@ -89,7 +89,7 @@ it('extracts widget asset widget and media asset dependencies', function (): voi
             'asset_id' => (string) $media->getKey(),
         ]);
 
-    $edges = (new BuildContentGraphForModelAction)->handle($widgetAsset)->edges;
+    $edges = BuildContentGraphForModelAction::run($widgetAsset)->edges;
 
     expect(layoutBuilderContentGraphHasEdge($edges, LAYOUT_BUILDER_USES_LAYOUT_BLOCK, Widget::class, $widget->id, ContentGraphEdgeStrength::Strong))->toBeTrue()
         ->and(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, $media->id, ContentGraphEdgeStrength::Strong))->toBeTrue();
@@ -139,8 +139,8 @@ it('uses the registered page and layout extension extractors and deduplicates th
             fn (object $extractor): bool => $extractor instanceof LayoutWidgetContentGraphExtractor,
         ))->toBeTrue();
 
-    $pageEdges = (new BuildContentGraphForModelAction)->handle($page)->edges;
-    $layoutEdges = (new BuildContentGraphForModelAction)->handle($layout)->edges;
+    $pageEdges = BuildContentGraphForModelAction::run($page)->edges;
+    $layoutEdges = BuildContentGraphForModelAction::run($layout)->edges;
 
     foreach ([$pageEdges, $layoutEdges] as $edges) {
         expect(layoutBuilderContentGraphHasEdge($edges, ContentGraphEdgeKind::UsesMedia, Media::class, (int) $media->getKey(), ContentGraphEdgeStrength::Strong))->toBeTrue()

@@ -9,7 +9,8 @@ use Capell\LayoutBuilder\Jobs\ApplyLayoutBulkChangeRunJob;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Illuminate\Support\Facades\Date;
 use LogicException;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
 /**
@@ -17,7 +18,8 @@ use RuntimeException;
  */
 final class QueueLayoutBulkChangeRunAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(LayoutBulkChangeRun $run, ?int $actorId = null): LayoutBulkChangeRun
     {

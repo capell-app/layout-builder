@@ -6,11 +6,13 @@ namespace Capell\LayoutBuilder\Actions\Mutations;
 
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutMutationHistoryData;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class PushLayoutMutationSnapshotAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public const int MAX_HISTORY_DEPTH = 20;
 

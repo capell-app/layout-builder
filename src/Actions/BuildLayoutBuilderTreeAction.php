@@ -10,10 +10,12 @@ use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeWidgetData;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BuildLayoutBuilderTreeAction
 {
+    use AsFake;
     use AsObject;
 
     /**

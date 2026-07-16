@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Enums\LayoutPreviewStatusEnum;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewSignature;
 use Illuminate\Support\Facades\Storage;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class InvalidateLayoutPreviewImageAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Layout $layout, bool $force = false): bool

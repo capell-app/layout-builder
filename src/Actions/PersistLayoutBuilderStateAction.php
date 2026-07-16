@@ -13,11 +13,13 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use LogicException;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class PersistLayoutBuilderStateAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * @param  array<array-key, mixed>  $containers

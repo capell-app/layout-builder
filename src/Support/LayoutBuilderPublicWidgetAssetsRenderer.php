@@ -12,7 +12,6 @@ use Capell\Core\Models\Translation;
 use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentContentVersionAction;
 use Capell\Frontend\Actions\RenderRenderableAction;
 use Capell\Frontend\Actions\ResolveDeferredFragmentPlaceholderDataAction;
-use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
 use Capell\Frontend\Support\Fragments\DeferredFragmentPlaceholderData;
@@ -98,7 +97,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             return collect();
         }
 
-        return $this->assets->handle($widget, $page, $language, $containerKey, $occurrence);
+        return ResolvePublicWidgetAssetsAction::run($widget, $page, $language, $containerKey, $occurrence);
     }
 
     /**
@@ -190,7 +189,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             pageableId: $this->scalarKey($page),
             siteId: $this->scalarKey($site),
             languageId: $this->scalarKey($language),
-            contentVersion: ResolvePublicFragmentContentVersionAction::make()->handle(
+            contentVersion: ResolvePublicFragmentContentVersionAction::run(
                 $page,
                 $site,
                 $language,
@@ -199,10 +198,30 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             ),
             ownerContext: $ownerContext,
         );
-        $token = resolve(PublicFragmentReferenceCodec::class)->encode($reference);
         $url = $registry->url($reference);
 
-        return ResolveDeferredFragmentPlaceholderDataAction::run($meta, $token, $url);
+        return ResolveDeferredFragmentPlaceholderDataAction::run(
+            $meta,
+            $this->fragmentCacheIdentity($reference),
+            $url,
+        );
+    }
+
+    private function fragmentCacheIdentity(PublicFragmentReferenceData $reference): string
+    {
+        $ownerContext = $reference->ownerContext;
+        ksort($ownerContext);
+
+        return json_encode([
+            'owner' => $reference->owner,
+            'formatVersion' => $reference->formatVersion,
+            'pageableType' => $reference->pageableType,
+            'pageableId' => $reference->pageableId,
+            'siteId' => $reference->siteId,
+            'languageId' => $reference->languageId,
+            'contentVersion' => $reference->contentVersion,
+            'ownerContext' => $ownerContext,
+        ], JSON_THROW_ON_ERROR);
     }
 
     private function assetVersion(Model $asset, Language $language): string

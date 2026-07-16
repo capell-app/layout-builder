@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class AnalyzeLayoutHealthAction
 {
+    use AsFake;
     use AsObject;
 
     /**

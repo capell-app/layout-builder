@@ -10,10 +10,12 @@ use Capell\LayoutBuilder\Enums\LayoutPresetMode;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Illuminate\Support\Facades\DB;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class SyncLayoutPresetUsagesAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Layout $layout): void

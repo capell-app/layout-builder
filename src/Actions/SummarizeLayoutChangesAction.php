@@ -6,11 +6,13 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutChangeData;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class SummarizeLayoutChangesAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * @return array<int, LayoutChangeData>

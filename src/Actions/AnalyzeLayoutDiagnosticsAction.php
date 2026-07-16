@@ -10,11 +10,13 @@ use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class AnalyzeLayoutDiagnosticsAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * @return array<int, LayoutDiagnosticData>

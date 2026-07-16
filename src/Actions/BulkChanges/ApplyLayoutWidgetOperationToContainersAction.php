@@ -7,14 +7,16 @@ namespace Capell\LayoutBuilder\Actions\BulkChanges;
 use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationData;
 use Capell\LayoutBuilder\Data\LayoutBulkWidgetOperationResultData;
 use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
  * @method static LayoutBulkWidgetOperationResultData run(array<string, mixed> $containers, LayoutBulkWidgetOperationData $operation)
  */
 final class ApplyLayoutWidgetOperationToContainersAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     private const string MOVE_ID = '_bulk_change_move_id';
 

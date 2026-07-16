@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Data\LayoutPresetData;
 use Capell\LayoutBuilder\Support\LayoutPresets\LayoutPresetRegistry;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -18,6 +19,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class ApplyStarterLayoutPresetAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(
@@ -29,7 +31,7 @@ final class ApplyStarterLayoutPresetAction
     {
         $preset = $this->findPreset($presetKey);
 
-        return $this->normalizeState->handle(new LayoutBuilderStateData(
+        return NormalizeLayoutBuilderStateAction::run(new LayoutBuilderStateData(
             containers: $this->containersForPreset($preset),
             assets: [],
             originalAssets: [],

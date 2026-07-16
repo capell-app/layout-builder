@@ -7,11 +7,13 @@ namespace Capell\LayoutBuilder\Actions\Mutations;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutMutationHistoryData;
 use Capell\LayoutBuilder\Data\LayoutMutationNavigationData;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class UndoLayoutMutationSnapshotAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * @param  array<int, array<string, mixed>>  $undoSnapshots

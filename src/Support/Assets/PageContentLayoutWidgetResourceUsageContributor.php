@@ -38,6 +38,6 @@ class PageContentLayoutWidgetResourceUsageContributor implements LayoutWidgetRes
             return [];
         }
 
-        return BuildLayoutWidgetResourceUsagesAction::make()->handle($content, LayoutWidgetTarget::FrontendBlade);
+        return BuildLayoutWidgetResourceUsagesAction::run($content, LayoutWidgetTarget::FrontendBlade);
     }
 }

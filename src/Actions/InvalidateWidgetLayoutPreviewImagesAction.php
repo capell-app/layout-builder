@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Layout;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -12,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class InvalidateWidgetLayoutPreviewImagesAction
 {
+    use AsFake;
     use AsObject;
 
     /**

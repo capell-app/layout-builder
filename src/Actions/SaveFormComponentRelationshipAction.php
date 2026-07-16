@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Livewire\Component as LivewireComponent;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class SaveFormComponentRelationshipAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Component&CanEntangleWithSingularRelationships $component, LivewireComponent&HasSchemas $livewire): void

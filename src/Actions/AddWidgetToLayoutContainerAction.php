@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Models\Widget;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
@@ -14,6 +15,7 @@ use RuntimeException;
  */
 class AddWidgetToLayoutContainerAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Widget $widget, Layout $layout, string $container, bool $skipExists = false): void

@@ -143,14 +143,23 @@ it('renders deferred placeholders before renderable dispatch', function (): void
         containerKey: 'main',
         widgetAssets: collect([$widgetAsset]),
     );
+    $secondHtml = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetAssets: collect([$widgetAsset]),
+    );
 
     $assetKey = $asset->getKey();
     $assetIdentifier = is_scalar($assetKey) ? (string) $assetKey : '';
+    preg_match('/data-deferred-fragment-key="([a-f0-9]{64})"/', $html, $firstCacheKey);
+    preg_match('/data-deferred-fragment-key="([a-f0-9]{64})"/', $secondHtml, $secondCacheKey);
 
     expect($html)->toContain('data-deferred-fragment')
         ->and($html)->toContain('data-deferred-fragment-url="/deferred-fragments/' . $assetIdentifier . '"')
         ->and($html)->toContain('data-deferred-fragment-strategy="idle"')
-        ->and($html)->not->toContain('Deferred Asset');
+        ->and($html)->not->toContain('Deferred Asset')
+        ->and($firstCacheKey[1] ?? null)->not->toBeNull()
+        ->and($secondCacheKey[1] ?? null)->toBe($firstCacheKey[1] ?? null);
 });
 
 it('renders the asset normally when a deferred fragment has no public url', function (): void {

@@ -8,11 +8,13 @@ use Capell\Admin\Support\SiteScope;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ScopeLayoutBulkChangeQueryForActorAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     /**
      * A null actor is reserved for the trusted CLI workflow. Web and queued

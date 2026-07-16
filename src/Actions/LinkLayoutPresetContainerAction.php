@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Data\LayoutPresetLinkData;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -12,6 +13,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class LinkLayoutPresetContainerAction
 {
+    use AsFake;
     use AsObject;
 
     /**

@@ -11,12 +11,14 @@ use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsActio
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\ResolvePublicWidgetSnapshotAction;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotResourceIds;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class RenderLazyLayoutWidgetAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(
@@ -30,7 +32,7 @@ class RenderLazyLayoutWidgetAction
     public function handle(string $reference): ?Response
     {
         try {
-            $resolved = $this->snapshotResolver->handle($reference);
+            $resolved = ResolvePublicWidgetSnapshotAction::run($reference);
             if ($resolved === null) {
                 return null;
             }

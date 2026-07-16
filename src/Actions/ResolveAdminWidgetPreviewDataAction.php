@@ -11,11 +11,13 @@ use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 final class ResolveAdminWidgetPreviewDataAction
 {
+    use AsFake;
     use AsObject;
 
     /**

@@ -40,7 +40,7 @@ final readonly class ResolvePublicWidgetSnapshotAction
             return null;
         }
 
-        $context = $this->contextRestorer->handle([
+        $context = RestoreWidgetInteractionContextAction::run([
             'version' => 1,
             'purpose' => 'widget-interaction',
             'site_id' => $snapshot->site_id,

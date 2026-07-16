@@ -356,7 +356,7 @@ return [
     'results' => 'Results',
     'reusable_section' => 'Reusable section',
     'responsive_grid_rows_helper' => 'Leave empty to show all items.',
-    'responsive_layout_pattern_helper' => 'Choose the rendering pattern; breakpoint and carousel details are handled by the theme.',
+    'responsive_layout_pattern_helper' => 'Inherit the theme default or override this widget with a grid, carousel, or desktop-grid/mobile-carousel pattern.',
     'results_spacing_help' => 'Set the spacing between the items',
     'review_required' => 'Review required',
     'reset_role_permissions_description' => "Replace this role's permissions with Capell's current default set for the role.",

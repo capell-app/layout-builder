@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
@@ -21,6 +22,7 @@ use Throwable;
  */
 final class RenderAdminLayoutPreviewAction
 {
+    use AsFake;
     use AsObject;
 
     /**

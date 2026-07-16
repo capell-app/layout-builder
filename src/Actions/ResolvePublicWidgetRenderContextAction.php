@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Data\PublicWidgetRenderContextData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class ResolvePublicWidgetRenderContextAction
 {
+    use AsFake;
     use AsObject;
 
     /**
@@ -40,7 +42,7 @@ final class ResolvePublicWidgetRenderContextAction
         $blueprintMeta = $blueprint instanceof Blueprint && is_array($blueprint->meta) ? $blueprint->meta : [];
         $widgetReference = null;
 
-        $presentation = resolve(ResolvePresentationSettingsAction::class)->handle(
+        $presentation = ResolvePresentationSettingsAction::run(
             instanceSettings: is_array($widgetMeta['presentation'] ?? null) ? $widgetMeta['presentation'] : [],
             typeDefaults: is_array($blueprintMeta['presentation'] ?? null) ? $blueprintMeta['presentation'] : [],
         );
@@ -85,7 +87,7 @@ final class ResolvePublicWidgetRenderContextAction
             isLazyFragment: $isLazyFragment,
             widgetReference: $widgetReference,
             resourcePublicIds: $this->resourcePublicIds($widget, $widgetData, $containerKey, $occurrence, $widgetMeta),
-            interactions: resolve(ResolveInteractionTriggersAction::class)->handle(
+            interactions: ResolveInteractionTriggersAction::run(
                 instanceTriggers: $instanceInteractions,
                 typeDefaultTriggers: $typeDefaultInteractions,
             ),

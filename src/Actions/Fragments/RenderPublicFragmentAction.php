@@ -22,11 +22,13 @@ use Capell\LayoutBuilder\Fragments\LayoutBuilderFragmentUrlResolver;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
 class RenderPublicFragmentAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(string $reference): ?string
@@ -48,7 +50,7 @@ class RenderPublicFragmentAction
             return null;
         }
 
-        $context = ResolvePublicFragmentContextAction::make()->handle($decoded);
+        $context = ResolvePublicFragmentContextAction::run($decoded);
         $page = $context->page;
         $layout = $page->getRelationValue('layout');
         $containerKey = $this->stringValue($decoded->ownerContext['containerKey'] ?? null);
@@ -75,7 +77,7 @@ class RenderPublicFragmentAction
         if (! $widget instanceof Widget
             || ! hash_equals(
                 $widgetVersion,
-                ResolveLayoutBuilderFragmentWidgetVersionAction::make()->handle(
+                ResolveLayoutBuilderFragmentWidgetVersionAction::run(
                     $widget,
                     $page,
                     $context->language,

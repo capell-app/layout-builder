@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Models\Widget;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -13,6 +14,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class InvalidateTypeLayoutPreviewImagesAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Blueprint $type): int

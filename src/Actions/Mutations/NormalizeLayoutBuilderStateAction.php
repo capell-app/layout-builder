@@ -7,11 +7,13 @@ namespace Capell\LayoutBuilder\Actions\Mutations;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class NormalizeLayoutBuilderStateAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(LayoutBuilderStateData $state): LayoutMutationResultData
     {

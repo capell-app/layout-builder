@@ -9,6 +9,7 @@ use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class HeroWidgetHasPrimaryHeadingAction
 {
+    use AsFake;
     use AsObject;
 
     private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';

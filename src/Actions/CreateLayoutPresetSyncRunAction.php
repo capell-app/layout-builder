@@ -13,10 +13,12 @@ use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use LogicException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class CreateLayoutPresetSyncRunAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(LayoutPreset $preset, ?LayoutPresetUsage $excludedUsage = null, ?int $initiatedBy = null): LayoutPresetSyncRun

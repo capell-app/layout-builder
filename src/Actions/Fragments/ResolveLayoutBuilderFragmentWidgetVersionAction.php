@@ -10,10 +10,12 @@ use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Model;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ResolveLayoutBuilderFragmentWidgetVersionAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(

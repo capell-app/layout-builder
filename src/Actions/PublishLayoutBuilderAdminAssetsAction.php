@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Illuminate\Filesystem\Filesystem;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 use RuntimeException;
 
@@ -13,6 +14,7 @@ use RuntimeException;
  */
 final class PublishLayoutBuilderAdminAssetsAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(

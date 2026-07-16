@@ -43,6 +43,9 @@ Screenshot contract: `docs/screenshots.json`.
 - Layout Builder add container action (admin, required).
 - Layout Builder edit widget action (admin, required).
 - Layout Builder edit container action (admin, required).
+- Layout Builder active-theme container settings (admin, required).
+- Layout Builder responsive padding controls on mobile (admin, required).
+- Layout Builder active-theme container settings on mobile (admin, required).
 - Layout Builder responsive preview (admin, optional).
 - Layout Builder tree selection (admin, optional).
 - Layout Builder preset action fixture (frontend, optional).
@@ -65,10 +68,10 @@ Screenshot contract: `docs/screenshots.json`.
 - Filament classes: `CreateWidgetAction`, `ActionsRepeater`, `AlignSelect`, `AssetTypeSelect`, `AssetsRepeater`, `BackgroundSchema`, `BorderSelect`, `CarouselSettingsSchema`, `ColorSchemeComponent`, `ColumnInput`, `ContainerWidthSelect`, `CustomColorInput`, `and 83 more`.
 - Livewire components: `AuthorizesLayoutBuilderAccess`, `HasLayoutActions`, `ManagesAssets`, `ManagesContainers`, `ManagesLayoutBuilderState`, `ManagesWidgets`, `LayoutBuilder`, `ModalTableSelect`, `LayoutBuilderActionFactory`.
 - Policies: `LayoutPresetPolicy`.
-- Extension contracts: `LayoutWidgetResourceUsageContributor`, `PublicLayoutWidgetAssetsRenderer`, `LayoutContainerSchemaExtender`, `WidgetAssetSchemaExtender`, `WidgetSchemaExtender`, `LayoutContentGroupContributor`, `LayoutSidebarWidgetContributor`, `PublicLayoutWidgetPayloadContributor`, `PublicLayoutWidgetPayloadResolver`, `WidgetAssetReferenceRepointer`, `WidgetExtensionBatchPayloadResolver`, `WidgetExtensionDependencyResolver`, `and 2 more`.
+- Extension contracts: `LayoutWidgetResourceUsageContributor`, `PublicLayoutWidgetAssetsRenderer`, `LayoutContainerSchemaExtender`, `WidgetAssetSchemaExtender`, `WidgetSchemaExtender`, `LayoutContainerThemePresentationProjector`, `LayoutContentGroupContributor`, `LayoutSidebarWidgetContributor`, `PublicLayoutWidgetPayloadContributor`, `PublicLayoutWidgetPayloadResolver`, `WidgetAssetReferenceRepointer`, `WidgetExtensionBatchPayloadResolver`, `and 3 more`.
 - Listeners: `AfterRecordSaved`, `LayoutLoaded`, `MaintainPublicWidgetSnapshotsListener`, `SiteTreeRebuilt`, `TypeValidated`.
-- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 69 more`.
-- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `LayoutWidgetResourceUsageData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `and 38 more`.
+- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 75 more`.
+- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `LayoutWidgetResourceUsageData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `and 41 more`.
 - Jobs: `ApplyLayoutBulkChangeRunJob`, `SyncLinkedLayoutPresetJob`.
 - Command signatures: `capell:layout-builder-install`, `capell:layout-builder:prune-bulk-change-runs`.
 - Manifest action API: `install: Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction`, `pruneLayoutBulkChangeRuns: Capell\LayoutBuilder\Actions\PruneLayoutBulkChangeRunsAction`, `setup: Capell\LayoutBuilder\Actions\SetupLayoutBuilderPackageAction`.

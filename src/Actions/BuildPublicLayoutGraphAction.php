@@ -18,6 +18,7 @@ use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -25,6 +26,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class BuildPublicLayoutGraphAction
 {
+    use AsFake;
     use AsObject;
 
     /**

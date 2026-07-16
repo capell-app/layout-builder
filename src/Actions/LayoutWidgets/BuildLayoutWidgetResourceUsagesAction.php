@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class BuildLayoutWidgetResourceUsagesAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(
@@ -113,7 +115,7 @@ class BuildLayoutWidgetResourceUsagesAction
                     $instancePresentation = Arr::get($block, 'data.__capell.presentation');
                     $instancePresentation = is_array($instancePresentation) ? $instancePresentation : [];
                     $instancePresentation['loading_strategy'] = $overrides[$resourceGroup]->value;
-                    $presentation = ResolvePresentationSettingsAction::make()->handle(
+                    $presentation = ResolvePresentationSettingsAction::run(
                         $instancePresentation,
                         $defaultPresentationSettings,
                     );

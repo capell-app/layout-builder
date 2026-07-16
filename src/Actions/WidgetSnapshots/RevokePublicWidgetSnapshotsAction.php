@@ -9,10 +9,12 @@ use Capell\Core\Facades\CapellCore;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Illuminate\Database\Eloquent\Model;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class RevokePublicWidgetSnapshotsAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Pageable $page): int

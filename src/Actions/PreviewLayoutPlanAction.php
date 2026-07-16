@@ -7,10 +7,12 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\LayoutBuilder\Data\LayoutPlanData;
 use Capell\LayoutBuilder\Data\LayoutPlanResultData;
 use Capell\LayoutBuilder\Support\LayoutPresets\LayoutPresetRegistry;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class PreviewLayoutPlanAction
 {
+    use AsFake;
     use AsObject;
 
     /**

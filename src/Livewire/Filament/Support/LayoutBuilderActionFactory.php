@@ -1449,8 +1449,8 @@ final class LayoutBuilderActionFactory
             saveRelationships: fn (Model $draft): null => $this->saveDraftableAssetRelationData($draft, $assetData),
         );
 
-        $resultWorkspace = $result->workspace ?? null;
-        $resultRecord = $result->record ?? null;
+        $resultWorkspace = $result->workspace;
+        $resultRecord = $result->record;
 
         if (! $this->isWorkspace($resultWorkspace) || ! $resultRecord instanceof Model) {
             return false;
@@ -1475,8 +1475,12 @@ final class LayoutBuilderActionFactory
             $this->livewire->dispatch('workspace-changed', workspaceId: $resultWorkspace->id);
         }
 
+        $workspaceName = $resultWorkspace->getAttribute('name');
+
         Notification::make('saved-asset-draft')
-            ->title(__('capell-layout-builder::message.asset_draft_saved', ['workspace' => (string) $resultWorkspace->getAttribute('name')]))
+            ->title(__('capell-layout-builder::message.asset_draft_saved', [
+                'workspace' => is_string($workspaceName) ? $workspaceName : '',
+            ]))
             ->success()
             ->send();
 

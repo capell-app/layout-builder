@@ -9,11 +9,13 @@ use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutFragmentData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Illuminate\Support\Str;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class PasteLayoutFragmentAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function handle(
         LayoutBuilderStateData $state,

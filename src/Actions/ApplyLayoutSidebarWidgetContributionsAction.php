@@ -8,6 +8,7 @@ use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Data\LayoutSidebarWidgetData;
 use Capell\LayoutBuilder\Models\Widget;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class ApplyLayoutSidebarWidgetContributionsAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Layout $layout): void

@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Models\Widget;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class WidgetIsSlotAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Widget $widget): bool

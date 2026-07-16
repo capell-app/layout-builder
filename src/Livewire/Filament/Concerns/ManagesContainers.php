@@ -65,7 +65,7 @@ trait ManagesContainers
         $this->assertCanUpdateLayout();
         $this->assertContainerIsDetached($containerKey);
 
-        $result = resolve(ReorderLayoutContainerAction::class)->handle(
+        $result = ReorderLayoutContainerAction::run(
             state: LayoutBuilderStateData::fromLivewire($this->containers, $this->assets, $this->originalAssets, $this->selectedRecords),
             containerKey: $containerKey,
             position: $position,

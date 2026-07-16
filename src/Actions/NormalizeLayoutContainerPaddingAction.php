@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Enums\WidgetSpacingValue;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class NormalizeLayoutContainerPaddingAction
 {
+    use AsFake;
     use AsObject;
 
     private const array VERTICAL_VALUES = ['sm', 'md', 'lg', 'xl'];

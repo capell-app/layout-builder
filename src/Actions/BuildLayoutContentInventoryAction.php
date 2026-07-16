@@ -13,11 +13,13 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\ContentInventory\LayoutContentInventoryGrouper;
 use Capell\LayoutBuilder\Support\ContentInventory\LayoutContentInventoryItemFactory;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BuildLayoutContentInventoryAction
 {
-    use AsAction;
+    use AsFake;
+    use AsObject;
 
     public function __construct(
         private readonly LayoutContentInventoryItemFactory $itemFactory = new LayoutContentInventoryItemFactory,

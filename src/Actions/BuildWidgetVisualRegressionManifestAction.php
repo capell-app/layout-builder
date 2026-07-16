@@ -8,6 +8,7 @@ use Capell\BlockLibrary\Data\BlockDefinitionData;
 use Capell\BlockLibrary\Data\BlockVariantData;
 use Capell\BlockLibrary\Support\BlockRegistry;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -15,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 final class BuildWidgetVisualRegressionManifestAction
 {
+    use AsFake;
     use AsObject;
 
     /**

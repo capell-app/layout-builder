@@ -35,7 +35,7 @@ final readonly class MaintainPublicWidgetSnapshotsListener
         try {
             $page = $event->page;
             if (! $page instanceof Model || $this->isNotPublic($page)) {
-                $this->revoker->handle($page);
+                RevokePublicWidgetSnapshotsAction::run($page);
 
                 return;
             }
@@ -58,7 +58,7 @@ final readonly class MaintainPublicWidgetSnapshotsListener
                 }
 
                 $page->setRelation('translation', $translation);
-                $this->rebuilder->handle(new FrontendRenderContextData($page, $site, $language, $layout, $theme));
+                RebuildPublicWidgetSnapshotsAction::run(new FrontendRenderContextData($page, $site, $language, $layout, $theme));
             }
         } catch (Throwable $throwable) {
             // Snapshot generation is auxiliary. Publishing ordinary public HTML
@@ -74,7 +74,7 @@ final readonly class MaintainPublicWidgetSnapshotsListener
         }
 
         try {
-            $this->revoker->handle($event->page);
+            RevokePublicWidgetSnapshotsAction::run($event->page);
         } catch (Throwable $throwable) {
             report($throwable);
         }

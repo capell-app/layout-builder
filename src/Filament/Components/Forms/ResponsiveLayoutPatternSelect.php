@@ -16,8 +16,8 @@ class ResponsiveLayoutPatternSelect extends Select
         $this->label(__('capell-layout-builder::form.responsive_layout_pattern'))
             ->helperText(__('capell-layout-builder::generic.responsive_layout_pattern_helper'))
             ->options(ResponsiveLayoutPattern::class)
-            ->default(ResponsiveLayoutPattern::Grid->value)
+            ->placeholder(__('capell-layout-builder::form.responsive_layout_pattern_inherit'))
             ->live()
-            ->selectablePlaceholder(false);
+            ->selectablePlaceholder();
     }
 }

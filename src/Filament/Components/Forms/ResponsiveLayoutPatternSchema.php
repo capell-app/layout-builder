@@ -42,7 +42,7 @@ class ResponsiveLayoutPatternSchema
                         ->helperText(__('capell-layout-builder::generic.responsive_grid_rows_helper'))
                         ->placeholder(__('capell-admin::generic.none')),
                 ])
-                ->visible(fn (Get $get): bool => self::pattern($get)->usesDesktopGrid()),
+                ->visible(fn (Get $get): bool => self::inheritsThemePattern($get) || self::pattern($get)->usesDesktopGrid()),
             Fieldset::make(__('capell-layout-builder::form.responsive_carousel_options'))
                 ->columnSpanFull()
                 ->columns(['default' => 2, 'lg' => 4])
@@ -109,12 +109,17 @@ class ResponsiveLayoutPatternSchema
                         ->default(300)
                         ->placeholder('300'),
                 ])
-                ->visible(fn (Get $get): bool => self::pattern($get)->usesMobileCarousel()),
+                ->visible(fn (Get $get): bool => self::inheritsThemePattern($get) || self::pattern($get)->usesMobileCarousel()),
         ];
     }
 
     private static function pattern(Get $get): ResponsiveLayoutPattern
     {
         return ResponsiveLayoutPattern::fromNullable($get('responsive_layout_pattern'));
+    }
+
+    private static function inheritsThemePattern(Get $get): bool
+    {
+        return blank($get('responsive_layout_pattern'));
     }
 }

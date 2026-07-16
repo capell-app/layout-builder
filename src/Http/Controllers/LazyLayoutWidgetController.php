@@ -21,7 +21,7 @@ class LazyLayoutWidgetController extends Controller
             ]);
         }
 
-        return RenderLazyLayoutWidgetAction::make()->handle($reference) ?? response('', Response::HTTP_NOT_FOUND, [
+        return RenderLazyLayoutWidgetAction::run($reference) ?? response('', Response::HTTP_NOT_FOUND, [
             'Cache-Control' => 'private, no-store',
             'X-Robots-Tag' => 'noindex, nofollow',
         ]);

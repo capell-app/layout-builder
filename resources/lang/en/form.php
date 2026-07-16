@@ -320,6 +320,7 @@ return [
     'responsive_layout_pattern_carousel' => 'Carousel',
     'responsive_layout_pattern_desktop_grid_mobile_carousel' => 'Desktop grid, mobile carousel',
     'responsive_layout_pattern_grid' => 'Grid',
+    'responsive_layout_pattern_inherit' => 'Use theme default',
     'responsive_grid_lg_columns' => 'Desktop columns',
     'responsive_grid_md_columns' => 'Tablet columns',
     'responsive_grid_options' => 'Responsive grid',

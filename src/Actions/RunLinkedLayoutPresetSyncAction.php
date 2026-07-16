@@ -21,11 +21,13 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /** @method static void run(LayoutPresetSyncRun $run) */
 final class RunLinkedLayoutPresetSyncAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(LayoutPresetSyncRun $run): void

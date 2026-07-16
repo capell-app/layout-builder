@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Illuminate\Support\Facades\Storage;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
@@ -14,6 +15,7 @@ use Lorisleiva\Actions\Concerns\AsObject;
  */
 class GetLayoutPreviewImageUrlAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Layout $layout): ?string

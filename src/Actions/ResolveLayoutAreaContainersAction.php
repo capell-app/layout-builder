@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ResolveLayoutAreaContainersAction
 {
+    use AsFake;
     use AsObject;
 
     public function __construct(private readonly LayoutAreaRegistry $areas) {}

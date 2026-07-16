@@ -10,10 +10,12 @@ use Capell\BlockLibrary\Support\NullBlockDefinition;
 use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class ResolveWidgetPresentationDataAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(Widget $widget, ?string $themeKey = null): PublicBlockPresentationData

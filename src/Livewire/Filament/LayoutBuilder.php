@@ -329,7 +329,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         try {
-            $this->layout = resolve(PersistLayoutBuilderStateAction::class)->handle(
+            $this->layout = PersistLayoutBuilderStateAction::run(
                 layout: $this->layout,
                 page: $this->page instanceof Model ? $this->page : null,
                 containers: $this->containers ?? [],
@@ -855,7 +855,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         if (! $this->site instanceof Site) {
             throw new LogicException('A site is required to create a linked layout preset.');
         }
-        $preset = resolve(CreateLinkedLayoutPresetAction::class)->handle(
+        $preset = CreateLinkedLayoutPresetAction::run(
             layout: $this->layout,
             site: $this->site,
             containerKeys: $containerKeys,
@@ -920,7 +920,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        $this->containers[$containerKey] = resolve(StripLayoutPresetLinkAction::class)->handle($container);
+        $this->containers[$containerKey] = StripLayoutPresetLinkAction::run($container);
         $this->layoutUpdated();
     }
 
@@ -932,7 +932,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return 0;
         }
 
-        return resolve(CountLinkedLayoutPresetUsagesAction::class)->handle($preset, $this->layout);
+        return CountLinkedLayoutPresetUsagesAction::run($preset, $this->layout);
     }
 
     /**
@@ -1061,7 +1061,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
 
         $knownContainerKeys = array_keys($this->containers ?? []);
 
-        $this->applyLayoutMutationResult(resolve(PasteLayoutFragmentAction::class)->handle(
+        $this->applyLayoutMutationResult(PasteLayoutFragmentAction::run(
             state: $this->layoutState(),
             fragment: $fragment,
             targetContainerKey: $targetContainerKey,

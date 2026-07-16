@@ -12,10 +12,12 @@ use Capell\LayoutBuilder\Enums\LayoutPresetMode;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class InsertLinkedLayoutPresetAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(LayoutBuilderStateData $state, LayoutPreset $preset, string $targetContainerKey, bool $linked = true): LayoutMutationResultData
@@ -40,7 +42,7 @@ final class InsertLinkedLayoutPresetAction
             if ($linked) {
                 $presetKey = $preset->getKey();
                 throw_unless(is_numeric($presetKey), InvalidArgumentException::class, 'Layout preset keys must be numeric.');
-                $container = resolve(LinkLayoutPresetContainerAction::class)->handle(
+                $container = LinkLayoutPresetContainerAction::run(
                     $container,
                     new LayoutPresetLinkData((int) $presetKey, $item['id'], $preset->key),
                 );

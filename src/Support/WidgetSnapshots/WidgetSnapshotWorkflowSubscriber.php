@@ -36,7 +36,7 @@ final readonly class WidgetSnapshotWorkflowSubscriber implements EventSubscriber
 
         $page = Page::query()->where('uuid', $aggregateUuid)->first();
         if ($page instanceof Page) {
-            $this->revoker->handle($page);
+            RevokePublicWidgetSnapshotsAction::run($page);
         }
     }
 

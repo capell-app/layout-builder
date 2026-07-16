@@ -16,10 +16,12 @@ use Capell\LayoutBuilder\Fragments\LayoutBuilderFragmentUrlResolver;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use LogicException;
+use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 final class BuildLayoutBuilderFragmentReferenceAction
 {
+    use AsFake;
     use AsObject;
 
     public function handle(
@@ -59,7 +61,7 @@ final class BuildLayoutBuilderFragmentReferenceAction
             pageableId: $this->scalarKey($page),
             siteId: $this->scalarKey($site),
             languageId: $this->scalarKey($language),
-            contentVersion: ResolvePublicFragmentContentVersionAction::make()->handle(
+            contentVersion: ResolvePublicFragmentContentVersionAction::run(
                 $page,
                 $site,
                 $language,
@@ -89,7 +91,7 @@ final class BuildLayoutBuilderFragmentReferenceAction
             'containerKey' => $containerKey,
             'widgetKey' => $widgetKey,
             'occurrence' => $occurrence,
-            'widgetVersion' => ResolveLayoutBuilderFragmentWidgetVersionAction::make()->handle(
+            'widgetVersion' => ResolveLayoutBuilderFragmentWidgetVersionAction::run(
                 $widget,
                 $page,
                 $language,

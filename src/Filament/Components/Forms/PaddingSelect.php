@@ -32,6 +32,6 @@ class PaddingSelect extends Select
      */
     public static function normalizeHydratedState(mixed $state): ?array
     {
-        return NormalizeLayoutContainerPaddingAction::make()->handle($state);
+        return NormalizeLayoutContainerPaddingAction::run($state);
     }
 }
