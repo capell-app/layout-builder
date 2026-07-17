@@ -10,12 +10,17 @@ use Capell\LayoutBuilder\Models\PublicWidgetSnapshot;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotFingerprint;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotLocatorCodec;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotRequestDomain;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static array{snapshot: PublicWidgetSnapshot, context: FrontendRenderContextData, widget: array<string, mixed>}|null run(string $locator) */
 final readonly class ResolvePublicWidgetSnapshotAction
 {
+    use AsFake;
+    use AsObject;
+
     public function __construct(
         private WidgetSnapshotLocatorCodec $codec,
-        private RestoreWidgetInteractionContextAction $contextRestorer,
         private WidgetSnapshotFingerprint $fingerprint,
         private WidgetSnapshotRequestDomain $requestDomain,
     ) {}

@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutMutationResultData run(LayoutBuilderStateData $state, LayoutFragmentData $fragment, string $targetContainerKey, ?int $targetIndex = null) */
 final class PasteLayoutFragmentAction
 {
     use AsFake;

@@ -24,7 +24,6 @@ class RenderLazyLayoutWidgetAction
     public function __construct(
         private readonly BuildPublicWidgetPayloadsAction $payloadBuilder,
         private readonly PublicViewQueryGuard $queryGuard,
-        private readonly ResolvePublicWidgetSnapshotAction $snapshotResolver,
         private readonly WidgetExtensionRegistry $registry,
         private readonly WidgetSnapshotResourceIds $resourceIds,
     ) {}

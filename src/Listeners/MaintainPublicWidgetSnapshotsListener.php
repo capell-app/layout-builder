@@ -21,11 +21,6 @@ use Throwable;
 
 final readonly class MaintainPublicWidgetSnapshotsListener
 {
-    public function __construct(
-        private RebuildPublicWidgetSnapshotsAction $rebuilder,
-        private RevokePublicWidgetSnapshotsAction $revoker,
-    ) {}
-
     public function handleSaved(PageSaved $event): void
     {
         if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {

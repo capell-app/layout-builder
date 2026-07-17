@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Data\LayoutContainerSchemaContextData;
 use Capell\LayoutBuilder\Filament\Components\Forms\BorderSelect;
 use Capell\LayoutBuilder\Filament\Configurators\Layouts\DefaultLayoutContainerConfigurator;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderCoverageSchemaHarness;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -129,7 +130,11 @@ it('adds active theme layout container fields and excludes other theme fields', 
             __('capell-layout-builder::generic.advanced'),
             __('capell-layout-builder::generic.theme_settings_heading', ['theme' => 'SaaS']),
         )
-        ->and(collect($themeHeaderActions)->map(fn (mixed $action): string => $action->getName())->all())
+        ->and(collect($themeHeaderActions)
+            ->filter(fn (mixed $action): bool => $action instanceof Action)
+            ->map(fn (Action $action): ?string => $action->getName())
+            ->filter(fn (?string $actionName): bool => $actionName !== null)
+            ->all())
         ->toBe(['reset_theme_settings']);
 });
 

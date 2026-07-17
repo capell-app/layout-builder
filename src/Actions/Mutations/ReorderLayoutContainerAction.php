@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutMutationResultData run(LayoutBuilderStateData $state, string $containerKey, int $position) */
 final class ReorderLayoutContainerAction
 {
     use AsFake;

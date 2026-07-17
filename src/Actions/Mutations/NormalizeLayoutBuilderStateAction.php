@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutMutationResultData run(LayoutBuilderStateData $state) */
 final class NormalizeLayoutBuilderStateAction
 {
     use AsFake;

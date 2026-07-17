@@ -18,10 +18,10 @@ it('reorders a widget and keeps related state attached', function (): void {
 
     $result = ReorderLayoutWidgetAction::run($state, 'main', 'main', 1, 0);
 
-    expect(array_column($result->state->containers['main']['widgets'], 'widget_key'))->toBe(['second', 'first'])
-        ->and($result->state->assets['main'][0][0]['asset'])->toBe('second')
-        ->and($result->state->originalAssets['main'][0][0]['original'])->toBe('second')
-        ->and($result->state->selectedRecords['main'][0])->toBe(['second-record']);
+    expect(array_column($result->state->widgets('main'), 'widget_key'))->toBe(['second', 'first'])
+        ->and($result->state->assetSlot('main', 0)[0]['asset'])->toBe('second')
+        ->and($result->state->originalAssetSlot('main', 0)[0]['original'])->toBe('second')
+        ->and($result->state->selectedRecordSlot('main', 0))->toBe(['second-record']);
 });
 
 it('moves a widget between containers and preserves empty asset slots', function (): void {
@@ -37,7 +37,7 @@ it('moves a widget between containers and preserves empty asset slots', function
 
     $result = ReorderLayoutWidgetAction::run($state, 'main', 'sidebar', 1, 1);
 
-    expect(array_column($result->state->containers['main']['widgets'], 'widget_key'))->toBe(['first'])
-        ->and(array_column($result->state->containers['sidebar']['widgets'], 'widget_key'))->toBe(['third', 'second'])
-        ->and($result->state->assets['sidebar'][1])->toBe([]);
+    expect(array_column($result->state->widgets('main'), 'widget_key'))->toBe(['first'])
+        ->and(array_column($result->state->widgets('sidebar'), 'widget_key'))->toBe(['third', 'second'])
+        ->and($result->state->assetSlot('sidebar', 1))->toBe([]);
 });

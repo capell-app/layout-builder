@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static Collection<int, WidgetAsset> run(Widget $widget, Page $page, Language $language, string $containerKey, int $occurrence) */
 final class ResolvePublicWidgetAssetsAction
 {
     use AsFake;

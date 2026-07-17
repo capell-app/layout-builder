@@ -12,6 +12,7 @@ use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\SummarizeLayoutChangesAction;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
+use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
 use Capell\LayoutBuilder\Data\LayoutDiagnosticData;
 use Capell\LayoutBuilder\Data\LayoutMutationResultData;
@@ -352,8 +353,8 @@ trait ManagesLayoutBuilderState
         $changes = SummarizeLayoutChangesAction::run($this->savedBaselineState(), $this->layoutState());
 
         $this->layoutChanges = array_map(
-            fn (mixed $change): array => is_object($change) && method_exists($change, 'toArray') ? $change->toArray() : (array) $change,
-            is_array($changes) ? $changes : [],
+            fn (LayoutChangeData $change): array => $change->toArray(),
+            $changes,
         );
     }
 

@@ -70,7 +70,7 @@ it('represents layout builder state and mutation output with typed data', functi
         ->and(LayoutBreakpoint::fromNullable('tablet'))->toBe(LayoutBreakpoint::Tablet)
         ->and($result->hasBlockingDiagnostics())->toBeFalse()
         ->and($blockingResult->hasBlockingDiagnostics())->toBeTrue()
-        ->and($result->state->containers['main']['meta']['colspan'])->toBe(12)
+        ->and($result->state->containerMeta('main')['colspan'])->toBe(12)
         ->and($stateFromLivewire->containers)->toBe([])
         ->and($stateFromLivewire->assets)->toBe(['main' => []])
         ->and($stateFromLivewire->originalAssets)->toBe([])
@@ -109,16 +109,16 @@ it('normalizes sparse widget state and clamps responsive metadata', function ():
 
     $result = NormalizeLayoutBuilderStateAction::run($state);
 
-    expect($result->state->containers['main']['meta']['colspan'])->toBe(12)
-        ->and($result->state->containers['main']['meta']['responsive'])->toBe([
+    expect($result->state->containerMeta('main')['colspan'])->toBe(12)
+        ->and($result->state->containerMeta('main')['responsive'])->toBe([
             'desktop' => ['colspan' => 8],
             'tablet' => ['colspan' => 1],
         ])
-        ->and(array_keys($result->state->assets['main']))->toBe([0, 1, 2])
-        ->and($result->state->assets['main'][1])->toBe([])
-        ->and($result->state->originalAssets['main'][1])->toBe([])
-        ->and($result->state->selectedRecords['main'][0])->toBe([])
-        ->and($result->state->selectedRecords['main'][2])->toBe(['record']);
+        ->and(array_keys($result->state->assetSlots('main')))->toBe([0, 1, 2])
+        ->and($result->state->assetSlot('main', 1))->toBe([])
+        ->and($result->state->originalAssetSlot('main', 1))->toBe([])
+        ->and($result->state->selectedRecordSlot('main', 0))->toBe([])
+        ->and($result->state->selectedRecordSlot('main', 2))->toBe(['record']);
 });
 
 it('moves layout mutation history through typed actions', function (): void {
@@ -143,14 +143,18 @@ it('moves layout mutation history through typed actions', function (): void {
     throw_unless($undoState instanceof LayoutBuilderStateData, RuntimeException::class, 'Undo state was not available.');
 
     $redo = RedoLayoutMutationSnapshotAction::run($undoState, $undo->history->undoSnapshots, $undo->history->redoSnapshots);
+    $redoState = $redo->state;
+
+    expect($redoState)->toBeInstanceOf(LayoutBuilderStateData::class);
+    throw_unless($redoState instanceof LayoutBuilderStateData, RuntimeException::class, 'Redo state was not available.');
 
     expect($history->undoSnapshots)->toHaveCount(1)
         ->and($history->redoSnapshots)->toBe([])
         ->and($undo->changed())->toBeTrue()
-        ->and($undo->state->containers['main']['widgets'][0]['widget_key'])->toBe('hero')
+        ->and($undoState->widget('main', 0)['widget_key'])->toBe('hero')
         ->and($undo->history->redoSnapshots)->toHaveCount(1)
         ->and($redo->changed())->toBeTrue()
-        ->and($redo->state->containers['main']['widgets'][0]['widget_key'])->toBe('cards');
+        ->and($redoState->widget('main', 0)['widget_key'])->toBe('cards');
 });
 
 it('caps layout mutation history snapshots and clears redo on new mutations', function (): void {
@@ -177,7 +181,9 @@ it('caps layout mutation history snapshots and clears redo on new mutations', fu
 
     $history = PushLayoutMutationSnapshotAction::run($state, $undoSnapshots);
 
+    $oldestState = LayoutBuilderStateData::fromSnapshot($history->undoSnapshots[0]);
+
     expect($history->undoSnapshots)->toHaveCount(PushLayoutMutationSnapshotAction::MAX_HISTORY_DEPTH)
-        ->and($history->undoSnapshots[0]['containers']['main']['meta']['snapshot'])->toBe(6)
+        ->and($oldestState->containerMeta('main')['snapshot'])->toBe(6)
         ->and($history->redoSnapshots)->toBe([]);
 });

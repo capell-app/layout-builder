@@ -13,17 +13,17 @@ use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/**
+ * @method static array<int, LayoutDiagnosticData> run(LayoutBuilderStateData $state, array<int, string>|null $knownWidgetKeys = null)
+ */
 final class AnalyzeLayoutDiagnosticsAction
 {
     use AsFake;
     use AsObject;
 
     /**
-     * @return array<int, LayoutDiagnosticData>
-     */
-    /**
      * @param  array<int, string>|null  $knownWidgetKeys
-     * @return array<array-key, mixed>
+     * @return array<int, LayoutDiagnosticData>
      */
     public function handle(LayoutBuilderStateData $state, ?array $knownWidgetKeys = null): array
     {

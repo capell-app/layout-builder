@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -104,6 +105,7 @@ it('rejects tampered oversized expired and revoked locators with the same generi
     } elseif ($mode === 'expired') {
         PublicWidgetSnapshot::query()->update(['expires_at' => now()->subSecond()]);
     } else {
+        throw_unless($context->page instanceof Pageable, RuntimeException::class, 'Expected a page-backed widget context.');
         RevokePublicWidgetSnapshotsAction::run($context->page);
     }
 

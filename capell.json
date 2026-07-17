@@ -217,6 +217,7 @@
         "publicSurface": {
             "routeNames": [
                 "capell-layout-builder.fragments.show",
+                "capell-layout-builder.layout-widgets.localized.show",
                 "capell-layout-builder.layout-widgets.show"
             ],
             "auth": "public",
@@ -227,7 +228,9 @@
             "throttledRoutes": []
         },
         "sensitiveData": {
-            "encryptedFields": [],
+            "encryptedFields": [
+                "Capell\\LayoutBuilder\\Models\\PublicWidgetSnapshot::$encrypted_payload"
+            ],
             "hashedTokenFields": [
                 "layout_bulk_change_runs.original_container_hash",
                 "layout_bulk_change_runs.proposed_container_hash"

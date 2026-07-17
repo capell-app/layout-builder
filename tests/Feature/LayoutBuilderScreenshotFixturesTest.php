@@ -74,19 +74,17 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 
     public function test_it_renders_bounded_widget_editor_and_public_screenshot_fixtures(): void
     {
-        foreach (array_keys(widgetScreenshotFixtureDefinitions()) as $widget) {
+        foreach (array_keys($this->widgetScreenshotFixtureDefinitions()) as $widget) {
             $editorResponse = $this->get(sprintf('/screenshot-fixtures/widgets/%s/editor', $widget));
 
-            self::assertSame(200, $editorResponse->getStatusCode(), $widget . ' editor fixture');
-
             $editorResponse
+                ->assertOk()
                 ->assertSee('data-widget-screenshot-fixture="editor"', false);
 
             $publicResponse = $this->get(sprintf('/screenshot-fixtures/widgets/%s/public', $widget));
 
-            self::assertSame(200, $publicResponse->getStatusCode(), $widget . ' public fixture');
-
             $publicHtml = (string) $publicResponse
+                ->assertOk()
                 ->assertSee('data-widget-screenshot-fixture="public"', false)
                 ->getContent();
 
@@ -126,7 +124,42 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             require dirname(__DIR__, 4) . '/workbench/routes/screenshot-fixtures-widgets.php';
         }
 
-        registerLayoutBuilderScreenshotFixtureRoutes();
-        registerWidgetScreenshotFixtureRoutes();
+        $this->registerFixtureRoutes('registerLayoutBuilderScreenshotFixtureRoutes');
+        $this->registerFixtureRoutes('registerWidgetScreenshotFixtureRoutes');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function widgetScreenshotFixtureDefinitions(): array
+    {
+        $callback = $this->fixtureCallback('widgetScreenshotFixtureDefinitions');
+
+        $definitions = $callback();
+        throw_unless(is_array($definitions), RuntimeException::class, 'Widget screenshot fixture definitions must be an array.');
+
+        $normalized = [];
+
+        foreach ($definitions as $widget => $definition) {
+            if (is_string($widget)) {
+                $normalized[$widget] = $definition;
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function registerFixtureRoutes(string $callback): void
+    {
+        $routeRegistrar = $this->fixtureCallback($callback);
+
+        $routeRegistrar();
+    }
+
+    private function fixtureCallback(string $callback): callable
+    {
+        throw_unless(is_callable($callback), RuntimeException::class, sprintf('Screenshot fixture callback [%s] is unavailable.', $callback));
+
+        return $callback;
     }
 }

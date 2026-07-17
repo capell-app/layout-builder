@@ -14,10 +14,16 @@ use Capell\Frontend\Data\FrontendContext;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Lorisleiva\Actions\Concerns\AsFake;
+use Lorisleiva\Actions\Concerns\AsObject;
 use Throwable;
 
+/** @method static FrontendRenderContextData|null run(array<string, mixed> $envelope) */
 final class RestoreWidgetInteractionContextAction
 {
+    use AsFake;
+    use AsObject;
+
     /** @param array<string, mixed> $envelope */
     public function handle(array $envelope): ?FrontendRenderContextData
     {

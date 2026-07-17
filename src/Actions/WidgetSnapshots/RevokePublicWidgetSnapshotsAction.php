@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static int run(Pageable $page) */
 final class RevokePublicWidgetSnapshotsAction
 {
     use AsFake;

@@ -16,8 +16,6 @@ use Spatie\EventSourcing\StoredEvents\ShouldBeStored;
 
 final readonly class WidgetSnapshotWorkflowSubscriber implements EventSubscriber
 {
-    public function __construct(private RevokePublicWidgetSnapshotsAction $revoker) {}
-
     public function handle(string $event, object $context): void
     {
         if (! CapellCore::isPackageInstalled(LayoutBuilderServiceProvider::$packageName)) {

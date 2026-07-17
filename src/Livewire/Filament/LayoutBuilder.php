@@ -148,12 +148,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     public ?array $savedBaselineSnapshot = null;
 
     /**
-     * @var array<array-key, mixed>
+     * @var array<int, array<string, mixed>>
      */
     public array $layoutUndoSnapshots = [];
 
     /**
-     * @var array<array-key, mixed>
+     * @var array<int, array<string, mixed>>
      */
     public array $layoutRedoSnapshots = [];
 
@@ -452,7 +452,7 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         if ($page instanceof Blueprintable) {
             $resource = GetResourceFromBlueprintAction::run($page->getBlueprint());
 
-            if (is_string($resource) && is_subclass_of($resource, Resource::class)) {
+            if (is_subclass_of($resource, Resource::class)) {
                 return $resource;
             }
         }
@@ -793,7 +793,9 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        if (! $this->site instanceof Site) {
+        $site = $this->site;
+
+        if (! $site instanceof Site) {
             Notification::make('layout-preset-site-missing')
                 ->body(__('capell-layout-builder::message.site_missing_warning'))
                 ->warning()
@@ -802,12 +804,12 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        $this->assertCanCreateLayoutPreset($this->site);
+        $this->assertCanCreateLayoutPreset($site);
 
         try {
             SaveLayoutPresetAction::run(
                 layout: $this->layout,
-                site: $this->site,
+                site: $site,
                 name: $name,
                 category: $containerKey,
                 containers: [$containerKey => $container],
@@ -1207,8 +1209,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $this->originalAssets = is_array($state['originalAssets'] ?? null) ? $state['originalAssets'] : [];
         $this->selectedRecords = is_array($state['selectedRecords'] ?? null) ? $state['selectedRecords'] : [];
         $this->savedBaselineSnapshot = is_array($state['savedBaselineSnapshot'] ?? null) ? $state['savedBaselineSnapshot'] : [];
-        $this->layoutUndoSnapshots = is_array($state['layoutUndoSnapshots'] ?? null) ? $state['layoutUndoSnapshots'] : [];
-        $this->layoutRedoSnapshots = is_array($state['layoutRedoSnapshots'] ?? null) ? $state['layoutRedoSnapshots'] : [];
+        $this->layoutUndoSnapshots = $this->normalizeLayoutMutationSnapshots($state['layoutUndoSnapshots'] ?? null);
+        $this->layoutRedoSnapshots = $this->normalizeLayoutMutationSnapshots($state['layoutRedoSnapshots'] ?? null);
         $this->layoutDiagnostics = is_array($state['layoutDiagnostics'] ?? null) ? $state['layoutDiagnostics'] : [];
         $this->layoutChanges = is_array($state['layoutChanges'] ?? null) ? $state['layoutChanges'] : [];
         $this->visualPreviewNodeMap = $this->normalizeVisualPreviewNodeMap($state['visualPreviewNodeMap'] ?? null);
@@ -1246,6 +1248,36 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         return $normalized;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeLayoutMutationSnapshots(mixed $snapshots): array
+    {
+        if (! is_array($snapshots)) {
+            return [];
+        }
+
+        $normalizedSnapshots = [];
+
+        foreach ($snapshots as $snapshot) {
+            if (! is_array($snapshot)) {
+                continue;
+            }
+
+            $normalizedSnapshot = [];
+
+            foreach ($snapshot as $key => $value) {
+                if (is_string($key)) {
+                    $normalizedSnapshot[$key] = $value;
+                }
+            }
+
+            $normalizedSnapshots[] = $normalizedSnapshot;
+        }
+
+        return $normalizedSnapshots;
     }
 
     /**

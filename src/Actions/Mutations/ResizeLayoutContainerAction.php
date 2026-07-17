@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutMutationResultData run(LayoutBuilderStateData $state, string $containerKey, int $colspan, ?LayoutBreakpoint $breakpoint) */
 final class ResizeLayoutContainerAction
 {
     use AsFake;

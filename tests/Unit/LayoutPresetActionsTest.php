@@ -90,13 +90,15 @@ it('persists site-scoped layout presets as layout-only snapshots by default', fu
     ]);
 
     $preset = SaveLayoutPresetAction::run($layout, $site, 'Feature intro');
+    $containers = layoutPresetArray($preset->snapshot['containers'] ?? null);
+    $mainWidgets = layoutPresetWidgets(layoutPresetContainer($containers, 'main'));
 
     expect($preset)->toBeInstanceOf(LayoutPreset::class)
         ->and($preset->site_id)->toBe($site->getKey())
         ->and($preset->key)->toBe('feature-intro')
         ->and($preset->scope)->toBe('layout_only')
-        ->and($preset->snapshot['containers']['main']['widgets'][0])->toHaveKeys(['widget_key', 'occurrence', 'meta'])
-        ->and($preset->snapshot['containers']['main']['widgets'][0])->not->toHaveKey('editor_only')
+        ->and($mainWidgets[0])->toHaveKeys(['widget_key', 'occurrence', 'meta'])
+        ->and($mainWidgets[0])->not->toHaveKey('editor_only')
         ->and(json_encode($preset->snapshot, JSON_THROW_ON_ERROR))->not->toContain('signed_url')
         ->and(json_encode($preset->snapshot, JSON_THROW_ON_ERROR))->not->toContain('admin_schema');
 });
@@ -126,11 +128,14 @@ it('can persist a current editor container snapshot without reading stale layout
             ],
         ],
     );
+    $containers = layoutPresetArray($preset->snapshot['containers'] ?? null);
+    $heroWidgets = layoutPresetWidgets(layoutPresetContainer($containers, 'hero'));
+    $heroSettings = layoutPresetArray(layoutPresetMeta($heroWidgets[0])['widget_settings'] ?? null);
 
     expect($preset->category)->toBe('hero')
-        ->and($preset->snapshot['containers'])->toHaveKey('hero')
-        ->and($preset->snapshot['containers'])->not->toHaveKey('main')
-        ->and($preset->snapshot['containers']['hero']['widgets'][0]['meta']['widget_settings']['anchor_id'])->toBe('Edited');
+        ->and($containers)->toHaveKey('hero')
+        ->and($containers)->not->toHaveKey('main')
+        ->and($heroSettings['anchor_id'])->toBe('Edited');
 });
 
 it('can save a site-scoped preset from a global layout', function (): void {
@@ -169,8 +174,9 @@ it('normalizes shorthand layout widgets when saving presets', function (): void 
     ]);
 
     $preset = SaveLayoutPresetAction::run($layout, $site, 'Shorthand layout');
+    $containers = layoutPresetArray($preset->snapshot['containers'] ?? null);
 
-    expect($preset->snapshot['containers']['main']['widgets'])->toBe([
+    expect(layoutPresetWidgets(layoutPresetContainer($containers, 'main')))->toBe([
         [
             'widget_key' => 'hero',
             'occurrence' => 1,
@@ -309,9 +315,13 @@ it('applies presets only within the same site and uniques duplicate anchors', fu
     ]);
 
     $updatedLayout = ApplyLayoutPresetAction::run($preset, $layout, $site);
+    $updatedContainers = layoutPresetArray($updatedLayout->containers);
+    $updatedWidgets = layoutPresetWidgets(layoutPresetContainer($updatedContainers, 'main'));
+    $firstSettings = layoutPresetArray(layoutPresetMeta($updatedWidgets[0])['widget_settings'] ?? null);
+    $secondSettings = layoutPresetArray(layoutPresetMeta($updatedWidgets[1])['widget_settings'] ?? null);
 
-    expect($updatedLayout->containers['main']['widgets'][0]['meta']['widget_settings']['anchor_id'])->toBe('feature-grid')
-        ->and($updatedLayout->containers['main']['widgets'][1]['meta']['widget_settings']['anchor_id'])->toBe('feature-grid-2')
+    expect($firstSettings['anchor_id'])->toBe('feature-grid')
+        ->and($secondSettings['anchor_id'])->toBe('feature-grid-2')
         ->and($layout->fresh()->containers)->toBe([]);
 });
 
@@ -467,7 +477,7 @@ it('uniques pasted preset anchors against the current builder state', function (
 
     $result = PasteLayoutFragmentAction::run($state, $fragment, 'main');
 
-    expect($result->state->containers['preset-copy']['widgets'][0]['meta']['widget_settings']['anchor_id'])
+    expect($result->state->widgetSettings('preset-copy', 0)['anchor_id'])
         ->toBe('feature-grid-2');
 });
 

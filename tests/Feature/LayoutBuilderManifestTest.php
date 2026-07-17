@@ -167,6 +167,7 @@ it('declares runtime model page type route and migration contribution metadata',
         ->and($routes['reservedFrontendPath'])->toBe('_fragments')
         ->and($security['publicSurface']['routeNames'])->toBe([
             'capell-layout-builder.fragments.show',
+            'capell-layout-builder.layout-widgets.localized.show',
             'capell-layout-builder.layout-widgets.show',
         ])
         ->and(class_implements(LayoutBuilderRoutesContribution::class))->toContain(RegistersExtensionRoute::class)

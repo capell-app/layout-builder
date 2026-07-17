@@ -24,7 +24,6 @@ final class ApplyStarterLayoutPresetAction
 
     public function __construct(
         private readonly LayoutPresetRegistry $presets,
-        private readonly NormalizeLayoutBuilderStateAction $normalizeState,
     ) {}
 
     public function handle(string $presetKey): LayoutMutationResultData

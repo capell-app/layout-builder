@@ -29,7 +29,6 @@ use LogicException;
 final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLayoutWidgetAssetsRenderer
 {
     public function __construct(
-        private ResolvePublicWidgetAssetsAction $assets,
         private RenderableDynamicDataRegistry $dynamicData,
     ) {}
 
@@ -182,6 +181,13 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             'assetId' => $assetId,
             'assetVersion' => $this->assetVersion($asset, $language),
         ];
+        $contentVersion = ResolvePublicFragmentContentVersionAction::run(
+            $page,
+            $site,
+            $language,
+            $layout,
+            $ownerContext,
+        );
         $reference = new PublicFragmentReferenceData(
             owner: $owner,
             formatVersion: 1,
@@ -189,13 +195,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             pageableId: $this->scalarKey($page),
             siteId: $this->scalarKey($site),
             languageId: $this->scalarKey($language),
-            contentVersion: ResolvePublicFragmentContentVersionAction::run(
-                $page,
-                $site,
-                $language,
-                $layout,
-                $ownerContext,
-            ),
+            contentVersion: $contentVersion,
             ownerContext: $ownerContext,
         );
         $url = $registry->url($reference);

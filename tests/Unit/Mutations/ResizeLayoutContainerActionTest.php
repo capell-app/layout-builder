@@ -17,6 +17,11 @@ it('resizes base and responsive container spans', function (): void {
     $baseResult = ResizeLayoutContainerAction::run($state, 'main', 8, null);
     $mobileResult = ResizeLayoutContainerAction::run($baseResult->state, 'main', 6, LayoutBreakpoint::Mobile);
 
-    expect($baseResult->state->containers['main']['meta']['colspan'])->toBe(8)
-        ->and($mobileResult->state->containers['main']['meta']['responsive']['mobile']['colspan'])->toBe(6);
+    $responsive = $mobileResult->state->containerMeta('main')['responsive'] ?? null;
+    throw_unless(is_array($responsive), RuntimeException::class, 'Expected responsive container settings.');
+    $mobile = $responsive['mobile'] ?? null;
+    throw_unless(is_array($mobile), RuntimeException::class, 'Expected mobile container settings.');
+
+    expect($baseResult->state->containerMeta('main')['colspan'])->toBe(8)
+        ->and($mobile['colspan'])->toBe(6);
 });

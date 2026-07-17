@@ -16,6 +16,7 @@ use LogicException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutPreset run(Layout $layout, Site $site, string $name, ?string $key = null, string $category = 'general', ?string $themeKey = null, array<array-key, mixed>|null $containers = null, bool $includeStarterContent = false, bool $replaceExisting = false) */
 final class SaveLayoutPresetAction
 {
     use AsFake;

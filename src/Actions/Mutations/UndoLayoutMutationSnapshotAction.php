@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Data\LayoutMutationNavigationData;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutMutationNavigationData run(LayoutBuilderStateData $currentState, array<int, array<string, mixed>> $undoSnapshots, array<int, array<string, mixed>> $redoSnapshots) */
 final class UndoLayoutMutationSnapshotAction
 {
     use AsFake;

@@ -13,8 +13,6 @@ final readonly class WithdrawPublicWidgetSnapshotsAction
     use AsFake;
     use AsObject;
 
-    public function __construct(private RevokePublicWidgetSnapshotsAction $revoker) {}
-
     public function handle(Pageable $page): int
     {
         return RevokePublicWidgetSnapshotsAction::run($page);

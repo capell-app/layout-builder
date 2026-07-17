@@ -19,6 +19,6 @@ it('reorders containers while preserving metadata and state keyed by container',
     $result = ReorderLayoutContainerAction::run($state, 'main', 1);
 
     expect(array_keys($result->state->containers))->toBe(['sidebar', 'main'])
-        ->and($result->state->containers['main']['meta']['colspan'])->toBe(8)
-        ->and($result->state->assets['main'][0][0]['asset'])->toBe('first');
+        ->and($result->state->containerMeta('main')['colspan'])->toBe(8)
+        ->and($result->state->assetSlot('main', 0)[0]['asset'])->toBe('first');
 });

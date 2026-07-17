@@ -334,16 +334,16 @@ it('copies and pastes layout fragments with unique container and widget anchors'
     $containerResult = PasteLayoutFragmentAction::run($state, $containerFragment, 'aside');
 
     capell_expect($containerResult->state->containers)->toHaveKey('main-copy-2')
-        ->and($containerResult->state->containers['main-copy-2']['widgets'][0]['meta']['widget_settings']['anchor_id'])
+        ->and($containerResult->state->widgetSettings('main-copy-2', 0)['anchor_id'])
         ->toBe('shared-anchor-2');
 
     $widgetFragment = CreateLayoutFragmentAction::run($state, 'main', 0);
     $widgetResult = PasteLayoutFragmentAction::run($state, $widgetFragment, 'aside', 0);
 
-    capell_expect($widgetResult->state->containers['aside']['widgets'][0]['widget_key'])->toBe('hero')
-        ->and($widgetResult->state->containers['aside']['widgets'][0]['meta']['widget_settings']['anchor_id'])
+    capell_expect($widgetResult->state->widget('aside', 0)['widget_key'])->toBe('hero')
+        ->and($widgetResult->state->widgetSettings('aside', 0)['anchor_id'])
         ->toBe('shared-anchor-2')
-        ->and($widgetResult->state->assets['aside'][0])->toBe([['asset_id' => 1, 'asset_type' => 'page']]);
+        ->and($widgetResult->state->assetSlot('aside', 0))->toBe([['asset_id' => 1, 'asset_type' => 'page']]);
 
     $missingFragment = CreateLayoutFragmentAction::run($state, 'missing', null);
     $unchangedResult = PasteLayoutFragmentAction::run($state, $missingFragment, 'missing');
@@ -696,8 +696,8 @@ it('adds validated page assets through the editor selection workflow', function 
         ],
     );
 
-    capell_expect($harness->assets['main'][0])->toHaveCount(1)
-        ->and($harness->assets['main'][0][0])->toMatchArray([
+    capell_expect($harness->assetSlot('main', 0))->toHaveCount(1)
+        ->and($harness->assetSlot('main', 0)[0])->toMatchArray([
             'asset_id' => $allowedAssetPage->getKey(),
             'asset_type' => 'page',
             'meta' => ['caption' => 'Selected from modal'],
@@ -1123,7 +1123,7 @@ it('drives layout editor action closures through a page editing workflow', funct
         'containerKey' => 'main',
         'widgetIndex' => 0,
     ]);
-    $harness->selectedRecords['main'][0] = ['page.' . $secondAssetPage->getKey()];
+    $harness->setSelectedRecordSlot('main', 0, ['page.' . $secondAssetPage->getKey()]);
     callLayoutBuilderResidualAction($factory->removeAssetsAction(), $harness, [], [
         'containerKey' => 'main',
         'widgetIndex' => 0,

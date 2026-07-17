@@ -80,7 +80,7 @@ it('normalizes conflicting persisted padding before producing public classes', f
 
 it('isolates projector failures from public rendering without logging raw state', function (): void {
     app()->tag([FailingLayoutContainerThemePresentationProjector::class], LayoutContainerThemePresentationProjector::TAG);
-    Log::spy();
+    $log = Log::spy();
 
     $presentation = ResolveLayoutContainerPresentationAction::run([
         'meta' => [
@@ -92,7 +92,7 @@ it('isolates projector failures from public rendering without logging raw state'
 
     expect($presentation->theme)->toBeNull();
 
-    Log::shouldHaveReceived('warning')
+    $log->shouldHaveReceived('warning')
         ->once()
         ->withArgs(fn (string $message, array $context): bool => $message === 'Layout container theme presentation projection failed.'
                 && $context['theme_key'] === 'failing-theme'

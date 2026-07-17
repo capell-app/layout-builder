@@ -48,6 +48,50 @@ final class LayoutBuilderResidualAssetHarness extends LayoutBuilder
     }
 
     /**
+     * @return list<array<string, mixed>>
+     */
+    public function assetSlot(string $containerKey, int $widgetIndex): array
+    {
+        $containerAssets = $this->assets[$containerKey] ?? null;
+        $slot = is_array($containerAssets) ? ($containerAssets[$widgetIndex] ?? null) : null;
+
+        if (! is_array($slot)) {
+            return [];
+        }
+
+        $assets = [];
+
+        foreach ($slot as $asset) {
+            if (! is_array($asset)) {
+                continue;
+            }
+
+            $normalizedAsset = [];
+
+            foreach ($asset as $key => $value) {
+                if (is_string($key)) {
+                    $normalizedAsset[$key] = $value;
+                }
+            }
+
+            $assets[] = $normalizedAsset;
+        }
+
+        return $assets;
+    }
+
+    /**
+     * @param  list<mixed>  $records
+     */
+    public function setSelectedRecordSlot(string $containerKey, int $widgetIndex, array $records): void
+    {
+        $containerRecords = $this->selectedRecords[$containerKey] ?? [];
+        $containerRecords = is_array($containerRecords) ? $containerRecords : [];
+        $containerRecords[$widgetIndex] = $records;
+        $this->selectedRecords[$containerKey] = $containerRecords;
+    }
+
+    /**
      * @return Collection<int, WidgetAsset>
      */
     public function exposeLoadWidgetAssetsFor(Widget $widget, string $containerKey, int $widgetIndex): Collection

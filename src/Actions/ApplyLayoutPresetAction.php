@@ -12,6 +12,7 @@ use LogicException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static Layout run(LayoutPreset $preset, Layout $layout, Site $site, bool $persist = false) */
 final class ApplyLayoutPresetAction
 {
     use AsFake;

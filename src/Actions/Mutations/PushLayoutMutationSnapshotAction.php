@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Data\LayoutMutationHistoryData;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
+/** @method static LayoutMutationHistoryData run(LayoutBuilderStateData $currentState, array<int, array<string, mixed>> $undoSnapshots) */
 final class PushLayoutMutationSnapshotAction
 {
     use AsFake;
