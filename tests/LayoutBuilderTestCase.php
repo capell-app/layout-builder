@@ -34,6 +34,16 @@ abstract class LayoutBuilderTestCase extends AbstractTestCase
         );
     }
 
+    protected function setUpDatabase(): void
+    {
+        parent::setUpDatabase();
+
+        $this->artisan('migrate', [
+            '--path' => __DIR__ . '/../database/migrations',
+            '--realpath' => true,
+        ])->run();
+    }
+
     protected function getPackageServiceName(): string
     {
         return 'capell-layout-builder';

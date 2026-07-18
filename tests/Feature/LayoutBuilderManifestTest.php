@@ -262,13 +262,21 @@ it('references committed marketplace and screenshot manifest images', function (
     $repositoryRoot = dirname(__DIR__, 4);
 
     foreach ($manifest['marketplace']['screenshots'] ?? [] as $screenshot) {
+        throw_unless(is_array($screenshot), RuntimeException::class, 'Expected marketplace screenshot metadata.');
+        $path = $screenshot['path'] ?? null;
+        throw_unless(is_string($path), RuntimeException::class, 'Expected a marketplace screenshot path.');
+
         expect($screenshot)->toHaveKey('path')
-            ->and(is_file($packageRoot . '/' . $screenshot['path']))->toBeTrue();
+            ->and(is_file($packageRoot . '/' . $path))->toBeTrue();
     }
 
     foreach ($screenshots['entries'] ?? [] as $entry) {
+        throw_unless(is_array($entry), RuntimeException::class, 'Expected screenshot manifest metadata.');
+        $screenshotPath = $entry['screenshotPath'] ?? null;
+        throw_unless(is_string($screenshotPath), RuntimeException::class, 'Expected a screenshot manifest path.');
+
         expect($entry)->toHaveKey('screenshotPath')
-            ->and(is_file($repositoryRoot . '/' . $entry['screenshotPath']))->toBeTrue();
+            ->and(is_file($repositoryRoot . '/' . $screenshotPath))->toBeTrue();
     }
 });
 

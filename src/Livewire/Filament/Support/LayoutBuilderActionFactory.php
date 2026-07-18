@@ -628,7 +628,7 @@ final class LayoutBuilderActionFactory
             ->label(
                 fn (array $arguments): string => __(
                     'capell-layout-builder::button.select_asset',
-                    ['asset' => CapellCore::getAsset($arguments['type'])->getLabel()],
+                    ['asset' => CapellCore::getAsset($this->assetType($arguments))->getLabel()],
                 ),
             )
             ->grouped()
@@ -702,7 +702,7 @@ final class LayoutBuilderActionFactory
             ->label(
                 fn (array $arguments): string => __(
                     'capell-layout-builder::button.add_new_asset',
-                    ['asset' => CapellCore::getAsset($arguments['type'])->getLabel()],
+                    ['asset' => CapellCore::getAsset($this->assetType($arguments))->getLabel()],
                 ),
             )
             ->icon('heroicon-o-plus-circle')
@@ -772,7 +772,7 @@ final class LayoutBuilderActionFactory
             ->color('primary')
             ->size(Size::ExtraSmall)
             ->visible(fn (LayoutBuilder $livewire): bool => $livewire->canEditContent())
-            ->icon(fn (array $arguments): string|BackedEnum => CapellCore::getAsset($arguments['type'])->getIcon() ?? 'heroicon-o-pencil-square')
+            ->icon(fn (array $arguments): string|BackedEnum => CapellCore::getAsset($this->assetType($arguments))->getIcon() ?? 'heroicon-o-pencil-square')
             ->iconSize(IconSize::Small)
             ->tooltip(
                 fn (array $arguments): string => __(
@@ -1256,7 +1256,7 @@ final class LayoutBuilderActionFactory
     {
         $containerKey = $arguments['containerKey'];
         $widgetIndex = $arguments['widgetIndex'];
-        $assetType = $arguments['type'];
+        $assetType = $this->assetType($arguments);
 
         $widget = $this->livewire->getContainerWidget($containerKey, $widgetIndex);
 
@@ -1307,6 +1307,18 @@ final class LayoutBuilderActionFactory
         throw_unless((int) $widgetAsset->getAttribute('widget_id') === (int) $widget->getKey(), Exception::class, sprintf('Asset of type [%s] with ID [%s] is not attached to this widget.', $type, $assetId));
 
         return $widgetAsset;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $arguments
+     */
+    private function assetType(array $arguments): string
+    {
+        $assetType = $arguments['type'] ?? null;
+
+        throw_unless(is_string($assetType), RuntimeException::class, 'Asset type must be a string.');
+
+        return $assetType;
     }
 
     /**

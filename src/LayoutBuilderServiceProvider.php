@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder;
 
 use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
+use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Data\PageTypeData;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
@@ -40,6 +41,7 @@ use Capell\LayoutBuilder\Contracts\WidgetSnapshots\WidgetSnapshotLocatorCipher;
 use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Fragments\LayoutBuilderFragmentUrlResolver;
 use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
@@ -216,6 +218,18 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
         $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
+        CapellAdmin::registerWelcomeTourStep(
+            key: 'capell-layout-builder.widgets',
+            title: fn (): string => __('capell-layout-builder::navigation.tour_title'),
+            description: fn (): string => __('capell-layout-builder::navigation.tour_description'),
+            element: '.fi-ta, .fi-resource-table, table',
+            icon: 'heroicon-o-puzzle-piece',
+            iconColor: 'info',
+            sort: 60,
+            visible: fn (): bool => WidgetResource::canAccess(),
+            chapter: 'layout-builder',
+            route: '/admin/layout-builder/widgets',
+        );
         $this->registerPublicFragmentRoute();
         $this->registerLazyLayoutWidgetRoute();
         $this->reservePublicFragmentPath();

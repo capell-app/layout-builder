@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+namespace Capell\LayoutBuilder\Tests\Feature;
+
 use Capell\LayoutBuilder\Tests\LayoutBuilderTestCase;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Routing\Router;
+use Override;
+use RuntimeException;
 
 final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 {

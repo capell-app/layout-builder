@@ -130,7 +130,7 @@ class AssetsRepeater extends Repeater
                             return null;
                         }
 
-                        $asset = CapellCore::getAsset($get('asset_type'));
+                        $asset = CapellCore::getAsset(self::assetType($get));
 
                         return $asset->model::withTrashed()->find($state);
                     },
@@ -138,11 +138,11 @@ class AssetsRepeater extends Repeater
                 ->placeholder(
                     fn (Get $get): string => __(
                         'capell-admin::generic.select_asset_placeholder',
-                        ['asset' => CapellCore::getAsset($get('asset_type'))->getLabel()],
+                        ['asset' => CapellCore::getAsset(self::assetType($get))->getLabel()],
                     ),
                 )
                 ->prefixIcon(
-                    fn (Get $get): null|string|Heroicon => CapellCore::getAsset($get('asset_type'))->getIcon(),
+                    fn (Get $get): null|string|Heroicon => CapellCore::getAsset(self::assetType($get))->getIcon(),
                 )
                 ->selectablePlaceholder(false)
                 ->getOptionLabelFromRecordUsing(function (Select $component, Model $record): HtmlString {
@@ -170,7 +170,7 @@ class AssetsRepeater extends Repeater
                     return new HtmlString($label . Str::limit($record->name, 40));
                 })
                 ->createOptionForm(function (Schema $configurator, Get $get): Schema {
-                    $asset = CapellCore::getAsset($get('asset_type'));
+                    $asset = CapellCore::getAsset(self::assetType($get));
 
                     $assetAdmin = CapellAdmin::getAsset($get('asset_type'));
 
@@ -272,6 +272,15 @@ class AssetsRepeater extends Repeater
         return $query
             ->where('group', '!=', BlueprintGroupEnum::System->value)
             ->orWhereNull('group');
+    }
+
+    private static function assetType(Get $get): string
+    {
+        $assetType = $get('asset_type');
+
+        throw_unless(is_string($assetType), RuntimeException::class, 'Asset type must be a string.');
+
+        return $assetType;
     }
 
     /**

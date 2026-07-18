@@ -8,39 +8,10 @@ use Capell\Frontend\Data\Assets\FrontendResourceData;
 use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\Assets\PublicResourceSourceData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
-use Capell\LayoutBuilder\Health\AbstractWidgetExtensionHealthCheck;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
-use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleFilamentWidget;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
+use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetHealthCheck;
 use Illuminate\Contracts\View\Factory as ViewFactory;
-
-final class ExampleWidgetHealthCheck extends AbstractWidgetExtensionHealthCheck
-{
-    public static function compatibleCapellApiVersion(): string
-    {
-        return '^1.0';
-    }
-
-    protected static function definitionKey(): string
-    {
-        return 'capell-app.slideshow';
-    }
-
-    protected static function filamentWidget(): string
-    {
-        return ExampleFilamentWidget::class;
-    }
-
-    protected static function fallbackView(): string
-    {
-        return 'widget-health-test::widget';
-    }
-
-    protected static function resourceGroups(): array
-    {
-        return ['capell-app.widget-slideshow'];
-    }
-}
 
 it('checks every required widget extension package surface', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
