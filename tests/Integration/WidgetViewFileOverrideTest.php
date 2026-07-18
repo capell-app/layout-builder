@@ -6,6 +6,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
@@ -63,7 +64,7 @@ it('renders a widget view-file override with prepared public widget asset data',
         ->page($page, 'main', 1)
         ->create();
 
-    app()->instance('capell.frontend.context', new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
+    app()->instance(FrontendContextReader::class, new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
     resolve(LayoutLoader::class)->preloadLayoutWidgets($layout, $language, $page);
 
     $connection = DB::connection();

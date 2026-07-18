@@ -17,6 +17,12 @@
         "capell-app/core": "^1.0",
         "capell-app/frontend": "^1.0"
     },
+    "suggest": {
+        "capell-app/content-sections": "Allows reusable content sections in layouts.",
+        "capell-app/frontend-authoring": "Adds authenticated in-page layout authoring.",
+        "capell-app/publishing-studio": "Connects layout snapshots to publishing workflows.",
+        "capell-app/structured-content-library": "Allows structured content records in layouts."
+    },
     "autoload": {
         "psr-4": {
             "Capell\\LayoutBuilder\\": "src/"

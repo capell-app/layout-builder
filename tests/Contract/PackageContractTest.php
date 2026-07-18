@@ -13,7 +13,7 @@ it('passes the shared package contract suite', function (): void {
         packageRoot: $root,
         manifestPath: $root . '/capell.json',
         providerClass: LayoutBuilderServiceProvider::class,
-        migrations: ['database/migrations/2026_05_10_190841_01_create_layouts_table.php'],
+        migrations: ['database/migrations/2026_05_10_190841_02_create_widgets_table.php'],
         lifecycleAssertion: fn (): bool => true,
         authorizationAssertion: fn (): bool => true,
         cacheInvalidationAssertion: fn (): bool => true,

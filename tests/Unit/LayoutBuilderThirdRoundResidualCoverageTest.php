@@ -10,6 +10,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
 use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
 use Capell\LayoutBuilder\Actions\GenerateLayoutPreviewImageAction;
@@ -1368,7 +1369,7 @@ it('loads frontend layout widgets into the layout manager and formats missing as
         ->with($layout, 'missing-hero', $language, $page, 'main', 2)
         ->andReturn(null);
     app()->instance(LayoutLoader::class, $loader);
-    app()->instance('capell.frontend.context', new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
+    app()->instance(FrontendContextReader::class, new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
 
     $listener = new LayoutLoaded;
     $listener->handle('otherEvent', new stdClass);

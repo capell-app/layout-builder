@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\View;
 
 use Capell\Core\Models\Theme;
-use Capell\Frontend\Support\CapellFrontendContext;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\LayoutBuilder\Actions\ResolveLayoutContainerPresentationAction;
 use Illuminate\Contracts\View\View;
 
@@ -29,16 +29,11 @@ final readonly class LayoutContainerPresentationViewComposer
 
     private function activeThemeKey(): ?string
     {
-        if (! app()->bound(CapellFrontendContext::class)) {
+        if (! app()->bound(FrontendContextReader::class)) {
             return null;
         }
 
-        $context = resolve(CapellFrontendContext::class);
-        if (! $context instanceof CapellFrontendContext) {
-            return null;
-        }
-
-        $theme = $context->theme();
+        $theme = resolve(FrontendContextReader::class)->theme();
         $themeKey = $theme instanceof Theme ? $theme->getAttribute('key') : null;
 
         return is_string($themeKey) && trim($themeKey) !== '' ? trim($themeKey) : null;

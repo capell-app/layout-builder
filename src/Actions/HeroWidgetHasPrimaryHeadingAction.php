@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Translation;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -19,8 +20,6 @@ class HeroWidgetHasPrimaryHeadingAction
 {
     use AsFake;
     use AsObject;
-
-    private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
 
     public function handle(Widget $widget, Pageable $page): bool
     {
@@ -54,7 +53,7 @@ class HeroWidgetHasPrimaryHeadingAction
         if ($hasPrimaryHeading) {
             $frontend = $this->frontendContext();
 
-            if ($frontend !== null && method_exists($frontend, 'setFrontendData')) {
+            if ($frontend !== null) {
                 $frontend->setFrontendData('has_primary_heading', true);
             }
         }
@@ -62,15 +61,15 @@ class HeroWidgetHasPrimaryHeadingAction
         return $hasPrimaryHeading;
     }
 
-    private function frontendContext(): ?object
+    private function frontendContext(): ?FrontendContextReader
     {
-        if (! app()->bound(self::FRONTEND_CONTEXT_SERVICE)) {
+        if (! app()->bound(FrontendContextReader::class)) {
             return null;
         }
 
-        $frontend = resolve(self::FRONTEND_CONTEXT_SERVICE);
+        $frontend = resolve(FrontendContextReader::class);
 
-        return is_object($frontend) ? $frontend : null;
+        return $frontend instanceof FrontendContextReader ? $frontend : null;
     }
 
     private function loadedRelation(Model $model, string $relation): mixed

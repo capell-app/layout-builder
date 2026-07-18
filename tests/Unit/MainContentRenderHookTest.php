@@ -7,6 +7,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
@@ -164,7 +165,7 @@ it('preloads layout widgets during hook rendering when the layout manager is emp
         ->with($layout, 'package-alert', $language, $page, 'main', 1)
         ->andReturn($widget);
     app()->instance(LayoutLoader::class, $loader);
-    app()->instance('capell.frontend.context', new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
+    app()->instance(FrontendContextReader::class, new LayoutBuilderResidualFrontendContextForLoadedLayout($layout, $language, $page));
 
     $output = $registry->renderAll(
         RenderHookLocation::MainContent,

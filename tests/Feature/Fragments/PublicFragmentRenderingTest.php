@@ -9,9 +9,9 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Publishing\PublishSentinel;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\Fragments\BuildLayoutBuilderFragmentReferenceAction;
@@ -30,14 +30,14 @@ it('renders a valid owner-aware public widget fragment reference', function (): 
 
 it('restores the previous frontend context after rendering a public fragment', function (): void {
     $fixture = publicFragmentFixture('<section class="fragment-card">Public fragment</section>');
-    $previousContext = new CapellFrontendContext(new FrontendState);
+    $previousContext = new FrontendState;
 
-    app()->instance(CapellFrontendContext::class, $previousContext);
-    Frontend::clearResolvedInstance(CapellFrontendContext::class);
+    app()->instance(FrontendContextReader::class, $previousContext);
+    Frontend::clearResolvedInstance(FrontendContextReader::class);
 
     expect(RenderPublicFragmentAction::run($fixture['reference']))
         ->toBe('<section class="fragment-card">Public fragment</section>')
-        ->and(resolve(CapellFrontendContext::class))->toBe($previousContext);
+        ->and(resolve(FrontendContextReader::class))->toBe($previousContext);
 });
 
 it('exposes only the named owner route with cache headers after authorization', function (): void {
@@ -224,16 +224,14 @@ function publicFragmentFixture(string $html): array
  */
 function bindPublicFragmentFrontendContext(array $fixture): void
 {
-    Frontend::clearResolvedInstance(CapellFrontendContext::class);
+    Frontend::clearResolvedInstance(FrontendContextReader::class);
     app()->instance(
-        CapellFrontendContext::class,
-        new CapellFrontendContext(
-            (new FrontendState)
-                ->withSite($fixture['site'])
-                ->withLanguage($fixture['language'])
-                ->withPage($fixture['page'])
-                ->withLayout($fixture['layout']),
-        ),
+        FrontendContextReader::class,
+        (new FrontendState)
+            ->withSite($fixture['site'])
+            ->withLanguage($fixture['language'])
+            ->withPage($fixture['page'])
+            ->withLayout($fixture['layout']),
     );
 }
 

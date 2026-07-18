@@ -12,7 +12,6 @@ final class CapellLayoutBuilderManager
     public static function getMigrations(): array
     {
         return [
-            '2026_05_10_190841_01_create_layouts_table',
             '2026_05_10_190841_02_create_widgets_table',
             '2026_05_10_190841_03_create_widget_assets_table',
             '2026_05_10_190841_04_create_widget_widgets_table',

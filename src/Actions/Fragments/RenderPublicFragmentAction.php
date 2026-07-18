@@ -11,9 +11,9 @@ use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
 use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentContextAction;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentContextData;
 use Capell\Frontend\Facades\Frontend;
-use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Data\PublicLayoutContainerData;
@@ -142,22 +142,18 @@ class RenderPublicFragmentAction
         $page->setRelation('site', $site);
         $page->setRelation('layout', $layout);
 
-        if (! $theme instanceof Theme) {
-            return;
+        $state = (new FrontendState)
+            ->withSite($site)
+            ->withLanguage($language)
+            ->withPage($page)
+            ->withLayout($layout);
+
+        if ($theme instanceof Theme) {
+            $state->withTheme($theme);
         }
 
-        Frontend::clearResolvedInstance(CapellFrontendContext::class);
-        app()->instance(
-            CapellFrontendContext::class,
-            new CapellFrontendContext(
-                (new FrontendState)
-                    ->withSite($site)
-                    ->withLanguage($language)
-                    ->withPage($page)
-                    ->withLayout($layout)
-                    ->withTheme($theme),
-            ),
-        );
+        Frontend::clearResolvedInstance(FrontendContextReader::class);
+        app()->instance(FrontendContextReader::class, $state);
     }
 
     private function frontendTheme(Site $site, Layout $layout): ?Theme
@@ -169,28 +165,28 @@ class RenderPublicFragmentAction
         return $layout->theme instanceof Theme ? $layout->theme : null;
     }
 
-    private function resolvedFrontendContext(): ?CapellFrontendContext
+    private function resolvedFrontendContext(): ?FrontendContextReader
     {
-        if (! app()->resolved(CapellFrontendContext::class)) {
+        if (! app()->resolved(FrontendContextReader::class)) {
             return null;
         }
 
-        $context = resolve(CapellFrontendContext::class);
+        $context = resolve(FrontendContextReader::class);
 
-        return $context instanceof CapellFrontendContext ? $context : null;
+        return $context instanceof FrontendContextReader ? $context : null;
     }
 
-    private function restoreFrontendContext(?CapellFrontendContext $context): void
+    private function restoreFrontendContext(?FrontendContextReader $context): void
     {
-        Frontend::clearResolvedInstance(CapellFrontendContext::class);
+        Frontend::clearResolvedInstance(FrontendContextReader::class);
 
-        if ($context instanceof CapellFrontendContext) {
-            app()->instance(CapellFrontendContext::class, $context);
+        if ($context instanceof FrontendContextReader) {
+            app()->instance(FrontendContextReader::class, $context);
 
             return;
         }
 
-        app()->forgetInstance(CapellFrontendContext::class);
+        app()->forgetInstance(FrontendContextReader::class);
     }
 
     private function stringValue(mixed $value): ?string

@@ -8,6 +8,7 @@ use Capell\Core\Contracts\EventSubscriber;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
@@ -15,8 +16,6 @@ use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
 class LayoutLoaded implements EventSubscriber
 {
-    private const string FRONTEND_CONTEXT_SERVICE = 'capell.frontend.context';
-
     public function handle(string $event, object $context): void
     {
         if ($event !== 'loadedLayout') {
@@ -28,9 +27,9 @@ class LayoutLoaded implements EventSubscriber
             return;
         }
 
-        $layout = method_exists($frontend, 'layout') ? $frontend->layout() : null;
-        $language = method_exists($frontend, 'language') ? $frontend->language() : null;
-        $page = method_exists($frontend, 'page') ? $frontend->page() : null;
+        $layout = $frontend->layout();
+        $language = $frontend->language();
+        $page = $frontend->page();
 
         if (! $layout instanceof Layout || ! $language instanceof Language || ! $page instanceof Pageable) {
             return;
@@ -77,14 +76,14 @@ class LayoutLoaded implements EventSubscriber
         }
     }
 
-    private function frontendContext(): ?object
+    private function frontendContext(): ?FrontendContextReader
     {
-        if (! app()->bound(self::FRONTEND_CONTEXT_SERVICE)) {
+        if (! app()->bound(FrontendContextReader::class)) {
             return null;
         }
 
-        $frontend = resolve(self::FRONTEND_CONTEXT_SERVICE);
+        $frontend = resolve(FrontendContextReader::class);
 
-        return is_object($frontend) ? $frontend : null;
+        return $frontend instanceof FrontendContextReader ? $frontend : null;
     }
 }

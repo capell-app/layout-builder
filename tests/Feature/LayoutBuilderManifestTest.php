@@ -172,7 +172,6 @@ it('declares runtime model page type route and migration contribution metadata',
         ])
         ->and(class_implements(LayoutBuilderRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($migrations['migrationFiles'])->toBe([
-            '2026_05_10_190841_01_create_layouts_table',
             '2026_05_10_190841_02_create_widgets_table',
             '2026_05_10_190841_03_create_widget_assets_table',
             '2026_05_10_190841_04_create_widget_widgets_table',
@@ -185,6 +184,27 @@ it('declares runtime model page type route and migration contribution metadata',
             '2026_07_10_000003_create_layout_preset_sync_runs_table',
         ])
         ->and(class_implements(LayoutBuilderMigrationsContribution::class))->toContain(RunsExtensionMigration::class);
+});
+
+it('only declares migration files that exist in the package', function (): void {
+    $manifest = layoutBuilderJson('capell.json');
+    $contributes = $manifest['contributes'] ?? [];
+
+    throw_unless(is_array($contributes), RuntimeException::class, 'Expected Layout Builder contributions array.');
+
+    $migrationContribution = collect($contributes)
+        ->firstWhere('class', LayoutBuilderMigrationsContribution::class);
+
+    throw_unless(is_array($migrationContribution), RuntimeException::class, 'Expected Layout Builder migration contribution array.');
+
+    $migrationFiles = $migrationContribution['migrationFiles'] ?? [];
+
+    throw_unless(is_array($migrationFiles), RuntimeException::class, 'Expected Layout Builder migration files array.');
+
+    foreach ($migrationFiles as $migrationFile) {
+        expect($migrationFile)->toBeString()
+            ->and(file_exists(dirname(__DIR__, 2) . '/database/migrations/' . $migrationFile . '.php'))->toBeTrue();
+    }
 });
 
 it('declares lifecycle actions that satisfy the installer contract', function (): void {

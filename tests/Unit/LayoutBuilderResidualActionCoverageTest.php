@@ -5,6 +5,8 @@ declare(strict_types=1);
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Frontend\Contracts\FrontendContextReader;
+use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\AddWidgetToLayoutContainerAction;
 use Capell\LayoutBuilder\Actions\ApplyLayoutSidebarWidgetContributionsAction;
 use Capell\LayoutBuilder\Actions\FindReusableWidgetsAction;
@@ -14,7 +16,6 @@ use Capell\LayoutBuilder\Actions\MakeWidgetAction;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContext;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualSidebarContributor;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -123,8 +124,8 @@ it('resolves widget container widths from meta defaults and frontend resolver se
 });
 
 it('detects hero headings from page meta and first widget asset translations', function (): void {
-    $frontendContext = new LayoutBuilderResidualFrontendContext;
-    app()->instance('capell.frontend.context', $frontendContext);
+    $frontendContext = new FrontendState;
+    app()->instance(FrontendContextReader::class, $frontendContext);
 
     $page = Page::factory()->withTranslations()->create();
     $page->translation->forceFill([
@@ -137,7 +138,7 @@ it('detects hero headings from page meta and first widget asset translations', f
     $emptyWidget->setRelation('assets', new EloquentCollection);
 
     expect(HeroWidgetHasPrimaryHeadingAction::run($emptyWidget, $page))->toBeTrue()
-        ->and($frontendContext->data['has_primary_heading'])->toBeTrue();
+        ->and($frontendContext->getFrontendData('has_primary_heading'))->toBeTrue();
 
     $assetPage = Page::factory()->withTranslations()->create();
     $assetPage->translation->forceFill(['title' => 'Asset Heading'])->save();

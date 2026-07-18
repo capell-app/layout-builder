@@ -7,10 +7,10 @@ namespace Capell\LayoutBuilder\Support\RenderHooks;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\RenderHookExtensionInterface;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Data\RenderHookContext;
-use Capell\Frontend\Support\CapellFrontendContext;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
@@ -148,15 +148,11 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
 
     private function frontendLanguage(): ?Language
     {
-        $context = app()->bound('capell.frontend.context')
-            ? resolve('capell.frontend.context')
-            : (app()->bound(CapellFrontendContext::class) ? resolve(CapellFrontendContext::class) : null);
-
-        if (! is_object($context) || ! method_exists($context, 'language')) {
+        if (! app()->bound(FrontendContextReader::class)) {
             return null;
         }
 
-        $language = $context->language();
+        $language = resolve(FrontendContextReader::class)->language();
 
         return $language instanceof Language ? $language : null;
     }
