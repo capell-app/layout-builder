@@ -26,6 +26,7 @@ it('contributes layout widgets through frontend owned component contracts', func
         ->toBeInstanceOf(LayoutBuilderFrontendComponentContributor::class)
         ->and($contributor->components())->each->toBeInstanceOf(FrontendComponentContributionData::class);
 
+    throw_unless($contributor instanceof LayoutBuilderFrontendComponentContributor, LogicException::class);
     $components = collect($contributor->components())->keyBy('name');
 
     expect($components->only(['content', 'image', 'title', 'interactive'])->values()->all())

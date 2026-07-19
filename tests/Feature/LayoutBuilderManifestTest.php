@@ -90,7 +90,7 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
         expect($composerRequires)->toContain($requiredPackage);
     }
 
-    expect($composerRequirements['capell-app/admin'] ?? null)->toBe('^1.0')
+    expect($composerRequirements['capell-app/admin'] ?? null)->toBe('^1.0.10')
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
         ->and($composerRequirements['capell-app/core'] ?? null)->toBe('^1.0')
         ->and($composerRequirements['capell-app/frontend'] ?? null)->toBe('^1.0')

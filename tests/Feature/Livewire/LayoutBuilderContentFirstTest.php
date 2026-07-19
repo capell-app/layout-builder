@@ -235,7 +235,7 @@ it('clears cached pages affected by frontend authoring widget edits', function (
         ->create([
             'scheme' => 'https',
             'domain' => 'example.test',
-            'path' => '/',
+            'path' => null,
             'status' => true,
         ]);
     $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
@@ -325,7 +325,7 @@ it('contributes frontend authoring regions for page layout widgets and widget as
         ->create([
             'scheme' => 'https',
             'domain' => 'example.test',
-            'path' => '/',
+            'path' => null,
             'status' => true,
         ]);
     $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
@@ -403,7 +403,7 @@ it('renders the signed frontend authoring layout builder editor surface', functi
         ->create([
             'scheme' => 'https',
             'domain' => 'example.test',
-            'path' => '/',
+            'path' => null,
             'status' => true,
         ]);
     $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);

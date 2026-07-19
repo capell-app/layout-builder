@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Actions\Install\RunMigrationsAction;
 use Capell\Core\Contracts\PackageLifecycleAction;
 use Capell\Core\Contracts\ProgressReporter;
 use Capell\Core\Data\PackageData;
+use Capell\Core\Events\DatabaseSchemaChanged;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\CapellExtension;
 use Capell\Core\Support\Manifest\CapellManifestData;
@@ -12,32 +14,35 @@ use Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderInstallRecorder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Event;
 
 beforeEach(function (): void {
     CapellCore::clearPackages();
+
+    app()->instance(RunMigrationsAction::class, new readonly class
+    {
+        public function handle(
+            ProgressReporter $reporter,
+            bool $includeSettings = true,
+            bool $includeSchema = true,
+        ): void {
+            Event::dispatch(new DatabaseSchemaChanged);
+        }
+    });
 });
 
 afterEach(function (): void {
     CapellCore::clearPackages();
 });
 
-it('forces migrations when installing layout builder directly', function (): void {
-    $migrateForceOptions = [];
-
+it('runs migrations when installing layout builder directly', function (): void {
     CapellCore::registerPackage('capell-app/layout-builder');
-
-    Artisan::command('capell:publish-migrations {--items=*}', fn (): int => Command::SUCCESS);
-
-    Artisan::command('migrate {--force}', function () use (&$migrateForceOptions): int {
-        $migrateForceOptions[] = $this->option('force');
-
-        return Command::SUCCESS;
-    });
+    Event::fake([DatabaseSchemaChanged::class]);
 
     test()->artisan('capell:layout-builder-install')
         ->assertSuccessful();
 
-    expect($migrateForceOptions)->toBe([true]);
+    Event::assertDispatched(DatabaseSchemaChanged::class);
 });
 
 it('installs layout builder from its package manifest', function (): void {
