@@ -7,16 +7,16 @@ namespace Capell\LayoutBuilder\Support\Assets;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Models\Page;
+use Capell\Frontend\Contracts\FrontendWidgetResourceUsageContributor;
+use Capell\Frontend\Data\Assets\FrontendWidgetResourceUsageData;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
-use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
-use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 
-class PageContentLayoutWidgetResourceUsageContributor implements LayoutWidgetResourceUsageContributor
+class PageContentLayoutWidgetResourceUsageContributor implements FrontendWidgetResourceUsageContributor
 {
     /**
-     * @return array<int, LayoutWidgetResourceUsageData>
+     * @return list<FrontendWidgetResourceUsageData>
      */
     public function usages(FrontendRenderContextData $context): array
     {

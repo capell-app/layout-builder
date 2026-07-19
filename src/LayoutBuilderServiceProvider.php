@@ -13,7 +13,9 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
+use Capell\Frontend\Contracts\FrontendComponentContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
+use Capell\Frontend\Contracts\FrontendWidgetResourceUsageContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
@@ -29,7 +31,6 @@ use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\PruneLayoutBulkChangeRunsCommand;
 use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
-use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Contracts\LayoutContainerThemePresentationProjector;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
@@ -60,6 +61,7 @@ use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
+use Capell\LayoutBuilder\Support\LayoutBuilderFrontendComponentContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicWidgetAssetsRenderer;
@@ -131,6 +133,8 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([WidgetExtensionContentStateProcessor::class], ContentWidgetStateProcessor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
         $this->app->scoped(LayoutLoader::class);
+        $this->app->scoped(LayoutBuilderFrontendComponentContributor::class);
+        $this->app->scoped(LayoutBuilderLayoutWidgetResourceUsageContributor::class);
         $this->app->scoped(PageContentLayoutWidgetResourceUsageContributor::class);
         $this->app->scoped(PublicLayoutWidgetPayloadResolver::class, DefaultPublicLayoutWidgetPayloadResolver::class);
         $this->app->scoped(PublicLayoutWidgetAssetsRenderer::class, LayoutBuilderPublicWidgetAssetsRenderer::class);
@@ -142,7 +146,8 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([WidgetPresentationPublicLayoutWidgetPayloadContributor::class], PublicLayoutWidgetPayloadContributor::TAG);
         $this->app->tag([LayoutBuilderRuntimeManifestContributor::class], FrontendRuntimeManifestContributor::TAG);
         $this->app->tag([LayoutBuilderFragmentUrlResolver::class], PublicFragmentUrlResolver::TAG);
-        $this->app->tag([LayoutBuilderLayoutWidgetResourceUsageContributor::class, PageContentLayoutWidgetResourceUsageContributor::class], LayoutWidgetResourceUsageContributor::TAG);
+        $this->app->tag([LayoutBuilderFrontendComponentContributor::class], FrontendComponentContributor::TAG);
+        $this->app->tag([LayoutBuilderLayoutWidgetResourceUsageContributor::class, PageContentLayoutWidgetResourceUsageContributor::class], FrontendWidgetResourceUsageContributor::TAG);
         $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
             WidgetAssetContentGraphExtractor::class,

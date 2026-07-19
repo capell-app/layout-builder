@@ -9,13 +9,13 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\Frontend\Contracts\FrontendWidgetResourceUsageContributor;
+use Capell\Frontend\Data\Assets\FrontendWidgetResourceUsageData;
 use Capell\Frontend\Data\FrontendRenderContextData;
-use Capell\LayoutBuilder\Contracts\Assets\LayoutWidgetResourceUsageContributor;
-use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 
-class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetResourceUsageContributor
+class LayoutBuilderLayoutWidgetResourceUsageContributor implements FrontendWidgetResourceUsageContributor
 {
     public static function publicId(string $widgetKey, string $resourceGroup, string $containerKey, int $occurrence): string
     {
@@ -28,7 +28,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
     }
 
     /**
-     * @return array<int, LayoutWidgetResourceUsageData>
+     * @return list<FrontendWidgetResourceUsageData>
      */
     public function usages(FrontendRenderContextData $context): array
     {
@@ -93,7 +93,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements LayoutWidgetR
                 );
 
                 foreach ($resourceGroups as $resourceGroup) {
-                    $usages[] = new LayoutWidgetResourceUsageData(
+                    $usages[] = new FrontendWidgetResourceUsageData(
                         widgetKey: $widgetKey,
                         resourceGroup: $resourceGroup,
                         publicId: self::publicId($widgetKey, $resourceGroup, (string) $containerKey, $occurrence),

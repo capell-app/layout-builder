@@ -6,7 +6,7 @@ namespace Capell\LayoutBuilder\Actions\LayoutWidgets;
 
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Enums\PresentationLoadingStrategy;
-use Capell\LayoutBuilder\Data\Assets\LayoutWidgetResourceUsageData;
+use Capell\Frontend\Data\Assets\FrontendWidgetResourceUsageData;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
@@ -17,7 +17,7 @@ use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static array<int, LayoutWidgetResourceUsageData> run(array<int|string, mixed> $content, LayoutWidgetTarget $target)
+ * @method static list<FrontendWidgetResourceUsageData> run(array<int|string, mixed> $content, LayoutWidgetTarget $target)
  */
 class BuildLayoutWidgetResourceUsagesAction
 {
@@ -31,7 +31,7 @@ class BuildLayoutWidgetResourceUsagesAction
 
     /**
      * @param  array<int|string, mixed>  $content
-     * @return array<int, LayoutWidgetResourceUsageData>
+     * @return list<FrontendWidgetResourceUsageData>
      */
     public function handle(array $content, LayoutWidgetTarget $target): array
     {
@@ -70,7 +70,7 @@ class BuildLayoutWidgetResourceUsagesAction
                     $defaultPresentationSettings['loading_strategy'] = $loadingStrategy->value;
                 }
 
-                $usages[] = new LayoutWidgetResourceUsageData(
+                $usages[] = new FrontendWidgetResourceUsageData(
                     widgetKey: $definition->key,
                     resourceGroup: $resourceGroup,
                     publicId: LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId($resourceGroup),
@@ -88,7 +88,7 @@ class BuildLayoutWidgetResourceUsagesAction
 
     /**
      * @param  array<int|string, mixed>  $content
-     * @return list<LayoutWidgetResourceUsageData>
+     * @return list<FrontendWidgetResourceUsageData>
      */
     private function canonicalExtensionUsages(array $content): array
     {
@@ -121,7 +121,7 @@ class BuildLayoutWidgetResourceUsagesAction
                     );
                 }
 
-                $usages[] = new LayoutWidgetResourceUsageData(
+                $usages[] = new FrontendWidgetResourceUsageData(
                     widgetKey: $definition->key,
                     resourceGroup: $resourceGroup,
                     publicId: LayoutBuilderLayoutWidgetResourceUsageContributor::resourceGroupPublicId($resourceGroup),
