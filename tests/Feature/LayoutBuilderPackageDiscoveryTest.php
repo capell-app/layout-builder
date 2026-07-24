@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use Capell\Admin\Facades\CapellAdmin;
 use Capell\Core\Facades\CapellCore;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
-use Capell\Tests\Fixtures\Models\User;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Gate;
 
 it('discovers the layout builder package service provider', function (): void {
     expect(app()->getProvider(LayoutBuilderServiceProvider::class))->not->toBeNull();
@@ -27,13 +27,17 @@ it('registers page widget assets as a cloneable relation when installed', functi
     expect(CapellCore::getCloneableRelations('page'))->toContain('widgetAssets');
 });
 
-it('contributes the permission aware layout builder welcome tour chapter', function (): void {
-    Gate::before(fn (): bool => true);
-    test()->actingAs(User::factory()->create());
+it('exposes a stable widgets target for an application-owned welcome tour manifest', function (): void {
+    $livewire = Mockery::mock(HasTable::class);
+    $livewire->shouldIgnoreMissing();
+    $livewire->shouldReceive('makeFilamentTranslatableContentDriver')->andReturn(null)->byDefault();
+    $livewire->shouldReceive('getTableFilterState')->andReturn([])->byDefault();
+    $livewire->shouldReceive('isTableLoaded')->andReturnTrue()->byDefault();
+    $livewire->shouldReceive('getTableArguments')->andReturn([])->byDefault();
 
-    $step = collect(CapellAdmin::getWelcomeTourSteps())->firstWhere('key', 'capell-layout-builder.widgets');
+    $table = WidgetResource::table(Table::make($livewire));
 
-    expect($step)->not->toBeNull()
-        ->and(data_get($step, 'chapter'))->toBe('layout-builder')
-        ->and(data_get($step, 'route'))->toBe('/admin/layout-builder/widgets');
+    expect($table->getExtraAttributes())->toMatchArray([
+        'data-tour-id' => 'welcome-tour-layout-builder-widgets',
+    ]);
 });

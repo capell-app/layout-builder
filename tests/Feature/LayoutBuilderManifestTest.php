@@ -186,7 +186,7 @@ it('declares runtime model page type route and migration contribution metadata',
         ->and(class_implements(LayoutBuilderMigrationsContribution::class))->toContain(RunsExtensionMigration::class);
 });
 
-it('only declares migration files that exist in the package', function (): void {
+it('declares every package migration file exactly once', function (): void {
     $manifest = layoutBuilderJson('capell.json');
     $contributes = $manifest['contributes'] ?? [];
 
@@ -201,10 +201,25 @@ it('only declares migration files that exist in the package', function (): void 
 
     throw_unless(is_array($migrationFiles), RuntimeException::class, 'Expected Layout Builder migration files array.');
 
-    foreach ($migrationFiles as $migrationFile) {
-        expect($migrationFile)->toBeString()
-            ->and(file_exists(dirname(__DIR__, 2) . '/database/migrations/' . $migrationFile . '.php'))->toBeTrue();
-    }
+    $migrationFiles = array_values(array_map(
+        static function (mixed $migrationFile): string {
+            throw_unless(is_string($migrationFile), RuntimeException::class, 'Expected each Layout Builder migration filename to be a string.');
+
+            return $migrationFile;
+        },
+        $migrationFiles,
+    ));
+
+    $packageMigrationFiles = array_map(
+        static fn (string $path): string => pathinfo($path, PATHINFO_FILENAME),
+        glob(dirname(__DIR__, 2) . '/database/migrations/*.php') ?: [],
+    );
+
+    sort($migrationFiles);
+    sort($packageMigrationFiles);
+
+    expect($migrationFiles)->toBe(array_values(array_unique($migrationFiles)))
+        ->and($migrationFiles)->toBe($packageMigrationFiles);
 });
 
 it('declares lifecycle actions that satisfy the installer contract', function (): void {

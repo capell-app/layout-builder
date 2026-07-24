@@ -16,6 +16,7 @@ use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
 use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
+use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -102,6 +103,36 @@ it('falls back to frontend context and filters non-public translations', functio
 
     expect($html)->toContain('Public Asset')
         ->and($html)->not->toContain('Wrong Language Asset');
+});
+
+it('eager loads translations from a preloaded base asset collection', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Preloaded Asset', ['kind' => 'feature']);
+    $asset->unsetRelation('translation');
+    $widgetAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($asset)
+        ->container('main')
+        ->occurrence(1)
+        ->create(['workspace_id' => 0]);
+    $widgetAsset->setRelation('asset', $asset);
+    $widget->setRelation('assets', collect([$widgetAsset]));
+
+    $assets = ResolvePublicWidgetAssetsAction::run(
+        $widget,
+        $page,
+        $language,
+        'main',
+        1,
+    );
+
+    expect($assets)->toHaveCount(1)
+        ->and($assets->first()?->asset?->relationLoaded('translation'))->toBeTrue()
+        ->and($assets->first()?->asset?->translation?->title)->toBe('Preloaded Asset');
 });
 
 it('renders deferred placeholders before renderable dispatch', function (): void {

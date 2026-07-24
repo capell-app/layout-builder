@@ -56,7 +56,8 @@ class WidgetResource extends Resource
     #[Override]
     public static function table(Table $table): Table
     {
-        return static::getTableConfigurator()::configure($table);
+        return static::getTableConfigurator()::configure($table)
+            ->extraAttributes(['data-tour-id' => 'welcome-tour-layout-builder-widgets']);
     }
 
     public static function getResourceType(): ConfiguratorTypeEnum

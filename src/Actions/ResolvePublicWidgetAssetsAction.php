@@ -11,7 +11,6 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use DateTimeInterface;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -66,11 +65,14 @@ final class ResolvePublicWidgetAssetsAction
                 ->ordered()
                 ->get();
 
-        $assets = $assets
-            ->filter(fn (WidgetAsset $widgetAsset): bool => $this->belongsToPublicWidgetContext($widgetAsset, $widget, $page, $containerKey, $occurrence))
-            ->values();
+        $assets = (new WidgetAsset)->newCollection(
+            $assets
+                ->filter(fn (WidgetAsset $widgetAsset): bool => $this->belongsToPublicWidgetContext($widgetAsset, $widget, $page, $containerKey, $occurrence))
+                ->values()
+                ->all(),
+        );
 
-        if ($assets instanceof EloquentCollection && $assets->isNotEmpty()) {
+        if ($assets->isNotEmpty()) {
             $assets->load([
                 'asset.translation' => fn (BuilderContract $query): BuilderContract => $this->scopePublicTranslation($query, $language),
             ]);
