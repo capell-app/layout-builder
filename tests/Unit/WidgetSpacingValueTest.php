@@ -43,6 +43,7 @@ it('hydrates legacy string spacing values as arrays', function (): void {
 
 it('preserves current array spacing values during hydration', function (): void {
     expect(PaddingSelect::normalizeHydratedState(['lg']))->toBe(['lg'])
+        ->and(PaddingSelect::normalizeHydratedState([WidgetSpacingValue::Medium]))->toBe(['md'])
         ->and(MarginSelect::normalizeHydratedState(['t-sm', 'b-lg']))->toBe(['t-sm', 'b-lg']);
 });
 

@@ -28,6 +28,11 @@ final class NormalizeLayoutContainerPaddingAction
             return null;
         }
 
+        $state = array_map(
+            static fn (mixed $value): mixed => $value instanceof WidgetSpacingValue ? $value->value : $value,
+            $state,
+        );
+
         $values = array_values(array_unique(array_filter(
             $state,
             static fn (mixed $value): bool => is_string($value)

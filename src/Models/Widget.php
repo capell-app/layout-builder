@@ -8,7 +8,9 @@ use Bkwld\Cloner\Cloneable;
 use Capell\Core\Actions\ResolveRenderableComponentAction;
 use Capell\Core\Concerns\HasCapellMedia;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Enums\MediaCollectionEnum;
+use Capell\Core\Facades\CapellDatabase;
 use Capell\Core\Models\Blueprint as CoreBlueprint;
 use Capell\Core\Models\Concerns\HasBlueprint;
 use Capell\Core\Models\Concerns\HasMetaData;
@@ -31,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\DB;
 use Override;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -276,19 +277,21 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
             $query->select($this->qualifyColumn('*'));
         }
 
-        $query->addSelect(DB::raw(
-            match (DB::getDriverName()) {
-                'sqlite' => <<<'SQL'
-                    (SELECT COUNT(*) FROM layouts WHERE EXISTS (
-                        SELECT 1 FROM json_tree(layouts.containers)
-                        WHERE json_tree.value = widgets.key
-                    ))
-                SQL,
-                default => <<<'SQL'
-                    (SELECT COUNT(*) FROM layouts WHERE JSON_SEARCH(layouts.containers, 'one', widgets.key) IS NOT NULL)
-                SQL,
-            } . ' AS layouts_count',
-        ));
+        $grammar = $query->getQuery()->getGrammar();
+        $matchesWidgetKey = CapellDatabase::for($query->getModel())->queryDialect()->jsonExactSearch(
+            SqlFragment::raw($grammar->wrap('layouts.containers')),
+            SqlFragment::raw($grammar->wrap('widgets.key')),
+            '$.*.widgets[*].widget_key',
+        );
+
+        $query->selectRaw(
+            sprintf(
+                '(SELECT COUNT(*) FROM %s WHERE %s) AS layouts_count',
+                $grammar->wrap('layouts'),
+                $matchesWidgetKey->sql,
+            ),
+            $matchesWidgetKey->bindings,
+        );
     }
 
     /**

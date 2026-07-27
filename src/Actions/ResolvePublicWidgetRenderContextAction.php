@@ -9,10 +9,12 @@ use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Enums\PresentationDeliveryMode;
 use Capell\Core\Models\Blueprint;
 use Capell\Frontend\Facades\Frontend;
+use Capell\LayoutBuilder\Actions\Fragments\BuildLayoutBuilderFragmentReferenceAction;
 use Capell\LayoutBuilder\Data\PublicWidgetRenderContextData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
+use LogicException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -69,7 +71,13 @@ final class ResolvePublicWidgetRenderContextAction
             widgetIndex: $widgetIndex,
         );
 
-        if ($isLazyFragment || $type === 'livewire') {
+        if ($isLazyFragment) {
+            $widgetReference ??= $this->fragmentReference(
+                containerKey: $containerKey,
+                occurrence: $occurrence,
+                widget: $widget,
+            );
+        } elseif ($type === 'livewire') {
             $widgetReference ??= $this->widgetReference(
                 containerKey: $containerKey,
                 layoutKey: $layoutKey,
@@ -162,7 +170,7 @@ final class ResolvePublicWidgetRenderContextAction
             return $trigger;
         }
 
-        $widgetReference ??= $this->widgetReference($containerKey, $layoutKey, $occurrence, $widget, $widgetData, $widgetIndex);
+        $widgetReference ??= $this->fragmentReference($containerKey, $occurrence, $widget);
 
         if ($target !== null) {
             $trigger['target']['fragment_reference'] = $widgetReference;
@@ -173,6 +181,20 @@ final class ResolvePublicWidgetRenderContextAction
         $trigger['fragment_reference'] = $widgetReference;
 
         return $trigger;
+    }
+
+    private function fragmentReference(
+        string $containerKey,
+        int $occurrence,
+        Widget $widget,
+    ): string {
+        $reference = BuildLayoutBuilderFragmentReferenceAction::run($containerKey, $occurrence, $widget);
+
+        if (! is_string($reference) || $reference === '') {
+            throw new LogicException('Public widget fragments require a complete frontend context.');
+        }
+
+        return $reference;
     }
 
     /**

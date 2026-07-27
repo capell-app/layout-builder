@@ -21,7 +21,6 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -1253,19 +1252,21 @@ trait ManagesAssets
                     ),
                     fn (EloquentBuilder $query) => $query->whereNull(['pageable_type', 'pageable_id']),
                 )
-                ->when(
-                    DB::getDriverName() === 'sqlite',
-                    fn (BuilderContract $query): BuilderContract => $query->orderByRaw(
-                        'CASE id '
-                        . implode(' ', array_map(
-                            fn (string $id, string $position): string => sprintf('WHEN %d THEN %d', $id, $position),
-                            $existingIds,
-                            array_keys($existingIds),
-                        ))
-                          . ' END',
-                    ),
-                    fn (BuilderContract $query): BuilderContract => $query->orderByRaw('FIELD(id, ' . implode(',', array_map(intval(...), $existingIds)) . ')'),
-                )
+                ->tap(function (BuilderContract $query) use ($existingIds): void {
+                    $cases = [];
+                    $bindings = [];
+
+                    foreach (array_values($existingIds) as $position => $existingId) {
+                        $cases[] = 'WHEN ? THEN ?';
+                        $bindings[] = (int) $existingId;
+                        $bindings[] = $position;
+                    }
+
+                    $query->orderByRaw(
+                        'CASE id ' . implode(' ', $cases) . ' ELSE ' . count($existingIds) . ' END',
+                        $bindings,
+                    );
+                })
                 ->get();
 
         $newAssetsCollection = collect($newAssets)

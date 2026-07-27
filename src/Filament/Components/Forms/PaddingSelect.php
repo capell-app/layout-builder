@@ -19,9 +19,6 @@ class PaddingSelect extends Select
             ->afterStateHydrated(function (Select $component, mixed $state): void {
                 $component->state(self::normalizeHydratedState($state));
             })
-            ->afterStateUpdated(function (Select $component, mixed $state): void {
-                $component->state(self::normalizeHydratedState($state));
-            })
             ->dehydrateStateUsing(self::normalizeHydratedState(...))
             ->placeholder(__('capell-layout-builder::form.theme_default'))
             ->options(WidgetSpacingValue::class);

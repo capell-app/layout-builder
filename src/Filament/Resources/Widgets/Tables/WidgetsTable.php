@@ -17,6 +17,8 @@ use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\Core\Data\Database\SqlFragment;
+use Capell\Core\Facades\CapellDatabase;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
@@ -35,7 +37,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
-use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
@@ -229,19 +230,25 @@ class WidgetsTable implements TableConfigurator
      */
     protected static function applyComponentSearch(Builder $query, string $search): Builder
     {
-        /** @var Connection $databaseConnection */
-        $databaseConnection = $query->getConnection();
-
-        $searchOperator = match ($databaseConnection->getDriverName()) {
-            'pgsql' => 'ilike',
-            default => 'like',
-        };
+        $grammar = $query->getQuery()->getGrammar();
+        $dialect = CapellDatabase::for($query->getModel())->queryDialect();
 
         return $query->where(
-            fn (Builder $query): Builder => $query
-                ->where('component', $searchOperator, sprintf('%%%s%%', $search))
-                ->orWhere('view_file', $searchOperator, sprintf('%%%s%%', $search))
-                ->orWhere('component_item', $searchOperator, sprintf('%%%s%%', $search)),
+            function (Builder $query) use ($dialect, $grammar, $search): void {
+                foreach (['component', 'view_file', 'component_item'] as $index => $column) {
+                    $position = $dialect->textPosition(
+                        SqlFragment::raw($grammar->wrap($column)),
+                        $search,
+                        caseInsensitive: true,
+                    );
+
+                    $query->whereRaw(
+                        $position->sql . ' > 0',
+                        $position->bindings,
+                        $index === 0 ? 'and' : 'or',
+                    );
+                }
+            },
         );
     }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support;
 
 use BackedEnum;
-use Capell\Core\Data\PageTypeData;
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Enums\RenderableTypeEnum;
@@ -40,15 +39,19 @@ use Illuminate\Support\Facades\App;
 
 final class LayoutBuilderCoreRegistrar
 {
+    /**
+     * LayoutModelRegistrar::register() and page type registration already run
+     * eagerly during LayoutBuilderServiceProvider::packageRegistered() (the
+     * Laravel register phase, which always completes before any provider's
+     * boot phase runs), so they are intentionally not repeated here -- see
+     * that method for the single source of truth.
+     */
     public function register(): void
     {
-        LayoutModelRegistrar::register();
-
         $this->registerManagers();
         $this->registerRelationships();
         $this->registerModelEvents();
         $this->registerModelInterceptors();
-        $this->registerPageTypes();
         $this->registerComponents();
         $this->registerRenderables();
         $this->registerRenderHooks();
@@ -111,19 +114,6 @@ final class LayoutBuilderCoreRegistrar
         CapellCore::registerModelInterceptor(Layout::class, DefaultLayoutInterceptor::class, LayoutEnum::Default);
         CapellCore::registerModelInterceptor(Layout::class, HomeLayoutInterceptor::class, LayoutEnum::Home);
         CapellCore::registerModelInterceptor(Layout::class, ResultsLayoutInterceptor::class, LayoutEnum::Results);
-    }
-
-    private function registerPageTypes(): void
-    {
-        foreach (LayoutTypeEnum::cases() as $type) {
-            CapellCore::registerPageType(
-                new PageTypeData(
-                    name: $type->value,
-                    model: $type->getModel(),
-                    label: $type->getLabel(),
-                ),
-            );
-        }
     }
 
     private function registerComponents(): void
