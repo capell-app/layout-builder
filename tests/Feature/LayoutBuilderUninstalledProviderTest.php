@@ -31,9 +31,20 @@ final class LayoutBuilderUninstalledProviderTest extends AbstractTestCase
         /** @var Dispatcher $events */
         $events = app('events');
         $rawListeners = $events->getRawListeners();
+        $pageSavedListeners = $rawListeners[PageSaved::class] ?? [];
+        $pageDeletedListeners = $rawListeners[PageDeleted::class] ?? [];
+
+        if (! is_array($pageSavedListeners)) {
+            $pageSavedListeners = [$pageSavedListeners];
+        }
+
+        if (! is_array($pageDeletedListeners)) {
+            $pageDeletedListeners = [$pageDeletedListeners];
+        }
+
         $snapshotListeners = collect([
-            ...($rawListeners[PageSaved::class] ?? []),
-            ...($rawListeners[PageDeleted::class] ?? []),
+            ...$pageSavedListeners,
+            ...$pageDeletedListeners,
         ])->filter(fn (mixed $listener): bool => is_array($listener)
             && ($listener[0] ?? null) === MaintainPublicWidgetSnapshotsListener::class);
         $scheduled = collect(resolve(Schedule::class)->events())

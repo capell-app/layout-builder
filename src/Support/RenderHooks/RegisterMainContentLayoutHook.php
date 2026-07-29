@@ -114,7 +114,11 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
 
         foreach ($containers as $containerKey => $container) {
             if (is_string($containerKey) && is_array($container)) {
-                $validContainers[$containerKey] = $container;
+                $validContainers[$containerKey] = array_filter(
+                    $container,
+                    static fn (int|string $key): bool => is_string($key),
+                    ARRAY_FILTER_USE_KEY,
+                );
             }
         }
 

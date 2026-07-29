@@ -564,13 +564,13 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return;
         }
 
-        if (($node['type'] ?? null) === 'widget' && isset($node['containerKey'], $node['widgetIndex'])) {
+        if ($node['type'] === 'widget' && isset($node['containerKey'], $node['widgetIndex'])) {
             $this->selectWidget($node['containerKey'], $node['widgetIndex']);
 
             return;
         }
 
-        if (($node['type'] ?? null) === 'container' && isset($node['containerKey'])) {
+        if ($node['type'] === 'container' && isset($node['containerKey'])) {
             $this->selectContainer($node['containerKey']);
         }
     }

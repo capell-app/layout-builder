@@ -242,9 +242,11 @@ class WidgetsTable implements TableConfigurator
                         caseInsensitive: true,
                     );
 
-                    $query->whereRaw(
+                    (new SqlFragment(
                         $position->sql . ' > 0',
                         $position->bindings,
+                    ))->applyWhere(
+                        $query->getQuery(),
                         $index === 0 ? 'and' : 'or',
                     );
                 }

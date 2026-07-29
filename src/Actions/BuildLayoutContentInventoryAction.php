@@ -164,7 +164,11 @@ final class BuildLayoutContentInventoryAction
 
         foreach ($widgets as $widget) {
             if (is_array($widget)) {
-                $normalised[] = $widget;
+                $normalised[] = array_filter(
+                    $widget,
+                    static fn (int|string $key): bool => is_string($key),
+                    ARRAY_FILTER_USE_KEY,
+                );
             }
         }
 

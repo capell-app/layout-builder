@@ -203,7 +203,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         $cssSourcePath = $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css';
         $cssRelativePublicPath = 'css/capell-layout-builder/capell-layout-builder-filament.css';
 
-        throw_if(in_array($publishDir, ['', '0', false], true), RuntimeException::class, 'Publish directory not found.');
+        throw_if($publishDir === false, RuntimeException::class, 'Publish directory not found.');
 
         FilamentAsset::register(
             [

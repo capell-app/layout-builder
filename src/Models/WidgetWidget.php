@@ -57,6 +57,7 @@ class WidgetWidget extends Model implements Statusable, Userstampable
 
     /**
      * @param  Builder<Model>  $query
+     * @param  'asc'|'desc'  $dir
      */
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {

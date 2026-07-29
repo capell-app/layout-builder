@@ -6,13 +6,13 @@ namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
 use BackedEnum;
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Exception;
-use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
@@ -1252,7 +1252,7 @@ trait ManagesAssets
                     ),
                     fn (EloquentBuilder $query) => $query->whereNull(['pageable_type', 'pageable_id']),
                 )
-                ->tap(function (BuilderContract $query) use ($existingIds): void {
+                ->tap(function (EloquentBuilder $query) use ($existingIds): void {
                     $cases = [];
                     $bindings = [];
 
@@ -1262,10 +1262,10 @@ trait ManagesAssets
                         $bindings[] = $position;
                     }
 
-                    $query->orderByRaw(
+                    (new SqlFragment(
                         'CASE id ' . implode(' ', $cases) . ' ELSE ' . count($existingIds) . ' END',
                         $bindings,
-                    );
+                    ))->applyOrder($query->getQuery());
                 })
                 ->get();
 

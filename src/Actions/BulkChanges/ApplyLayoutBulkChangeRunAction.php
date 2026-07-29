@@ -182,7 +182,11 @@ final class ApplyLayoutBulkChangeRunAction
 
         foreach ($value as $item) {
             if (is_array($item)) {
-                $items[] = $item;
+                $items[] = array_filter(
+                    $item,
+                    static fn (int|string $key): bool => is_string($key),
+                    ARRAY_FILTER_USE_KEY,
+                );
             }
         }
 

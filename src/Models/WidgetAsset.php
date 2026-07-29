@@ -119,6 +119,7 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
 
     /**
      * @param  Builder<Model>  $query
+     * @param  'asc'|'desc'  $dir
      */
     protected function scopeOrdered(Builder $query, string $dir = 'asc'): void
     {
@@ -127,6 +128,7 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
 
     /**
      * @param  Builder<Model>  $query
+     * @param  'asc'|'desc'  $direction
      */
     protected function scopeAlphabetical(Builder $query, Language $language, string $direction = 'asc'): void
     {

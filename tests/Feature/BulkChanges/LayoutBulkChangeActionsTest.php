@@ -112,7 +112,7 @@ function bulkContainerWidgets(Layout $layout, string $containerKey): array
 
     foreach ($widgets as $widget) {
         if (is_array($widget)) {
-            $normalizedWidgets[] = $widget;
+            $normalizedWidgets[] = capell_string_keyed_array($widget);
         }
     }
 
@@ -153,7 +153,7 @@ function bulkContainerDiffs(LayoutBulkChangeResult $result): array
 
     foreach ($diffs as $diff) {
         if (is_array($diff)) {
-            $normalizedDiffs[] = $diff;
+            $normalizedDiffs[] = capell_string_keyed_array($diff);
         }
     }
 

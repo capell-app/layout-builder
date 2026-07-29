@@ -27,7 +27,7 @@ class WidgetAssetForm implements FormConfigurator
         $state = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
         $assetType = $state['asset_type'] ?? ($record instanceof WidgetAsset ? $record->asset_type : null);
 
-        throw_unless($assetType, RuntimeException::class, 'Asset type is required to load the asset schema');
+        throw_unless(is_string($assetType) && $assetType !== '', RuntimeException::class, 'Asset type is required to load the asset schema');
 
         $adminSchema = null;
 
@@ -37,16 +37,16 @@ class WidgetAssetForm implements FormConfigurator
             throw_unless($widget instanceof Widget, RuntimeException::class, 'Widget is required to load the asset schema');
 
             $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
-
-            $adminSchema = $widget->admin['widget_asset_configurator'][$assetType]
-                ?? ($blueprint instanceof Blueprint ? $blueprint->admin['widget_asset_configurator'][$assetType] ?? null : null)
-                ?? null;
+            $adminSchema = self::assetConfigurator($widget->getAttribute('admin'), $assetType)
+                ?? ($blueprint instanceof Blueprint
+                    ? self::assetConfigurator($blueprint->getAttribute('admin'), $assetType)
+                    : null);
         }
 
-        $enumCase = WidgetAssetConfiguratorEnum::class . '::' . ucfirst((string) $assetType);
+        $enumCase = WidgetAssetConfiguratorEnum::class . '::' . ucfirst($assetType);
 
         if ($adminSchema === null && defined($enumCase)) {
-            $adminSchema = WidgetAssetConfiguratorEnum::fromName(ucfirst((string) $assetType))->value::getKey();
+            $adminSchema = WidgetAssetConfiguratorEnum::fromName(ucfirst($assetType))->value::getKey();
         }
 
         if ($adminSchema === null && $assetType !== 'page') {
@@ -60,5 +60,22 @@ class WidgetAssetForm implements FormConfigurator
         $adminType = AdminSurfaceLookup::configurator(ConfiguratorTypeEnum::WidgetAsset, $adminSchema);
 
         return $adminType::configure($configurator)->columns();
+    }
+
+    private static function assetConfigurator(mixed $admin, string $assetType): ?string
+    {
+        if (! is_array($admin)) {
+            return null;
+        }
+
+        $configurators = $admin['widget_asset_configurator'] ?? null;
+
+        if (! is_array($configurators)) {
+            return null;
+        }
+
+        $configurator = $configurators[$assetType] ?? null;
+
+        return is_string($configurator) ? $configurator : null;
     }
 }

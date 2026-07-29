@@ -41,7 +41,7 @@ function layoutBulkWidgets(array $containers, string $container): array
 
     foreach ($widgets as $widget) {
         if (is_array($widget)) {
-            $normalizedWidgets[] = $widget;
+            $normalizedWidgets[] = capell_string_keyed_array($widget);
         }
     }
 
