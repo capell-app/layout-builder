@@ -1,4 +1,4 @@
-@props ([
+@props([
     'containerKey',
     'containerWidget',
     'loop',
@@ -13,7 +13,7 @@
 
     /**
      * @var \Capell\LayoutBuilder\Models\Widget $widget
-    */
+     */
 
     /**
      * @var LayoutBuilder $this
@@ -138,14 +138,10 @@
         })
     "
     x-on:collapse-widget.window="
-        if (
-            $event.detail.containerKey &&
-            $event.detail.containerKey !== containerKey
-        )
-            return
-        if ($event.detail.id && $event.detail.id !== id) return
-        isCollapsed = $event.detail.isCollapsed
-        notify()
+        if ($event.detail.containerKey && $event.detail.containerKey !== containerKey) return;
+        if ($event.detail.id && $event.detail.id !== id) return;
+        isCollapsed = $event.detail.isCollapsed;
+        notify();
     "
     x-on:refresh-assets.window="
         $event.detail.containerKey === '{{ $containerKey }}' &&
@@ -268,10 +264,8 @@
                 icon="heroicon-o-folder-open"
                 size="sm"
                 x-on:click.stop="toggleCollapse()"
-                x-bind:aria-expanded="(!isCollapsed).toString()"
-                x-bind:class="
-                    !isCollapsed ? 'layout-widget-assets-toggle-open' : ''
-                "
+                x-bind:aria-expanded="(! isCollapsed).toString()"
+                x-bind:class="! isCollapsed ? 'layout-widget-assets-toggle-open' : ''"
                 aria-controls="{{ $assetsPanelId }}"
                 data-layout-widget-assets-toggle="true"
             />
@@ -300,7 +294,7 @@
             </button>
 
             <div
-                @class ([
+                @class([
                     'layout-widget-preview-shell group/widget min-w-0 flex-1 transition focus-visible:outline-none',
                 ])
                 role="button"
@@ -308,15 +302,15 @@
                 aria-label="{{ __('capell-layout-builder::button.select_widget', ['widget' => $previewLabel]) }}"
                 x-on:click.capture="
                     if (shouldSuppressWidgetActions()) {
-                        $event.preventDefault()
-                        $event.stopImmediatePropagation()
+                        $event.preventDefault();
+                        $event.stopImmediatePropagation();
                     }
                 "
                 x-on:click="selectWidget(containerKey, {{ $widgetIndex }})"
                 x-on:keydown.enter.prevent="selectWidget(containerKey, {{ $widgetIndex }})"
                 x-on:keydown.space.prevent="selectWidget(containerKey, {{ $widgetIndex }})"
             >
-                @include ($previewView, [
+                @include($previewView, [
                     'containerKey' => $containerKey,
                     'containerWidget' => $containerWidget,
                     'previewData' => $previewData,

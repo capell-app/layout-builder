@@ -11,21 +11,21 @@
             search: '',
             init() {
                 this.$nextTick(() => {
-                    const target = window.location.hash.substring(1)
+                    const target = window.location.hash.substring(1);
 
                     if (!target) {
-                        return
+                        return;
                     }
 
-                    document.getElementById(target)?.focus()
-                })
+                    document.getElementById(target)?.focus();
+                });
             },
             normalize(value) {
                 return (value || '')
                     .toString()
                     .toLowerCase()
                     .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[\u0300-\u036f]/g, '');
             },
             escapeHtml(value) {
                 return (value || '')
@@ -34,52 +34,46 @@
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;')
+                    .replace(/'/g, '&#039;');
             },
             highlight(value) {
-                const escaped = this.escapeHtml(value)
-                const term = this.search.trim()
+                const escaped = this.escapeHtml(value);
+                const term = this.search.trim();
 
                 if (!term) {
-                    return escaped
+                    return escaped;
                 }
 
-                const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
                 return escaped.replace(
                     new RegExp(`(${escapedTerm})`, 'gi'),
                     '<mark class="rounded bg-warning-100 px-0.5 text-warning-900 dark:bg-warning-500/20 dark:text-warning-200">$1</mark>',
-                )
+                );
             },
             hasActiveSearch() {
-                return this.search.trim() !== ''
+                return this.search.trim() !== '';
             },
             itemMatches(widget) {
                 return (
                     !this.hasActiveSearch() ||
-                    this.normalize(widget.dataset.layoutContentSearch).includes(
-                        this.normalize(this.search),
-                    )
-                )
+                    this.normalize(widget.dataset.layoutContentSearch).includes(this.normalize(this.search))
+                );
             },
             groupMatches(widget) {
                 return (
                     !this.hasActiveSearch() ||
-                    Array.from(
-                        widget.querySelectorAll(
-                            '[data-layout-content-item-key]',
-                        ),
-                    ).some((item) => this.itemMatches(item))
-                )
+                    Array.from(widget.querySelectorAll('[data-layout-content-item-key]')).some((item) =>
+                        this.itemMatches(item),
+                    )
+                );
             },
             visibleItems() {
                 return Array.from(
-                    this.$refs.contentItems?.querySelectorAll(
-                        '[data-layout-content-item-key]',
-                    ) || [],
-                ).filter((item) => this.itemMatches(item)).length
+                    this.$refs.contentItems?.querySelectorAll('[data-layout-content-item-key]') || [],
+                ).filter((item) => this.itemMatches(item)).length;
             },
-        })
+        });
     </script>
 @endonce
 
@@ -117,7 +111,7 @@
             <div
                 class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
             >
-                @svg ('heroicon-o-document-text', 'h-5 w-5')
+                @svg('heroicon-o-document-text', 'h-5 w-5')
             </div>
             <p class="text-sm font-medium text-gray-950 dark:text-white">
                 {{ __('capell-layout-builder::message.content_inventory_empty') }}
@@ -135,14 +129,10 @@
                     class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                 >
                     <div class="min-w-0">
-                        <p
-                            class="text-sm font-medium text-gray-950 dark:text-white"
-                        >
+                        <p class="text-sm font-medium text-gray-950 dark:text-white">
                             {{ trans_choice('capell-layout-builder::message.content_inventory_count', $inventory->itemCount, ['count' => $inventory->itemCount]) }}
                         </p>
-                        <p
-                            class="mt-0.5 text-xs text-gray-500 dark:text-gray-400"
-                        >
+                        <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                             {{ __('capell-layout-builder::message.content_inventory_search_hint') }}
                         </p>
                     </div>
@@ -151,7 +141,7 @@
                         <span class="sr-only">
                             {{ __('capell-layout-builder::form.search_content_inventory') }}
                         </span>
-                        @svg ('heroicon-o-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500')
+                        @svg('heroicon-o-magnifying-glass', 'pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500')
                         <input
                             type="search"
                             x-model.debounce.150ms="search"
@@ -168,7 +158,7 @@
                             class="hover:text-primary-600 focus:text-primary-600 dark:hover:text-primary-400 dark:focus:text-primary-400 absolute top-1/2 right-2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-gray-400 transition dark:text-gray-500"
                             aria-label="{{ __('capell-layout-builder::button.clear_content_inventory_search') }}"
                         >
-                            @svg ('heroicon-o-x-mark', 'h-4 w-4')
+                            @svg('heroicon-o-x-mark', 'h-4 w-4')
                         </button>
                     </label>
                 </div>
@@ -202,11 +192,7 @@
                                 </h3>
 
                                 @if ($group->summary)
-                                    <p
-                                        class="mt-1 text-xs text-gray-600 dark:text-gray-300"
-                                    >
-                                        {{ $group->summary }}
-                                    </p>
+                                    <p class="mt-1 text-xs text-gray-600 dark:text-gray-300">{{ $group->summary }}</p>
                                 @endif
                             </div>
 
@@ -294,9 +280,7 @@
                                         </div>
 
                                         @if ($item->summary)
-                                            <p
-                                                class="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300"
-                                            >
+                                            <p class="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
                                                 <span
                                                     x-html="highlight({{ Js::from($item->summary) }})"
                                                 ></span>
@@ -311,7 +295,7 @@
                                                     class="inline-flex items-center gap-1"
                                                     data-layout-content-source-field="{{ $item->sourceDetail }}"
                                                 >
-                                                    @svg ('heroicon-o-pencil-square', 'h-3.5 w-3.5 shrink-0')
+                                                    @svg('heroicon-o-pencil-square', 'h-3.5 w-3.5 shrink-0')
                                                     <span
                                                         x-html="highlight({{ Js::from($item->sourceDetail) }})"
                                                     ></span>
@@ -350,10 +334,8 @@
                                             </div>
                                         @endif
 
-                                        <p
-                                            class="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"
-                                        >
-                                            @svg ('heroicon-o-map-pin', 'h-3.5 w-3.5 shrink-0')
+                                        <p class="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                            @svg('heroicon-o-map-pin', 'h-3.5 w-3.5 shrink-0')
                                             <span
                                                 x-html="highlight({{ Js::from($item->placementLabel) }})"
                                             ></span>
@@ -423,7 +405,7 @@
                 <div
                     class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
                 >
-                    @svg ('heroicon-o-magnifying-glass', 'h-5 w-5')
+                    @svg('heroicon-o-magnifying-glass', 'h-5 w-5')
                 </div>
                 <p class="text-sm font-medium text-gray-950 dark:text-white">
                     {{ __('capell-layout-builder::message.content_inventory_search_empty') }}

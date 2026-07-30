@@ -1,4 +1,4 @@
-@props ([
+@props([
     'container',
     'containerKey',
     'containerWidgets',
@@ -186,11 +186,11 @@
         })
     "
     x-on:collapse-container.window="
-        if ($event.detail.id && $event.detail.id !== id) return
-        isCollapsed = $event.detail.isCollapsed
-        notify()
+        if ($event.detail.id && $event.detail.id !== id) return;
+        isCollapsed = $event.detail.isCollapsed;
+        notify();
     "
-    @class ([
+    @class([
         'layout-container group/container relative col-span-12 transition-[grid-column] duration-150 ease-out',
     ])
     x-bind:style="gridColumnStyle()"
@@ -330,19 +330,15 @@
                     color="gray"
                     :label="__('capell-layout-builder::button.collapse')"
                     x-on:click="toggleCollapse"
-                    x-bind:aria-expanded="(!isCollapsed).toString()"
-                    x-bind:class="!isCollapsed ? 'rotate-90' : ''"
+                    x-bind:aria-expanded="(! isCollapsed).toString()"
+                    x-bind:class="! isCollapsed ? 'rotate-90' : ''"
                 />
             </div>
         </div>
 
         <div
             class="layout-container-mobile-width-control"
-            x-show="
-                !isCollapsed &&
-                mode === 'edit' &&
-                !shouldStackContainersForActiveBreakpoint()
-            "
+            x-show="! isCollapsed && mode === 'edit' && ! shouldStackContainersForActiveBreakpoint()"
             x-cloak
         >
             <button
@@ -352,7 +348,7 @@
                 x-bind:disabled="previewColspan <= 1"
                 aria-label="{{ __('capell-layout-builder::message.decrease_container_width', ['container' => $containerTitle]) }}"
             >
-                @svg ('heroicon-o-minus', 'h-4 w-4')
+                @svg('heroicon-o-minus', 'h-4 w-4')
             </button>
 
             <span
@@ -368,7 +364,7 @@
                 x-bind:disabled="previewColspan >= 12"
                 aria-label="{{ __('capell-layout-builder::message.increase_container_width', ['container' => $containerTitle]) }}"
             >
-                @svg ('heroicon-o-plus', 'h-4 w-4')
+                @svg('heroicon-o-plus', 'h-4 w-4')
             </button>
         </div>
 
@@ -382,7 +378,7 @@
             aria-valuemax="12"
             x-bind:aria-valuenow="previewColspan"
             x-bind:aria-valuetext="colspanLabel(previewColspan)"
-            x-show="!isCollapsed && !shouldStackContainersForActiveBreakpoint()"
+            x-show="! isCollapsed && ! shouldStackContainersForActiveBreakpoint()"
             x-on:pointerenter="isResizeHandleHovered = true"
             x-on:pointerleave="isResizeHandleHovered = false"
             x-on:pointerdown.stop.prevent="startResize($event)"
@@ -399,39 +395,16 @@
                 class="pointer-events-none"
                 aria-hidden="true"
             >
-                <svg
-                    class="h-3.5 w-3.5"
-                    fill="currentColor"
-                    viewBox="0 0 16 16"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <circle
-                        cx="5"
-                        cy="5"
-                        r="1.5"
-                    />
-                    <circle
-                        cx="11"
-                        cy="5"
-                        r="1.5"
-                    />
-                    <circle
-                        cx="5"
-                        cy="11"
-                        r="1.5"
-                    />
-                    <circle
-                        cx="11"
-                        cy="11"
-                        r="1.5"
-                    />
+                <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="5" cy="5" r="1.5" />
+                    <circle cx="11" cy="5" r="1.5" />
+                    <circle cx="5" cy="11" r="1.5" />
+                    <circle cx="11" cy="11" r="1.5" />
                 </svg>
             </span>
             <span
                 class="layout-container-resize-value pointer-events-none absolute"
-                x-show="
-                    isResizeHandleHovered || isResizeHandleFocused || isResizing
-                "
+                x-show="isResizeHandleHovered || isResizeHandleFocused || isResizing"
                 x-transition.opacity.duration.100ms
                 x-cloak
                 aria-hidden="true"
@@ -443,15 +416,12 @@
         </button>
 
         <div
-            x-show="!isCollapsed"
+            x-show="! isCollapsed"
             class="layout-container-widgets"
             x-sort="reorderWidget('{{ $containerKey }}', $item, $position)"
             x-sort:group="widgets"
             x-sort:config="{
-                animation: window.matchMedia('(prefers-reduced-motion: reduce)')
-                    .matches
-                    ? 0
-                    : 160,
+                animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 160,
                 easing: 'cubic-bezier(0.2, 0, 0, 1)',
                 forceFallback: true,
                 fallbackClass: 'layout-sort-fallback',
@@ -479,7 +449,7 @@
                                 class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
                                 x-on:click="$wire.mountAction('addWidget', { containerKey: @js($containerKey), position: @js($widgetIndex) })"
                             >
-                                @svg ('heroicon-m-plus', 'h-3.5 w-3.5')
+                                @svg('heroicon-m-plus', 'h-3.5 w-3.5')
                                 <span>
                                     {{ __('capell-layout-builder::button.add_widget_here') }}
                                 </span>
@@ -526,7 +496,7 @@
                             class="fi-btn fi-size-sm fi-btn-color-gray fi-color-gray fi-btn-outlined focus-visible:ring-primary-500 inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:ring-2 focus-visible:outline-none dark:border-gray-600 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
                             x-on:click="$wire.mountAction('addWidget', { containerKey: @js($containerKey), position: @js(count($containerWidgets)) })"
                         >
-                            @svg ('heroicon-m-plus', 'h-3.5 w-3.5')
+                            @svg('heroicon-m-plus', 'h-3.5 w-3.5')
                             <span>
                                 {{ __('capell-layout-builder::button.add_widget_here') }}
                             </span>

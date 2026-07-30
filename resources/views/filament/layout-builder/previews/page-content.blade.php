@@ -1,4 +1,4 @@
-@props ([
+@props([
     'previewData',
     'assetsToggleAction' => null,
     'widgetActions' => null,
@@ -48,9 +48,7 @@
         </div>
 
         @if ($previewData->excerpt)
-            <p
-                class="mt-3 line-clamp-3 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300"
-            >
+            <p class="mt-3 line-clamp-3 max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-300">
                 {{ $previewData->excerpt }}
             </p>
         @endif

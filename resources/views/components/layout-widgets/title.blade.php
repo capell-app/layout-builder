@@ -1,4 +1,4 @@
-@props ([
+@props([
     'color' => '',
     'headingSize' => 'h2',
     'size' => '',

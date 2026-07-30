@@ -1,4 +1,4 @@
-@props (['containerKey', 'hasPageAssets', 'occurrence', 'panelId' => null, 'widget', 'widgetIndex'])
+@props(['containerKey', 'hasPageAssets', 'occurrence', 'panelId' => null, 'widget', 'widgetIndex'])
 @php
     use Capell\Core\Facades\CapellCore;
     use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -18,18 +18,18 @@
 <div
     @if ($panelId) id="{{ $panelId }}" @endif
     class="layout-builder-widget-assets mx-4 mt-0.5 rounded shadow-xs ring-1 ring-gray-950/5 dark:ring-white/10"
-    x-show="!isCollapsed"
+    x-show="! isCollapsed"
     x-cloak
 >
     <div
         class="flex items-center justify-between rounded-t border-b border-black/5 bg-gray-50 px-4 py-2.5 dark:border-white/10 dark:bg-gray-800"
     >
         <span
-            @class ([
-                'text-xs font-medium',
-                'text-warning-600 dark:text-warning-400' => $hasPageAssets,
-                'text-gray-500 dark:text-gray-400' => ! $hasPageAssets,
-            ])
+            @class([
+            'text-xs font-medium',
+            'text-warning-600 dark:text-warning-400' => $hasPageAssets,
+            'text-gray-500 dark:text-gray-400' => ! $hasPageAssets,
+        ])
         >
             <span class="font-semi-bold">
                 {{ $hasPageAssets ? __('capell-layout-builder::generic.widget_asset_page') : __('capell-layout-builder::generic.widget_assets') }}
@@ -47,10 +47,10 @@
                     x-on:click="toggleReorderingResources('{{ $containerKey }}', {{ $widgetIndex }})"
                     x-bind:aria-pressed="isWidgetReorderingResources('{{ $containerKey }}', {{ $widgetIndex }}).toString()"
                 >
-                    @svg ('heroicon-o-arrows-up-down', 'inline-block h-4 w-4 transition duration-75', [
+                    @svg('heroicon-o-arrows-up-down', 'inline-block h-4 w-4 transition duration-75', [
                         'x-show' => "! isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
                     ])
-                    @svg ('heroicon-o-check', 'inline-block h-4 w-4 transition duration-75', [
+                    @svg('heroicon-o-check', 'inline-block h-4 w-4 transition duration-75', [
                         'x-show' => "isWidgetReorderingResources('{$containerKey}', {$widgetIndex})",
                         'x-cloak' => '',
                     ])
@@ -98,10 +98,7 @@
                 )
             "
             x-sort:config="{
-                animation: window.matchMedia('(prefers-reduced-motion: reduce)')
-                    .matches
-                    ? 0
-                    : 180,
+                animation: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 180,
             }"
         >
             @foreach ($widget->assets as $widgetAsset)

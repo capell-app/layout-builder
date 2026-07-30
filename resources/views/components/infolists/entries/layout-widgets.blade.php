@@ -16,9 +16,7 @@
                 <h3 class="text-lg leading-6 font-medium text-gray-900">
                     {{ $widgetKey }}
                 </h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                    {{ $widget->getMetaComponent() }}
-                </p>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ $widget->getMetaComponent() }}</p>
             </div>
             <div class="mt-4 flex items-center justify-between">
                 <p class="text-sm font-medium text-gray-500">

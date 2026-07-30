@@ -69,10 +69,10 @@
             </div>
         @else
             <div
-                @class ([
-                    'clb-preview-content-layout',
-                    'clb-preview-content-layout-with-sidebar' => $sidebarEntries->isNotEmpty(),
-                ])
+                @class([
+                'clb-preview-content-layout',
+                'clb-preview-content-layout-with-sidebar' => $sidebarEntries->isNotEmpty(),
+            ])
             >
                 @foreach ($contentRegions as $region)
                     <section
@@ -88,7 +88,7 @@
                             data-clb-preview-container-list
                         >
                             @foreach ($region['entries'] as $entry)
-                                @include ('capell-layout-builder::filament.layout-builder.admin-preview.container', ['entry' => $entry])
+                                @include('capell-layout-builder::filament.layout-builder.admin-preview.container', ['entry' => $entry])
                             @endforeach
                         </div>
                     </section>
@@ -109,7 +109,7 @@
                         data-clb-preview-container-list
                     >
                         @foreach ($region['entries'] as $entry)
-                            @include ('capell-layout-builder::filament.layout-builder.admin-preview.container', ['entry' => $entry])
+                            @include('capell-layout-builder::filament.layout-builder.admin-preview.container', ['entry' => $entry])
                         @endforeach
                     </div>
                 </section>

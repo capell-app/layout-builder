@@ -1,7 +1,7 @@
 @php
     use Capell\Frontend\Data\MainContentRenderHookData;
-    use Capell\LayoutBuilder\Actions\WidgetIsSlotAction;
     use Capell\LayoutBuilder\Actions\ResolveLayoutAreaContainersAction;
+    use Capell\LayoutBuilder\Actions\WidgetIsSlotAction;
     use Capell\LayoutBuilder\Models\Widget;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;

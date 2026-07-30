@@ -1,4 +1,4 @@
-@props ([
+@props([
     'widgetData' => [],
     'context' => [],
     'widgetPayloads' => [],
@@ -8,10 +8,10 @@
     use Capell\Core\Actions\Interactions\ResolveInteractionTriggersAction;
     use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
     use Capell\Frontend\Exceptions\WidgetLibraryException;
+    use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
     use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
     use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
     use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
-    use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
 
     throw_unless(is_array($widgetData), WidgetLibraryException::class, 'The lazy widget payload must be an array.', ['widgetData' => $widgetData]);
 

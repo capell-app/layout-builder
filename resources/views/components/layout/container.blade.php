@@ -2,8 +2,8 @@
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
     use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
-    use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
     use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
+    use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutWidgetData;
 
@@ -36,11 +36,15 @@
 
 @if ($colspan !== 12)
     @if (! $previousColspan || $previousColspan === 12)
-        <div @class([
+        <div
+            @class([
             'layout-container-shell',
             $containerWidth->getContainerClass(),
-        ])>
-            <div class="flex w-full min-w-0 flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16">
+        ])
+        >
+            <div
+                class="flex w-full min-w-0 flex-col gap-x-12 lg:grid lg:grid-cols-12 xl:gap-x-16"
+            >
     @endif
 
     <div
@@ -131,7 +135,7 @@
     </div>
 
     @if ($currentColspan === 12)
-            </div>
+        </div>
         </div>
     @endif
 @endif

@@ -19,18 +19,18 @@
     [x-cloak='inline-flex'] {
         display: inline-flex !important;
     }
-
-    @media (max-width: 1023px) {
-        [x-cloak='-lg'] {
-            display: none !important;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        [x-cloak='lg'] {
-            display: none !important;
-        }
-    }
+    @media(max-width: 1023px)
+    {
+           [x-cloak='-lg'] {
+               display: none !important;
+           }
+       }
+    @media(min-width: 1024px)
+    {
+           [x-cloak='lg'] {
+               display: none !important;
+           }
+       }
 </style>
 
 @filamentStyles
@@ -61,33 +61,28 @@
 
     @if (! filament()->hasDarkMode())
         <script>
-            localStorage.setItem('theme', 'light')
+            localStorage.setItem('theme', 'light');
         </script>
     @elseif (filament()->hasDarkModeForced())
         <script>
-            localStorage.setItem('theme', 'dark')
+            localStorage.setItem('theme', 'dark');
         </script>
     @else
         <script>
             const loadCapellLayoutBuilderAuthoringDarkMode = () => {
-                window.theme =
-                    localStorage.getItem('theme') ?? @js (filament()->getDefaultThemeMode()->value)
+                window.theme = localStorage.getItem('theme') ?? @js(filament()->getDefaultThemeMode()->value);
 
                 if (
                     window.theme === 'dark' ||
-                    (window.theme === 'system' &&
-                        window.matchMedia('(prefers-color-scheme: dark)').matches)
+                    (window.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
                 ) {
-                    document.documentElement.classList.add('dark')
+                    document.documentElement.classList.add('dark');
                 }
-            }
+            };
 
-            loadCapellLayoutBuilderAuthoringDarkMode()
+            loadCapellLayoutBuilderAuthoringDarkMode();
 
-            document.addEventListener(
-                'livewire:navigated',
-                loadCapellLayoutBuilderAuthoringDarkMode,
-            )
+            document.addEventListener('livewire:navigated', loadCapellLayoutBuilderAuthoringDarkMode);
         </script>
     @endif
 @endif

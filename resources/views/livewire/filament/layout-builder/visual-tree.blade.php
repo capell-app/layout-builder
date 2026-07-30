@@ -1,4 +1,4 @@
-@props ([
+@props([
     'tree',
     'title' => __('capell-layout-builder::heading.layout_structure'),
     'canBrowseStarterLayouts' => false,
@@ -72,7 +72,7 @@
                 x-on:click="toggleTreeCollapsed()"
                 title="{{ __('capell-layout-builder::button.structure') }}"
             >
-                @svg ('heroicon-o-x-mark', 'h-4 w-4')
+                @svg('heroicon-o-x-mark', 'h-4 w-4')
                 <span class="sr-only">
                     {{ __('capell-layout-builder::button.structure') }}
                 </span>
@@ -84,7 +84,7 @@
         <span class="sr-only">
             {{ __('capell-layout-builder::form.search_layout_tree') }}
         </span>
-        @svg ('heroicon-o-magnifying-glass', 'h-4 w-4')
+        @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
         <input
             x-ref="treeSearchInput"
             type="search"
@@ -93,7 +93,7 @@
         />
         <kbd
             class="layout-builder-tree-search-shortcut"
-            x-show="!treeSearchActive()"
+            x-show="! treeSearchActive()"
             aria-hidden="true"
         >
             /
@@ -105,7 +105,7 @@
             x-on:click="clearTreeSearch()"
             aria-label="{{ __('capell-layout-builder::button.clear_layout_tree_search') }}"
         >
-            @svg ('heroicon-o-x-mark', 'h-4 w-4')
+            @svg('heroicon-o-x-mark', 'h-4 w-4')
         </button>
     </label>
 
@@ -135,25 +135,21 @@
                 data-layout-builder-tree-search="{{ $containerSearchText }}"
                 data-layout-builder-tree-node="{{ $container->nodeId }}"
                 x-bind:data-layout-builder-selected="
-                    $el.dataset.layoutBuilderTreeNode === selectedNode
-                        ? 'true'
-                        : 'false'
+                    $el.dataset.layoutBuilderTreeNode === selectedNode ? 'true' : 'false'
                 "
                 class="layout-builder-tree-container"
-                x-bind:aria-expanded="
-                    treeContainerOpen(open, $el) ? 'true' : 'false'
-                "
+                x-bind:aria-expanded="treeContainerOpen(open, $el) ? 'true' : 'false'"
             >
                 <button
                     type="button"
-                    @class ([
+                    @class([
                         'layout-builder-tree-row layout-builder-tree-row-container',
                         'layout-builder-tree-row-selected' => $container->isSelected,
                     ])
                     x-on:click="selectFromTree(@js($container->nodeId), () => $wire.selectContainer(@js($container->key)))"
                 >
                     <span class="layout-builder-tree-row-icon">
-                        @svg ('heroicon-o-rectangle-group', 'h-4 w-4')
+                        @svg('heroicon-o-rectangle-group', 'h-4 w-4')
                     </span>
                     <span class="layout-builder-tree-row-main">
                         <span>{{ $container->label }}</span>
@@ -169,27 +165,17 @@
 
                     <span
                         class="layout-builder-tree-chevron"
-                        x-on:click.stop="open = !open"
+                        x-on:click.stop="open = ! open"
                         x-bind:class="{
-                            'rotate-90': treeContainerOpen(
-                                open,
-                                $el.closest(
-                                    '[data-layout-builder-tree-container]',
-                                ),
-                            ),
+                            'rotate-90': treeContainerOpen(open, $el.closest('[data-layout-builder-tree-container]')),
                         }"
                     >
-                        @svg ('heroicon-o-chevron-right', 'h-4 w-4')
+                        @svg('heroicon-o-chevron-right', 'h-4 w-4')
                     </span>
                 </button>
 
                 <div
-                    x-show="
-                        treeContainerOpen(
-                            open,
-                            $el.closest('[data-layout-builder-tree-container]'),
-                        )
-                    "
+                    x-show="treeContainerOpen(open, $el.closest('[data-layout-builder-tree-container]'))"
                     x-collapse
                     class="layout-builder-tree-widgets"
                 >
@@ -206,7 +192,7 @@
 
                         <button
                             type="button"
-                            @class ([
+                            @class([
                                 'layout-builder-tree-row layout-builder-tree-row-widget',
                                 'layout-builder-tree-row-selected' => $widget->isSelected,
                             ])
@@ -216,15 +202,12 @@
                             data-layout-builder-tree-search="{{ $widgetSearchText }}"
                             data-layout-builder-tree-node="{{ $widget->nodeId }}"
                             x-bind:data-layout-builder-selected="
-                                $el.dataset.layoutBuilderTreeNode ===
-                                selectedNode
-                                    ? 'true'
-                                    : 'false'
+                                $el.dataset.layoutBuilderTreeNode === selectedNode ? 'true' : 'false'
                             "
                             x-on:click="selectFromTree(@js($widget->nodeId), () => $wire.selectWidget(@js($widget->containerKey), @js($widget->widgetIndex)))"
                         >
                             <span class="layout-builder-tree-row-icon">
-                                @svg ($widget->icon ?: 'heroicon-o-cube', 'h-4 w-4')
+                                @svg($widget->icon ?: 'heroicon-o-cube', 'h-4 w-4')
                             </span>
                             <span class="layout-builder-tree-row-main">
                                 <span>{{ $widget->label }}</span>
@@ -249,9 +232,9 @@
 
         <div
             class="layout-builder-tree-search-empty"
-            x-show="treeSearchActive() && !hasTreeSearchResults()"
+            x-show="treeSearchActive() && ! hasTreeSearchResults()"
         >
-            @svg ('heroicon-o-magnifying-glass', 'h-4 w-4')
+            @svg('heroicon-o-magnifying-glass', 'h-4 w-4')
             <span>
                 {{ __('capell-layout-builder::message.layout_tree_search_empty') }}
             </span>

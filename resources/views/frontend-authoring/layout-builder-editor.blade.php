@@ -14,7 +14,7 @@
         content="width=device-width, initial-scale=1"
     />
     <title>{{ $title }}</title>
-    @include ('capell-layout-builder::frontend-authoring.filament-shell-assets')
+    @include('capell-layout-builder::frontend-authoring.filament-shell-assets')
     @livewireStyles
     <style>
         html {
@@ -79,20 +79,18 @@
             </div>
             <h1 class="capell-layout-builder-authoring__title">{{ $title }}</h1>
             @if (! empty($description))
-                <p class="capell-layout-builder-authoring__description">
-                    {{ $description }}
-                </p>
+                <p class="capell-layout-builder-authoring__description">{{ $description }}</p>
             @endif
         </header>
 
-        @livewire ('capell-layout-builder::filament.layout-builder', [
-                'layoutId' => $layoutId,
-                'siteId' => $siteId,
-                'pageId' => $pageId,
-                'pageClass' => $pageClass,
-                'initialContainerKey' => $initialContainerKey,
-                'initialWidgetIndex' => $initialWidgetIndex,
-            ])
+        @livewire('capell-layout-builder::filament.layout-builder', [
+            'layoutId' => $layoutId,
+            'siteId' => $siteId,
+            'pageId' => $pageId,
+            'pageClass' => $pageClass,
+            'initialContainerKey' => $initialContainerKey,
+            'initialWidgetIndex' => $initialWidgetIndex,
+        ])
     </main>
 
     <script>
@@ -102,7 +100,7 @@
                     type: 'capell-authoring:editor-loaded',
                 },
                 window.location.origin,
-            )
+            );
 
             Livewire.on('capell-layout-builder-authoring-dirty', function () {
                 window.parent.postMessage(
@@ -110,24 +108,21 @@
                         type: 'capell-authoring:dirty',
                     },
                     window.location.origin,
-                )
-            })
+                );
+            });
 
-            Livewire.on(
-                'capell-layout-builder-authoring-saved',
-                function (detail) {
-                    window.parent.postMessage(
-                        {
-                            type: 'capell-authoring:saved',
-                            detail: Array.isArray(detail) ? detail[0] : detail,
-                        },
-                        window.location.origin,
-                    )
-                },
-            )
-        })
+            Livewire.on('capell-layout-builder-authoring-saved', function (detail) {
+                window.parent.postMessage(
+                    {
+                        type: 'capell-authoring:saved',
+                        detail: Array.isArray(detail) ? detail[0] : detail,
+                    },
+                    window.location.origin,
+                );
+            });
+        });
     </script>
-    @filamentScripts (withCore: true)
+    @filamentScripts(withCore: true)
     @livewireScripts
 </body>
 </html>
