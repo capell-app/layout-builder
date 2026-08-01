@@ -37,27 +37,27 @@ Screenshot contract: `docs/screenshots.json`.
 
 ![Layout Builder add container action](docs/screenshots/layout-builder-add-container-action.png)
 
-- Layout Builder visual editor with main and sidebar containers (admin, optional).
-- Layout Builder content-first editing mode (admin, optional).
-- Layout Builder add widget action (admin, required).
-- Layout Builder add container action (admin, required).
-- Layout Builder edit widget action (admin, required).
-- Layout Builder edit container action (admin, required).
-- Layout Builder active-theme container settings (admin, required).
-- Layout Builder responsive padding controls on mobile (admin, required).
-- Layout Builder active-theme container settings on mobile (admin, required).
-- Layout Builder responsive preview (admin, optional).
-- Layout Builder tree selection (admin, optional).
-- Layout Builder preset action fixture (frontend, optional).
-- Layout Builder undo and redo actions fixture (frontend, optional).
-- Layout Builder bulk change criteria fixture (frontend, optional).
-- Layout Builder bulk change review fixture (frontend, optional).
-- Layout Builder main and sidebar admin example (admin, optional).
-- Layout Builder main and sidebar public example (frontend, optional).
-- Layout Builder full-width public example (frontend, optional).
-- Widgets admin index (admin, required).
-- Create and edit widget form with widget assets (admin, required).
-- Sections admin index (admin, required).
+- Layout Builder visual editor with main and sidebar containers (admin, supplementary evidence).
+- Layout Builder content-first editing mode (admin, supplementary evidence).
+- Layout Builder add widget action (admin, required evidence).
+- Layout Builder add container action (admin, required evidence).
+- Layout Builder edit widget action (admin, required evidence).
+- Layout Builder edit container action (admin, required evidence).
+- Layout Builder active-theme container settings (admin, required evidence).
+- Layout Builder responsive padding controls on mobile (admin, required evidence).
+- Layout Builder active-theme container settings on mobile (admin, required evidence).
+- Layout Builder responsive preview (admin, supplementary evidence).
+- Layout Builder tree selection (admin, supplementary evidence).
+- Layout Builder preset action fixture (frontend, supplementary evidence).
+- Layout Builder undo and redo actions fixture (frontend, supplementary evidence).
+- Layout Builder bulk change criteria fixture (frontend, supplementary evidence).
+- Layout Builder bulk change review fixture (frontend, supplementary evidence).
+- Layout Builder main and sidebar admin example (admin, supplementary evidence).
+- Layout Builder main and sidebar public example (frontend, supplementary evidence).
+- Layout Builder full-width public example (frontend, supplementary evidence).
+- Widgets admin index (admin, required evidence).
+- Create and edit widget form with widget assets (admin, required evidence).
+- Sections admin index (admin, required evidence).
 
 ## Works With
 
@@ -78,11 +78,11 @@ Screenshot contract: `docs/screenshots.json`.
 - Extension contracts: `PublicLayoutWidgetAssetsRenderer`, `LayoutContainerSchemaExtender`, `WidgetAssetSchemaExtender`, `WidgetSchemaExtender`, `LayoutContainerThemePresentationProjector`, `LayoutContentGroupContributor`, `LayoutSidebarWidgetContributor`, `PublicLayoutWidgetPayloadContributor`, `PublicLayoutWidgetPayloadResolver`, `WidgetAssetReferenceRepointer`, `WidgetExtensionBatchPayloadResolver`, `WidgetExtensionDependencyResolver`, `and 2 more`.
 - Listeners: `AfterRecordSaved`, `LayoutLoaded`, `MaintainPublicWidgetSnapshotsListener`, `SiteTreeRebuilt`, `TypeValidated`.
 - Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 75 more`.
-- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `LayoutBuilderTreeContainerData`, `and 40 more`.
+- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `LayoutBuilderTreeContainerData`, `and 41 more`.
 - Jobs: `ApplyLayoutBulkChangeRunJob`, `SyncLinkedLayoutPresetJob`.
 - Command signatures: `capell:layout-builder-install`, `capell:layout-builder:prune-bulk-change-runs`.
 - Manifest action API: `install: Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction`, `pruneLayoutBulkChangeRuns: Capell\LayoutBuilder\Actions\PruneLayoutBulkChangeRunsAction`, `setup: Capell\LayoutBuilder\Actions\SetupLayoutBuilderPackageAction`.
-- Scheduled commands: `capell:layout-builder:prune-bulk-change-runs (daily)`, `capell:widget-snapshots:prune (daily)`.
+- Scheduled commands: `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`.
 - Console command classes: `InstallCommand`, `LayoutBulkChangeCommand`, `PruneLayoutBulkChangeRunsCommand`, `PrunePublicWidgetSnapshotsCommand`, `ResyncLayoutPresetCommand`, `WidgetVisualRegressionCommand`.
 - Manifest contributions: `admin-resource: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `asset: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `configurator: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`, `migration: Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution`, `model: Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution`, `page-type: Capell\LayoutBuilder\Manifest\LayoutBuilderPageTypesContribution`, `route: Capell\LayoutBuilder\Manifest\LayoutBuilderRoutesContribution`, `scheduled-job: Capell\LayoutBuilder\Manifest\LayoutBuilderBulkChangePruneScheduleContribution`, `scheduled-job: Capell\LayoutBuilder\Manifest\LayoutBuilderSnapshotPruneScheduleContribution`, `schema-extender: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`.
 - Health checks: `Capell\LayoutBuilder\Health\LayoutBuilderHealthCheck`.
@@ -96,7 +96,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Core record references in migrations: `sites via site_id`, `languages via language_id`, `layouts via layout_id`, `widgets via widget_id`, `themes via theme_id`.
 - Migration files: `2026_05_10_190841_02_create_widgets_table.php`, `2026_05_10_190841_03_create_widget_assets_table.php`, `2026_05_10_190841_04_create_widget_widgets_table.php`, `2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `2026_05_10_190841_06_create_layout_presets_table.php`, `2026_06_07_000001_create_layout_bulk_change_tables.php`, `2026_07_09_000001_create_public_widget_snapshots_table.php`, `2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table.php`, `2026_07_10_000002_create_layout_preset_usages_table.php`, `2026_07_10_000003_create_layout_preset_sync_runs_table.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
-- Deletion/retention behaviour: migrations declare cascade-on-delete relationships and null-on-delete relationships; retention is scheduled through `capell:widget-snapshots:prune` (daily) and `capell:layout-builder:prune-bulk-change-runs` (daily).
+- Deletion/retention behaviour: migrations declare cascade-on-delete relationships and null-on-delete relationships; retention is scheduled through `capell:widget-snapshots:prune` (daily; declared in the manifest) and `capell:layout-builder:prune-bulk-change-runs` (daily; declared in the manifest).
 
 ## Install Impact
 
@@ -108,7 +108,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Database changes: package migrations are declared.
 - Config: `config/capell-layout-builder.php`.
 - Settings: no package settings declared.
-- Queues or schedules: scheduled commands `capell:layout-builder:prune-bulk-change-runs (daily)`, `capell:widget-snapshots:prune (daily)`; queue jobs `ApplyLayoutBulkChangeRunJob`, `SyncLinkedLayoutPresetJob`.
+- Queues or schedules: scheduled commands `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`; queue jobs `ApplyLayoutBulkChangeRunJob`, `SyncLinkedLayoutPresetJob`.
 - Cache tags: `layout-builder`.
 - Commands: `capell:layout-builder-install`, `capell:layout-builder:prune-bulk-change-runs`.
 
@@ -117,7 +117,7 @@ Screenshot contract: `docs/screenshots.json`.
 - Keep required Capell packages on compatible v4 releases: `capell-app/core`, `capell-app/admin`, `capell-app/block-library`, `capell-app/frontend`.
 - Run migrations before opening package resources or public routes.
 - Review package configuration before production-like verification: `config/capell-layout-builder.php`.
-- Register the host scheduler so these declared commands run at their documented frequencies: `capell:layout-builder:prune-bulk-change-runs (daily)`, `capell:widget-snapshots:prune (daily)`.
+- Keep the host Laravel scheduler running so package-registered schedules can execute: `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
 - Custom write integrations must preserve invalidation for `layout-builder` cache tags.
 
@@ -134,7 +134,7 @@ Screenshot contract: `docs/screenshots.json`.
 
 1. Install the package: `composer require capell-app/layout-builder`.
 2. Run the required setup: `php artisan capell:layout-builder-install`.
-3. Open the Layout Builder add widget action and confirm the admin workflow loads.
+3. Open the package admin surface at `/screenshot-fixtures/layout-builder-admin-editor` and confirm Layout Builder is available.
 
 ## Next Steps
 
