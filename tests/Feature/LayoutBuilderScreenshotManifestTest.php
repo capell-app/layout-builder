@@ -6,6 +6,7 @@ it('separates inspected release evidence from optional replacement targets', fun
     $entries = collect(layout_builder_screenshot_entries());
 
     $requiredIds = [
+        'layout-builder-editor-main-sidebar',
         'layout-builder-add-widget-action',
         'layout-builder-add-container-action',
         'layout-builder-edit-widget-action',
@@ -19,7 +20,6 @@ it('separates inspected release evidence from optional replacement targets', fun
     ];
 
     $optionalReplacementIds = [
-        'layout-builder-editor-main-sidebar',
         'layout-builder-editor-content-first',
         'layout-builder-responsive-preview',
         'layout-builder-tree-selection',
@@ -111,6 +111,47 @@ it('keeps unstable action-state screenshots on deterministic anonymous fixture r
             ->and($entry['notes'] ?? '')->toContain('illustration-only')
             ->and($entry)->not->toHaveKey('interactions');
     }
+});
+
+it('captures widget integrity states through authenticated production table presenters', function (): void {
+    $entries = collect(layout_builder_screenshot_entries())
+        ->whereIn('id', [
+            'layout-builder-unused-disabled-widget',
+            'layout-builder-broken-unscoped-widget-assets',
+        ])
+        ->keyBy('id');
+
+    expect($entries)->toHaveCount(2);
+
+    expect($entries['layout-builder-unused-disabled-widget'])
+        ->toMatchArray([
+            'surface' => 'admin',
+            'scenario' => 'admin-index',
+            'url' => '/screenshot-fixtures/layout-builder-integrity/widget-usage',
+            'waitFor' => '[data-layout-builder-integrity-table="widgets"] table',
+            'target' => 'WidgetsTable',
+            'required' => false,
+            'user' => 'admin',
+            'interactions' => [
+                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widgets"] tr:has-text("Screenshot unused and disabled widget") .fi-badge'],
+                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widgets"] tr:has-text("Screenshot unused and disabled widget") div.table-cell-action-icon svg'],
+            ],
+        ]);
+
+    expect($entries['layout-builder-broken-unscoped-widget-assets'])
+        ->toMatchArray([
+            'surface' => 'admin',
+            'scenario' => 'admin-index',
+            'url' => '/screenshot-fixtures/layout-builder-integrity/widget-assets',
+            'waitFor' => '[data-layout-builder-integrity-table="widget-assets"] table',
+            'target' => 'WidgetAssetsTable',
+            'required' => false,
+            'user' => 'admin',
+            'interactions' => [
+                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widget-assets"] tr:has-text("Broken asset") .fi-badge'],
+                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widget-assets"] tr:has-text("Not placed") .fi-badge'],
+            ],
+        ]);
 });
 
 it('uses stable selector interactions for admin screenshot captures that the workbench can drive', function (): void {

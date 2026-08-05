@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Capell\Core\Enums\LayoutEnum;
-use Capell\Core\Enums\PublishStatusEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
@@ -20,6 +19,7 @@ use Capell\LayoutBuilder\Actions\Mutations\PasteLayoutFragmentAction;
 use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminWidgetPreviewDataAction;
 use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
+use Capell\LayoutBuilder\Data\Dashboard\LayoutHealthData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
@@ -126,48 +126,17 @@ it('covers modal table query label action and disabled submission branches', fun
         ->and($component->exposeCanSubmitSelectedRecords())->toBeTrue();
 });
 
-it('aggregates layout health widget data for grouped unused and least-used widgets', function (): void {
-    $publishedType = Blueprint::factory()->create([
-        'name' => 'Marketing',
-        'type' => 'widget',
-        'group' => 'marketing',
-    ]);
-    $pendingType = Blueprint::factory()->create([
-        'name' => 'Commerce',
-        'type' => 'widget',
-        'group' => 'commerce',
-    ]);
-
-    $publishedWidget = Widget::factory()->create([
-        'name' => 'Published Hero',
-        'blueprint_id' => $publishedType->getKey(),
-        'visible_from' => now()->subDay(),
-        'visible_until' => null,
-    ]);
-    $pendingWidget = Widget::factory()->create([
-        'name' => 'Pending CTA',
-        'blueprint_id' => $pendingType->getKey(),
-        'visible_from' => now()->addDay(),
-        'visible_until' => null,
-    ]);
-    $expiredWidget = Widget::factory()->create([
-        'name' => 'Expired Banner',
-        'blueprint_id' => $publishedType->getKey(),
-        'visible_from' => now()->subDays(3),
-        'visible_until' => now()->subDay(),
-    ]);
-
-    WidgetAsset::factory()->widget($publishedWidget)->asset(Page::factory()->create())->create();
-
+it('builds compact layout health work queue data without dashboard analytics', function (): void {
     $layoutHealthWidget = new LayoutHealthFilamentWidget;
     $viewData = invokeLayoutBuilderResidualMethod($layoutHealthWidget, 'getViewData');
     $data = $viewData['data'];
 
-    capell_expect($data->totalWidgets)->toBeGreaterThanOrEqual(3)
-        ->and($data->widgetsByGroup->pluck('group')->all())->toContain('marketing', 'commerce')
-        ->and($data->leastUsedWidgets->pluck('name')->all())->toContain($pendingWidget->name)
-        ->and($data->unusedWidgets->pluck('name')->all())->toContain($pendingWidget->name, $expiredWidget->name)
-        ->and(PublishStatusEnum::published)->toBe(PublishStatusEnum::published);
+    if (! $data instanceof LayoutHealthData) {
+        throw new RuntimeException('Expected layout health view data.');
+    }
+
+    capell_expect($data->workQueue)->toBeEmpty()
+        ->and(array_keys($data->toArray()))->toBe(['workQueue']);
 });
 
 it('generates layout preview images for matching signatures and records failures', function (): void {

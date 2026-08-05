@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Admin\Enums\CapellPermission;
 use Capell\Core\Enums\PresentationWidthMode;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
@@ -100,4 +101,27 @@ test('widget type cannot be reassigned from the edit form payload', function ():
         ->assertHasNoFormErrors();
 
     expect($widget->refresh()->blueprint_id)->toBe($type->getKey());
+});
+
+test('widget edit header shows authoritative layout usage alongside disabled state', function (): void {
+    $widget = Widget::factory()->create([
+        'key' => 'disabled-used-widget',
+        'status' => false,
+    ]);
+
+    Layout::factory()->create([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $widget->key, 'occurrence' => 1],
+                ],
+            ],
+        ],
+    ]);
+
+    Livewire::test(EditWidget::class, [
+        'record' => $widget->getRouteKey(),
+    ])
+        ->assertSee(__('capell-admin::generic.disabled'))
+        ->assertSee('1 layout');
 });

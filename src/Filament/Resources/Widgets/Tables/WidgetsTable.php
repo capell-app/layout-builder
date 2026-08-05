@@ -17,11 +17,14 @@ use Capell\Admin\Filament\Components\Tables\Columns\StatusIconColumn;
 use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\Admin\Support\SiteScope;
 use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Facades\CapellDatabase;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Actions\BuildWidgetDeletionImpactAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\LayoutBuilder\Models\Widget;
@@ -36,9 +39,11 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\Builder as BaseQueryBuilder;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -57,7 +62,7 @@ class WidgetsTable implements TableConfigurator
                 ])
                     ->select('widgets.*')
                     /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
-                    ->withLayoutsCount(),
+                    ->withLayoutsCount(LayoutResource::getEloquentQuery()),
             )
             ->defaultSort('name')
             ->columns(self::getTableColumns())
@@ -71,7 +76,8 @@ class WidgetsTable implements TableConfigurator
                 LayoutsTable::getBulkChangeLayoutsAction('moveOrReplaceInLayouts'),
                 ActionGroup::make([
                     ReplicateAction::make('replicate'),
-                    DeleteAction::make('delete'),
+                    DeleteAction::make('delete')
+                        ->modalDescription(fn (Widget $record): string => self::deletionImpactDescription($record)),
                 ])
                     ->color('gray'),
             ])
@@ -182,7 +188,7 @@ class WidgetsTable implements TableConfigurator
                 ->disabledClick()
                 ->formatStateUsing(
                     function (Widget $record, int $state): ?HtmlString {
-                        if ($state === 0) {
+                        if ($state === 0 || ! self::hasAuthoritativeLayoutUsage()) {
                             return null;
                         }
 
@@ -197,6 +203,21 @@ class WidgetsTable implements TableConfigurator
                         );
                     },
                 ),
+            TextColumn::make('usage_status')
+                ->label(__('capell-layout-builder::table.usage'))
+                ->badge()
+                ->getStateUsing(fn (Widget $record): string => (int) $record->layouts_count === 0
+                    ? (string) (self::hasAuthoritativeLayoutUsage()
+                        ? __('capell-layout-builder::table.unused')
+                        : __('capell-layout-builder::table.widget_usage_no_tracked_uses'))
+                    : (string) trans_choice('capell-layout-builder::table.widget_usage_layouts', (int) $record->layouts_count, ['count' => (int) $record->layouts_count]))
+                ->color(fn (Widget $record): string => (int) $record->layouts_count === 0 ? 'warning' : 'success')
+                ->tooltip(fn (Widget $record): string => (int) $record->layouts_count === 0
+                    ? (string) (self::hasAuthoritativeLayoutUsage()
+                        ? __('capell-layout-builder::table.widget_usage_unused_tooltip')
+                        : __('capell-layout-builder::table.widget_usage_no_tracked_uses_tooltip'))
+                    : (string) trans_choice('capell-layout-builder::table.widget_usage_layouts_tooltip', (int) $record->layouts_count, ['count' => (int) $record->layouts_count]))
+                ->toggleable(),
             StatusIconColumn::make('status'),
             DateColumn::make('visible_from')
                 ->label(__('capell-layout-builder::table.visible_from'))
@@ -325,6 +346,10 @@ class WidgetsTable implements TableConfigurator
                     ),
                 ),
 
+            Filter::make('unused')
+                ->label(__('capell-layout-builder::table.widget_usage_unused'))
+                ->query(self::applyUnusedFilter(...)),
+
             StatusFilter::make('status'),
 
             TrashedFilter::make(),
@@ -344,5 +369,60 @@ class WidgetsTable implements TableConfigurator
         }
 
         return $query->whereIn('key', $layout->widgets);
+    }
+
+    /**
+     * @param  Builder<Widget>  $query
+     * @return Builder<Widget>
+     */
+    private static function applyUnusedFilter(Builder $query): Builder
+    {
+        if (! self::hasAuthoritativeLayoutUsage()) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        $model = $query->getModel();
+        $countedWidgets = Widget::query()
+            ->withTrashed()
+            ->select((new Widget)->qualifyColumn('id'))
+            /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
+            ->withLayoutsCount(LayoutResource::getEloquentQuery());
+
+        return $query->whereIn(
+            $model->qualifyColumn($model->getKeyName()),
+            function (BaseQueryBuilder $query) use ($countedWidgets): void {
+                $query->fromSub($countedWidgets->toBase(), 'widget_layout_counts')
+                    ->select('widget_layout_counts.id')
+                    ->where('widget_layout_counts.layouts_count', 0);
+            },
+        );
+    }
+
+    private static function deletionImpactDescription(Widget $record): string
+    {
+        $impact = BuildWidgetDeletionImpactAction::run($record);
+
+        if ($impact->layouts === 0 && $impact->isAuthoritative) {
+            return (string) __('capell-layout-builder::message.widget_delete_impact_unused');
+        }
+
+        if ($impact->layouts === 0) {
+            return (string) __('capell-layout-builder::message.widget_delete_impact_no_tracked_uses');
+        }
+
+        return (string) trans_choice(
+            'capell-layout-builder::message.widget_delete_impact_layouts',
+            $impact->layouts,
+            ['count' => $impact->layouts],
+        );
+    }
+
+    private static function hasAuthoritativeLayoutUsage(): bool
+    {
+        $actor = auth()->user();
+
+        return $actor instanceof Authenticatable
+            && SiteScope::isGlobalActor($actor)
+            && LayoutResource::canViewAny();
     }
 }

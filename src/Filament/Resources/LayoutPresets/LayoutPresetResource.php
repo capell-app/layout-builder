@@ -71,13 +71,13 @@ final class LayoutPresetResource extends Resource
     #[Override]
     public static function getPluralModelLabel(): string
     {
-        return __('capell-layout-builder::navigation.layout_presets');
+        return __('capell-layout-builder::model_labels.layout_presets');
     }
 
     #[Override]
     public static function getModelLabel(): string
     {
-        return __('capell-layout-builder::navigation.layout_preset');
+        return __('capell-layout-builder::model_labels.layout_preset');
     }
 
     #[Override]

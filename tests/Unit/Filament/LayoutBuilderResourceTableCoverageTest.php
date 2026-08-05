@@ -7,14 +7,17 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
+use Capell\LayoutBuilder\Filament\Components\Forms\WidgetSelect;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
+use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
@@ -22,9 +25,14 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+
+uses(CreatesAdminUser::class);
 
 function invokeLayoutBuilderTableMethod(string $className, string $methodName, mixed ...$arguments): mixed
 {
@@ -63,8 +71,8 @@ it('exposes widget resource metadata search details and soft-deleted query scope
         ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
         ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')
         ->and(WidgetResource::getSlug())->toBe('layout-builder/widgets')
-        ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::navigation.widget'))
-        ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
+        ->and(WidgetResource::getModelLabel())->toBe(__('capell-layout-builder::model_labels.widget'))
+        ->and(WidgetResource::getPluralModelLabel())->toBe(__('capell-layout-builder::model_labels.widgets'))
         ->and(WidgetResource::shouldRegisterNavigation())->toBeTrue()
         ->and(WidgetResource::getGloballySearchableAttributes())->toContain('translations.title')
         ->and(WidgetResource::getGlobalSearchResultDetails($widget))->toBe([
@@ -80,6 +88,8 @@ it('exposes widget resource metadata search details and soft-deleted query scope
 });
 
 it('builds widget table columns filters and search query branches', function (): void {
+    test()->actingAsAdmin();
+
     $language = createEnglishLayoutBuilderLanguage();
     $widget = Widget::factory()->create([
         'component' => 'hero-card',
@@ -93,7 +103,7 @@ it('builds widget table columns filters and search query branches', function ():
     ]);
 
     $columns = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableColumns');
-    $filters = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters');
+    $filters = layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters'));
     $tableSource = file_get_contents(__DIR__ . '/../../../src/Filament/Resources/Widgets/Tables/WidgetsTable.php');
 
     $contentSearchQuery = invokeLayoutBuilderTableMethod(
@@ -110,15 +120,66 @@ it('builds widget table columns filters and search query branches', function ():
     );
 
     $languageFilter = firstLayoutBuilderTableComponent($filters, 'filter');
+    $unusedFilter = firstLayoutBuilderTableComponent($filters, 'unused', Filter::class);
+    $unusedWidget = Widget::factory()->create(['key' => 'unused-widget', 'status' => true]);
+    $usedWidget = Widget::factory()->create(['key' => 'used-widget', 'status' => true]);
+    Layout::factory()->create([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $usedWidget->key, 'occurrence' => 1],
+                ],
+            ],
+        ],
+    ]);
+    if (! $unusedFilter instanceof Filter) {
+        throw new RuntimeException('Expected an unused widget filter.');
+    }
+
+    $unusedWidgetIds = $unusedFilter->apply(
+        Widget::query()
+            /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
+            ->withLayoutsCount(),
+        ['isActive' => true],
+    )->pluck('id');
 
     expect($columns)->toContainOnlyInstancesOf(Column::class)
-        ->and($filters)->toHaveCount(5)
+        ->and($filters)->toHaveCount(6)
         ->and($contentSearchQuery->whereKey($widget->getKey())->exists())->toBeTrue()
         ->and($componentSearchQuery->whereKey($widget->getKey())->exists())->toBeTrue()
         ->and($languageFilter)->not->toBeNull()
+        ->and($unusedFilter)->toBeInstanceOf(Filter::class)
+        ->and($unusedWidgetIds)->toContain($unusedWidget->getKey())
+        ->and($unusedWidgetIds)->not->toContain($usedWidget->getKey())
         ->and($tableSource)->toContain('moveOrReplaceInLayouts')
         ->and($tableSource)->toContain('filters[widget_key][value]')
         ->and($tableSource)->not->toContain('filters[widget_id][value]');
+});
+
+it('includes soft-deleted unused widgets when the unused and trashed filters are combined', function (): void {
+    test()->actingAsAdmin();
+
+    $filters = layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters'));
+    $unusedFilter = firstLayoutBuilderTableComponent($filters, 'unused', Filter::class);
+    $trashedFilter = firstLayoutBuilderTableComponent($filters, 'trashed', TrashedFilter::class);
+    $unusedWidget = Widget::factory()->create(['key' => 'soft-deleted-unused-widget', 'status' => true]);
+    $unusedWidget->delete();
+
+    if (! $unusedFilter instanceof Filter || ! $trashedFilter instanceof TrashedFilter) {
+        throw new RuntimeException('Expected unused and trashed widget filters.');
+    }
+
+    $filteredWidgetIds = $unusedFilter->apply(
+        $trashedFilter->apply(
+            Widget::query()
+                /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
+                ->withLayoutsCount(),
+            ['value' => false],
+        ),
+        ['isActive' => true],
+    )->pluck('id');
+
+    expect($filteredWidgetIds)->toContain($unusedWidget->getKey());
 });
 
 it('covers widget asset table lookup and type helper branches', function (): void {
@@ -163,7 +224,43 @@ it('filters indicates and creates widget assets through the widget assets table 
 
     $table = WidgetAssetsTable::configure(layoutBuilderWidgetAssetsTable(WidgetAsset::query()));
 
+    expect($table->getRecordUrl($existingAsset->fresh()))->toBeNull();
+
+    test()->actingAs(test()->createUser());
+
+    expect($table->getRecordUrl($existingAsset->fresh()))->toBeNull();
+
+    test()->actingAsAdmin();
+
     expect($table->getRecordUrl($existingAsset->fresh()))->toBeString();
+
+    $orphanedAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->create([
+            'asset_type' => $page->getMorphClass(),
+            'asset_id' => 999999,
+        ]);
+
+    expect($table->getRecordUrl($orphanedAsset->fresh()))->toBeNull();
+
+    $unscopedAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($page)
+        ->create();
+    $partialTypeScopedAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($page)
+        ->create([
+            'pageable_type' => $page->getMorphClass(),
+            'pageable_id' => null,
+        ]);
+    $partialIdScopedAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($page)
+        ->create([
+            'pageable_type' => null,
+            'pageable_id' => $page->getKey(),
+        ]);
 
     $filter = firstLayoutBuilderTableComponent($table->getFilters(), 'filter');
     expect($filter)->not->toBeNull();
@@ -173,6 +270,13 @@ it('filters indicates and creates widget assets through the widget assets table 
     $pagesSelect = firstLayoutBuilderTableComponent($components, 'pages', Select::class);
 
     expect($pagesSelect)->toBeInstanceOf(Select::class);
+
+    $integrityFilter = firstLayoutBuilderTableComponent($table->getFilters(), 'integrity', SelectFilter::class);
+    expect($integrityFilter)->toBeInstanceOf(SelectFilter::class);
+
+    if (! $integrityFilter instanceof SelectFilter) {
+        throw new RuntimeException('Expected a widget asset integrity filter.');
+    }
 
     $livewire = layoutBuilderWidgetAssetsTableLivewire(WidgetAsset::query());
     $pageOptions = layoutBuilderEvaluateComponentProperty(
@@ -199,6 +303,8 @@ it('filters indicates and creates widget assets through the widget assets table 
             'pageable_id' => $page->getKey(),
         ],
     ]);
+    $brokenReferenceIds = $integrityFilter->apply(WidgetAsset::query(), ['value' => 'broken_reference'])->pluck('id');
+    $unscopedIds = $integrityFilter->apply(WidgetAsset::query(), ['value' => 'unscoped'])->pluck('id');
 
     $createAction = collect($table->getHeaderActions())
         ->first(fn (mixed $action): bool => $action instanceof CreateAction);
@@ -207,25 +313,116 @@ it('filters indicates and creates widget assets through the widget assets table 
     $relationManager = new RelationManager;
     $relationManager->ownerRecord = $widget;
 
-    $createdAsset = $createAction->process(null, [
+    layoutBuilderWidgetAsset($createAction->process(null, [
         'data' => [
             'asset_id' => [$page->getKey(), $secondPage->getKey()],
             'asset_type' => $page->getMorphClass(),
         ],
         'livewire' => $relationManager,
-    ]);
+    ]));
 
     expect($pageOptions)->toHaveKey($page->getMorphClass() . ':' . $page->getKey())
         ->and($filteredQuery->toSql())->toContain('asset_type', 'blueprint_id', 'pageable_type', 'pageable_id')
         ->and($indicators)->toHaveKeys(['asset_type', 'blueprint_id', 'page'])
-        ->and($createdAsset)->toBeInstanceOf(WidgetAsset::class)
-        ->and(WidgetAsset::query()->where('widget_id', $widget->getKey())->count())->toBe(3);
+        ->and($brokenReferenceIds)->toContain($orphanedAsset->getKey())
+        ->and($brokenReferenceIds)->not->toContain($existingAsset->getKey())
+        ->and($unscopedIds)->toContain($unscopedAsset->getKey())
+        ->and($unscopedIds)->toContain($partialTypeScopedAsset->getKey())
+        ->and($unscopedIds)->toContain($partialIdScopedAsset->getKey())
+        ->and($unscopedIds)->not->toContain($orphanedAsset->getKey())
+        ->and(WidgetAsset::query()->where('widget_id', $widget->getKey())->count())->toBe(7);
+
+});
+
+it('keeps disabled widget state visible while selection and select labels distinguish usage', function (): void {
+    test()->actingAsAdmin();
+
+    $usedWidget = Widget::factory()->create(['key' => 'used-widget', 'status' => true]);
+    $disabledWidget = Widget::factory()->create([
+        'key' => 'disabled-widget',
+        'status' => false,
+    ]);
+
+    Layout::factory()->create([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $usedWidget->key, 'occurrence' => 1],
+                ],
+            ],
+        ],
+    ]);
+
+    $widgetSelect = WidgetSelect::make('widget_id')->withCreateForm();
+    $selectionTable = WidgetSelectionTable::configure(layoutBuilderWidgetAssetsTable(Widget::query()));
+
+    expect($widgetSelect->getOptionLabelFromRecord($usedWidget))
+        ->toContain('1 layout')
+        ->and($widgetSelect->getOptionLabelFromRecord($disabledWidget))
+        ->toContain(__('capell-admin::generic.disabled'))
+        ->toContain(__('capell-layout-builder::table.widget_usage_unused'))
+        ->and($selectionTable->isRecordSelectable($usedWidget))->toBeTrue()
+        ->and($selectionTable->isRecordSelectable($disabledWidget))->toBeFalse();
+
+    expect($widgetSelect->getOptions())
+        ->toHaveKey($usedWidget->getKey())
+        ->not->toHaveKey($disabledWidget->getKey());
+
+    $disabledWidget->delete();
+
+    expect($widgetSelect->getOptionLabelFromRecord($disabledWidget))
+        ->toContain(__('capell-admin::widget.unavailable'));
+});
+
+it('uses actor-scoped layout usage projections without per-widget count queries in select labels', function (): void {
+    test()->actingAsAdmin();
+
+    $usedWidget = Widget::factory()->create(['key' => 'projected-used-widget', 'status' => true]);
+    $unusedWidget = Widget::factory()->create(['key' => 'projected-unused-widget', 'status' => true]);
+
+    Layout::factory()->create([
+        'containers' => [
+            'main' => [
+                'widgets' => [
+                    ['widget_key' => $usedWidget->key, 'occurrence' => 1],
+                ],
+            ],
+        ],
+    ]);
+
+    $widgetSelect = WidgetSelect::make('widget_id')->withCreateForm();
+    $optionLabelsUsing = (new ReflectionProperty(Select::class, 'getOptionLabelsUsing'))->getValue($widgetSelect);
+
+    if (! $optionLabelsUsing instanceof Closure) {
+        throw new RuntimeException('Expected a selected widget labels callback.');
+    }
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    $options = $widgetSelect->getOptions();
+    $optionQueries = DB::getQueryLog();
+
+    DB::flushQueryLog();
+    $selectedLabels = $optionLabelsUsing($widgetSelect, [$usedWidget->getKey(), $unusedWidget->getKey()]);
+    $selectedLabelQueries = DB::getQueryLog();
+
+    $optionUsageQueries = layoutBuilderWidgetUsageQueries($optionQueries);
+    $selectedLabelUsageQueries = layoutBuilderWidgetUsageQueries($selectedLabelQueries);
+
+    expect($options[$usedWidget->getKey()] ?? null)->toContain('1 layout')
+        ->and($options[$unusedWidget->getKey()] ?? null)->toContain(__('capell-layout-builder::table.widget_usage_unused'))
+        ->and($selectedLabels[$usedWidget->getKey()] ?? null)->toContain('1 layout')
+        ->and($selectedLabels[$unusedWidget->getKey()] ?? null)->toContain(__('capell-layout-builder::table.widget_usage_unused'))
+        ->and($optionUsageQueries)->toHaveCount(1)
+        ->and($selectedLabelUsageQueries)->toHaveCount(1)
+        ->and($optionUsageQueries[0])->toContain('layout_usage')
+        ->and($selectedLabelUsageQueries[0])->toContain('layout_usage');
 });
 
 it('adds layout-builder specific layout table filters columns and query relations', function (): void {
     $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero']);
 
-    $filters = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableFilters');
+    $filters = layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableFilters'));
     $columns = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableColumns');
     $query = invokeLayoutBuilderTableMethod(
         LayoutsTable::class,
@@ -246,7 +443,7 @@ it('adds layout-builder specific layout table filters columns and query relation
 });
 
 /**
- * @param  array<int, mixed>  $components
+ * @param  array<array-key, mixed>  $components
  * @param  class-string|null  $expectedClass
  */
 function firstLayoutBuilderTableComponent(array $components, string $name, ?string $expectedClass = null): ?object
@@ -272,6 +469,34 @@ function firstLayoutBuilderTableComponent(array $components, string $name, ?stri
     }
 
     return null;
+}
+
+/**
+ * @return array<array-key, mixed>
+ */
+function layoutBuilderTableComponents(mixed $components): array
+{
+    if (! is_array($components)) {
+        throw new RuntimeException('Expected table components to be an array.');
+    }
+
+    return $components;
+}
+
+/**
+ * @param  array<array{query: string, bindings: array<mixed>, time: float|null}>  $queries
+ * @return array<int, string>
+ */
+function layoutBuilderWidgetUsageQueries(array $queries): array
+{
+    return array_values(array_map(
+        static fn (array $query): string => $query['query'],
+        array_filter(
+            $queries,
+            static fn (array $query): bool => str_contains($query['query'], 'from "widgets"')
+                && str_contains($query['query'], 'layouts_count'),
+        ),
+    ));
 }
 
 /**
@@ -315,6 +540,13 @@ function layoutBuilderTableObject(mixed $value): object
 function layoutBuilderTableAction(mixed $value): Action
 {
     throw_unless($value instanceof Action, RuntimeException::class, 'Expected a Filament table action.');
+
+    return $value;
+}
+
+function layoutBuilderWidgetAsset(mixed $value): WidgetAsset
+{
+    throw_unless($value instanceof WidgetAsset, RuntimeException::class, 'Expected a widget asset.');
 
     return $value;
 }

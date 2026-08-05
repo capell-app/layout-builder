@@ -10,6 +10,7 @@ use Capell\Admin\Filament\Concerns\HasBlueprintRelationManagers;
 use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
 use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
+use Capell\LayoutBuilder\Actions\BuildWidgetDeletionImpactAction;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
@@ -73,6 +74,22 @@ class EditWidget extends EditRecord
             $subheading .= '<span class="text-red-600 dark:text-red-400 font-medium">'
                 . __('capell-admin::generic.disabled') . '</span>';
         }
+
+        $impact = BuildWidgetDeletionImpactAction::run($this->record);
+
+        if ($subheading !== '') {
+            $subheading .= ' | ';
+        }
+
+        $subheading .= $impact->layouts === 0
+            ? '<span class="text-amber-600 dark:text-amber-400 font-medium">'
+                . __(
+                    $impact->isAuthoritative
+                        ? 'capell-layout-builder::table.widget_usage_unused'
+                        : 'capell-layout-builder::table.widget_usage_no_tracked_uses',
+                )
+                . '</span>'
+            : trans_choice('capell-layout-builder::table.widget_usage_layouts', $impact->layouts, ['count' => $impact->layouts]);
 
         return new HtmlString($subheading);
     }
@@ -144,7 +161,8 @@ class EditWidget extends EditRecord
     {
         return [
             RestoreAction::make('restore'),
-            DeleteAction::make('delete'),
+            DeleteAction::make('delete')
+                ->modalDescription(fn (Widget $record): string => self::deletionImpactDescription($record)),
             ForceDeleteAction::make('forceDelete'),
             LayoutsTable::getBulkChangeLayoutsAction(sourceWidget: $this->record),
             ActionGroup::make([
@@ -201,5 +219,24 @@ class EditWidget extends EditRecord
             ->value($attribute);
 
         return $updated_at === null || $this->record->updated_at > $updated_at;
+    }
+
+    private static function deletionImpactDescription(Widget $record): string
+    {
+        $impact = BuildWidgetDeletionImpactAction::run($record);
+
+        if ($impact->layouts === 0 && $impact->isAuthoritative) {
+            return (string) __('capell-layout-builder::message.widget_delete_impact_unused');
+        }
+
+        if ($impact->layouts === 0) {
+            return (string) __('capell-layout-builder::message.widget_delete_impact_no_tracked_uses');
+        }
+
+        return (string) trans_choice(
+            'capell-layout-builder::message.widget_delete_impact_layouts',
+            $impact->layouts,
+            ['count' => $impact->layouts],
+        );
     }
 }

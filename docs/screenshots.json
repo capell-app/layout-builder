@@ -21,8 +21,8 @@
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
-            "required": false,
-            "notes": "Optional replacement target. The current capture stops at the host Page form before the visual canvas is visible, so it is not release or Marketplace evidence for the claimed editor state.",
+            "required": true,
+            "notes": "Shows the populated visual canvas with explicit main and sidebar containers, their widgets, the layout tree, responsive preview controls, and selected-container context.",
             "useCase": "An editor composes a page by arranging reusable widgets into explicit main and sidebar layout areas.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-main-sidebar.png"
         },
@@ -608,6 +608,60 @@
             "notes": "Captures the component, display, settings, translations, and asset configuration tabs.",
             "useCase": "An editor configures a reusable widget, its display settings, translations, and widget assets.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/create-edit-widget-form.png"
+        },
+        {
+            "id": "layout-builder-unused-disabled-widget",
+            "title": "Unused and disabled widget integrity state.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-index",
+            "url": "/screenshot-fixtures/layout-builder-integrity/widget-usage",
+            "waitFor": "[data-layout-builder-integrity-table=\"widgets\"] table",
+            "targetType": "admin-surface",
+            "target": "WidgetsTable",
+            "required": false,
+            "notes": "Optional replacement target. A protected workbench presenter renders the production WidgetsTable from deterministic pre-capture data; it is documentation coverage, not authentic installed-App Marketplace evidence.",
+            "useCase": "An administrator distinguishes a widget that is not used by any layout from one that is also unavailable for new page composition.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-unused-disabled-widget.png",
+            "colorSchemes": ["light"],
+            "user": "admin",
+            "interactions": [
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-integrity-table=\"widgets\"] tr:has-text(\"Screenshot unused and disabled widget\") .fi-badge"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-integrity-table=\"widgets\"] tr:has-text(\"Screenshot unused and disabled widget\") div.table-cell-action-icon svg"
+                }
+            ]
+        },
+        {
+            "id": "layout-builder-broken-unscoped-widget-assets",
+            "title": "Broken and unscoped widget asset integrity states.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-index",
+            "url": "/screenshot-fixtures/layout-builder-integrity/widget-assets",
+            "waitFor": "[data-layout-builder-integrity-table=\"widget-assets\"] table",
+            "targetType": "admin-surface",
+            "target": "WidgetAssetsTable",
+            "required": false,
+            "notes": "Optional replacement target. A protected workbench presenter renders the production WidgetAssetsTable from deterministic pre-capture data; it is documentation coverage, not authentic installed-App Marketplace evidence.",
+            "useCase": "An administrator can separate a missing referenced asset from an existing asset that has not yet been placed on a page.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-broken-unscoped-widget-assets.png",
+            "colorSchemes": ["light"],
+            "user": "admin",
+            "interactions": [
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-integrity-table=\"widget-assets\"] tr:has-text(\"Broken asset\") .fi-badge"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-integrity-table=\"widget-assets\"] tr:has-text(\"Not placed\") .fi-badge"
+                }
+            ]
         },
         {
             "id": "sections-admin-index",

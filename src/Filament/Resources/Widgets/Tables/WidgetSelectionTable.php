@@ -20,6 +20,7 @@ class WidgetSelectionTable implements TableConfigurator
             $model = Widget::class;
 
             return $model::query();
-        });
+        })
+            ->checkIfRecordIsSelectableUsing(fn (Widget $record): bool => $record->status === true);
     }
 }

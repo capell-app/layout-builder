@@ -13,7 +13,9 @@ use Capell\Admin\Filament\Components\Tables\Columns\Page\PageNameColumn;
 use Capell\Admin\Filament\Contracts\TableConfigurator;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Actions\GetEditPageResourceUrlAction;
+use Capell\Core\Actions\GetResourceFromBlueprintAction;
 use Capell\Core\Actions\ResolvePageableMorphModelAction;
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Enums\BlueprintSubjectEnum;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
@@ -28,33 +30,29 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Resource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use RuntimeException;
+use Throwable;
 
 class WidgetAssetsTable implements TableConfigurator
 {
     public static function configure(Table $table): Table
     {
         return $table
-            /** @phpstan-ignore-next-line WidgetAsset exposes this local scope through Eloquent. */
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->withAssets())
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['asset', 'pageable']))
             ->reorderable('order')
             ->heading(__('capell-layout-builder::heading.widget_page_assets'))
             ->description(__('capell-layout-builder::generic.widget_page_assets_description'))
             ->recordUrl(
-                fn (WidgetAsset $record): ?string => match ($record->asset_type) {
-                    BlueprintSubjectEnum::Page->value => GetEditPageResourceUrlAction::run($record->asset),
-                    default => AdminSurfaceLookup::resource(ucfirst($record->asset_type))::getUrl(
-                        'edit',
-                        ['record' => $record->asset],
-                    ),
-                },
+                self::recordUrl(...),
             )
             ->columns(self::getTableColumns())
             ->filters(self::getTableFilters())
@@ -86,6 +84,18 @@ class WidgetAssetsTable implements TableConfigurator
                 ->label(__('capell-layout-builder::table.asset_type'))
                 ->badge()
                 ->sortable(),
+            TextColumn::make('usage_status')
+                ->label(__('capell-layout-builder::table.usage'))
+                ->badge()
+                ->getStateUsing(fn (WidgetAsset $record): string => $record->asset instanceof Model
+                    ? ($record->pageable instanceof Model
+                        ? (string) __('capell-layout-builder::table.widget_asset_usage_used')
+                        : (string) __('capell-layout-builder::table.widget_asset_usage_unscoped'))
+                    : (string) __('capell-layout-builder::table.widget_asset_usage_broken'))
+                ->color(fn (WidgetAsset $record): string => ! $record->asset instanceof Model
+                    ? 'danger'
+                    : ($record->pageable instanceof Model ? 'success' : 'warning'))
+                ->toggleable(),
             PageNameColumn::make('pageable.name')
                 ->label(__('capell-admin::table.page'))
                 ->withParents()
@@ -214,6 +224,23 @@ class WidgetAssetsTable implements TableConfigurator
 
                     return $indicators;
                 }),
+
+            SelectFilter::make('integrity')
+                ->label(__('capell-layout-builder::table.widget_asset_integrity'))
+                ->options([
+                    'broken_reference' => __('capell-layout-builder::table.widget_asset_integrity_broken_reference'),
+                    'unscoped' => __('capell-layout-builder::table.widget_asset_integrity_unscoped'),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return match ($data['value'] ?? null) {
+                        'broken_reference' => $query->whereDoesntHaveMorph('asset', '*'),
+                        'unscoped' => $query->whereHasMorph('asset', '*')
+                            ->where(fn (Builder $query): Builder => $query
+                                ->whereNull('pageable_type')
+                                ->orWhereNull('pageable_id')),
+                        default => $query,
+                    };
+                }),
         ];
     }
 
@@ -252,6 +279,69 @@ class WidgetAssetsTable implements TableConfigurator
     private static function buildLookupKey(string $pageableType, int $pageableId): string
     {
         return $pageableType . ':' . $pageableId;
+    }
+
+    private static function recordUrl(WidgetAsset $record): ?string
+    {
+        $asset = $record->asset;
+
+        if (! $asset instanceof Model || ! $asset->exists) {
+            return null;
+        }
+
+        if ($record->asset_type === BlueprintSubjectEnum::Page->value && $asset instanceof Pageable) {
+            return self::pageRecordUrl($asset);
+        }
+
+        $assetType = $record->asset_type;
+
+        if (! is_string($assetType) || $assetType === '') {
+            return null;
+        }
+
+        $resource = AdminSurfaceLookup::resourceIfRegistered(ucfirst($assetType));
+
+        if ($resource === null || ! self::canEdit($resource, $asset)) {
+            return null;
+        }
+
+        try {
+            return $resource::getUrl('edit', ['record' => $asset]);
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private static function pageRecordUrl(Model&Pageable $page): ?string
+    {
+        try {
+            $page->loadMissing('blueprint');
+            $blueprint = $page->getRelation('blueprint');
+
+            if (! $blueprint instanceof Blueprint) {
+                return null;
+            }
+
+            $resource = GetResourceFromBlueprintAction::run($blueprint);
+
+            if (! is_subclass_of($resource, Resource::class)) {
+                return null;
+            }
+
+            return self::canEdit($resource, $page)
+                ? GetEditPageResourceUrlAction::run($page)
+                : null;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @param  class-string<\Filament\Resources\Resource>  $resource
+     */
+    private static function canEdit(string $resource, Model $record): bool
+    {
+        return auth()->check() && $resource::canEdit($record);
     }
 
     /**

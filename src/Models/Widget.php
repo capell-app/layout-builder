@@ -23,6 +23,7 @@ use Capell\Core\Models\Contracts\Publishable;
 use Capell\Core\Models\Contracts\Statusable;
 use Capell\Core\Models\Contracts\Translatable;
 use Capell\Core\Models\Contracts\Userstampable;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Database\Factories\WidgetFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -270,28 +271,29 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
     /**
      * @param  Builder<Model>  $query
+     * @param  Builder<Layout>|null  $layoutsQuery
      */
-    protected function scopeWithLayoutsCount(Builder $query): void
+    protected function scopeWithLayoutsCount(Builder $query, ?Builder $layoutsQuery = null): void
     {
         if ($query->getQuery()->columns === null) {
             $query->select($this->qualifyColumn('*'));
         }
 
+        $layoutsQuery ??= Layout::query();
+        $layoutsQuery = (clone $layoutsQuery)->select($layoutsQuery->qualifyColumn('containers'));
         $grammar = $query->getQuery()->getGrammar();
         $matchesWidgetKey = CapellDatabase::for($query->getModel())->queryDialect()->jsonExactSearch(
-            SqlFragment::raw($grammar->wrap('layouts.containers')),
+            SqlFragment::raw($grammar->wrap('layout_usage.containers')),
             SqlFragment::raw($grammar->wrap('widgets.key')),
             '$.*.widgets[*].widget_key',
         );
 
-        (new SqlFragment(
-            sprintf(
-                '(SELECT COUNT(*) FROM %s WHERE %s) AS layouts_count',
-                $grammar->wrap('layouts'),
-                $matchesWidgetKey->sql,
-            ),
-            $matchesWidgetKey->bindings,
-        ))->applySelect($query->getQuery());
+        $layoutsCountQuery = $query->getQuery()->newQuery()
+            ->fromSub($layoutsQuery, 'layout_usage')
+            ->selectRaw('COUNT(*)');
+        $matchesWidgetKey->applyWhere($layoutsCountQuery);
+
+        $query->selectSub($layoutsCountQuery, 'layouts_count');
     }
 
     /**
