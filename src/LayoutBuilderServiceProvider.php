@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder;
 
 use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
-use Capell\Core\Data\PageTypeData;
+use Capell\Core\Data\BlueprintSubjectDescriptorData;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
@@ -154,7 +154,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             PageWidgetExtensionContentGraphExtractor::class,
         ], ContentGraphRegistry::TAG);
         LayoutModelRegistrar::register();
-        $this->registerPageTypes();
 
         $this->app->booting(function (): void {
             // Resolve after every provider has registered so definitions declared
@@ -225,6 +224,21 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->registerLazyLayoutWidgetRoute();
         $this->reservePublicFragmentPath();
         $this->reserveLazyLayoutWidgetPath();
+    }
+
+    /**
+     * Blueprint subjects live here rather than in packageBooted() because this
+     * hook is re-runnable: when a fresh-database install marks the package
+     * installed mid-process, the installer boots the package again and the
+     * `widget` subject has to arrive with it. packageBooted() fires once, too
+     * early for that.
+     */
+    #[Override]
+    protected function bootInstalledPackage(): self
+    {
+        $this->registerPageTypes();
+
+        return $this;
     }
 
     #[Override]
@@ -322,11 +336,12 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     private function registerPageTypes(): void
     {
         foreach (LayoutTypeEnum::cases() as $type) {
-            CapellCore::registerPageType(
-                new PageTypeData(
-                    name: $type->value,
-                    model: $type->getModel(),
+            $this->surface()->blueprintSubject(
+                new BlueprintSubjectDescriptorData(
+                    key: $type->value,
                     label: $type->getLabel(),
+                    modelClass: $type->getModel(),
+                    ownerPackage: 'capell-app/layout-builder',
                 ),
             );
         }

@@ -231,8 +231,8 @@
                 "Capell\\LayoutBuilder\\Models\\PublicWidgetSnapshot::$encrypted_payload"
             ],
             "hashedTokenFields": [
-                "layout_bulk_change_runs.original_container_hash",
-                "layout_bulk_change_runs.proposed_container_hash"
+                "layout_bulk_change_results.original_container_hash",
+                "layout_bulk_change_results.proposed_container_hash"
             ],
             "redactedOutputClasses": [
                 "Capell\\LayoutBuilder\\Actions\\SaveLayoutPresetAction"
@@ -342,26 +342,6 @@
                 "caption": "Layout Builder extension preview"
             },
             {
-                "path": "docs/screenshots/layout-builder-add-widget-action.png",
-                "alt": "Layout Builder Add Widget action showing available widget records",
-                "caption": "Choose an existing reusable widget and add it to the selected layout container."
-            },
-            {
-                "path": "docs/screenshots/layout-builder-add-container-action.png",
-                "alt": "Layout Builder Add Container action with area and presentation controls",
-                "caption": "Create a named layout container and assign it to an explicit theme area."
-            },
-            {
-                "path": "docs/screenshots/layout-builder-edit-widget-action.png",
-                "alt": "Layout Builder widget editor with translation and presentation tabs",
-                "caption": "Edit reusable widget copy, translations, placement, items, appearance, rendering, and settings."
-            },
-            {
-                "path": "docs/screenshots/layout-builder-edit-container-action.png",
-                "alt": "Layout Builder container editor with area and background controls",
-                "caption": "Adjust a container's key, theme area, settings, and background from the live admin workflow."
-            },
-            {
                 "path": "docs/screenshots/widgets-admin-index.png",
                 "alt": "Layout Builder reusable Widgets admin index",
                 "caption": "Review reusable widgets, blueprint types, layout usage, status, and update history."
@@ -370,6 +350,11 @@
                 "path": "docs/screenshots/sections-admin-index.png",
                 "alt": "Layout Builder layouts admin index with seeded layout cards",
                 "caption": "Manage reusable layouts, container counts, status, and live usage from the admin index."
+            },
+            {
+                "path": "docs/screenshots/create-edit-widget-form.png",
+                "alt": "Layout Builder Create Widget form with translation and presentation tabs",
+                "caption": "Build a reusable widget with translations, placement, items, appearance, background, rendering, and visibility scheduling."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]

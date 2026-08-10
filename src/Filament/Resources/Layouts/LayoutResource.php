@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Resources\Layouts;
 
+use Capell\Admin\Filament\Resources\Layouts\Pages\CreateLayout;
+use Capell\Admin\Filament\Resources\Layouts\Pages\ListLayouts;
+use Capell\LayoutBuilder\Filament\Resources\Layouts\Pages\EditLayout;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Override;
 
@@ -25,5 +28,15 @@ class LayoutResource extends \Capell\Admin\Filament\Resources\Layouts\LayoutReso
     public static function getNavigationParentItem(): ?string
     {
         return null;
+    }
+
+    #[Override]
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListLayouts::route('/'),
+            'edit' => EditLayout::route('/{record}/edit'),
+            'create' => CreateLayout::route('/create'),
+        ];
     }
 }

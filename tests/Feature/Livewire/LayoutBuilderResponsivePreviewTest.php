@@ -48,6 +48,31 @@ function responsivePreviewLayoutBuilder(mixed $component): LayoutBuilder
     return $instance;
 }
 
+it('keeps the layout builder workspace and shadow preview dark with the admin theme', function (): void {
+    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php');
+    $adminStyles = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/css/layout-builder/admin/capell-layout-filament.css');
+
+    expect($adminStyles)
+        ->toContain(".dark .layout-builder-visual-canvas {\n    background: rgb(15, 23, 42);\n}")
+        ->toContain(".dark .layout-builder-shadow-preview {\n    background: rgb(17, 24, 39);");
+
+    expect($visualEditorBlade)
+        ->toContain(':host-context(.dark) .clb-preview-page { background: #111827; color: #f8fafc; }')
+        ->toContain(':host-context(.dark) .clb-preview-container { background: #111827;')
+        ->toContain(':host-context(.dark) .clb-preview-widget { background: #1e293b;')
+        ->toContain(':host-context(.dark) a { color: #7dd3fc; text-decoration-color: rgba(125,211,252,.56); }')
+        ->toContain(':host-context(.dark) .clb-preview-empty { background: rgba(255,255,255,.06); color: #cbd5e1; }');
+
+    $statusPosition = strpos($visualEditorBlade, 'layout-builder-editor-status-unsaved');
+    $actionsPosition = strpos($visualEditorBlade, 'layout-builder-visual-actions');
+
+    if (! is_int($statusPosition) || ! is_int($actionsPosition)) {
+        throw new RuntimeException('Expected layout builder markers were not found.');
+    }
+
+    expect($statusPosition)->toBeLessThan($actionsPosition);
+});
+
 it('can resize the active responsive preview without waiting for breakpoint rerender from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => [], 'meta' => ['colspan' => 12]],
@@ -110,7 +135,6 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('.layout-builder-visual-toolbar')
         ->assertElementExists('.layout-builder-command-group')
         ->assertElementExists('.layout-builder-command-save')
-        ->assertElementExists('.layout-builder-preview-command-label')
         ->assertElementExists('[data-layout-builder-surface="breakpoint-controls"]')
         ->assertElementExists('[data-layout-builder-action="preview-tablet"]')
         ->assertElementExists('[x-bind\\:data-inspector-open]')
@@ -119,8 +143,11 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('[x-ref="treeToggle"]')
         ->assertElementExists('.layout-builder-tree-collapse-button')
         ->assertElementExists('.layout-builder-inspector-panel')
+        ->assertElementExists('#layout-builder-inspector-title')
         ->assertElementExists('.layout-builder-inspector-actions-grid')
-        ->assertElementExists('.layout-builder-inspector-empty')
+        ->assertElementExists('[x-show="selectedPreviewAction()"]')
+        ->assertElementExists('[data-layout-builder-surface="inspector-backdrop"]')
+        ->assertElementExists('[data-layout-builder-surface="structure-drawer"]')
         ->assertElementExists('.layout-builder-tree-header-actions')
         ->assertElementExists('.layout-builder-tree-search-clear')
         ->assertElementExists('.layout-builder-tree-search-meta')
@@ -135,6 +162,7 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('[x-bind\\:aria-pressed]')
         ->assertDontSeeHtml('requestPreviewRefresh')
         ->assertDontSeeHtml('layout-builder-preview-status-row')
+        ->assertDontSeeHtml('layout-builder-preview-command-label')
         ->assertDontSeeHtml('capell-layout-builder::generic.preview')
         ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[wire\\:click^="setActiveBreakpoint"]'));
 
@@ -145,8 +173,11 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain('(trigger) =>')
         ->toContain('treeCollapsed: false')
         ->toContain('markSelectedTreeNode()')
-        ->toContain("selectPreviewNode(node) {\n                this.selectedNode = node")
+        ->toContain("selectPreviewNode(node, trigger = null) {\n                this.inspectorReturnFocus")
         ->toContain('outline: 1px solid rgba(8,119,101,.42)')
+        ->toContain('clb-preview-node-affordance')
+        ->toContain('addPreviewNodeAffordance(node)')
+        ->toContain("this.icon('click')")
         ->toContain('border-radius: 0 !important')
         ->toContain(':host([data-active-breakpoint="tablet"]) .clb-preview-content-layout-with-sidebar')
         ->toContain('@container(max-width: 58rem)')
@@ -157,10 +188,11 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain('x-bind:data-layout-builder-breakpoint="activeBreakpoint"')
         ->toContain('handleEscape()')
         ->toContain('clearSelectedPreviewNode()')
+        ->not->toContain('clb-preview-actionbar')
         ->toContain('{!! $this->visualPreviewHtml() !!}')
         ->toContain('runSelectedPreviewAction(')
         ->toContain('typeOverride')
-        ->toContain("this.\$wire.\$call(\n                            'duplicateWidget'")
+        ->toContain("this.\$wire.\$call('duplicateWidget'")
         ->toContain("this.\$wire.\$call('refreshVisualPreview')")
         ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
         ->not->toContain('togglePreviewFocused')
@@ -228,6 +260,7 @@ it('hydrates inspector metadata for selected containers and widgets from the pac
 });
 
 it('can opt out of frontend container stacking in the admin preview from the package namespace', function (): void {
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
     config()->set('capell-layout-builder.preview.match_frontend_container_layout', false);
 
     $layout = Layout::factory()->create(['containers' => [

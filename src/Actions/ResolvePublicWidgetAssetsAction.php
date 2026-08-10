@@ -7,13 +7,13 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\Core\Models\Contracts\Publishable;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\Database\RuntimeSchemaState;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use DateTimeInterface;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schema;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -176,11 +176,13 @@ final class ResolvePublicWidgetAssetsAction
 
         $query->where('language_id', $language->getKey());
 
-        if (Schema::hasColumn($table, 'workspace_id')) {
+        $schema = resolve(RuntimeSchemaState::class);
+
+        if ($schema->hasColumn($table, 'workspace_id')) {
             $query->where('workspace_id', 0);
         }
 
-        if (Schema::hasColumn($table, 'deleted_at')) {
+        if ($schema->hasColumn($table, 'deleted_at')) {
             $query->whereNull('deleted_at');
         }
 

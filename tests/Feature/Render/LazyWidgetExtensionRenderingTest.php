@@ -411,6 +411,10 @@ it('generates locators against the resolved language-domain origin and path', fu
 it('preserves the effective incoming port in generated locator origins', function (): void {
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Domain port');
+    if ($context->site === null) {
+        throw new RuntimeException('Expected render context site.');
+    }
+    SiteDomain::query()->where('site_id', $context->site->id)->update(['port' => 8080]);
     app()->instance('request', Request::create('http://localhost:8080/page'));
     RebuildPublicWidgetSnapshotsAction::run($context);
 

@@ -226,7 +226,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
     #[Override]
     protected function defineRoutes($router): void
     {
-        assert($router instanceof Router);
+        throw_unless($router instanceof Router, RuntimeException::class, 'Expected the layout builder screenshot fixture router.');
 
         if (! function_exists('registerLayoutBuilderScreenshotFixtureRoutes')) {
             require dirname(__DIR__, 4) . '/workbench/routes/screenshot-fixtures.php';

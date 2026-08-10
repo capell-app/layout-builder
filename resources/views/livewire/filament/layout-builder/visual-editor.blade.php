@@ -89,6 +89,8 @@
             treeOpen: false,
             treeCollapsed: false,
             compactPanels: false,
+            treeReturnFocus: null,
+            inspectorReturnFocus: null,
             actionLoading: false,
             search: '',
             selectedNode: config.selectedNode || null,
@@ -100,14 +102,6 @@
             previewStatus: config.previewStatus || 'stale',
             previewSignature: config.previewSignature || '',
             init() {
-                this.closePreviewMenusFromDocument = (event) => {
-                    const host = this.$refs.previewHost;
-
-                    if (host && event.composedPath().includes(host)) return;
-
-                    this.closePreviewMenus();
-                };
-                document.addEventListener('click', this.closePreviewMenusFromDocument);
                 this.beforeUnloadHandler = (event) => {
                     if (!this.hasUnsavedLayoutChanges()) return;
 
@@ -131,7 +125,6 @@
             },
             destroy() {
                 this.previewResizeObserver?.disconnect();
-                document.removeEventListener('click', this.closePreviewMenusFromDocument);
                 window.removeEventListener('beforeunload', this.beforeUnloadHandler);
                 document.removeEventListener('livewire:navigate', this.livewireNavigateHandler);
             },
@@ -152,7 +145,7 @@
                     .clb-preview-region-main > .clb-preview-region-label { display: none; }
                     .clb-preview-container-list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: .875rem; }
                     .clb-preview-region-sidebar .clb-preview-container-list { grid-template-columns: minmax(0, 1fr); }
-                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .125rem; background: #fff; padding: .875rem; box-shadow: inset 0 0 0 1px rgba(82,97,91,.18); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
+                    .clb-preview-container { position: relative; grid-column: span var(--clb-preview-colspan) / span var(--clb-preview-colspan); min-width: 0; border-radius: .125rem; background: #fff; padding: .875rem; box-shadow: inset 0 0 0 1px rgba(82,97,91,.12); transition: background-color .15s ease, box-shadow .15s ease, outline-color .15s ease; }
                     .clb-preview-region-sidebar .clb-preview-container { grid-column: 1 / -1; }
                     .clb-preview-container:hover { background: #fff; box-shadow: inset 0 0 0 1px rgba(8,119,101,.34), 0 10px 22px rgba(15,23,42,.08); }
                     :host([data-active-breakpoint="tablet"]) .clb-preview-container { grid-column: span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)) / span var(--clb-preview-tablet-colspan, var(--clb-preview-colspan)); }
@@ -161,7 +154,7 @@
                     :host([data-active-breakpoint="mobile"]) .clb-preview-container { grid-column: 1 / -1; }
                     .clb-preview-container-label { display: inline-flex; margin-bottom: .625rem; border-radius: .125rem; background: #087765; padding: .1875rem .5rem; color: #f8fffb; font-size: .625rem; font-weight: 800; letter-spacing: 0; text-transform: uppercase; }
                     .clb-preview-widgets { display: grid; gap: .75rem; }
-                    .clb-preview-widget { position: relative; overflow: hidden; border-radius: .125rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: inset 0 0 0 1px rgba(82,97,91,.16), 0 3px 10px rgba(15,23,42,.04); transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+                    .clb-preview-widget { position: relative; overflow: hidden; border-radius: .125rem; outline: 2px solid transparent; outline-offset: 0; background: #fff; box-shadow: none; transition: outline-color .15s ease, box-shadow .15s ease, transform .15s ease; }
                     .layout-builder-widget-preview { overflow: hidden; border-radius: .25rem; background: transparent; box-shadow: none; }
                     .clb-preview-widget:hover { box-shadow: inset 0 0 0 1px rgba(8,119,101,.34), 0 10px 22px rgba(15,23,42,.08); transform: translateY(-1px); }
                     .clb-preview-widget-body { display: flex; gap: .75rem; padding: .875rem; }
@@ -171,29 +164,18 @@
                     .clb-preview-widget p { margin: .375rem 0 0; color: #475569; font-size: .875rem; line-height: 1.5; }
                     .layout-builder-widget-preview { padding: .75rem; }
                     .layout-widget-preview-actions, .layout-widget-assets-toggle { display: none !important; }
+                    .clb-preview-node-affordance { position: absolute; top: .625rem; right: .625rem; z-index: 2; display: inline-flex; width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border-radius: 999px; background: rgba(15,23,42,.08); color: #475569; opacity: .72; pointer-events: none; transition: background-color .15s ease, color .15s ease, opacity .15s ease, transform .15s ease; }
+                    .clb-preview-node-affordance svg { width: .875rem; height: .875rem; }
+                    [data-clb-preview-node]:hover > .clb-preview-node-affordance,
+                    [data-clb-preview-node]:focus-visible > .clb-preview-node-affordance,
+                    [data-clb-preview-node].is-selected > .clb-preview-node-affordance { background: rgba(8,119,101,.14); color: #087765; opacity: 1; transform: scale(1.05); }
                     .clb-preview-empty { width: 100%; border-radius: .25rem; background: rgba(255,255,255,.7); padding: .75rem; color: #71717a; text-align: center; }
                     .clb-preview-empty-page { grid-column: 1 / -1; }
                     [data-clb-preview-node] { cursor: pointer; pointer-events: auto; }
                     [data-clb-preview-node]:hover, [data-clb-preview-node]:focus-visible { outline: 1px solid rgba(8,119,101,.42); outline-offset: 2px; }
                     [data-clb-preview-node].is-selected { border-radius: 0 !important; outline: 2px solid #087765; outline-offset: 0; box-shadow: 0 8px 18px rgba(15,23,42,.06); }
                     [data-clb-preview-node].is-selected :where(.layout-builder-widget-preview) { border-radius: 0 !important; }
-                    .clb-preview-actionbar { position: absolute; top: .5rem; right: .5rem; z-index: 20; display: inline-flex; align-items: center; gap: .1875rem; border: 1px solid rgba(82, 97, 91, .22); border-radius: .375rem; background: rgba(255, 255, 255, .96); padding: .25rem; opacity: 0; pointer-events: none; transform: translateY(-.25rem) scale(.98); transition: opacity .15s ease, transform .15s ease; box-shadow: 0 8px 18px rgba(15, 23, 42, .12); }
-                    [data-clb-preview-node-type="widget"]:hover > .clb-preview-actionbar, [data-clb-preview-node-type="container"]:hover > .clb-preview-actionbar, [data-clb-preview-node].is-selected > .clb-preview-actionbar, .clb-preview-actionbar:focus-within { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
-                    .clb-preview-actionbar button { pointer-events: auto !important; }
-                    .clb-preview-action-button { display: inline-flex; width: 1.625rem; height: 1.625rem; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: #475569; cursor: pointer; padding: 0; transition: background-color .15s ease, color .15s ease; }
-                    .clb-preview-action-button:hover, .clb-preview-action-button:focus-visible { background: #f1f5f9; color: #0f172a; outline: none; }
-                    .clb-preview-action-button-danger:hover, .clb-preview-action-button-danger:focus-visible { background: #fee2e2; color: #b91c1c; }
-                    .clb-preview-action-button:disabled { cursor: wait; opacity: .78; }
-                    .clb-preview-action-button.is-loading { color: transparent; position: relative; }
-                    .clb-preview-action-button.is-loading::after { position: absolute; inset: .45rem; border: 2px solid rgba(100, 116, 139, .28); border-top-color: #475569; border-radius: 999px; content: ''; animation: clb-preview-spin .65s linear infinite; }
-                    .clb-preview-action-button svg { width: 1rem; height: 1rem; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
                     @keyframes clb-preview-spin { to { transform: rotate(360deg); } }
-                    .clb-preview-more { position: relative; }
-                    .clb-preview-menu { position: absolute; top: calc(100% + .5rem); right: 0; display: none; min-width: 15rem; border: 1px solid rgba(148, 163, 184, .25); border-radius: .375rem; background: #fff; padding: .35rem; color: #111827; box-shadow: 0 20px 45px rgba(15, 23, 42, .24); }
-                    .clb-preview-menu.is-open { display: grid; gap: .125rem; }
-                    .clb-preview-menu button { display: flex; width: 100%; align-items: center; justify-content: flex-start; border: 0; border-radius: .25rem; background: transparent; color: #111827; cursor: pointer; font: inherit; font-size: .8125rem; font-weight: 650; padding: .5rem .625rem; text-align: left; }
-                    .clb-preview-menu button:hover, .clb-preview-menu button:focus-visible { background: #f3f4f6; outline: none; }
-                    .clb-preview-menu-heading { margin: .25rem .625rem .125rem; color: #64748b; font-size: .6875rem; font-weight: 800; text-transform: uppercase; }
                     .clb-preview-insert { position: relative; z-index: 15; display: flex; min-height: 1rem; align-items: center; justify-content: center; opacity: 0; transition: opacity .15s ease; }
                     .clb-preview-insert::before { position: absolute; left: .25rem; right: .25rem; height: 1px; background: rgba(8, 119, 101, .45); content: ''; }
                     .clb-preview-insert:hover, .clb-preview-insert:focus-within { opacity: 1; }
@@ -206,6 +188,34 @@
                     .clb-preview-widgets > .clb-preview-insert { margin-block: -.4375rem; }
                     @container(max-width: 58rem) { .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); } }
                     @media (max-width: 720px) { .clb-preview-content-layout-with-sidebar { grid-template-columns: minmax(0, 1fr); } .clb-preview-container { grid-column: 1 / -1; } }
+                    :host-context(.dark) { color: #e2e8f0; }
+                    :host-context(.dark) .clb-preview-page { background: #111827; color: #f8fafc; }
+                    :host-context(.dark) .clb-preview-region { background: #1f2937; box-shadow: none; }
+                    :host-context(.dark) .clb-preview-region-main { background: transparent; }
+                    :host-context(.dark) .clb-preview-region-sidebar,
+                    :host-context(.dark) .clb-preview-region-area { background: #1e293b; }
+                    :host-context(.dark) .clb-preview-region-label { color: #94a3b8; }
+                    :host-context(.dark) .clb-preview-container { background: #111827; box-shadow: inset 0 0 0 1px rgba(148,163,184,.2); }
+                    :host-context(.dark) .clb-preview-container:hover { background: #1e293b; box-shadow: inset 0 0 0 1px rgba(94,234,212,.52), 0 10px 22px rgba(0,0,0,.28); }
+                    :host-context(.dark) .clb-preview-container-label { background: #0f766e; color: #ccfbf1; }
+                    :host-context(.dark) .clb-preview-widget { background: #1e293b; box-shadow: none; }
+                    :host-context(.dark) .clb-preview-widget:hover { box-shadow: inset 0 0 0 1px rgba(94,234,212,.52), 0 10px 22px rgba(0,0,0,.28); }
+                    :host-context(.dark) .clb-preview-widget-icon { background: #1e3a8a; color: #bfdbfe; }
+                    :host-context(.dark) .clb-preview-widget-type { color: #94a3b8; }
+                    :host-context(.dark) .clb-preview-widget p { color: #cbd5e1; }
+                    :host-context(.dark) a { color: #7dd3fc; text-decoration-color: rgba(125,211,252,.56); }
+                    :host-context(.dark) a:hover,
+                    :host-context(.dark) a:focus-visible { color: #bae6fd; text-decoration-color: #bae6fd; }
+                    :host-context(.dark) .clb-preview-empty { background: rgba(255,255,255,.06); color: #cbd5e1; }
+                    :host-context(.dark) .clb-preview-node-affordance { background: rgba(255,255,255,.1); color: #cbd5e1; }
+                    :host-context(.dark) [data-clb-preview-node]:hover > .clb-preview-node-affordance,
+                    :host-context(.dark) [data-clb-preview-node]:focus-visible > .clb-preview-node-affordance,
+                    :host-context(.dark) [data-clb-preview-node].is-selected > .clb-preview-node-affordance { background: rgba(94,234,212,.18); color: #5eead4; }
+                    :host-context(.dark) [data-clb-preview-node]:hover,
+                    :host-context(.dark) [data-clb-preview-node]:focus-visible { outline-color: rgba(94,234,212,.62); }
+                    :host-context(.dark) [data-clb-preview-node].is-selected { outline-color: #5eead4; box-shadow: 0 8px 18px rgba(0,0,0,.28); }
+                    :host-context(.dark) .clb-preview-insert::before { background: rgba(94,234,212,.48); }
+                    :host-context(.dark) .clb-preview-insert-button { border-color: rgba(94,234,212,.46); background: #1e293b; color: #5eead4; box-shadow: 0 4px 12px rgba(0,0,0,.28); }
                 `;
             },
             syncPanelLayout() {
@@ -224,7 +234,6 @@
 
                 host.dataset.activeBreakpoint = this.activeBreakpoint;
                 root.innerHTML = `<style>${this.shadowStyles()}</style>${html}`;
-                this.bindPreviewRootEvents(root);
                 root.querySelectorAll('[data-clb-preview-node]').forEach((node) => {
                     if (node.dataset.clbPreviewNode === this.selectedNode) {
                         node.classList.add('is-selected');
@@ -232,13 +241,11 @@
 
                     if (node.dataset.clbPreviewNodeType === 'container') {
                         this.preparePreviewContainerNode(node);
-                        this.attachContainerActions(node);
                         this.attachWidgetInsertControls(node);
                     }
 
                     if (node.dataset.clbPreviewNodeType === 'widget') {
                         this.preparePreviewWidgetNode(node);
-                        this.attachWidgetActions(node);
                     }
 
                     node.addEventListener('click', (event) => {
@@ -252,7 +259,7 @@
 
                         event.preventDefault();
                         event.stopPropagation();
-                        this.selectPreviewNode(node.dataset.clbPreviewNode);
+                        this.selectPreviewNode(node.dataset.clbPreviewNode, node);
                     });
                 });
                 this.attachContainerInsertControls(root);
@@ -282,42 +289,26 @@
                     return fallback;
                 }
             },
-            bindPreviewRootEvents(root) {
-                if (root.clbPreviewEventsBound) return;
-
-                root.addEventListener('click', (event) => {
-                    const clickedMenu = event
-                        .composedPath()
-                        .some((target) => target instanceof HTMLElement && target.closest('.clb-preview-more'));
-
-                    if (!clickedMenu) {
-                        this.closePreviewMenus(root);
-                    }
-                });
-
-                root.addEventListener('keydown', (event) => {
-                    if (event.key !== 'Escape') return;
-
-                    if (this.closePreviewMenus(root)) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                });
-
-                root.clbPreviewEventsBound = true;
-            },
             icon(name) {
-                const icons = {
-                    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m16.9 4.6 2.5 2.5"/><path d="M14 7.5 5.5 16 5 19l3-.5 8.5-8.5"/></svg>',
-                    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="10" height="10" rx="2"/><path d="M5 15V7a2 2 0 0 1 2-2h8"/></svg>',
-                    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>',
-                    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>',
-                    more: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="5" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="19" r="1.5" fill="currentColor"/></svg>',
-                    inspector:
-                        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16"/><path d="M17 9h1"/><path d="M17 12h1"/><path d="M17 15h1"/></svg>',
-                };
+                if (name === 'plus') {
+                    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14"/><path d="M5 12h14"/></svg>';
+                }
 
-                return icons[name] || '';
+                if (name === 'click') {
+                    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 4.5v8.25l2.25-2.25 1.5 1.5 1.5-1.5 1.5 1.5 1.5-1.5v5.25a4.5 4.5 0 0 1-4.5 4.5h-1.125a4.5 4.5 0 0 1-4.5-4.5V9.75a2.25 2.25 0 0 1 2.25-2.25v-3Z"/><path d="M8.25 12.75 6 10.5"/></svg>';
+                }
+
+                return '';
+            },
+            addPreviewNodeAffordance(node) {
+                if (node.querySelector(':scope > .clb-preview-node-affordance')) return;
+
+                const affordance = document.createElement('span');
+                affordance.className = 'clb-preview-node-affordance';
+                affordance.dataset.layoutBuilderAffordance = 'clickable';
+                affordance.setAttribute('aria-hidden', 'true');
+                affordance.innerHTML = this.icon('click');
+                node.append(affordance);
             },
             preparePreviewContainerNode(node) {
                 const action = this.previewContainerActions[node.dataset.clbPreviewNode];
@@ -328,13 +319,14 @@
                 node.tabIndex = 0;
                 node.setAttribute('role', 'button');
                 node.setAttribute('aria-label', label);
+                this.addPreviewNodeAffordance(node);
                 node.addEventListener('keydown', (event) => {
                     if (!['Enter', ' '].includes(event.key)) return;
                     if (event.target !== node) return;
 
                     event.preventDefault();
                     event.stopPropagation();
-                    this.selectPreviewNode(node.dataset.clbPreviewNode);
+                    this.selectPreviewNode(node.dataset.clbPreviewNode, node);
                 });
             },
             preparePreviewWidgetNode(node) {
@@ -344,84 +336,14 @@
                 node.tabIndex = 0;
                 node.setAttribute('role', 'button');
                 node.setAttribute('aria-label', label);
+                this.addPreviewNodeAffordance(node);
                 node.addEventListener('keydown', (event) => {
                     if (!['Enter', ' '].includes(event.key)) return;
                     if (event.target !== node) return;
 
                     event.preventDefault();
                     event.stopPropagation();
-                    this.selectPreviewNode(node.dataset.clbPreviewNode);
-                });
-            },
-            attachContainerActions(node) {
-                const action = this.previewContainerActions[node.dataset.clbPreviewNode];
-
-                if (!action?.canEditLayout) return;
-
-                const toolbar = document.createElement('div');
-                toolbar.className = 'clb-preview-actionbar';
-                toolbar.innerHTML = this.containerActionsHtml(action);
-                node.appendChild(toolbar);
-
-                toolbar.querySelectorAll('[data-clb-action]').forEach((button) => {
-                    button.addEventListener('click', (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        this.closePreviewMenus();
-                        this.runPreviewAction(button.dataset.clbAction, action, {}, button);
-                    });
-                });
-            },
-            attachWidgetActions(node) {
-                const action = this.previewWidgetActions[node.dataset.clbPreviewNode];
-
-                if (!action) return;
-
-                const toolbar = document.createElement('div');
-                toolbar.className = 'clb-preview-actionbar';
-                toolbar.innerHTML = this.widgetActionsHtml(action);
-                node.appendChild(toolbar);
-
-                const menu = toolbar.querySelector('.clb-preview-menu');
-                const menuToggle = toolbar.querySelector('[data-clb-menu-toggle]');
-
-                if (menu && menuToggle) {
-                    const menuId = `clb-preview-menu-${node.dataset.clbPreviewNode}`;
-
-                    menu.id = menuId;
-                    menuToggle.setAttribute('aria-controls', menuId);
-                }
-
-                toolbar.querySelectorAll('[data-clb-action]').forEach((button) => {
-                    button.addEventListener('click', (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        this.closePreviewMenus();
-
-                        if (button.dataset.clbAction === 'openInspector') {
-                            this.selectPreviewNode(node.dataset.clbPreviewNode);
-                            this.scrollInspectorIntoView();
-                            return;
-                        }
-
-                        const assetTypes = Array.isArray(action.assetTypes) ? action.assetTypes : [];
-
-                        this.runPreviewAction(
-                            button.dataset.clbAction,
-                            action,
-                            {
-                                type: button.dataset.clbAssetType,
-                                types: assetTypes.map((assetType) => assetType.type),
-                            },
-                            button,
-                        );
-                    });
-                });
-
-                toolbar.querySelector('[data-clb-menu-toggle]')?.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    this.togglePreviewMenu(toolbar);
+                    this.selectPreviewNode(node.dataset.clbPreviewNode, node);
                 });
             },
             attachWidgetInsertControls(containerNode) {
@@ -536,57 +458,6 @@
                 });
 
                 return control;
-            },
-            togglePreviewMenu(toolbar) {
-                const menu = toolbar.querySelector('.clb-preview-menu');
-                const menuToggle = toolbar.querySelector('[data-clb-menu-toggle]');
-
-                if (!menu || !menuToggle) return;
-
-                const shouldOpen = !menu.classList.contains('is-open');
-                this.closePreviewMenus();
-
-                if (!shouldOpen) return;
-
-                menu.classList.add('is-open');
-                menuToggle.setAttribute('aria-expanded', 'true');
-            },
-            closePreviewMenus(root = this.$refs.previewHost?.shadowRoot) {
-                if (!root) return false;
-
-                let closed = false;
-
-                root.querySelectorAll('.clb-preview-menu.is-open').forEach((menu) => {
-                    menu.classList.remove('is-open');
-                    closed = true;
-                });
-                root.querySelectorAll('[data-clb-menu-toggle]').forEach((button) =>
-                    button.setAttribute('aria-expanded', 'false'),
-                );
-
-                return closed;
-            },
-            widgetActionsHtml(action) {
-                const labels = this.actionLabels;
-
-                return `
-                    <button type="button" class="clb-preview-action-button" data-clb-action="editWidget" data-layout-builder-action="edit-widget" title="${this.escapeHtml(labels.edit)}" aria-label="${this.escapeHtml(labels.edit)}">${this.icon('edit')}</button>
-                    ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button" data-clb-action="duplicateWidget" title="${this.escapeHtml(labels.duplicate)}" aria-label="${this.escapeHtml(labels.duplicate)}">${this.icon('copy')}</button>` : ''}
-                    ${action.canEditLayout ? `<button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeWidget" title="${this.escapeHtml(labels.remove)}" aria-label="${this.escapeHtml(labels.remove)}">${this.icon('trash')}</button>` : ''}
-                    <button type="button" class="clb-preview-action-button" data-clb-action="openInspector" title="${this.escapeHtml(labels.openInspector)}" aria-label="${this.escapeHtml(labels.openInspector)}">${this.icon('inspector')}</button>
-                `;
-            },
-            containerActionsHtml() {
-                const labels = this.actionLabels;
-
-                return `
-                    <button type="button" class="clb-preview-action-button" data-clb-action="editContainer" data-layout-builder-action="edit-container" title="${this.escapeHtml(labels.editContainer)}" aria-label="${this.escapeHtml(labels.editContainer)}">${this.icon('edit')}</button>
-                    <button type="button" class="clb-preview-action-button" data-clb-action="duplicateContainer" title="${this.escapeHtml(labels.duplicateContainer)}" aria-label="${this.escapeHtml(labels.duplicateContainer)}">${this.icon('copy')}</button>
-                    <button type="button" class="clb-preview-action-button clb-preview-action-button-danger" data-clb-action="removeContainer" title="${this.escapeHtml(labels.removeContainer)}" aria-label="${this.escapeHtml(labels.removeContainer)}">${this.icon('trash')}</button>
-                `;
-            },
-            menuButton(action, label, assetType = '') {
-                return `<button type="button" role="menuitem" data-clb-action="${this.escapeHtml(action)}" data-clb-asset-type="${this.escapeHtml(assetType)}">${this.escapeHtml(label)}</button>`;
             },
             escapeHtml(value) {
                 return String(value || '')
@@ -708,24 +579,34 @@
             treeContainerOpen(open, element) {
                 return this.treeSearchActive() ? this.containerMatches(element) : open;
             },
-            openTree() {
+            openTree(trigger = null) {
+                this.treeReturnFocus = trigger instanceof HTMLElement ? trigger : document.activeElement;
                 this.treeOpen = true;
                 this.$nextTick(() => this.$refs.treeDrawer?.focus());
             },
-            closeTree() {
+            closeTree(restoreFocus = true) {
                 this.treeOpen = false;
-                this.$nextTick(() => this.$refs.treeToggle?.focus());
+                if (!restoreFocus) return;
+
+                this.$nextTick(() => {
+                    const target = this.treeReturnFocus?.isConnected
+                        ? this.treeReturnFocus
+                        : this.$refs.treeToggle;
+                    target?.focus();
+                });
             },
             handleEscape() {
-                if (this.closePreviewMenus()) return;
+                if (this.treeOpen) {
+                    this.closeTree();
+
+                    return;
+                }
 
                 if (this.selectedNode) {
                     this.clearSelectedPreviewNode();
 
                     return;
                 }
-
-                if (this.treeOpen) this.closeTree();
             },
             hasUnsavedLayoutChanges() {
                 return Boolean(this.$wire.layoutModified);
@@ -782,7 +663,7 @@
                     if (!input) return;
                     event.preventDefault();
                     if (this.treeCollapsed) this.treeCollapsed = false;
-                    if (this.compactPanels && !this.treeOpen) this.openTree();
+                    if (this.compactPanels && !this.treeOpen) this.openTree(this.$refs.treeToggle);
                     this.$nextTick(() => {
                         input.focus();
                         input.select?.();
@@ -809,16 +690,27 @@
             toggleTreeCollapsed() {
                 this.treeCollapsed = !this.treeCollapsed;
             },
-            selectPreviewNode(node) {
+            selectPreviewNode(node, trigger = null) {
+                this.inspectorReturnFocus = trigger instanceof HTMLElement ? trigger : document.activeElement;
                 this.selectedNode = node;
                 this.markSelectedPreviewNode();
                 this.markSelectedTreeNode();
                 this.scrollSelectedTreeNodeIntoView();
+
+                if (this.compactPanels) {
+                    this.$nextTick(() => this.$refs.inspectorPanel?.focus());
+                }
             },
             clearSelectedPreviewNode() {
                 this.selectedNode = null;
                 this.markSelectedPreviewNode();
                 this.markSelectedTreeNode();
+                this.$nextTick(() => {
+                    const target = this.inspectorReturnFocus?.isConnected
+                        ? this.inspectorReturnFocus
+                        : this.$refs.treeToggle;
+                    target?.focus();
+                });
             },
             openWidgetEditor(node) {
                 const action = this.previewWidgetActions[node];
@@ -863,10 +755,16 @@
                     this.markSelectedPreviewNode();
                     this.markSelectedTreeNode();
                     this.scrollSelectedTreeNodeIntoView();
+                    if (this.compactPanels) {
+                        this.$nextTick(() => this.$refs.inspectorPanel?.focus());
+                    }
                 });
             },
             selectFromTree(node, callback) {
+                this.inspectorReturnFocus = this.$refs.treeToggle;
                 this.selectNode(node, callback);
+
+                if (this.compactPanels) this.closeTree(false);
             },
             scrollSelectedTreeNodeIntoView() {
                 if (!this.selectedNode) return;
@@ -884,13 +782,6 @@
                 } else if (nodeRect.bottom > panelRect.bottom) {
                     panel.scrollTop += nodeRect.bottom - panelRect.bottom + 12;
                 }
-            },
-            scrollInspectorIntoView() {
-                const panel = this.$el.querySelector('.layout-builder-inspector-panel');
-
-                if (!panel) return;
-
-                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             },
             runPreviewAction(actionName, action, extra = {}, trigger = null) {
                 const args = {};
@@ -1096,15 +987,12 @@
                             'canvas' => __('capell-layout-builder::generic.canvas'),
                             'container' => __('capell-layout-builder::button.container'),
                             'content' => __('capell-layout-builder::generic.content'),
-                            'emptySelection' => __('capell-layout-builder::message.select_layout_item'),
                             'widgetSettings' => __('capell-layout-builder::button.edit_layout_widget'),
                             'controls' => __('capell-layout-builder::button.controls'),
                             'duplicateContainer' => __('capell-layout-builder::button.duplicate_container'),
                             'duplicate' => __('capell-layout-builder::button.duplicate_widget'),
                             'edit' => __('capell-layout-builder::button.edit_widget'),
                             'editContainer' => __('capell-layout-builder::button.edit_container'),
-                            'inspector' => __('capell-layout-builder::generic.inspector'),
-                            'openInspector' => __('capell-layout-builder::button.open_inspector'),
                             'layout' => __('capell-layout-builder::generic.layout'),
                             'layoutMode' => __('capell-layout-builder::button.advanced_layout'),
                             'page' => __('capell-layout-builder::generic.page'),
@@ -1112,7 +1000,6 @@
                             'properties' => __('capell-layout-builder::generic.properties'),
                             'removeContainer' => __('capell-layout-builder::button.remove_container'),
                             'remove' => __('capell-layout-builder::button.remove_widget'),
-                            'selected' => __('capell-layout-builder::generic.selected'),
                             'treeSearchResult' => __('capell-layout-builder::message.layout_tree_search_result'),
                             'treeSearchResults' => __('capell-layout-builder::message.layout_tree_search_results'),
                             'type' => __('capell-layout-builder::generic.type'),
@@ -1144,7 +1031,7 @@
                 class="layout-builder-panel-toggle"
                 title="{{ __('capell-layout-builder::heading.layout_structure') }}"
                 x-ref="treeToggle"
-                x-on:click="compactPanels ? openTree() : toggleTreeCollapsed()"
+                x-on:click="compactPanels ? openTree($event.currentTarget) : toggleTreeCollapsed()"
                 x-bind:aria-pressed="! treeCollapsed"
             >
                 @svg('heroicon-o-bars-3-bottom-left', 'h-4 w-4')
@@ -1153,9 +1040,14 @@
                 </span>
             </button>
 
-            <div class="layout-builder-editor-title">
-                <strong>{{ $this->layout->name }}</strong>
-            </div>
+            @if ($this->layoutModified)
+                <span
+                    class="layout-builder-editor-status layout-builder-editor-status-unsaved"
+                >
+                    @svg('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
+                    {{ __('capell-layout-builder::message.layout_unsaved') }}
+                </span>
+            @endif
         </div>
 
         <div class="layout-builder-visual-actions">
@@ -1196,15 +1088,6 @@
                 aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
                 data-layout-builder-surface="breakpoint-controls"
             >
-                <div class="layout-builder-preview-command-label">
-                    @svg('heroicon-o-eye', 'h-4 w-4')
-                    <span>
-                        {{ __('capell-layout-builder::button.preview_changes') }}
-                    </span>
-                </div>
-
-                <div class="layout-builder-command-divider"></div>
-
                 <div class="layout-builder-breakpoint-segment">
                     @foreach (LayoutBreakpoint::cases() as $shortcutIndex => $breakpoint)
                         @php
@@ -1218,7 +1101,7 @@
                             data-layout-builder-action="preview-{{ $breakpoint->value }}"
                             x-on:click="setActiveBreakpointPreview(@js($breakpoint->value))"
                             x-bind:aria-pressed="activeBreakpoint === @js($breakpoint->value)"
-                            title="{{ $breakpointLabel }} · {{ $shortcutKey }}"
+                            title="{{ $breakpointLabel }} - {{ $shortcutKey }}"
                         >
                             @svg(match ($breakpoint) {
                                 LayoutBreakpoint::Desktop => 'heroicon-o-computer-desktop',
@@ -1245,20 +1128,6 @@
                 {{ $this->undoLayoutMutationAction }} {{ $this->redoLayoutMutationAction }}
             </div>
 
-            <div
-                class="layout-builder-toolbar-divider"
-                aria-hidden="true"
-            ></div>
-
-            @if ($this->layoutModified)
-                <span
-                    class="layout-builder-editor-status layout-builder-editor-status-unsaved"
-                >
-                    @svg('heroicon-o-exclamation-circle', 'h-3.5 w-3.5')
-                    {{ __('capell-layout-builder::message.layout_unsaved') }}
-                </span>
-            @endif
-
             <div class="layout-builder-command-save">
                 @if ($this->saveLayoutAction->isVisible())
                     {{ $this->saveLayoutAction }}
@@ -1273,74 +1142,11 @@
         'layout-builder-visual-grid-empty' => $tree->widgetCount === 0,
     ])
     >
-        <nav
-            class="layout-builder-studio-rail"
-            aria-label="{{ __('capell-layout-builder::generic.canvas') }}"
-        >
-            <button
-                type="button"
-                class="layout-builder-studio-rail-button"
-                title="{{ __('capell-layout-builder::heading.layout_structure') }}"
-                x-bind:class="{
-                    'layout-builder-studio-rail-button-active': ! treeCollapsed,
-                }"
-                x-bind:aria-pressed="! treeCollapsed"
-                x-on:click="
-                    toggleTreeCollapsed();
-                    $nextTick(() => scrollSelectedTreeNodeIntoView());
-                "
-            >
-                @svg('heroicon-o-rectangle-stack', 'h-5 w-5')
-                <span class="sr-only">
-                    {{ __('capell-layout-builder::heading.layout_structure') }}
-                </span>
-            </button>
-
-            @if ($this->canEditLayout())
-                <x-filament::dropdown
-                    class="layout-builder-layout-actions-dropdown"
-                    placement="right-start"
-                    width="!w-auto"
-                >
-                    <x-slot name="trigger">
-                        <button
-                            type="button"
-                            class="layout-builder-studio-rail-button"
-                            title="{{ __('capell-layout-builder::button.layout_actions') }}"
-                        >
-                            @svg('heroicon-o-plus', 'h-5 w-5')
-                            <span class="sr-only">
-                                {{ __('capell-layout-builder::button.layout_actions') }}
-                            </span>
-                        </button>
-                    </x-slot>
-
-                    <x-filament::dropdown.list>
-                        {{ $this->addContainerAction }} {{ $this->addWidgetAction }}
-                    </x-filament::dropdown.list>
-                </x-filament::dropdown>
-            @endif
-
-            <span class="layout-builder-studio-rail-spacer"></span>
-
-            <button
-                type="button"
-                class="layout-builder-studio-rail-button"
-                title="{{ __('capell-layout-builder::button.refresh_preview') }}"
-                x-on:click="refreshPreview($event.currentTarget)"
-            >
-                @svg('heroicon-o-arrow-path', 'h-5 w-5')
-                <span class="sr-only">
-                    {{ __('capell-layout-builder::button.refresh_preview') }}
-                </span>
-            </button>
-        </nav>
-
         <aside
             x-ref="treePanel"
             class="layout-builder-visual-panel layout-builder-visual-panel-tree"
         >
-            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
+            @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
         </aside>
 
         <div
@@ -1454,32 +1260,36 @@
             ></div>
         </div>
 
+        <div
+            x-show="compactPanels && selectedPreviewAction()"
+            x-cloak
+            class="layout-builder-drawer-backdrop"
+            data-layout-builder-surface="inspector-backdrop"
+            x-on:click="clearSelectedPreviewNode()"
+        ></div>
+
         <aside
+            x-ref="inspectorPanel"
+            x-show="selectedPreviewAction()"
+            x-cloak
+            x-transition
+            tabindex="-1"
             class="layout-builder-inspector-panel"
             data-layout-builder-surface="inspector"
+            aria-live="polite"
+            x-bind:role="compactPanels ? 'dialog' : null"
+            x-bind:aria-modal="compactPanels ? 'true' : null"
+            x-bind:aria-labelledby="compactPanels ? 'layout-builder-inspector-title' : null"
+            x-trap.noscroll="compactPanels && Boolean(selectedPreviewAction())"
         >
-            <div
-                class="layout-builder-inspector-empty"
-                x-show="! selectedPreviewAction()"
-            >
-                @svg('heroicon-o-cursor-arrow-rays', 'h-5 w-5')
-                <strong>
-                    {{
-                        trans_choice('capell-layout-builder::message.layout_tree_summary', $tree->widgetCount, [
-                            'containers' => $tree->containerCount,
-                            'widgets' => $tree->widgetCount,
-                        ])
-                    }}
-                </strong>
-                <p x-text="actionLabels.emptySelection"></p>
-            </div>
-
             <template x-if="selectedPreviewAction()">
                 <div class="layout-builder-inspector-stack">
                     <div class="layout-builder-inspector-header">
                         <div>
-                            <p x-text="actionLabels.selected"></p>
-                            <h3 x-text="selectedPreviewLabel()"></h3>
+                            <h3
+                                id="layout-builder-inspector-title"
+                                x-text="selectedPreviewLabel()"
+                            ></h3>
                         </div>
 
                         <div class="layout-builder-inspector-header-actions">
@@ -1496,17 +1306,17 @@
                         </div>
                     </div>
 
-                    <div class="layout-builder-inspector-card">
+                    <dl class="layout-builder-inspector-card">
                         <template
                             x-for="row in selectedPreviewMetaRows()"
                             :key="row.label"
                         >
                             <div class="layout-builder-inspector-field">
-                                <span x-text="row.label"></span>
-                                <strong x-text="row.value"></strong>
+                                <dt x-text="row.label"></dt>
+                                <dd x-text="row.value"></dd>
                             </div>
                         </template>
-                    </div>
+                    </dl>
 
                     <div class="layout-builder-inspector-card">
                         <div class="layout-builder-inspector-actions-grid">
@@ -1678,7 +1488,12 @@
         x-transition
         tabindex="-1"
         class="layout-builder-responsive-drawer layout-builder-responsive-drawer-left"
+        data-layout-builder-surface="structure-drawer"
+        x-bind:role="compactPanels ? 'dialog' : null"
+        x-bind:aria-modal="compactPanels ? 'true' : null"
+        x-bind:aria-label="compactPanels ? @js(__('capell-layout-builder::heading.layout_structure')) : null"
+        x-trap.noscroll="compactPanels && treeOpen"
     >
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'title' => $editorPageLabel, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
+        @include('capell-layout-builder::livewire.filament.layout-builder.visual-tree', ['tree' => $tree, 'canBrowseStarterLayouts' => $canBrowseStarterLayouts ?? false])
     </aside>
 </section>

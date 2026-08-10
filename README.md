@@ -33,16 +33,16 @@ Evidence: [`src/Support/LayoutWidgets/LayoutWidgetRegistry.php`](src/Support/Lay
 
 Screenshot contract: `docs/screenshots.json`.
 
-![Layout Builder add widget action](docs/screenshots/layout-builder-add-widget-action.png)
+![Layout Builder visual editor with main and sidebar containers](docs/screenshots/layout-builder-editor-main-sidebar.png)
 
-![Layout Builder add container action](docs/screenshots/layout-builder-add-container-action.png)
+![Layout Builder active-theme container settings](docs/screenshots/layout-builder-edit-container-theme-settings.png)
 
-- Layout Builder visual editor with main and sidebar containers (admin, supplementary evidence).
+- Layout Builder visual editor with main and sidebar containers (admin, required evidence).
 - Layout Builder content-first editing mode (admin, supplementary evidence).
-- Layout Builder add widget action (admin, required evidence).
-- Layout Builder add container action (admin, required evidence).
-- Layout Builder edit widget action (admin, required evidence).
-- Layout Builder edit container action (admin, required evidence).
+- Layout Builder add widget action (admin, supplementary evidence).
+- Layout Builder add container action (admin, supplementary evidence).
+- Layout Builder edit widget action (admin, supplementary evidence).
+- Layout Builder edit container action (admin, supplementary evidence).
 - Layout Builder active-theme container settings (admin, required evidence).
 - Layout Builder responsive padding controls on mobile (admin, required evidence).
 - Layout Builder active-theme container settings on mobile (admin, required evidence).
@@ -57,6 +57,8 @@ Screenshot contract: `docs/screenshots.json`.
 - Layout Builder full-width public example (frontend, supplementary evidence).
 - Widgets admin index (admin, required evidence).
 - Create and edit widget form with widget assets (admin, required evidence).
+- Unused and disabled widget integrity state (admin, supplementary evidence).
+- Broken and unscoped widget asset integrity states (admin, supplementary evidence).
 - Sections admin index (admin, required evidence).
 
 ## Works With
@@ -77,8 +79,8 @@ Screenshot contract: `docs/screenshots.json`.
 - Policies: `LayoutPresetPolicy`.
 - Extension contracts: `PublicLayoutWidgetAssetsRenderer`, `LayoutContainerSchemaExtender`, `WidgetAssetSchemaExtender`, `WidgetSchemaExtender`, `LayoutContainerThemePresentationProjector`, `LayoutContentGroupContributor`, `LayoutSidebarWidgetContributor`, `PublicLayoutWidgetPayloadContributor`, `PublicLayoutWidgetPayloadResolver`, `WidgetAssetReferenceRepointer`, `WidgetExtensionBatchPayloadResolver`, `WidgetExtensionDependencyResolver`, `and 2 more`.
 - Listeners: `AfterRecordSaved`, `LayoutLoaded`, `MaintainPublicWidgetSnapshotsListener`, `SiteTreeRebuilt`, `TypeValidated`.
-- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildPublicLayoutGraphAction`, `BuildWidgetVisualRegressionManifestAction`, `and 75 more`.
-- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `ActivityItemData`, `LayoutHealthData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `LayoutBuilderTreeContainerData`, `and 41 more`.
+- Actions: `AddHeroWidgetToLayoutAction`, `AddWidgetToLayoutContainerAction`, `AnalyzeLayoutDiagnosticsAction`, `AnalyzeLayoutHealthAction`, `ApplyLayoutPresetAction`, `ApplyLayoutSidebarWidgetContributionsAction`, `ApplyStarterLayoutPresetAction`, `AttachWidgetToLayoutAreaAction`, `BuildLayoutBuilderTreeAction`, `BuildLayoutContentInventoryAction`, `BuildLayoutHealthWorkQueueAction`, `BuildPublicLayoutGraphAction`, `and 78 more`.
+- Data objects: `AdminLayoutPreviewData`, `AdminWidgetPreviewData`, `ActivityItemData`, `LayoutHealthData`, `LayoutHealthWorkQueueItemData`, `LeastUsedWidgetData`, `RecentActivityData`, `UnusedWidgetData`, `WidgetGroupData`, `DemoSitePlanData`, `LayoutAssetBridgeData`, `LayoutBuilderStateData`, `and 43 more`.
 - Jobs: `ApplyLayoutBulkChangeRunJob`, `SyncLinkedLayoutPresetJob`.
 - Command signatures: `capell:layout-builder-install`, `capell:layout-builder:prune-bulk-change-runs`.
 - Manifest action API: `install: Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction`, `pruneLayoutBulkChangeRuns: Capell\LayoutBuilder\Actions\PruneLayoutBulkChangeRunsAction`, `setup: Capell\LayoutBuilder\Actions\SetupLayoutBuilderPackageAction`.

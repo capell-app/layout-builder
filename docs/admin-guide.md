@@ -40,8 +40,6 @@ This guide is for editors who build pages and owners deciding how to use widgets
 8. Open **Advanced** for column position, responsive visibility, tag, HTML class, column overrides, and legacy margin. Margin is outside the container; keep it for existing layouts, but prefer spacing and padding for new visual changes.
 9. Save the page.
 
-![Set base, tablet, and desktop padding in the expanded Layout and appearance section.](screenshots/layout-builder-edit-container-action.png)
-
 ![Recognise and reset the active theme's container-local settings.](screenshots/layout-builder-edit-container-theme-settings.png)
 
 ### How to upload an image or file for a widget

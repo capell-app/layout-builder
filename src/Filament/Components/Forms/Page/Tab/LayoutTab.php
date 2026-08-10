@@ -50,11 +50,12 @@ class LayoutTab
                             'layoutId' => $layoutId,
                             'pageId' => $record->getKey(),
                             'pageClass' => $record::class,
+                            'lazy' => config('capell-layout-builder.layout_builder.lazy', true)
+                                ? 'on-load'
+                                : false,
                         ];
                     },
-                )
-                    ->lazy(config('capell-layout-builder.layout_builder.lazy', true))
-                    ->columnSpanFull(),
+                )->columnSpanFull(),
             ]);
     }
 }

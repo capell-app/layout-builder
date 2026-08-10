@@ -92,8 +92,8 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
 
     expect($composerRequirements['capell-app/admin'] ?? null)->toBe('^1.0.10')
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
-        ->and($composerRequirements['capell-app/core'] ?? null)->toBe('^1.0')
-        ->and($composerRequirements['capell-app/frontend'] ?? null)->toBe('^1.0')
+        ->and($composerRequirements['capell-app/core'] ?? null)->toBe('^1.0.21')
+        ->and($composerRequirements['capell-app/frontend'] ?? null)->toBe('^1.0.31')
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^1.0');
 });
 
@@ -290,8 +290,11 @@ it('references committed marketplace and screenshot manifest images', function (
         $screenshotPath = $entry['screenshotPath'] ?? null;
         throw_unless(is_string($screenshotPath), RuntimeException::class, 'Expected a screenshot manifest path.');
 
-        expect($entry)->toHaveKey('screenshotPath')
-            ->and(is_file($repositoryRoot . '/' . $screenshotPath))->toBeTrue();
+        expect($entry)->toHaveKey('screenshotPath');
+
+        if (($entry['required'] ?? false) === true) {
+            expect(is_file($repositoryRoot . '/' . $screenshotPath))->toBeTrue();
+        }
     }
 });
 

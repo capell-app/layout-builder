@@ -7,10 +7,6 @@ it('separates inspected release evidence from optional replacement targets', fun
 
     $requiredIds = [
         'layout-builder-editor-main-sidebar',
-        'layout-builder-add-widget-action',
-        'layout-builder-add-container-action',
-        'layout-builder-edit-widget-action',
-        'layout-builder-edit-container-action',
         'layout-builder-edit-container-theme-settings',
         'layout-builder-edit-container-action-mobile',
         'layout-builder-edit-container-theme-settings-mobile',
@@ -32,9 +28,17 @@ it('separates inspected release evidence from optional replacement targets', fun
         'layout-example-full-width-public',
     ];
 
+    $deferredMarketplaceIds = [
+        'layout-builder-add-widget-action',
+        'layout-builder-add-container-action',
+        'layout-builder-edit-widget-action',
+        'layout-builder-edit-container-action',
+    ];
+
     expect($entries->pluck('id')->all())
         ->toContain(...$requiredIds)
-        ->toContain(...$optionalReplacementIds);
+        ->toContain(...$optionalReplacementIds)
+        ->toContain(...$deferredMarketplaceIds);
 
     foreach ($requiredIds as $requiredId) {
         $entry = $entries->firstWhere('id', $requiredId);
@@ -54,6 +58,15 @@ it('separates inspected release evidence from optional replacement targets', fun
             ->not->toBeNull()
             ->and($entry['required'] ?? true)->toBeFalse()
             ->and($entry['notes'] ?? '')->toStartWith('Optional replacement target.');
+    }
+
+    foreach ($deferredMarketplaceIds as $deferredMarketplaceId) {
+        $entry = $entries->firstWhere('id', $deferredMarketplaceId);
+
+        expect($entry)
+            ->not->toBeNull()
+            ->and($entry['required'] ?? true)->toBeFalse()
+            ->and($entry['notes'] ?? '')->toBe('Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.');
     }
 });
 
@@ -214,29 +227,15 @@ it('uses stable selector interactions for admin screenshot captures that the wor
     }
 });
 
-it('keeps the canonical page-building guide evidence package-owned and traceable', function (): void {
+it('keeps deferred page-building guide evidence out of required promotion', function (): void {
     $documentationRepository = dirname(__DIR__, 5) . '/capell-4';
     $packageRepository = dirname(__DIR__, 4);
     $guide = file_get_contents($documentationRepository . '/docs/getting-started/building-pages.md');
     $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
 
-    $expectedEntries = [
-        'layout-builder-add-container-action' => [
-            'screenshotPath' => 'packages/layout-builder/docs/screenshots/layout-builder-add-container-action.png',
-            'interactions' => [
-                ['type' => 'click', 'selector' => '[data-layout-builder-action="add-container"]:visible'],
-                ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
-            ],
-        ],
-        'layout-builder-add-widget-action' => [
-            'screenshotPath' => 'packages/layout-builder/docs/screenshots/layout-builder-add-widget-action.png',
-            'interactions' => [
-                ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
-                ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
-                ['type' => 'click', 'selector' => '[data-layout-builder-action="add-widget"]:visible'],
-                ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
-            ],
-        ],
+    $deferredEntries = [
+        'layout-builder-add-container-action',
+        'layout-builder-add-widget-action',
     ];
 
     expect($guide)
@@ -245,7 +244,7 @@ it('keeps the canonical page-building guide evidence package-owned and traceable
         ->not->toContain('page-building-layout-builder-editor.png')
         ->not->toContain('page-building-layout-builder-add-widget.png');
 
-    foreach ($expectedEntries as $id => $expectedEntry) {
+    foreach ($deferredEntries as $id) {
         $entry = $entries->get($id);
 
         throw_unless(is_array($entry), RuntimeException::class, sprintf('Expected the %s screenshot entry to be an array.', $id));
@@ -255,12 +254,10 @@ it('keeps the canonical page-building guide evidence package-owned and traceable
         throw_unless(is_string($screenshotPath), RuntimeException::class, sprintf('Expected the %s screenshot path to be a string.', $id));
 
         expect($entry)
-            ->and($entry['required'] ?? false)->toBeTrue()
-            ->and($screenshotPath)->toBe($expectedEntry['screenshotPath'])
-            ->and(is_file($packageRepository . '/' . $screenshotPath))->toBeTrue()
-            ->and($entry['notes'] ?? '')->not->toBe('')
-            ->and($entry['useCase'] ?? '')->not->toBe('')
-            ->and($entry['interactions'] ?? null)->toBe($expectedEntry['interactions']);
+            ->and($entry['required'] ?? true)->toBeFalse()
+            ->and(is_file($packageRepository . '/' . $screenshotPath))->toBeFalse()
+            ->and($entry['notes'] ?? '')->toBe('Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.')
+            ->and($entry['useCase'] ?? '')->not->toBe('');
     }
 });
 

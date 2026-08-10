@@ -13,7 +13,7 @@
             <h2>{{ $title }}</h2>
             <p class="layout-builder-tree-counts">
                 {{ trans_choice('capell-layout-builder::message.layout_tree_container_count', $tree->containerCount, ['count' => $tree->containerCount]) }}
-                <span aria-hidden="true">·</span>
+                <span aria-hidden="true">,</span>
                 {{ trans_choice('capell-layout-builder::message.layout_tree_widget_count', $tree->widgetCount, ['count' => $tree->widgetCount]) }}
             </p>
         </div>
@@ -69,7 +69,7 @@
             <button
                 type="button"
                 class="layout-builder-tree-collapse-button"
-                x-on:click="toggleTreeCollapsed()"
+                x-on:click="compactPanels ? closeTree() : toggleTreeCollapsed()"
                 title="{{ __('capell-layout-builder::button.structure') }}"
             >
                 @svg('heroicon-o-x-mark', 'h-4 w-4')
@@ -212,7 +212,7 @@
                             <span class="layout-builder-tree-row-main">
                                 <span>{{ $widget->label }}</span>
                                 <small>
-                                    {{ collect([$widget->typeLabel, $widget->usesPageContent ? __('capell-layout-builder::generic.page_content_widget') : null])->filter()->implode(' · ') }}
+                                    {{ collect([$widget->typeLabel, $widget->usesPageContent ? __('capell-layout-builder::generic.page_content_widget') : null])->filter()->implode(', ') }}
                                 </small>
                             </span>
                             @if ($widget->assetCount > 0)

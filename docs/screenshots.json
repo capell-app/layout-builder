@@ -43,6 +43,7 @@
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
             "required": false,
+            "sameCaptureAs": "layout-builder-editor-main-sidebar",
             "notes": "Optional replacement target. The current capture duplicates the host Page form and does not show the content-first surface, so it is not release or Marketplace evidence.",
             "useCase": "An editor updates page content in existing widget slots before changing the underlying layout structure.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-content-first.png"
@@ -63,8 +64,8 @@
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
-            "required": true,
-            "notes": "Shows the add-widget action open with selectable widgets and target container context.",
+            "required": false,
+            "notes": "Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.",
             "useCase": "An editor inserts a reusable widget into a selected layout container.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-add-widget-action.png",
             "interactions": [
@@ -102,8 +103,8 @@
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
-            "required": true,
-            "notes": "Shows the add-container action with area, name, width, and responsive controls visible.",
+            "required": false,
+            "notes": "Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.",
             "useCase": "An editor adds a named container to split a page into structured layout regions.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-add-container-action.png",
             "interactions": [
@@ -133,8 +134,8 @@
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
-            "required": true,
-            "notes": "Shows a populated widget edit action with content and presentation tabs.",
+            "required": false,
+            "notes": "Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.",
             "useCase": "An editor adjusts an existing widget's content and display settings from the page layout.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-edit-widget-action.png",
             "interactions": [
@@ -172,10 +173,10 @@
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
-            "required": true,
+            "required": false,
             "viewport": "desktop",
             "colorSchemes": ["light", "dark"],
-            "notes": "Shows the expanded Layout & appearance section with the responsive padding controls enabled.",
+            "notes": "Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.",
             "useCase": "An editor sets portable spacing, border, and base, tablet, and desktop padding on a layout container.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-edit-container-action.png",
             "interactions": [
@@ -543,6 +544,7 @@
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
             "required": false,
+            "sameCaptureAs": "layout-builder-editor-main-sidebar",
             "notes": "Optional replacement target. The current capture stops at the host Page form before the populated layout is visible, so it is not release or Marketplace evidence.",
             "useCase": "An editor verifies a complete main and sidebar page layout before checking the visitor render.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-example-main-sidebar-admin.png"
@@ -677,6 +679,27 @@
             "notes": "Shows package-specific section and layout table state.",
             "useCase": "An administrator reviews layout sections and layout-builder managed records.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/sections-admin-index.png"
+        },
+        {
+            "id": "layout-builder-admin-sidebar-menu-open",
+            "title": "Widgets admin index with admin sidebar menu open.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-index",
+            "url": "/admin/layout-builder/widgets",
+            "waitFor": "table",
+            "targetType": "admin-surface",
+            "target": "WidgetResource",
+            "required": false,
+            "notes": "Shows reusable widgets, component/search columns, filters, and table actions. Capture this same admin surface with the fully collapsible sidebar opened.",
+            "useCase": "An administrator scans reusable widgets by component, usage, status, and search/filter state.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-admin-sidebar-menu-open.png",
+            "interactions": [
+                {
+                    "type": "click",
+                    "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                }
+            ]
         }
     ]
 }

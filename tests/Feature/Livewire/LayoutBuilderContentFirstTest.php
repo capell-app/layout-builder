@@ -56,37 +56,17 @@ afterEach(function (): void {
     SchemaFacade::dropIfExists('layout_builder_non_publishable_assets');
 });
 
-it('renders the visual layout builder by default from the package namespace', function (): void {
+it('renders the content first editor by default from the package namespace', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => []],
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
-        ->assertSee(__('capell-layout-builder::heading.layout_structure'))
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.visual-inspector'))
-        ->assertSee(__('capell-layout-builder::message.container_empty'))
-        ->assertElementExists('.layout-builder-visual-toolbar')
-        ->assertElementExists('.layout-builder-command-group')
-        ->assertElementExists('.layout-builder-command-save')
-        ->assertElementExists('.layout-builder-preview-command-label')
-        ->assertElementExists('.layout-builder-history-actions')
-        ->assertElementExists('[data-layout-builder-surface="history-actions"]')
-        ->assertElementExists('.layout-builder-editor-mode-toggle')
-        ->assertElementExists('.layout-builder-preview-status-overlay')
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.layout-builder-editor-summary'))
-        ->assertElementExists('[x-ref="treeToggle"]')
-        ->assertElementExists('.layout-builder-tree-collapse-button')
-        ->assertElementExists('.layout-builder-breakpoint-controls')
-        ->assertElementExists('[data-layout-builder-surface="breakpoint-controls"]')
-        ->assertElementExists('[data-layout-builder-action="preview-tablet"]')
-        ->assertElementExists('.layout-builder-visual-editor-empty')
-        ->assertElementExists('.layout-builder-visual-grid-empty')
-        ->assertElementExists('.layout-builder-shadow-preview-empty')
-        ->assertElementExists('[data-capell-layout-builder-admin-preview="true"]')
-        ->assertSeeHtml('applyPreviewBreakpoint')
-        ->assertDontSeeHtml('layout-builder-preview-status-row')
-        ->assertDontSeeHtml('capell-layout-builder:request-page-state');
+        ->assertElementExists('[data-layout-builder-surface="content-editor"]')
+        ->assertSee(__('capell-layout-builder::generic.content_first_editor'))
+        ->assertSee(__('capell-layout-builder::button.advanced_layout'))
+        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[data-layout-builder-surface="visual-editor"]'));
 });
 
 it('uses the loaded layout page count for shared layout context', function (): void {
@@ -122,12 +102,15 @@ it('uses the loaded layout page count for shared layout context', function (): v
         'pageClass' => Page::class,
     ])
         ->assertSet('layout.pages_count', 3)
-        ->assertSee(trans_choice('capell-layout-builder::message.layout_shared_with_other_pages_heading', 2, ['count' => 2]));
+        ->assertSee(trans_choice('capell-layout-builder::message.layout_shared_with_other_pages_heading', 2, ['count' => 2]))
+        ->assertElementExists('.layout-builder-impact-note-warning');
 
     expect($currentPageCountQueries)->toBeEmpty();
 });
 
 it('renders a full width empty page preview when a layout has no containers', function (): void {
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+
     $layout = Layout::factory()->create(['containers' => []]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
@@ -473,12 +456,14 @@ it('keeps legacy editor mode transitions available inside the visual editor from
     ]]);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertElementExists('[data-layout-builder-surface="content-editor"]')
         ->call('showAdvancedLayout', 'main:0:1:page:1:0')
         ->assertSet('editorMode', 'layout_first')
-        ->assertSee(__('capell-layout-builder::heading.layout_structure'))
+        ->assertElementExists('[data-layout-builder-surface="visual-editor"]')
         ->call('showContentEditor')
         ->assertSet('editorMode', 'content_first')
-        ->assertSet('returnToContentItemKey', 'main:0:1:page:1:0');
+        ->assertSet('returnToContentItemKey', 'main:0:1:page:1:0')
+        ->assertElementExists('[data-layout-builder-surface="content-editor"]');
 });
 
 it('lets content editors use content first without advanced layout access from the package namespace', function (): void {
@@ -493,7 +478,7 @@ it('lets content editors use content first without advanced layout access from t
 
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
-        ->assertSee(__('capell-layout-builder::heading.layout_structure'))
+        ->assertElementExists('[data-layout-builder-surface="content-editor"]')
         ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.layout-builder-add-container-button'))
         ->assertDontSeeHtml("mountAction('addWidget')");
 
@@ -610,6 +595,8 @@ it('keeps saving non publishable builder asset records through the existing path
 });
 
 it('renders widget rows in the structure tree and wires preview widget actions from the package namespace', function (): void {
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+
     $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
     WidgetAsset::factory()
@@ -699,15 +686,25 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->toContain("node.setAttribute('role', 'button')")
         ->toContain("node.setAttribute('aria-label', label)")
         ->toContain("['Enter', ' '].includes(event.key)")
-        ->toContain('data-clb-action="openInspector"')
-        ->toContain('data-layout-builder-action="edit-widget"')
-        ->toContain('data-layout-builder-action="edit-container"')
+        ->not->toContain('clb-preview-actionbar')
+        ->toContain('x-bind:data-layout-builder-action')
+        ->toContain("'edit-container' : 'edit-widget'")
         ->toContain('data-layout-builder-action="edit-layout-widget"')
         ->toContain('data-layout-builder-action="${actionName}"')
-        ->toContain('scrollInspectorIntoView()');
+        ->toContain('if (this.compactPanels) this.closeTree(false)')
+        ->and($treeView)
+        ->toContain('compactPanels ? closeTree() : toggleTreeCollapsed()')
+        ->and($editorView)
+        ->toContain('data-layout-builder-surface="inspector-backdrop"')
+        ->toContain('data-layout-builder-surface="structure-drawer"')
+        ->toContain('x-trap.noscroll="compactPanels && treeOpen"')
+        ->toContain('x-bind:aria-labelledby="compactPanels ? \'layout-builder-inspector-title\' : null"')
+        ->toContain('this.inspectorReturnFocus = this.$refs.treeToggle');
 });
 
 it('renders widget copy in the visual preview from the package namespace', function (): void {
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+
     $language = Language::factory()->create();
     $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero banner']);
     $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
@@ -749,7 +746,7 @@ it('sends layout only editors straight to the advanced layout editor from the pa
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'layout_first')
-        ->assertSee(__('capell-layout-builder::heading.layout_record', ['name' => $layout->name]))
+        ->assertDontSee($layout->name)
         ->assertSee(__('capell-layout-builder::heading.layout_structure'));
 });
 

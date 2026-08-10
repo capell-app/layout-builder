@@ -1,22 +1,21 @@
 <div>
     <div>
-        <div
-            class="mb-4 flex flex-wrap justify-between gap-4 pr-4 pl-1 sm:flex-nowrap lg:justify-end"
-        >
-            <div class="grow">
-                <div class="text-lg font-semibold">
-                    {{ __('capell-layout-builder::heading.layout_record', ['name' => $this->layout->name]) }}
-                </div>
-            </div>
-        </div>
-
         @if ($this->layoutIsSharedWithOtherPages || ($this->page === null && $this->layoutIsUsedByPages))
-            <x-filament::callout
-                :icon="$this->layoutIsSharedWithOtherPages ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-information-circle'"
-                :color="$this->layoutIsSharedWithOtherPages ? 'warning' : 'info'"
-                class="mb-5"
+            <aside
+                @class([
+                    'layout-builder-impact-note',
+                    'layout-builder-impact-note-warning' => $this->layoutIsSharedWithOtherPages,
+                ])
+                aria-label="{{ __('capell-layout-builder::heading.layout_usage') }}"
             >
-                <x-slot name="heading">
+                <span
+                    class="layout-builder-impact-note-icon"
+                    aria-hidden="true"
+                >
+                    @svg($this->layoutIsSharedWithOtherPages ? 'heroicon-o-exclamation-triangle' : 'heroicon-o-information-circle', 'h-4 w-4')
+                </span>
+
+                <p>
                     @if ($this->layoutIsSharedWithOtherPages)
                         {{
                             trans_choice(
@@ -41,32 +40,31 @@
                     >
                         {{ __('capell-layout-builder::button.view_pages_using_layout') }}
                     </x-filament::link>
-                </x-slot>
-
-                <x-slot name="description">
-                    @if ($this->layoutIsSharedWithOtherPages)
-                        {{
-                            trans_choice(
-                                'capell-layout-builder::message.layout_shared_with_other_pages_body',
-                                $this->otherPagesUsingLayoutCount,
-                            )
-                        }}
-                    @else
-                        {{
-                            trans_choice(
-                                'capell-layout-builder::message.layout_used_by_pages_body',
-                                $this->layoutPagesCount,
-                            )
-                        }}
-                    @endif
-                </x-slot>
+                    <span class="layout-builder-impact-note-detail">
+                        @if ($this->layoutIsSharedWithOtherPages)
+                            {{
+                                trans_choice(
+                                    'capell-layout-builder::message.layout_shared_with_other_pages_body',
+                                    $this->otherPagesUsingLayoutCount,
+                                )
+                            }}
+                        @else
+                            {{
+                                trans_choice(
+                                    'capell-layout-builder::message.layout_used_by_pages_body',
+                                    $this->layoutPagesCount,
+                                )
+                            }}
+                        @endif
+                    </span>
+                </p>
 
                 @if ($this->layoutIsSharedWithOtherPages)
-                    <x-slot name="controls">
+                    <div class="layout-builder-impact-note-action">
                         {{ $this->cloneLayoutForPageAction }}
-                    </x-slot>
+                    </div>
                 @endif
-            </x-filament::callout>
+            </aside>
         @endif
 
         @php
@@ -74,10 +72,14 @@
             $canBrowseStarterLayouts = $this->canEditLayout() && $starterLayoutPresets !== [];
         @endphp
 
-        @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
-            'canBrowseStarterLayouts' => $canBrowseStarterLayouts,
-            'starterLayoutPresets' => $starterLayoutPresets,
-        ])
+        @if ($this->editorMode === \Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode::ContentFirst->value && $this->canEditContent())
+            @include('capell-layout-builder::livewire.filament.layout-builder.content-first')
+        @else
+            @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
+                'canBrowseStarterLayouts' => $canBrowseStarterLayouts,
+                'starterLayoutPresets' => $starterLayoutPresets,
+            ])
+        @endif
 
         @if ($canBrowseStarterLayouts)
             <x-filament::modal

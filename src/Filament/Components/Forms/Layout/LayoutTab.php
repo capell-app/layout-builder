@@ -26,8 +26,11 @@ class LayoutTab extends Tab
                         'record' => null,
                         'siteId' => $record->site_id,
                         'layoutId' => $record->getKey(),
+                        'lazy' => config('capell-layout-builder.layout_builder.lazy', true)
+                            ? 'on-load'
+                            : false,
                     ],
-                )->lazy(),
+                ),
             ] : []);
     }
 }

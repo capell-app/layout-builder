@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Enums;
 
+use Capell\Core\Models\Contracts\Blueprintable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Models\Widget;
 use Filament\Resources\Resource;
@@ -25,7 +26,7 @@ enum LayoutTypeEnum: string implements HasLabel
     }
 
     /**
-     * @return class-string<Model>
+     * @return class-string<Model&Blueprintable>
      */
     public function getModel(): string
     {

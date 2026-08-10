@@ -81,6 +81,7 @@
     x-data="window.layoutBuilderContentInventory()"
     class="rounded-lg bg-gray-50 p-4 dark:bg-gray-950"
     aria-labelledby="layout-content-editor-heading"
+    data-layout-builder-surface="content-editor"
 >
     <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>

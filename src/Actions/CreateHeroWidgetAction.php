@@ -64,7 +64,7 @@ class CreateHeroWidgetAction
 
         return $typeModel::query()->firstOrCreate([
             'key' => WidgetTypeEnum::Hero,
-            'type' => LayoutTypeEnum::Widget,
+            'type' => LayoutTypeEnum::Widget->value,
         ], [
             'name' => __('capell-layout-builder::generic.hero'),
             'group' => WidgetTypeGroupEnum::Asset,

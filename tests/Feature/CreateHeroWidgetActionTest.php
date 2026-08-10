@@ -2,8 +2,20 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\Blueprint;
 use Capell\LayoutBuilder\Actions\CreateHeroWidgetAction;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
+
+it('creates its widget-type blueprint when none exists yet, without an unknown-subject exception', function (): void {
+    Blueprint::query()->where('key', WidgetTypeEnum::Hero)->delete();
+
+    $widget = CreateHeroWidgetAction::run();
+
+    $blueprint = Blueprint::query()->findOrFail($widget->blueprint_id);
+
+    expect($blueprint->getRawOriginal('type'))->toBe('widget');
+});
 
 it('persists the hero component as a string value without an encoded enum meta payload', function (): void {
     $widget = CreateHeroWidgetAction::run();
