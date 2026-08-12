@@ -122,6 +122,13 @@ it('renders a full width empty page preview when a layout has no containers', fu
         ->toContain('.clb-preview-empty-page { grid-column: 1 / -1; }');
 });
 
+it('preloads the visual editor Alpine factory before dynamic mode changes', function (): void {
+    $indexView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/index.blade.php');
+
+    expect($indexView)
+        ->toContain("'scriptOnly' => true");
+});
+
 it('resolves lazy mount scalar identifiers into builder models', function (): void {
     $site = Site::factory()->create();
     $layout = Layout::factory()->site($site)->create(['containers' => [
@@ -662,7 +669,8 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->assertSet('selectedWidgetIndex', 0);
 
     $treeView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-tree.blade.php');
-    $editorView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php');
+    $editorView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
+        . file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php');
 
     expect($treeView)
         ->not->toContain('$this->editWidgetAssetAction')

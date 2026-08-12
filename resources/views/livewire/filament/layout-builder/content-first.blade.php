@@ -5,77 +5,79 @@
     $inventory = $this->contentInventory;
 @endphp
 
-@once
-    <script>
+{{-- format-ignore-start --}}
+@script
+    <script data-navigate-once>
         window.layoutBuilderContentInventory = () => ({
-            search: '',
-            init() {
-                this.$nextTick(() => {
-                    const target = window.location.hash.substring(1);
+        search: '',
+        init() {
+            this.$nextTick(() => {
+                const target = window.location.hash.substring(1);
 
-                    if (!target) {
-                        return;
-                    }
-
-                    document.getElementById(target)?.focus();
-                });
-            },
-            normalize(value) {
-                return (value || '')
-                    .toString()
-                    .toLowerCase()
-                    .normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '');
-            },
-            escapeHtml(value) {
-                return (value || '')
-                    .toString()
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;');
-            },
-            highlight(value) {
-                const escaped = this.escapeHtml(value);
-                const term = this.search.trim();
-
-                if (!term) {
-                    return escaped;
+                if (!target) {
+                    return;
                 }
 
-                const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                document.getElementById(target)?.focus();
+            });
+        },
+        normalize(value) {
+            return (value || '')
+                .toString()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '');
+        },
+        escapeHtml(value) {
+            return (value || '')
+                .toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        },
+        highlight(value) {
+            const escaped = this.escapeHtml(value);
+            const term = this.search.trim();
 
-                return escaped.replace(
-                    new RegExp(`(${escapedTerm})`, 'gi'),
-                    '<mark class="rounded bg-warning-100 px-0.5 text-warning-900 dark:bg-warning-500/20 dark:text-warning-200">$1</mark>',
-                );
-            },
-            hasActiveSearch() {
-                return this.search.trim() !== '';
-            },
-            itemMatches(widget) {
-                return (
-                    !this.hasActiveSearch() ||
-                    this.normalize(widget.dataset.layoutContentSearch).includes(this.normalize(this.search))
-                );
-            },
-            groupMatches(widget) {
-                return (
-                    !this.hasActiveSearch() ||
-                    Array.from(widget.querySelectorAll('[data-layout-content-item-key]')).some((item) =>
-                        this.itemMatches(item),
-                    )
-                );
-            },
-            visibleItems() {
-                return Array.from(
-                    this.$refs.contentItems?.querySelectorAll('[data-layout-content-item-key]') || [],
-                ).filter((item) => this.itemMatches(item)).length;
-            },
+            if (!term) {
+                return escaped;
+            }
+
+            const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            return escaped.replace(
+                new RegExp(`(${escapedTerm})`, 'gi'),
+                '<mark class="rounded bg-warning-100 px-0.5 text-warning-900 dark:bg-warning-500/20 dark:text-warning-200">$1</mark>',
+            );
+        },
+        hasActiveSearch() {
+            return this.search.trim() !== '';
+        },
+        itemMatches(widget) {
+            return (
+                !this.hasActiveSearch() ||
+                this.normalize(widget.dataset.layoutContentSearch).includes(this.normalize(this.search))
+            );
+        },
+        groupMatches(widget) {
+            return (
+                !this.hasActiveSearch() ||
+                Array.from(widget.querySelectorAll('[data-layout-content-item-key]')).some((item) =>
+                    this.itemMatches(item),
+                )
+            );
+        },
+        visibleItems() {
+            return Array.from(
+                this.$refs.contentItems?.querySelectorAll('[data-layout-content-item-key]') || [],
+            ).filter((item) => this.itemMatches(item)).length;
+        },
         });
     </script>
-@endonce
+@endscript
+{{-- format-ignore-end --}}
 
 <section
     x-data="window.layoutBuilderContentInventory()"

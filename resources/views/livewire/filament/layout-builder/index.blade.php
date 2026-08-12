@@ -72,12 +72,19 @@
             $canBrowseStarterLayouts = $this->canEditLayout() && $starterLayoutPresets !== [];
         @endphp
 
+        @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
+            'canBrowseStarterLayouts' => $canBrowseStarterLayouts,
+            'starterLayoutPresets' => $starterLayoutPresets,
+            'scriptOnly' => true,
+        ])
+
         @if ($this->editorMode === \Capell\LayoutBuilder\Enums\LayoutBuilderEditorMode::ContentFirst->value && $this->canEditContent())
             @include('capell-layout-builder::livewire.filament.layout-builder.content-first')
         @else
             @include('capell-layout-builder::livewire.filament.layout-builder.visual-editor', [
                 'canBrowseStarterLayouts' => $canBrowseStarterLayouts,
                 'starterLayoutPresets' => $starterLayoutPresets,
+                'scriptOnly' => false,
             ])
         @endif
 

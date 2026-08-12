@@ -49,7 +49,8 @@ function responsivePreviewLayoutBuilder(mixed $component): LayoutBuilder
 }
 
 it('keeps the layout builder workspace and shadow preview dark with the admin theme', function (): void {
-    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php');
+    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
+        . file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php');
     $adminStyles = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/css/layout-builder/admin/capell-layout-filament.css');
 
     expect($adminStyles)
@@ -166,7 +167,8 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertDontSeeHtml('capell-layout-builder::generic.preview')
         ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[wire\\:click^="setActiveBreakpoint"]'));
 
-    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php');
+    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
+        . file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php');
 
     expect($visualEditorBlade)
         ->toContain('callback(event.currentTarget)')
