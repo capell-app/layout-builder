@@ -187,20 +187,7 @@ it('renders deferred placeholders before renderable dispatch', function (): void
     $widgetAsset->setRelation('asset', $asset);
 
     app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
-    app()->instance(PublicFragmentUrlResolverRegistry::class, new PublicFragmentUrlResolverRegistry([
-        new class implements PublicFragmentUrlResolver
-        {
-            public function owner(): string
-            {
-                return 'test-owner';
-            }
-
-            public function url(PublicFragmentReferenceData $reference): string
-            {
-                return '/deferred-fragments/' . $reference->ownerContext['assetId'];
-            }
-        },
-    ]));
+    registerLayoutBuilderRendererDeferredOwner();
 
     $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
         widget: $widget,
@@ -224,6 +211,121 @@ it('renders deferred placeholders before renderable dispatch', function (): void
         ->and($html)->not->toContain('Deferred Asset')
         ->and($firstCacheKey[1] ?? null)->not->toBeNull()
         ->and($secondCacheKey[1] ?? null)->toBe($firstCacheKey[1] ?? null);
+});
+
+it('does not requery hydrated assets or shared context for each deferred placeholder', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create(['status' => true]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $widget = Widget::factory()->create();
+    $widgetAssets = collect(range(1, 3))->map(function (int $index) use ($language, $widget): WidgetAsset {
+        $asset = layoutBuilderRendererWidgetAsset($language, 'Deferred Asset ' . $index, [
+            'kind' => 'feature',
+            'performance' => [
+                'defer' => true,
+                'fragment_owner' => 'test-owner',
+            ],
+        ]);
+        $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
+        $widgetAsset->setRelation('asset', $asset);
+
+        return $widgetAsset;
+    });
+
+    app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
+    registerLayoutBuilderRendererDeferredOwner();
+
+    $queries = [];
+    DB::listen(function (QueryExecuted $query) use (&$queries): void {
+        $queries[] = ['sql' => $query->sql, 'bindings' => $query->bindings];
+    });
+
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetAssets: $widgetAssets,
+    );
+
+    preg_match_all('/\sdata-deferred-fragment(?:\s|>)/', $html, $placeholders);
+    $firstAsset = $widgetAssets->firstOrFail()->getRelationValue('asset');
+    assert($firstAsset instanceof Model);
+    $assetMorphClass = $firstAsset->getMorphClass();
+    $assetQueries = collect($queries)->filter(
+        static fn (array $query): bool => preg_match('/\bfrom\s+[`"]?widgets\b/i', $query['sql']) === 1,
+    );
+    $assetTranslationQueries = collect($queries)->filter(
+        static fn (array $query): bool => str_contains($query['sql'], 'translations')
+            && in_array($assetMorphClass, $query['bindings'], true),
+    );
+
+    expect($placeholders[0])->toHaveCount(3)
+        ->and($assetQueries)->toBeEmpty()
+        ->and($assetTranslationQueries)->toBeEmpty()
+        ->and($queries)->toHaveCount(6);
+});
+
+it('changes deferred cache identities when hydrated asset or translation data changes', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create(['status' => true]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Deferred Asset', [
+        'kind' => 'feature',
+        'performance' => [
+            'defer' => true,
+            'fragment_owner' => 'test-owner',
+        ],
+    ]);
+    $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
+    $widgetAsset->setRelation('asset', $asset);
+
+    app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
+    registerLayoutBuilderRendererDeferredOwner();
+
+    $renderer = resolve(PublicLayoutWidgetAssetsRenderer::class);
+    $firstHtml = $renderer->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetAssets: collect([$widgetAsset]),
+    );
+
+    $meta = $asset->getAttribute('meta');
+    assert(is_array($meta));
+    $asset->forceFill(['meta' => [...$meta, 'fragment_revision' => 'asset-changed']])->save();
+    $freshAsset = $asset->fresh();
+    assert($freshAsset instanceof Widget);
+    $asset = $freshAsset->load('translation');
+    $widgetAsset->setRelation('asset', $asset);
+
+    $assetChangedHtml = $renderer->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetAssets: collect([$widgetAsset]),
+    );
+
+    $translation = $asset->getRelationValue('translation');
+    assert($translation instanceof Model);
+    $translation->update(['title' => 'Changed Deferred Asset']);
+    $freshAsset = $asset->fresh();
+    assert($freshAsset instanceof Widget);
+    $asset = $freshAsset->load('translation');
+    $widgetAsset->setRelation('asset', $asset);
+
+    $translationChangedHtml = $renderer->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetAssets: collect([$widgetAsset]),
+    );
+
+    preg_match('/data-deferred-fragment-key="([a-f0-9]{64})"/', $firstHtml, $firstCacheKey);
+    preg_match('/data-deferred-fragment-key="([a-f0-9]{64})"/', $assetChangedHtml, $assetChangedCacheKey);
+    preg_match('/data-deferred-fragment-key="([a-f0-9]{64})"/', $translationChangedHtml, $translationChangedCacheKey);
+
+    expect($firstCacheKey[1] ?? null)->not->toBeNull()
+        ->and($assetChangedCacheKey[1] ?? null)->not->toBe($firstCacheKey[1] ?? null)
+        ->and($translationChangedCacheKey[1] ?? null)->not->toBe($assetChangedCacheKey[1] ?? null);
 });
 
 it('renders the asset normally when a deferred fragment has no public url', function (): void {
@@ -282,6 +384,24 @@ function layoutBuilderRendererWidgetAsset(Language $language, string $title, arr
         ->create(['title' => $title]);
 
     return $asset->refresh()->load('translation');
+}
+
+function registerLayoutBuilderRendererDeferredOwner(): void
+{
+    app()->instance(PublicFragmentUrlResolverRegistry::class, new PublicFragmentUrlResolverRegistry([
+        new class implements PublicFragmentUrlResolver
+        {
+            public function owner(): string
+            {
+                return 'test-owner';
+            }
+
+            public function url(PublicFragmentReferenceData $reference): string
+            {
+                return '/deferred-fragments/' . $reference->ownerContext['assetId'];
+            }
+        },
+    ]));
 }
 
 function layoutBuilderRendererContext(Page $page, Site $site, Language $language, Layout $layout): FrontendContextReader

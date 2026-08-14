@@ -8,7 +8,6 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
-use Capell\Core\Models\Translation;
 use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentContentVersionAction;
 use Capell\Frontend\Actions\RenderRenderableAction;
 use Capell\Frontend\Actions\ResolveDeferredFragmentPlaceholderDataAction;
@@ -179,7 +178,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             'layoutId' => $this->scalarKey($layout),
             'assetType' => $asset->getMorphClass(),
             'assetId' => $assetId,
-            'assetVersion' => $this->assetVersion($asset, $language),
+            'assetVersion' => $this->assetVersion($asset),
         ];
         $contentVersion = ResolvePublicFragmentContentVersionAction::run(
             $page,
@@ -224,16 +223,11 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
         ], JSON_THROW_ON_ERROR);
     }
 
-    private function assetVersion(Model $asset, Language $language): string
+    private function assetVersion(Model $asset): string
     {
-        $freshAsset = $asset->newQuery()->whereKey($asset->getKey())->firstOrFail();
-        $translation = Translation::query()
-            ->where('translatable_type', $freshAsset->getMorphClass())
-            ->where('translatable_id', $freshAsset->getKey())
-            ->where('language_id', $language->getKey())
-            ->first();
-        $assetAttributes = $freshAsset->getAttributes();
-        $translationAttributes = $translation?->getAttributes();
+        $translation = $asset->getRelationValue('translation');
+        $assetAttributes = $asset->getAttributes();
+        $translationAttributes = $translation instanceof Model ? $translation->getAttributes() : null;
 
         ksort($assetAttributes);
         if (is_array($translationAttributes)) {
