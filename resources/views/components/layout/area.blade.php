@@ -4,6 +4,7 @@
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
     use Capell\LayoutBuilder\Support\LayoutWidgetData;
+    use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 @endphp
 
 @props([
@@ -28,8 +29,13 @@
                     LayoutWidgetData::occurrence($widgetData),
                 ))
                 ->filter();
+            $layoutWidgetExtensions = collect($container['widgets'] ?? [])
+                ->filter(static fn (mixed $widgetData): bool => is_array($widgetData)
+                    && LayoutWidgetData::key($widgetData) === null
+                    && is_string($widgetData['type'] ?? null)
+                    && resolve(WidgetExtensionRegistry::class)->definition($widgetData['type']) !== null);
 
-            if ($layoutWidgets->isEmpty()) {
+            if ($layoutWidgets->isEmpty() && $layoutWidgetExtensions->isEmpty()) {
                 continue;
             }
 

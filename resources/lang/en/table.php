@@ -66,6 +66,8 @@ return [
     'layout_no_containers' => 'Layout No Containers',
     'layout_pages_of_type' => ':Type (:count)',
     'layout_preview_fallback' => 'Layout Preview Fallback',
+    'widget_preview_alt' => 'Preview of :widget',
+    'widget_preview_fallback' => 'No preview available',
     'widget_usage_layouts' => ':count layout|:count layouts',
     'widget_usage_layouts_tooltip' => 'Used by :count layout.|Used by :count layouts.',
     'widget_usage_disabled_tooltip' => 'This widget is disabled and unavailable for public rendering.',

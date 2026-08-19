@@ -46,7 +46,11 @@ final readonly class RenderPublicWidgetExtensionAction
         try {
             return $this->views->make($this->viewResolver->resolve($definition), [
                 'widget' => $payload,
+                'renderData' => $payload,
                 'context' => $this->safeContext(),
+                'publicPageRenderData' => $payloadSource instanceof PublicPageRenderData
+                    ? $payloadSource
+                    : $this->currentRenderData(),
             ])->render();
         } catch (Throwable $throwable) {
             $this->diagnostic($definition->key, $throwable);

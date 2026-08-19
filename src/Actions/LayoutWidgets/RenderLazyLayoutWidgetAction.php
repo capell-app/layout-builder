@@ -67,6 +67,10 @@ class RenderLazyLayoutWidgetAction
                     'resource_ids' => $resourceIds,
                 ], Response::HTTP_OK)
                 : response($html, Response::HTTP_OK);
+
+            // This is load-bearing: private, no-store protects session-specific
+            // markup. Vary: Cookie alone is insufficient because some CDNs ignore
+            // Vary when caching HTML responses.
             $response->headers->add([
                 'Cache-Control' => 'private, no-store',
                 'X-Robots-Tag' => 'noindex, nofollow',

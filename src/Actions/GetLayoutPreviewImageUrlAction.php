@@ -5,26 +5,27 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions;
 
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static string|null run(Layout $layout)
+ * @method static string|null run(Layout|Widget $record)
  */
 class GetLayoutPreviewImageUrlAction
 {
     use AsFake;
     use AsObject;
 
-    public function handle(Layout $layout): ?string
+    public function handle(Layout|Widget $record): ?string
     {
-        if ($layout->image !== null) {
-            return $layout->image->getUrl();
+        if ($record->image !== null) {
+            return $record->image->getUrl();
         }
 
-        $admin = $layout->admin;
+        $admin = $record->admin;
 
         if (is_array($admin) && isset($admin['image']) && is_string($admin['image']) && $admin['image'] !== '') {
             return Storage::disk()->url($admin['image']);

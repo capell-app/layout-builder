@@ -103,9 +103,13 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
      */
     private function renderWidgetAsset(WidgetAsset $widgetAsset, array $options): string
     {
-        $asset = $widgetAsset->asset;
+        if (! $widgetAsset->relationLoaded('asset')) {
+            return '';
+        }
 
-        if (! $asset instanceof Model) {
+        $asset = $widgetAsset->getRelation('asset');
+
+        if (! $asset instanceof Model || ! $asset->relationLoaded('translation')) {
             return '';
         }
 

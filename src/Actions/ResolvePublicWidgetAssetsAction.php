@@ -73,7 +73,7 @@ final class ResolvePublicWidgetAssetsAction
         );
 
         if ($assets->isNotEmpty()) {
-            $assets->load([
+            $assets->loadMissing([
                 'asset.translation' => fn (BuilderContract $query): BuilderContract => $this->scopePublicTranslation($query, $language),
             ]);
         }

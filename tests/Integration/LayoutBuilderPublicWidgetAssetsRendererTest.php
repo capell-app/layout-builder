@@ -137,6 +137,40 @@ it('eager loads translations from a preloaded base asset collection', function (
         ->and($assets->first()?->asset?->translation?->title)->toBe('Preloaded Asset');
 });
 
+it('preserves relations already eager loaded on public widget assets', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create();
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Preloaded Relations', ['kind' => 'feature']);
+    $widgetAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($asset)
+        ->container('main')
+        ->occurrence(1)
+        ->create(['workspace_id' => 0]);
+    $widgetAsset->setRelation('asset', $asset);
+    $widget->setRelation('assets', collect([$widgetAsset]));
+    $queryCount = 0;
+
+    DB::listen(function () use (&$queryCount): void {
+        $queryCount++;
+    });
+
+    $assets = ResolvePublicWidgetAssetsAction::run(
+        $widget,
+        $page,
+        $language,
+        'main',
+        1,
+    );
+
+    expect($assets)->toHaveCount(1)
+        ->and($assets->first()?->asset)->toBe($asset)
+        ->and($queryCount)->toBe(0);
+});
+
 it('memoizes public asset translation schema checks for the request', function (): void {
     $language = Language::factory()->create();
     $site = Site::factory()->language($language)->withTranslations($language)->create();

@@ -38,9 +38,9 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
 
         $this->ensureLayoutWidgetsLoaded($context->item);
 
-        $view = view('capell-layout-builder::components.layout.main-content', [
-            'context' => $context->item,
-        ]);
+        $viewName = $this->customMainContentView($context->item)
+            ?? 'capell-layout-builder::components.layout.main-content';
+        $view = view($viewName, ['context' => $context->item]);
 
         $wasBlazeEnabled = Blaze::isEnabled();
         Blaze::disable();
@@ -54,6 +54,17 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
         }
 
         return is_string($output) && trim($output) !== '' ? $output : '';
+    }
+
+    private function customMainContentView(MainContentRenderHookData $context): ?string
+    {
+        $viewName = data_get($context->theme, 'meta.main_content_file');
+
+        if (! is_string($viewName) || ! str_starts_with($viewName, 'capell-theme-') || ! view()->exists($viewName)) {
+            return null;
+        }
+
+        return $viewName;
     }
 
     private function ensureLayoutWidgetsLoaded(MainContentRenderHookData $context): void

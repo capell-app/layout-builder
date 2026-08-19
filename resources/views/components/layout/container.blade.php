@@ -1,11 +1,13 @@
 @php
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
+    use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
     use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
     use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
     use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
     use Capell\LayoutBuilder\Support\LayoutWidgetData;
+    use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 
     $containerWidth = ! empty($container['meta']['container'])
         ? ContainerWidthEnum::from($container['meta']['container'])
@@ -128,6 +130,17 @@
             'widgetData' => $widgetData,
             'pageSlot' => $pageSlot,
         ])
+    @endforeach
+
+    @foreach ($container['widgets'] ?? [] as $widgetExtensionData)
+        @if (
+            is_array($widgetExtensionData)
+            && LayoutWidgetData::key($widgetExtensionData) === null
+            && is_string($widgetExtensionData['type'] ?? null)
+            && resolve(WidgetExtensionRegistry::class)->definition($widgetExtensionData['type']) !== null
+        )
+            {!! resolve(RenderPublicWidgetExtensionAction::class)->render($widgetExtensionData) !!}
+        @endif
     @endforeach
 </div>
 
