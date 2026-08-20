@@ -95,6 +95,7 @@ return [
     'generate_static_site' => 'Generate static site',
     'hide_widget_assets' => 'Hide assets',
     'info' => 'Info',
+    'layout_history' => 'Layout history',
     'manage_site_permissions' => 'Manage site permissions',
     'manage_extension' => 'Manage',
     'move_down' => 'Move down',

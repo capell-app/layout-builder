@@ -1253,29 +1253,25 @@
     padding-block: 0.3125rem;
 }
 
-.layout-builder-history-actions :where(.fi-btn) {
-    width: 2rem;
+/* Undo and redo mount as Filament link actions, not `.fi-btn`, so the group is
+   matched on the classes those actions actually render. */
+.layout-builder-history-actions :where(.fi-btn, .fi-link) {
     min-width: 2rem;
     border: 0 !important;
     background: transparent !important;
     justify-content: center;
-    padding-inline: 0;
     box-shadow: none !important;
 }
 
-.layout-builder-history-actions :where(.fi-btn:hover, .fi-btn:focus-visible) {
-    background: transparent !important;
+.layout-builder-history-actions
+    :where(
+        .fi-btn:hover,
+        .fi-btn:focus-visible,
+        .fi-link:hover,
+        .fi-link:focus-visible
+    ) {
     color: var(--primary-700) !important;
     transform: none;
-}
-
-.layout-builder-history-actions :where(.fi-btn-label) {
-    position: absolute;
-    overflow: hidden;
-    width: 1px;
-    height: 1px;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
 }
 
 .layout-builder-command-save :where(.fi-btn) {
@@ -2857,4 +2853,147 @@
     .layout-builder-editor-status {
         display: none;
     }
+}
+
+/*
+ * CAP-0240 — Layout Builder control density.
+ *
+ * The builder chrome previously packed icon-only controls at 28-30px with 4-6px
+ * gaps, so the toolbar, canvas block controls, and layout-tree panel read as one
+ * undifferentiated cluster and were awkward to hit. Everything below raises
+ * interactive controls to a 2rem minimum target, groups related controls into
+ * padded segmented controls, and separates the groups from one another.
+ */
+
+.layout-builder-visual-editor {
+    /* Minimum interactive target for builder chrome controls. */
+    --layout-builder-hit-target: 2rem;
+}
+
+/* Toolbar: separate the control groups from each other. */
+.layout-builder-visual-actions {
+    gap: 0.5rem;
+}
+
+.layout-builder-visual-toolbar-start {
+    gap: 0.5rem;
+}
+
+.layout-builder-toolbar-divider {
+    height: 1.75rem;
+    margin-inline: 0.125rem;
+}
+
+/* Segmented groups: real padding around their buttons. */
+.layout-builder-command-group,
+.layout-builder-editor-mode-toggle {
+    padding: 0.25rem;
+}
+
+.layout-builder-breakpoint-controls {
+    gap: 0.25rem;
+}
+
+.layout-builder-breakpoint-segment,
+.layout-builder-history-actions {
+    gap: 0.125rem;
+}
+
+/* Content / Layout builder toggle. */
+.layout-builder-editor-mode-button {
+    height: var(--layout-builder-hit-target);
+    padding-inline: 0.75rem;
+}
+
+/* Device preview toggles. */
+.layout-builder-breakpoint-button {
+    min-width: var(--layout-builder-hit-target);
+    width: var(--layout-builder-hit-target);
+    height: var(--layout-builder-hit-target);
+}
+
+/* Structure toggle and tree collapse control. */
+.layout-builder-panel-toggle,
+.layout-builder-panel-collapse-toggle {
+    min-height: var(--layout-builder-hit-target);
+}
+
+.layout-builder-panel-collapse-toggle,
+.layout-builder-tree-collapse-button {
+    width: var(--layout-builder-hit-target);
+    height: var(--layout-builder-hit-target);
+}
+
+/* Undo / Redo / Save. */
+.layout-builder-history-actions :where(.fi-btn, .fi-link) {
+    min-height: var(--layout-builder-hit-target);
+    border-radius: 0.375rem;
+    padding-inline: 0.625rem;
+}
+
+.layout-builder-command-group :where(.fi-btn) {
+    min-height: var(--layout-builder-hit-target);
+}
+
+.layout-builder-command-save :where(.fi-btn) {
+    min-height: var(--layout-builder-hit-target);
+    padding-inline: 0.875rem;
+}
+
+/* Layout-tree panel: add-and-close pair. */
+.layout-builder-tree-header {
+    gap: 0.75rem;
+}
+
+.layout-builder-tree-header-actions {
+    gap: 0.375rem;
+}
+
+.layout-builder-tree-header-actions :where(.fi-icon-btn) {
+    min-width: var(--layout-builder-hit-target);
+    min-height: var(--layout-builder-hit-target);
+}
+
+/* Inspector close control. */
+.layout-builder-inspector-close {
+    width: var(--layout-builder-hit-target);
+    height: var(--layout-builder-hit-target);
+}
+
+/* Canvas block hover controls (edit / duplicate / delete). Group them into one
+   padded pill instead of three bare adjacent icon buttons. */
+.layout-widget-preview-actions {
+    gap: 0.25rem;
+    border-radius: 0.625rem;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0.25rem;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+
+.dark .layout-widget-preview-actions {
+    background: rgba(17, 24, 39, 0.92);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.layout-widget-preview-actions :where(.fi-icon-btn, .fi-btn) {
+    min-width: var(--layout-builder-hit-target);
+    min-height: var(--layout-builder-hit-target);
+}
+
+/*
+ * Visible focus states. Several of these controls previously resolved
+ * `:focus-visible` to the hover treatment with `outline: none`, which left
+ * keyboard users without a focus indicator.
+ */
+.layout-builder-visual-editor
+    :where(
+        .layout-builder-panel-toggle,
+        .layout-builder-panel-collapse-toggle,
+        .layout-builder-breakpoint-button,
+        .layout-builder-editor-mode-button,
+        .layout-builder-tree-collapse-button,
+        .layout-builder-inspector-close
+    ):focus-visible {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
 }

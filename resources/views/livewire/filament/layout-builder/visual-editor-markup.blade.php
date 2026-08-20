@@ -157,7 +157,9 @@
             ></div>
 
             <div
-                class="layout-builder-history-actions"
+                class="layout-builder-history-actions layout-builder-command-group"
+                role="group"
+                aria-label="{{ __('capell-layout-builder::button.layout_history') }}"
                 data-layout-builder-surface="history-actions"
             >
                 {{ $this->undoLayoutMutationAction }} {{ $this->redoLayoutMutationAction }}

@@ -164,8 +164,8 @@
                     .clb-preview-widget p { margin: .375rem 0 0; color: #475569; font-size: .875rem; line-height: 1.5; }
                     .layout-builder-widget-preview { padding: .75rem; }
                     .layout-widget-preview-actions, .layout-widget-assets-toggle { display: none !important; }
-                    .clb-preview-node-affordance { position: absolute; top: .625rem; right: .625rem; z-index: 2; display: inline-flex; width: 1.5rem; height: 1.5rem; align-items: center; justify-content: center; border-radius: 999px; background: rgba(15,23,42,.08); color: #475569; opacity: .72; pointer-events: none; transition: background-color .15s ease, color .15s ease, opacity .15s ease, transform .15s ease; }
-                    .clb-preview-node-affordance svg { width: .875rem; height: .875rem; }
+                    .clb-preview-node-affordance { position: absolute; top: .625rem; right: .625rem; z-index: 2; display: inline-flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border-radius: 999px; background: rgba(15,23,42,.08); color: #475569; opacity: .72; pointer-events: none; transition: background-color .15s ease, color .15s ease, opacity .15s ease, transform .15s ease; }
+                    .clb-preview-node-affordance svg { width: 1rem; height: 1rem; }
                     [data-clb-preview-node]:hover > .clb-preview-node-affordance,
                     [data-clb-preview-node]:focus-visible > .clb-preview-node-affordance,
                     [data-clb-preview-node].is-selected > .clb-preview-node-affordance { background: rgba(8,119,101,.14); color: #087765; opacity: 1; transform: scale(1.05); }
