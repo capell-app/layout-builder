@@ -174,6 +174,8 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain('callback(event.currentTarget)')
         ->toContain('(trigger) =>')
         ->toContain('treeCollapsed: false')
+        ->toContain('const compactPanels = this.$el.offsetWidth <= 1152;')
+        ->toContain("if (compactPanels && !this.compactPanels) {\n                    this.selectedNode = null;")
         ->toContain('markSelectedTreeNode()')
         ->toContain("selectPreviewNode(node, trigger = null) {\n                this.inspectorReturnFocus")
         ->toContain('outline: 1px solid rgba(8,119,101,.42)')

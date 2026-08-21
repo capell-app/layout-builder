@@ -227,6 +227,34 @@ it('uses stable selector interactions for admin screenshot captures that the wor
     }
 });
 
+it('opens the mobile structure drawer before selecting the container inspector action', function (): void {
+    $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
+
+    $expectedInteractions = [
+        ['type' => 'click', 'selector' => '.layout-builder-panel-toggle[title="Layout structure"]'],
+        ['type' => 'waitFor', 'selector' => '[data-layout-builder-tree-item="main"] .layout-builder-tree-row-container:visible'],
+        ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"] .layout-builder-tree-row-container:visible'],
+        ['type' => 'waitFor', 'selector' => '[data-layout-builder-action="edit-container"]:visible'],
+        ['type' => 'click', 'selector' => '[data-layout-builder-action="edit-container"]:visible'],
+        ['type' => 'waitFor', 'selector' => '.fi-modal-window:visible'],
+    ];
+
+    foreach (['layout-builder-edit-container-action-mobile', 'layout-builder-edit-container-theme-settings-mobile'] as $entryId) {
+        $entry = $entries[$entryId] ?? null;
+
+        expect($entry)
+            ->not->toBeNull()
+            ->and($entry['viewport'] ?? null)->toBe('mobile');
+
+        $interactions = $entry['interactions'] ?? null;
+
+        expect($interactions)
+            ->toBeArray()
+            ->and(array_slice($interactions, 0, count($expectedInteractions)))->toBe($expectedInteractions)
+            ->and(collect($interactions)->contains(static fn (mixed $interaction): bool => is_array($interaction) && ($interaction['type'] ?? null) === 'press'))->toBeFalse();
+    }
+});
+
 it('keeps deferred page-building guide evidence out of required promotion', function (): void {
     $documentationRepository = dirname(__DIR__, 5) . '/capell-4';
     $packageRepository = dirname(__DIR__, 4);

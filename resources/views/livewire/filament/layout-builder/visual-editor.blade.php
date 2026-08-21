@@ -219,7 +219,15 @@
                 `;
             },
             syncPanelLayout() {
-                this.compactPanels = this.$el.offsetWidth <= 1152;
+                const compactPanels = this.$el.offsetWidth <= 1152;
+
+                if (compactPanels && !this.compactPanels) {
+                    this.selectedNode = null;
+                    this.markSelectedPreviewNode();
+                    this.markSelectedTreeNode();
+                }
+
+                this.compactPanels = compactPanels;
             },
             renderPreview() {
                 this.syncPreviewPayload();

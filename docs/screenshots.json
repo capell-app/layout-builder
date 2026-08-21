@@ -299,16 +299,6 @@
                     "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible"
                 },
                 {
-                    "type": "press",
-                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
-                    "value": "Escape"
-                },
-                {
-                    "type": "press",
-                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
-                    "value": "Escape"
-                },
-                {
                     "type": "waitFor",
                     "selector": "[data-layout-builder-action=\"edit-container\"]:visible"
                 },
@@ -364,16 +354,6 @@
                 {
                     "type": "click",
                     "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible"
-                },
-                {
-                    "type": "press",
-                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
-                    "value": "Escape"
-                },
-                {
-                    "type": "press",
-                    "selector": "[data-layout-builder-tree-item=\"main\"] .layout-builder-tree-row-container:visible",
-                    "value": "Escape"
                 },
                 {
                     "type": "waitFor",

@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Tests\Feature;
 
+use Capell\Core\Models\Language;
+use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\SeedWidgetIntegrityScreenshotFixturesAction;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Tests\LayoutBuilderTestCase;
 use Capell\Tests\Fixtures\Models\User;
+use Filament\Facades\Filament;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Routing\Router;
@@ -78,6 +81,30 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
     public function test_it_rejects_unknown_layout_builder_screenshot_fixture_screens(): void
     {
         $this->get('/screenshot-fixtures/layout-builder/missing')->assertNotFound();
+    }
+
+    public function test_it_renders_the_real_visual_editor_for_the_admin_editor_capture(): void
+    {
+        $language = Language::factory()->create();
+        $site = Site::factory()
+            ->language($language)
+            ->withTranslations($language)
+            ->create(['language_id' => $language->getKey()]);
+        $admin = User::factory()->create()->assignRole('super_admin');
+
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        Filament::bootCurrentPanel();
+        Filament::setServingStatus();
+
+        $this->actingAs($admin)
+            ->get('/screenshot-fixtures/layout-builder-admin-editor')
+            ->assertOk()
+            ->assertSee('data-layout-builder-surface="visual-editor"', false)
+            ->assertSee('class="layout-builder-visual-toolbar"', false)
+            ->assertSee('data-layout-builder-tree-item="main"', false)
+            ->assertSee('data-layout-builder-tree-item="sidebar"', false);
+
+        self::assertTrue($site->default);
     }
 
     public function test_it_seeds_widget_integrity_screenshot_data_idempotently_before_capture(): void
