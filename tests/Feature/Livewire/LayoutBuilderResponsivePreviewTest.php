@@ -55,7 +55,12 @@ it('keeps the layout builder workspace and shadow preview dark with the admin th
 
     expect($adminStyles)
         ->toContain(".dark .layout-builder-visual-canvas {\n    background: rgb(15, 23, 42);\n}")
-        ->toContain(".dark .layout-builder-shadow-preview {\n    background: rgb(17, 24, 39);");
+        ->toContain(".dark .layout-builder-shadow-preview {\n    background: rgb(17, 24, 39);")
+        ->toContain('.layout-builder-preview-context')
+        ->toContain('@container (max-width: 72rem)')
+        ->toContain('min-width: 5.75rem')
+        ->toMatch('/\.layout-builder-breakpoint-button\s*\{\s*min-width: 5\.75rem;\s*width: auto;\s*height: var\(--layout-builder-hit-target\);\s*padding-inline: 0\.625rem;\s*\}/')
+        ->toContain('padding-bottom: 4.5rem');
 
     expect($visualEditorBlade)
         ->toContain(':host-context(.dark) .clb-preview-page { background: #111827; color: #f8fafc; }')
@@ -137,6 +142,8 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('.layout-builder-command-group')
         ->assertElementExists('.layout-builder-command-save')
         ->assertElementExists('[data-layout-builder-surface="breakpoint-controls"]')
+        ->assertElementExists('[data-layout-builder-surface="editor-mode"]')
+        ->assertElementExists('[data-layout-builder-surface="breakpoint-controls"][role="group"]')
         ->assertElementExists('[data-layout-builder-action="preview-tablet"]')
         ->assertElementExists('[x-bind\\:data-inspector-open]')
         ->assertElementExists('.layout-builder-history-actions')
@@ -188,6 +195,10 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->toContain("return this.activeBreakpoint !== 'desktop'")
         ->toContain('selectedPreviewMetaRows()')
         ->toContain('data-layout-builder-surface="visual-editor"')
+        ->toContain('data-layout-builder-surface="editor-mode"')
+        ->toContain('class="layout-builder-preview-context"')
+        ->toContain('activeBreakpointLabel()')
+        ->toContain('class="layout-builder-breakpoint-label"')
         ->toContain('data-layout-builder-action="preview-{{ $breakpoint->value }}"')
         ->toContain('x-bind:data-layout-builder-breakpoint="activeBreakpoint"')
         ->toContain('handleEscape()')

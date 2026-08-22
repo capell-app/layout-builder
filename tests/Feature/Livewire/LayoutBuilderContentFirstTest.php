@@ -69,6 +69,43 @@ it('renders the content first editor by default from the package namespace', fun
         ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[data-layout-builder-surface="visual-editor"]'));
 });
 
+it('mounts with public widget extension blocks beside editable widgets', function (): void {
+    $widget = Widget::factory()->create(['key' => 'page-content']);
+    $extensionBlock = [
+        'type' => 'capell-app.auth-menu',
+        'data' => [
+            '__capell' => [
+                'instance_id' => 'foundation-header-auth-menu',
+                'state_version' => 1,
+            ],
+        ],
+    ];
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => [
+            $extensionBlock,
+            ['widget_key' => $widget->key],
+        ]],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSet('containers.main.widgets.0', $extensionBlock)
+        ->assertSet('containers.main.widgets.1.widget_key', $widget->key)
+        ->call('layoutUpdated')
+        ->call('saveLayout')
+        ->assertHasNoErrors()
+        ->assertOk();
+
+    $tree = $component->instance()->layoutBuilderTree();
+
+    expect($tree->containers[0]->widgets)->toHaveCount(1)
+        ->and($tree->containers[0]->widgets[0]->widgetIndex)->toBe(1)
+        ->and($tree->containers[0]->widgets[0]->nodeId)->toBe(hash('xxh128', 'widget:main:1'))
+        ->and($layout->refresh()->containers['main']['widgets'])->toBe([
+            $extensionBlock,
+            ['widget_key' => $widget->key, 'occurrence' => 1],
+        ]);
+});
+
 it('uses the loaded layout page count for shared layout context', function (): void {
     $site = Site::factory()->createOne();
     $layout = Layout::factory()->site($site)->create(['containers' => [
@@ -642,6 +679,11 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->assertElementExists('[data-layout-builder-tree-container]')
         ->assertElementExists('[data-layout-builder-tree-item="main"]')
         ->assertElementExists('[data-layout-builder-tree-widget]')
+        ->assertElementExists('[role="tree"]')
+        ->assertElementExists('[data-layout-builder-tree-container][role="treeitem"][aria-level="1"][aria-expanded]')
+        ->assertElementExists('[data-layout-builder-tree-container][role="treeitem"] > [role="group"]')
+        ->assertElementExists('[role="treeitem"][aria-level="2"]')
+        ->assertElementExists('[role="treeitem"][aria-level="1"] > .layout-builder-tree-row-container[tabindex="-1"]')
         ->assertSeeHtml('x-bind:data-layout-builder-selected')
         ->assertElementExists('[data-layout-builder-surface="tree"]')
         ->assertElementExists('[data-layout-builder-surface="visual-editor"]')
@@ -675,18 +717,31 @@ it('renders widget rows in the structure tree and wires preview widget actions f
     expect($treeView)
         ->not->toContain('$this->editWidgetAssetAction')
         ->toContain('x-show="containerMatches($el)"')
+        ->toContain('x-bind:hidden="! containerMatches($el)"')
         ->toContain('x-show="widgetMatches($el)"')
         ->toContain('treeContainerOpen(')
         ->toContain('treeSearchResultLabel()')
         ->toContain('clearTreeSearch()')
         ->toContain('data-layout-builder-tree-widget')
         ->toContain('data-layout-builder-tree-item="{{ $container->key }}"')
+        ->toContain('role="tree"')
+        ->toContain('role="treeitem"')
+        ->toContain('role="group"')
+        ->toContain('aria-level="2"')
+        ->toContain('handleTreeKeydown($event, $el)')
         ->toContain('x-bind:data-layout-builder-selected')
         ->and($editorView)
         ->not->toContain('visual-inspector')
         ->toContain('treeSearchActive()')
         ->toContain('treeSearchScope()')
         ->toContain('treeSearchResultCount()')
+        ->toContain('handleTreeKeydown(event, item)')
+        ->toContain("event.key === 'ArrowDown'")
+        ->toContain("event.key === 'ArrowUp'")
+        ->toContain("const visibleNodes = (scope, selector = '[role=\"treeitem\"]')")
+        ->toContain('filter((node) => node.offsetParent !== null)')
+        ->toContain("visibleNodes(container, '[data-layout-builder-tree-widget]')[0]?.focus()")
+        ->toContain("['Enter', ' '].includes(event.key)")
         ->toContain('containerHasMatchingChild(element)')
         ->toContain('containerMatches(element)')
         ->toContain('widgetMatches(element)')

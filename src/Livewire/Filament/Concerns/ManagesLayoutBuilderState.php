@@ -19,6 +19,7 @@ use Capell\LayoutBuilder\Data\LayoutMutationResultData;
 use Capell\LayoutBuilder\Enums\LayoutDiagnosticSeverity;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
@@ -187,10 +188,19 @@ trait ManagesLayoutBuilderState
 
         foreach (array_keys($this->containers ?? []) as $containerKey) {
             foreach ($this->containerWidgets((string) $containerKey) as $widgetIndex => $widget) {
+                $widget = LayoutWidgetData::normalize($widget);
+                $widgetKey = LayoutWidgetData::key($widget);
+
+                if ($widgetKey === null) {
+                    continue;
+                }
+
+                $occurrence = LayoutWidgetData::occurrence($widget);
+
                 if ($this->inPageContext() && isset($widget['pageable_type'], $widget['pageable_id'])) {
-                    $key = $widget['widget_key'] . '_' . $widget['pageable_type'] . '_' . $widget['pageable_id'] . '_' . $widget['container'] . '_' . $widget['occurrence'];
+                    $key = $widgetKey . '_' . $widget['pageable_type'] . '_' . $widget['pageable_id'] . '_' . $widget['container'] . '_' . $occurrence;
                 } else {
-                    $key = $widget['widget_key'] . '_' . $widget['occurrence'];
+                    $key = $widgetKey . '_' . $occurrence;
                 }
 
                 if (in_array($key, $processedWidgetKeys, true)) {

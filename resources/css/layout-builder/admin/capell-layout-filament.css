@@ -1433,6 +1433,31 @@
     --layout-builder-preview-min-width: 0;
 }
 
+.layout-builder-preview-context {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0 auto 0.625rem;
+    max-width: var(--layout-builder-preview-max-width);
+    color: rgb(71, 85, 105);
+    font-size: 0.75rem;
+    line-height: 1.25;
+}
+
+.layout-builder-preview-context strong {
+    color: rgb(15, 23, 42);
+    font-weight: 700;
+}
+
+.dark .layout-builder-preview-context {
+    color: rgb(148, 163, 184);
+}
+
+.dark .layout-builder-preview-context strong {
+    color: rgb(248, 250, 252);
+}
+
 .layout-builder-visual-canvas[data-active-breakpoint='tablet'],
 .layout-builder-visual-canvas[data-active-breakpoint='mobile'] {
     display: flex;
@@ -1867,6 +1892,13 @@
     contain: layout style;
 }
 
+/* Keep the selection model legible: containers own the hierarchy, while
+   widgets are visibly subordinate rows rather than a second flat toolbar. */
+.layout-builder-tree-widgets {
+    margin-left: 0.75rem;
+    border-left: 1px solid rgba(148, 163, 184, 0.28);
+}
+
 .layout-builder-tree-row {
     position: relative;
     display: flex;
@@ -1918,7 +1950,7 @@
 }
 
 .layout-builder-tree-row-widget {
-    margin-left: 1.125rem;
+    margin-left: 0;
     padding-left: 0.5rem;
     min-height: 1.75rem;
 }
@@ -1934,7 +1966,7 @@
     position: relative;
     display: grid;
     gap: 0.0625rem;
-    padding: 0 0 0.125rem;
+    padding: 0 0 0.125rem 0.375rem;
 }
 
 .layout-builder-tree-widgets::before,
@@ -2907,9 +2939,10 @@
 
 /* Device preview toggles. */
 .layout-builder-breakpoint-button {
-    min-width: var(--layout-builder-hit-target);
-    width: var(--layout-builder-hit-target);
+    min-width: 5.75rem;
+    width: auto;
     height: var(--layout-builder-hit-target);
+    padding-inline: 0.625rem;
 }
 
 /* Structure toggle and tree collapse control. */
@@ -2996,4 +3029,102 @@
     ):focus-visible {
     outline: 2px solid var(--primary-500);
     outline-offset: 2px;
+}
+
+/* Keep the editor chrome readable as the page narrows. The page-level sticky
+   actions remain separate, so the canvas keeps a clear finish below them. */
+@container (max-width: 72rem) {
+    .layout-builder-visual-toolbar {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.5rem;
+    }
+
+    .layout-builder-visual-toolbar-start,
+    .layout-builder-visual-actions {
+        width: 100%;
+    }
+
+    .layout-builder-visual-toolbar-start {
+        justify-content: space-between;
+    }
+
+    .layout-builder-visual-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        justify-content: stretch;
+        gap: 0.5rem;
+        overflow: visible;
+    }
+
+    .layout-builder-editor-mode-toggle {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+    }
+
+    .layout-builder-editor-mode-button {
+        flex: 1 1 0;
+    }
+
+    .layout-builder-breakpoint-controls {
+        justify-self: start;
+    }
+
+    .layout-builder-breakpoint-button {
+        width: auto;
+        min-width: 5.75rem;
+        padding-inline: 0.625rem;
+    }
+
+    .layout-builder-breakpoint-label {
+        display: inline;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .layout-builder-toolbar-divider {
+        display: none;
+    }
+
+    .layout-builder-preview-context {
+        margin-top: 0.25rem;
+    }
+}
+
+@container (max-width: 48rem) {
+    .layout-builder-visual-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .layout-builder-breakpoint-controls,
+    .layout-builder-breakpoint-segment,
+    .layout-builder-breakpoint-button,
+    .layout-builder-history-actions,
+    .layout-builder-command-save {
+        width: 100%;
+    }
+
+    .layout-builder-breakpoint-segment,
+    .layout-builder-history-actions {
+        justify-content: stretch;
+    }
+
+    .layout-builder-breakpoint-button,
+    .layout-builder-history-actions :where(.fi-btn, .fi-link) {
+        flex: 1 1 0;
+    }
+
+    .layout-builder-command-save :where(.fi-btn) {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .layout-builder-visual-editor {
+        padding-bottom: 4.5rem;
+    }
+
+    .layout-builder-visual-canvas {
+        padding-bottom: 1.5rem;
+    }
 }

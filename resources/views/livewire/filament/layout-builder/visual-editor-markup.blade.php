@@ -22,6 +22,7 @@
                             'canvas' => __('capell-layout-builder::generic.canvas'),
                             'container' => __('capell-layout-builder::button.container'),
                             'content' => __('capell-layout-builder::generic.content'),
+                            'desktop' => __('capell-layout-builder::button.desktop'),
                             'widgetSettings' => __('capell-layout-builder::button.edit_layout_widget'),
                             'controls' => __('capell-layout-builder::button.controls'),
                             'duplicateContainer' => __('capell-layout-builder::button.duplicate_container'),
@@ -35,10 +36,12 @@
                             'properties' => __('capell-layout-builder::generic.properties'),
                             'removeContainer' => __('capell-layout-builder::button.remove_container'),
                             'remove' => __('capell-layout-builder::button.remove_widget'),
+                            'tablet' => __('capell-layout-builder::button.tablet'),
                             'treeSearchResult' => __('capell-layout-builder::message.layout_tree_search_result'),
                             'treeSearchResults' => __('capell-layout-builder::message.layout_tree_search_results'),
                             'type' => __('capell-layout-builder::generic.type'),
                             'unsavedNavigationWarning' => __('capell-layout-builder::message.layout_unsaved_navigation_warning'),
+                            'mobile' => __('capell-layout-builder::button.mobile'),
                             'widget' => __('capell-layout-builder::button.widget'),
                             'widgets' => __('capell-layout-builder::generic.widgets'),
                             'width' => __('capell-layout-builder::generic.width'),
@@ -90,6 +93,7 @@
                 class="layout-builder-editor-mode-toggle"
                 role="group"
                 aria-label="{{ __('capell-layout-builder::button.edit_mode') }}"
+                data-layout-builder-surface="editor-mode"
             >
                 <button
                     type="button"
@@ -120,6 +124,7 @@
 
             <div
                 class="layout-builder-breakpoint-controls layout-builder-command-group"
+                role="group"
                 aria-label="{{ __('capell-layout-builder::button.preview_breakpoint') }}"
                 data-layout-builder-surface="breakpoint-controls"
             >
@@ -143,7 +148,7 @@
                                 LayoutBreakpoint::Tablet => 'heroicon-o-device-tablet',
                                 LayoutBreakpoint::Mobile => 'heroicon-o-device-phone-mobile',
                             }, 'h-4 w-4')
-                            <span class="sr-only">
+                            <span class="layout-builder-breakpoint-label">
                                 {{ $breakpointLabel }}
                             </span>
                         </button>
@@ -200,6 +205,14 @@
                 '--layout-builder-preview-min-width': activeBreakpointMinCanvasWidth(),
             }"
         >
+            <div
+                class="layout-builder-preview-context"
+                aria-live="polite"
+            >
+                <span>{{ __('capell-layout-builder::button.preview_breakpoint') }}</span>
+                <strong x-text="activeBreakpointLabel()"></strong>
+            </div>
+
             <div
                 class="layout-builder-preview-status-overlay"
                 x-show="previewStatus !== 'current'"

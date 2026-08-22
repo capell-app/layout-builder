@@ -444,6 +444,51 @@
             ]
         },
         {
+            "id": "layout-builder-tree-keyboard-search",
+            "title": "Layout Builder filtered tree keyboard navigation.",
+            "package": "layout-builder",
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/screenshot-fixtures/layout-builder-admin-editor",
+            "waitFor": ".layout-builder-visual-toolbar",
+            "beforeWait": [
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                }
+            ],
+            "targetType": "admin-surface",
+            "target": "PageResource/EditPage",
+            "required": false,
+            "notes": "Optional replacement target. Captures the filtered structure tree after ArrowRight moves focus to the first visible matching widget; retain as behavioural evidence until the full installed-App keyboard journey is promoted.",
+            "useCase": "An editor narrows a large layout tree and keeps keyboard focus within the visible matching nodes.",
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-tree-keyboard-search.png",
+            "interactions": [
+                {
+                    "type": "fill",
+                    "selector": "input[type=\"search\"]",
+                    "value": "Screenshot hero"
+                },
+                {
+                    "type": "waitForTimeout",
+                    "timeout": 400
+                },
+                {
+                    "type": "press",
+                    "selector": "[data-layout-builder-tree-item=\"main\"]",
+                    "value": "ArrowRight"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-tree-widget][data-layout-builder-tree-search*='Screenshot hero']:focus"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "[data-layout-builder-tree-item='sidebar']:not(:visible)"
+                }
+            ]
+        },
+        {
             "id": "layout-builder-preset-action",
             "title": "Layout Builder preset action fixture.",
             "package": "layout-builder",

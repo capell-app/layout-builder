@@ -521,6 +521,9 @@
             activeBreakpointMinCanvasWidth() {
                 return '0';
             },
+            activeBreakpointLabel() {
+                return this.actionLabels[this.activeBreakpoint] || this.activeBreakpoint;
+            },
             shouldStackContainersForActiveBreakpoint() {
                 return this.activeBreakpoint !== 'desktop';
             },
@@ -586,6 +589,75 @@
             },
             treeContainerOpen(open, element) {
                 return this.treeSearchActive() ? this.containerMatches(element) : open;
+            },
+            handleTreeKeydown(event, item) {
+                if (! event || ! item) return;
+
+                const visibleNodes = (scope, selector = '[role="treeitem"]') => [...scope.querySelectorAll(selector)]
+                    .filter((node) => node.offsetParent !== null);
+                const items = visibleNodes(this.treeSearchScope());
+                const index = items.indexOf(item);
+                const focusItem = (target) => {
+                    target?.focus();
+                    event.preventDefault();
+                };
+
+                if (event.key === 'ArrowDown') {
+                    focusItem(items[index + 1]);
+                    return;
+                }
+
+                if (event.key === 'ArrowUp') {
+                    focusItem(items[index - 1]);
+                    return;
+                }
+
+                if (event.key === 'Home') {
+                    focusItem(items[0]);
+                    return;
+                }
+
+                if (event.key === 'End') {
+                    focusItem(items.at(-1));
+                    return;
+                }
+
+                const container = item.matches('[data-layout-builder-tree-container]')
+                    ? item
+                    : item.closest('[data-layout-builder-tree-container]');
+
+                if (event.key === 'ArrowRight' && container) {
+                    const widgets = container.querySelector('.layout-builder-tree-widgets');
+
+                    if (widgets?.hidden) {
+                        container.querySelector('.layout-builder-tree-chevron')?.click();
+                    } else {
+                        visibleNodes(container, '[data-layout-builder-tree-widget]')[0]?.focus();
+                    }
+
+                    event.preventDefault();
+                    return;
+                }
+
+                if (event.key === 'ArrowLeft' && container === item && !container.querySelector('.layout-builder-tree-widgets')?.hidden) {
+                    container.querySelector('.layout-builder-tree-chevron')?.click();
+                    event.preventDefault();
+                    return;
+                }
+
+                if (event.key === 'ArrowLeft' && container && item !== container) {
+                    container.focus();
+                    event.preventDefault();
+                    return;
+                }
+
+                if (['Enter', ' '].includes(event.key)) {
+                    const trigger = item.matches('[data-layout-builder-tree-container]')
+                        ? item.querySelector('.layout-builder-tree-row-container')
+                        : item;
+                    trigger?.click();
+                    event.preventDefault();
+                }
             },
             openTree(trigger = null) {
                 this.treeReturnFocus = trigger instanceof HTMLElement ? trigger : document.activeElement;

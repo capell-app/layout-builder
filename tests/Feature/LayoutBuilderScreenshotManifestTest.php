@@ -19,6 +19,7 @@ it('separates inspected release evidence from optional replacement targets', fun
         'layout-builder-editor-content-first',
         'layout-builder-responsive-preview',
         'layout-builder-tree-selection',
+        'layout-builder-tree-keyboard-search',
         'layout-builder-preset-action',
         'layout-builder-undo-redo-actions',
         'layout-builder-bulk-change-criteria',
@@ -212,6 +213,13 @@ it('uses stable selector interactions for admin screenshot captures that the wor
         'layout-builder-tree-selection' => [
             ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
             ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
+        ],
+        'layout-builder-tree-keyboard-search' => [
+            ['type' => 'fill', 'selector' => 'input[type="search"]', 'value' => 'Screenshot hero'],
+            ['type' => 'waitForTimeout', 'timeout' => 400],
+            ['type' => 'press', 'selector' => '[data-layout-builder-tree-item="main"]', 'value' => 'ArrowRight'],
+            ['type' => 'waitFor', 'selector' => "[data-layout-builder-tree-widget][data-layout-builder-tree-search*='Screenshot hero']:focus"],
+            ['type' => 'waitFor', 'selector' => "[data-layout-builder-tree-item='sidebar']:not(:visible)"],
         ],
     ];
 

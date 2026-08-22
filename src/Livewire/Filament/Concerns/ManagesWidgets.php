@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Data\AdminWidgetPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Exception;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -481,7 +482,13 @@ trait ManagesWidgets
         $widgetOccurrences = [];
 
         foreach ($this->containerWidgets($containerKey) as $widgetIndex => $containerWidget) {
-            $widgetKey = $containerWidget['widget_key'];
+            $containerWidget = LayoutWidgetData::normalize($containerWidget);
+            $widgetKey = LayoutWidgetData::key($containerWidget);
+
+            if ($widgetKey === null) {
+                continue;
+            }
+
             $oldContainerKey = $containerWidget['old_container'] ?? null;
 
             throw_unless(isset($allWidgets[$widgetKey]), Exception::class, 'Widget not found for key: ' . $widgetKey);

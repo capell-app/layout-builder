@@ -7,6 +7,8 @@
 <div
     class="layout-builder-tree"
     data-layout-builder-surface="tree"
+    role="tree"
+    aria-label="{{ $title }}"
 >
     <div class="layout-builder-tree-header">
         <div>
@@ -130,6 +132,7 @@
             <section
                 x-data="{ open: true }"
                 x-show="containerMatches($el)"
+                x-bind:hidden="! containerMatches($el)"
                 data-layout-builder-tree-container
                 data-layout-builder-tree-item="{{ $container->key }}"
                 data-layout-builder-tree-search="{{ $containerSearchText }}"
@@ -138,7 +141,13 @@
                     $el.dataset.layoutBuilderTreeNode === selectedNode ? 'true' : 'false'
                 "
                 class="layout-builder-tree-container"
+                role="treeitem"
+                aria-level="1"
+                tabindex="0"
+                aria-expanded="true"
+                x-bind:aria-selected="$el.dataset.layoutBuilderTreeNode === selectedNode ? 'true' : 'false'"
                 x-bind:aria-expanded="treeContainerOpen(open, $el) ? 'true' : 'false'"
+                x-on:keydown="handleTreeKeydown($event, $el)"
             >
                 <button
                     type="button"
@@ -146,6 +155,7 @@
                         'layout-builder-tree-row layout-builder-tree-row-container',
                         'layout-builder-tree-row-selected' => $container->isSelected,
                     ])
+                    tabindex="-1"
                     x-on:click="selectFromTree(@js($container->nodeId), () => $wire.selectContainer(@js($container->key)))"
                 >
                     <span class="layout-builder-tree-row-icon">
@@ -178,6 +188,7 @@
                     x-show="treeContainerOpen(open, $el.closest('[data-layout-builder-tree-container]'))"
                     x-collapse
                     class="layout-builder-tree-widgets"
+                    role="group"
                 >
                     @forelse ($container->widgets as $widget)
                         @php
@@ -196,6 +207,11 @@
                                 'layout-builder-tree-row layout-builder-tree-row-widget',
                                 'layout-builder-tree-row-selected' => $widget->isSelected,
                             ])
+                            role="treeitem"
+                            aria-level="2"
+                            tabindex="0"
+                            x-on:keydown="handleTreeKeydown($event, $el)"
+                            x-bind:aria-selected="$el.dataset.layoutBuilderTreeNode === selectedNode ? 'true' : 'false'"
                             x-show="widgetMatches($el)"
                             data-layout-builder-tree-widget
                             data-layout-builder-tree-item="{{ $widget->nodeId }}"

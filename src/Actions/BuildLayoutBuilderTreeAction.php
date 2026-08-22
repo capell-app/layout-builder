@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Data\LayoutBuilderTreeContainerData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeWidgetData;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -38,7 +39,11 @@ final class BuildLayoutBuilderTreeAction
                 $widgets = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
 
                 $treeWidgets = collect($widgets)
-                    ->map(function (mixed $containerWidget, int $widgetIndex) use ($containerKey, $containerWidgets, $assets, $page, $selectedContainerKey, $selectedWidgetIndex): LayoutBuilderTreeWidgetData {
+                    ->map(function (mixed $containerWidget, int $widgetIndex) use ($containerKey, $containerWidgets, $assets, $page, $selectedContainerKey, $selectedWidgetIndex): ?LayoutBuilderTreeWidgetData {
+                        if (LayoutWidgetData::key(LayoutWidgetData::normalize($containerWidget)) === null) {
+                            return null;
+                        }
+
                         $widget = $containerWidgets[$containerKey][$widgetIndex] ?? null;
 
                         if (! $widget instanceof Widget) {
