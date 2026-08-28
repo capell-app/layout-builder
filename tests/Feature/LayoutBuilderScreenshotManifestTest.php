@@ -256,15 +256,21 @@ it('opens the mobile structure drawer before selecting the container inspector a
 
         $interactions = $entry['interactions'] ?? null;
 
+        if (! is_array($interactions)) {
+            throw new LogicException("Expected interaction evidence for [{$entryId}].");
+        }
+
         expect($interactions)
-            ->toBeArray()
             ->and(array_slice($interactions, 0, count($expectedInteractions)))->toBe($expectedInteractions)
             ->and(collect($interactions)->contains(static fn (mixed $interaction): bool => is_array($interaction) && ($interaction['type'] ?? null) === 'press'))->toBeFalse();
     }
 });
 
 it('keeps deferred page-building guide evidence out of required promotion', function (): void {
-    $documentationRepository = dirname(__DIR__, 5) . '/capell-4';
+    $configuredCoreRepository = getenv('CAPELL_CORE_REPO_PATH');
+    $documentationRepository = is_string($configuredCoreRepository) && $configuredCoreRepository !== ''
+        ? rtrim($configuredCoreRepository, '/')
+        : dirname(__DIR__, 5) . '/capell-4';
     $packageRepository = dirname(__DIR__, 4);
     $guide = file_get_contents($documentationRepository . '/docs/getting-started/building-pages.md');
     $entries = collect(layout_builder_screenshot_entries())->keyBy('id');

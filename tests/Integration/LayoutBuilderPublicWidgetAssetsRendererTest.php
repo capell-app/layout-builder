@@ -14,6 +14,7 @@ use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
+use Capell\Frontend\Data\FrontendRenderPayload;
 use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
@@ -503,6 +504,11 @@ function layoutBuilderRendererContext(Page $page, Site $site, Language $language
         public function getFrontendData(?string $key = null): mixed
         {
             return null;
+        }
+
+        public function renderPayload(): FrontendRenderPayload
+        {
+            return FrontendRenderPayload::fromBag([]);
         }
     };
 }

@@ -12,6 +12,7 @@ use Capell\Core\Models\Theme;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\FrontendResponseRenderer;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\Frontend\Data\FrontendRenderPayload;
 use Capell\Frontend\Http\Controllers\PageController;
 use Capell\Frontend\Support\Render\FrontendResponseRendererRegistry;
 use Capell\LayoutBuilder\Models\Widget;
@@ -92,6 +93,11 @@ it('does not force layout builder admin metadata into public responses', functio
         public function getFrontendData(?string $key = null): mixed
         {
             return null;
+        }
+
+        public function renderPayload(): FrontendRenderPayload
+        {
+            return FrontendRenderPayload::fromBag([]);
         }
     });
 

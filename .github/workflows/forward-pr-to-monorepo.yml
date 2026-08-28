@@ -14,6 +14,10 @@ permissions:
   issues: write
   pull-requests: write
 
+concurrency:
+  group: split-pr-forward-${{ github.repository }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   forward:
     if: github.repository_owner == 'capell-app' && github.event.repository.name != 'capell-packages'
@@ -43,6 +47,15 @@ jobs:
         if: github.event.action == 'closed'
         run: |
           set -euo pipefail
+
+          current_state="$(gh pr view "${SOURCE_PR_NUMBER}" \
+            --repo "${SOURCE_REPOSITORY}" \
+            --json state \
+            --jq '.state')"
+          if [ "${current_state}" = "OPEN" ]; then
+            echo "Skipping stale close event; source PR is still OPEN."
+            exit 0
+          fi
 
           branch="split-pr/${PACKAGE_NAME}/${SOURCE_PR_NUMBER}"
           existing_pr="$(gh pr list \
@@ -86,13 +99,29 @@ jobs:
         run: |
           set -euo pipefail
 
+          current_state="$(gh pr view "${SOURCE_PR_NUMBER}" \
+            --repo "${SOURCE_REPOSITORY}" \
+            --json state \
+            --jq '.state')"
+          if [ "${current_state}" != "OPEN" ]; then
+            echo "Skipping stale update event; source PR is ${current_state}."
+            exit 0
+          fi
+
           branch="split-pr/${PACKAGE_NAME}/${SOURCE_PR_NUMBER}"
           package_path="packages/${PACKAGE_NAME}"
 
           cd monorepo
           git config user.name "capell-app"
           git config user.email "appcapello@gmail.com"
-          git checkout -B "${branch}"
+
+          remote_branch_sha="$(git ls-remote origin "refs/heads/${branch}" | awk '{print $1}')"
+          if [ -n "${remote_branch_sha}" ]; then
+            git fetch --no-tags origin "refs/heads/${branch}:refs/remotes/origin/${branch}"
+            git checkout -B "${branch}" "origin/${branch}"
+          else
+            git checkout -B "${branch}" main
+          fi
 
           rm -rf "${package_path}"
           mkdir -p "${package_path}"
@@ -107,7 +136,7 @@ jobs:
 
           git add "${package_path}"
           git commit -m "Forward ${PACKAGE_NAME} split PR #${SOURCE_PR_NUMBER}"
-          git push origin "${branch}" --force-with-lease
+          git push origin "HEAD:${branch}" "--force-with-lease=${branch}:${remote_branch_sha}"
 
           cat > /tmp/forwarded-pr-body.md <<BODY
           Forwarded from ${SOURCE_REPOSITORY}#${SOURCE_PR_NUMBER}.

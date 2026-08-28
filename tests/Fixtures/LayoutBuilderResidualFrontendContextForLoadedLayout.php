@@ -10,6 +10,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Frontend\Contracts\FrontendContextReader;
+use Capell\Frontend\Data\FrontendRenderPayload;
 
 final class LayoutBuilderResidualFrontendContextForLoadedLayout implements FrontendContextReader
 {
@@ -73,5 +74,10 @@ final class LayoutBuilderResidualFrontendContextForLoadedLayout implements Front
     public function getFrontendData(?string $key = null): mixed
     {
         return $key === null ? $this->frontendData : ($this->frontendData[$key] ?? null);
+    }
+
+    public function renderPayload(): FrontendRenderPayload
+    {
+        return FrontendRenderPayload::fromBag($this->frontendData);
     }
 }

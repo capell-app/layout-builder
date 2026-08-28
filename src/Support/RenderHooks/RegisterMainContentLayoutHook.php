@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Illuminate\Support\Facades\View;
 use Livewire\Blaze\Blaze;
 
 final class RegisterMainContentLayoutHook implements RenderHookExtensionInterface
@@ -40,7 +41,7 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
 
         $viewName = $this->customMainContentView($context->item)
             ?? 'capell-layout-builder::components.layout.main-content';
-        $view = view($viewName, ['context' => $context->item]);
+        $view = View::make($viewName, ['context' => $context->item]);
 
         $wasBlazeEnabled = Blaze::isEnabled();
         Blaze::disable();

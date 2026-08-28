@@ -8,7 +8,6 @@ use Capell\LayoutBuilder\Actions\BuildWidgetDeletionImpactAction;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBulkChangeScopedUser;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
-use RuntimeException;
 use Spatie\Permission\Models\Permission;
 
 uses(CreatesAdminUser::class);
