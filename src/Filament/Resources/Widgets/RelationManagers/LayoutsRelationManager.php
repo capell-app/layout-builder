@@ -14,6 +14,7 @@ use Capell\Admin\Filament\Concerns\HasRelationManagerBadge;
 use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -88,7 +89,10 @@ class LayoutsRelationManager extends RelationManager
                     ),
             ])
             ->recordUrl(
-                fn (Layout $record): string => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('edit', ['record' => $record]),
+                fn (Layout $record): string => AdminSurfaceLookup::resource(
+                    ResourceEnum::Layout,
+                    LayoutBuilderAdminRegistrar::LAYOUT_RESOURCE_NAME,
+                )::getUrl('edit', ['record' => $record]),
             );
     }
 }

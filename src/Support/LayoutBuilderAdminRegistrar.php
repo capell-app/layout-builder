@@ -17,8 +17,8 @@ use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
+use Capell\LayoutBuilder\Filament\Resources\LayoutBuilderResource;
 use Capell\LayoutBuilder\Filament\Resources\LayoutPresets\LayoutPresetResource;
-use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Schemas\Extenders\LayoutSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Pages\Schemas\Extenders\PageSchemaExtender;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
@@ -35,6 +35,8 @@ use RuntimeException;
 final class LayoutBuilderAdminRegistrar implements ExtensionContribution, RegistersExtensionAdminResource, RegistersExtensionAsset
 {
     public const string REGISTRATION_FLAG = 'capell.layout_builder.admin_registered';
+
+    public const string LAYOUT_RESOURCE_NAME = 'layout-builder';
 
     private const string LEGACY_LAYOUT_RESOURCE = 'Capell\\Admin\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource';
 
@@ -86,8 +88,9 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         ));
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
-            class: LayoutResource::class,
+            class: LayoutBuilderResource::class,
             group: ResourceEnum::Layout->name,
+            name: self::LAYOUT_RESOURCE_NAME,
         ));
 
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
@@ -223,13 +226,13 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private function hasRegisteredAdminSurface(): bool
     {
-        if (! class_exists(LayoutResource::class) || ! class_exists(LayoutPresetResource::class) || ! class_exists(WidgetResource::class)) {
+        if (! class_exists(LayoutBuilderResource::class) || ! class_exists(LayoutPresetResource::class) || ! class_exists(WidgetResource::class)) {
             return false;
         }
 
         $resources = CapellAdmin::getAdminSurfaceRegistry()->resources();
 
-        return $this->containsResource($resources, LayoutResource::class, self::LEGACY_LAYOUT_RESOURCE)
+        return $this->containsResource($resources, LayoutBuilderResource::class, self::LEGACY_LAYOUT_RESOURCE)
             && $this->containsResource($resources, LayoutPresetResource::class)
             && $this->containsResource($resources, WidgetResource::class, self::LEGACY_WIDGET_RESOURCE);
     }

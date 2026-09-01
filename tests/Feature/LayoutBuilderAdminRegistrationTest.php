@@ -2,9 +2,13 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Filament\Resources\Layouts\LayoutResource as CoreLayoutResource;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Data\LayoutAssetBridgeData;
+use Capell\LayoutBuilder\Filament\Resources\LayoutBuilderResource;
+use Capell\LayoutBuilder\Filament\Resources\LayoutPresets\LayoutPresetResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Support\Assets\FileVersionedCss;
@@ -22,9 +26,25 @@ it('registers the admin surface through the layout builder package registrar', f
 
     expect($registrar->isRegistered())->toBeTrue()
         ->and(CapellAdmin::getAdminSurfaceRegistry()->resources())->toContain(
-            LayoutResource::class,
+            LayoutBuilderResource::class,
             WidgetResource::class,
         );
+});
+
+it('uses a distinct layout resource name alongside the core layout resource', function (): void {
+    resolve(LayoutBuilderAdminRegistrar::class)->register();
+
+    $resources = CapellAdmin::getAdminSurfaceRegistry()->resourcesForGroup(ResourceEnum::Layout->name);
+
+    expect(array_keys($resources))->toEqualCanonicalizing([
+        'default',
+        LayoutBuilderAdminRegistrar::LAYOUT_RESOURCE_NAME,
+        'preset',
+    ]);
+
+    expect($resources['default'])->toBe(CoreLayoutResource::class)
+        ->and($resources[LayoutBuilderAdminRegistrar::LAYOUT_RESOURCE_NAME])->toBe(LayoutBuilderResource::class)
+        ->and($resources['preset'])->toBe(LayoutPresetResource::class);
 });
 
 it('groups layout builder resources under web pages navigation', function (): void {

@@ -40,7 +40,7 @@
         {
             "type": "admin-resource",
             "class": "Capell\\LayoutBuilder\\Support\\LayoutBuilderAdminRegistrar",
-            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\Layouts\\LayoutResource",
+            "resourceClass": "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutBuilderResource",
             "group": "Layout"
         },
         {

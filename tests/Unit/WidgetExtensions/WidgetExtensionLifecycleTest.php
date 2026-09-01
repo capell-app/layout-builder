@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Capell\Admin\Support\Widgets\WidgetDiscovery;
+use Capell\Core\Data\Extensions\ExtensionContributionReceiptData;
 use Capell\Core\Enums\PresentationLoadingStrategy;
+use Capell\Core\Support\Extensions\ExtensionContributionReceiptContext;
+use Capell\Core\Support\Extensions\ExtensionContributionReceiptRegistry;
 use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
 use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
@@ -19,12 +22,12 @@ use Illuminate\Container\Container;
 it('binds the canonical registry through the Layout Builder provider', function (): void {
     expect(app()->bound(WidgetExtensionRegistry::class))->toBeTrue()
         ->and(app()->resolved(WidgetExtensionRegistry::class))->toBeTrue()
-        ->and(app(WidgetExtensionRegistry::class))->toBeInstanceOf(WidgetExtensionRegistry::class)
+        ->and(resolve(WidgetExtensionRegistry::class))->toBeInstanceOf(WidgetExtensionRegistry::class)
         ->and(app()->bound(WidgetExtensionRegistrar::class))->toBeTrue();
 });
 
 it('adapts accepted extensions into legacy rendering and Filament discovery while preserving legacy widgets', function (): void {
-    $legacyRegistry = app(LayoutWidgetRegistry::class);
+    $legacyRegistry = resolve(LayoutWidgetRegistry::class);
     $legacyDefinition = LayoutWidgetDefinitionData::frontendBlade('legacy-banner', 'legacy::banner');
     $legacyRegistry->registerDefinition($legacyDefinition);
 
@@ -42,7 +45,7 @@ it('adapts accepted extensions into legacy rendering and Filament discovery whil
             'capell-app.widget-slideshow.interaction' => PresentationLoadingStrategy::Interaction,
         ])
         ->and($adaptedDefinition?->defaultPresentationSettings['loading_strategy'] ?? null)->toBe('visible')
-        ->and(app(WidgetDiscovery::class)->registeredWidgets()['capell-app.slideshow'] ?? null)->toBe(ExampleFilamentWidget::class);
+        ->and(resolve(WidgetDiscovery::class)->registeredWidgets()['capell-app.slideshow'] ?? null)->toBe(ExampleFilamentWidget::class);
 });
 
 it('registers an extension declared before canonical registry resolution', function (): void {
@@ -65,6 +68,7 @@ it('registers an extension declared after canonical registry resolution without 
     $registry = new WidgetExtensionRegistry;
     $container->instance(WidgetExtensionRegistry::class, $registry);
     $container->make(WidgetExtensionRegistry::class);
+
     $registrar = new WidgetExtensionRegistrar($container);
 
     $registrar->register(ExampleWidgetExtensionDefinition::make());
@@ -72,6 +76,30 @@ it('registers an extension declared after canonical registry resolution without 
 
     expect($registry->all())->toHaveCount(1)
         ->and($registry->collisions())->toBe([]);
+});
+
+it('does not receipt a widget extension rejected by a key collision', function (): void {
+    $container = new Container;
+    $registry = new WidgetExtensionRegistry;
+    $receipts = new ExtensionContributionReceiptRegistry;
+    $container->instance(WidgetExtensionRegistry::class, $registry);
+    $container->make(WidgetExtensionRegistry::class);
+
+    $registrar = new WidgetExtensionRegistrar($container, $receipts);
+
+    $receipts->withContext(
+        ExtensionContributionReceiptContext::forPackage('capell-app/widget-slideshow', 'frontend', WidgetExtensionRegistrar::class),
+        function () use ($registrar): void {
+            $registrar->register(ExampleWidgetExtensionDefinition::make());
+            $registrar->register(ExampleWidgetExtensionDefinition::make(packageName: 'capell-app/widget-gallery'));
+        },
+    );
+
+    expect($registry->collisions())->toHaveCount(1)
+        ->and(array_filter(
+            $receipts->all(),
+            static fn (ExtensionContributionReceiptData $receipt): bool => $receipt->key === 'capell-app.slideshow',
+        ))->toHaveCount(1);
 });
 
 it('carries global and per-group loading defaults through the legacy resource usage contract', function (): void {

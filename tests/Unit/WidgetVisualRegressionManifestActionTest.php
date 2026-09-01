@@ -73,7 +73,7 @@ it('emits visual regression manifest entries from the console command', function
         ],
     ));
 
-    test()->artisan('capell:layout-builder-widget-visual-regression', [
+    capell_artisan('capell:layout-builder-widget-visual-regression', [
         'mode' => 'capture',
         '--widget' => 'marketing.command',
         '--variant' => 'default',
@@ -86,7 +86,7 @@ it('emits visual regression manifest entries from the console command', function
 });
 
 it('rejects unsupported visual regression command modes', function (): void {
-    test()->artisan('capell:layout-builder-widget-visual-regression', [
+    capell_artisan('capell:layout-builder-widget-visual-regression', [
         'mode' => 'diff',
     ])
         ->assertFailed()

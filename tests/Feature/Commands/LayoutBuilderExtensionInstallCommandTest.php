@@ -39,7 +39,7 @@ it('runs migrations when installing layout builder directly', function (): void 
     CapellCore::registerPackage('capell-app/layout-builder');
     Event::fake([DatabaseSchemaChanged::class]);
 
-    test()->artisan('capell:layout-builder-install')
+    capell_artisan('capell:layout-builder-install')
         ->assertSuccessful();
 
     Event::assertDispatched(DatabaseSchemaChanged::class);
@@ -86,7 +86,7 @@ it('installs layout builder from its package manifest', function (): void {
         }
     }
 
-    test()->artisan('capell:extension-install', [
+    capell_artisan('capell:extension-install', [
         'extension' => 'capell-app/layout-builder',
     ])
         ->expectsOutput('Installing extension: capell-app/layout-builder')

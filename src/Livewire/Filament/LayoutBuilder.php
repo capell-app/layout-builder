@@ -47,6 +47,7 @@ use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
+use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\LayoutBuilder\Support\LayoutClipboard;
 use Carbon\CarbonImmutable;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -475,7 +476,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
             return $this->getPageResource();
         }
 
-        return AdminSurfaceLookup::resource(ResourceEnum::Layout);
+        return AdminSurfaceLookup::resource(
+            ResourceEnum::Layout,
+            LayoutBuilderAdminRegistrar::LAYOUT_RESOURCE_NAME,
+        );
     }
 
     /**

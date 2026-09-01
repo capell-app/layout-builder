@@ -28,6 +28,7 @@ use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -197,7 +198,10 @@ class WidgetsTable implements TableConfigurator
                                 'capell-admin::components.tables.url',
                                 [
                                     'state' => $state,
-                                    'url' => AdminSurfaceLookup::resource(ResourceEnum::Layout)::getUrl('index', ['filters[widget_key][value]' => $record->key]),
+                                    'url' => AdminSurfaceLookup::resource(
+                                        ResourceEnum::Layout,
+                                        LayoutBuilderAdminRegistrar::LAYOUT_RESOURCE_NAME,
+                                    )::getUrl('index', ['filters[widget_key][value]' => $record->key]),
                                 ],
                             ),
                         );

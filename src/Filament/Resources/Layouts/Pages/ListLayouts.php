@@ -8,10 +8,9 @@ use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Filament\Resources\LayoutBuilderResource;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
-use Filament\Support\Enums\Width;
 use Override;
 
-class EditLayout extends \Capell\Admin\Filament\Resources\Layouts\Pages\EditLayout
+class ListLayouts extends \Capell\Admin\Filament\Resources\Layouts\Pages\ListLayouts
 {
     /** @return class-string<LayoutBuilderResource> */
     #[Override]
@@ -24,11 +23,5 @@ class EditLayout extends \Capell\Admin\Filament\Resources\Layouts\Pages\EditLayo
         );
 
         return $resource;
-    }
-
-    #[Override]
-    public function getMaxContentWidth(): Width|string|null
-    {
-        return Width::Full;
     }
 }

@@ -11,6 +11,7 @@ use Capell\Core\Models\Language;
 use Capell\LayoutBuilder\Enums\ResourceEnum as LayoutResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
+use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Resource;
@@ -66,7 +67,10 @@ class ListWidgets extends ListRecords
     #[Override]
     protected function getActions(): array
     {
-        $layoutResource = AdminSurfaceLookup::resource(ResourceEnum::Layout);
+        $layoutResource = AdminSurfaceLookup::resource(
+            ResourceEnum::Layout,
+            LayoutBuilderAdminRegistrar::LAYOUT_RESOURCE_NAME,
+        );
 
         return [
             CreateWidgetAction::make('create')

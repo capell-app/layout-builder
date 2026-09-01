@@ -19,19 +19,19 @@ final class WidgetExtensionRegistry
         private readonly ?WidgetExtensionDefinitionAdapter $adapter = null,
     ) {}
 
-    public function register(WidgetExtensionDefinitionData $definition): void
+    public function register(WidgetExtensionDefinitionData $definition): bool
     {
         $existing = $this->definitions[$definition->key] ?? null;
 
         if ($existing?->equals($definition)) {
-            return;
+            return true;
         }
 
         if ($existing !== null) {
             foreach ($this->collisions as $collision) {
                 if ($collision->acceptedDefinition->equals($existing)
                     && $collision->conflictingDefinition->equals($definition)) {
-                    return;
+                    return false;
                 }
             }
 
@@ -43,11 +43,13 @@ final class WidgetExtensionRegistry
                 conflictingDefinition: $definition,
             );
 
-            return;
+            return false;
         }
 
         $this->definitions[$definition->key] = $definition;
         $this->adapter?->adapt($definition);
+
+        return true;
     }
 
     public function definition(string $key): ?WidgetExtensionDefinitionData

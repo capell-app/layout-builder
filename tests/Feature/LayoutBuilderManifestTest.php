@@ -9,7 +9,7 @@ use Capell\Core\Contracts\PackageLifecycleAction;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageUrl;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
-use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
+use Capell\LayoutBuilder\Filament\Resources\LayoutBuilderResource;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\WidgetResource;
 use Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution;
 use Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution;
@@ -62,7 +62,7 @@ it('advertises package-owned layout builder admin classes in its manifest', func
 
     expect($manifestStrings->filter(fn (string $value): bool => str_starts_with($value, 'Capell\\Admin\\LayoutBuilder\\')))->toBeEmpty()
         ->and($manifestStrings)->toContain(
-            LayoutResource::class,
+            LayoutBuilderResource::class,
             WidgetResource::class,
             ConfiguratorTypeEnum::class,
         );
