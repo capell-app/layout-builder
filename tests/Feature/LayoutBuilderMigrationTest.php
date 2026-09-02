@@ -6,19 +6,41 @@ use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Illuminate\Support\Facades\Schema;
 
 it('registers package migrations in the layout builder manager', function (): void {
-    expect(CapellLayoutBuilderManager::getMigrations())->toBe([
-        '2026_05_10_190841_02_create_widgets_table',
-        '2026_05_10_190841_03_create_widget_assets_table',
-        '2026_05_10_190841_04_create_widget_widgets_table',
-        '2026_05_10_190841_05_add_container_widgets_to_layouts_table',
-        '2026_05_10_190841_06_create_layout_presets_table',
-        '2026_06_07_000001_create_layout_bulk_change_tables',
-        '2026_07_09_000001_create_public_widget_snapshots_table',
-        '2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table',
-        '2026_07_10_000002_create_layout_preset_usages_table',
-        '2026_07_10_000003_create_layout_preset_sync_runs_table',
-        '2026_08_28_000003_change_widget_visibility_to_datetime',
-    ]);
+    // Compare against capell.json rather than a hardcoded list. There used to
+    // be a third copy of these filenames here, so THREE places had to agree:
+    // the manifest, the manager, and this test. They stopped agreeing -
+    // 2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table was
+    // added to capell.json but not to the manager, and the manager list is
+    // what LayoutBuilderServiceProvider hands to ->hasMigrations(). The
+    // migration therefore never ran on any install, `widgets` kept
+    // `workspace_id` without `shadowed_by_workspace_id`, and
+    // WorkspaceContextScope throws on exactly that combination.
+    //
+    // A hardcoded list here could not catch that: it would simply have been
+    // updated alongside whichever copy someone remembered. Deriving the
+    // expectation from the manifest makes the manager the thing under test.
+    $manifest = json_decode(
+        (string) file_get_contents(dirname(__DIR__, 2) . '/capell.json'),
+        true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+
+    if (! is_array($manifest)) {
+        throw new RuntimeException('capell.json did not decode to an object.');
+    }
+
+    $declared = [];
+
+    foreach ((array) ($manifest['contributes'] ?? []) as $contribution) {
+        if (is_array($contribution) && ($contribution['type'] ?? null) === 'migration') {
+            foreach ((array) ($contribution['migrationFiles'] ?? []) as $migrationFile) {
+                $declared[] = $migrationFile;
+            }
+        }
+    }
+
+    expect($declared)->not->toBeEmpty()
+        ->and(CapellLayoutBuilderManager::getMigrations())->toBe($declared);
 });
 
 it('creates or recognises the existing layout builder tables', function (): void {

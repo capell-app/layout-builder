@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\Tests\Support\CoreRepositoryLocator;
+
 it('separates inspected release evidence from optional replacement targets', function (): void {
     $entries = collect(layout_builder_screenshot_entries());
 
@@ -267,12 +269,13 @@ it('opens the mobile structure drawer before selecting the container inspector a
 });
 
 it('keeps deferred page-building guide evidence out of required promotion', function (): void {
-    $configuredCoreRepository = getenv('CAPELL_CORE_REPO_PATH');
-    $documentationRepository = is_string($configuredCoreRepository) && $configuredCoreRepository !== ''
-        ? rtrim($configuredCoreRepository, '/')
-        : dirname(__DIR__, 5) . '/capell-4';
+    $documentationRepository = CoreRepositoryLocator::path();
     $packageRepository = dirname(__DIR__, 4);
-    $guide = file_get_contents($documentationRepository . '/docs/getting-started/building-pages.md');
+    $guidePath = $documentationRepository . '/docs/getting-started/building-pages.md';
+
+    expect($guidePath)->toBeReadableFile();
+
+    $guide = file_get_contents($guidePath);
     $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
 
     $deferredEntries = [

@@ -183,6 +183,7 @@ it('declares runtime model page type route and migration contribution metadata',
             '2026_07_10_000002_create_layout_preset_usages_table',
             '2026_07_10_000003_create_layout_preset_sync_runs_table',
             '2026_08_28_000003_change_widget_visibility_to_datetime',
+            '2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table',
         ])
         ->and(class_implements(LayoutBuilderMigrationsContribution::class))->toContain(RunsExtensionMigration::class);
 });
