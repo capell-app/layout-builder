@@ -6,7 +6,7 @@ use Capell\Core\Testing\Data\CompanionPackageContractData;
 use Capell\Core\Testing\ExtensionTestHarness;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 
-it('passes the shared package contract suite', function (): void {
+it('passes the shared package manifest contract suite', function (): void {
     $root = dirname(__DIR__, 2);
 
     ExtensionTestHarness::assertCompanionPackageContract(new CompanionPackageContractData(
@@ -14,11 +14,11 @@ it('passes the shared package contract suite', function (): void {
         manifestPath: $root . '/capell.json',
         providerClass: LayoutBuilderServiceProvider::class,
         migrations: ['database/migrations/2026_05_10_190841_02_create_widgets_table.php'],
-        lifecycleAssertion: fn (): bool => true,
-        authorizationAssertion: fn (): bool => true,
-        cacheInvalidationAssertion: fn (): bool => true,
-        publicRender: fn (): string => '<section data-layout="release-contract">Layout</section>',
     ));
 
-    expect(true)->toBeTrue();
+    $summary = ExtensionTestHarness::forPath($root)->summary();
+
+    expect($summary['package'])->toBe('capell-app/layout-builder')
+        ->and($summary['migrations'])->toBeTrue()
+        ->and($summary['providers'])->toBeGreaterThan(0);
 });
