@@ -4,26 +4,20 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support\Creator;
 
-use Capell\ContentSections\Models\Section;
-use Capell\Core\Data\PageTypeData;
 use Capell\Core\Enums\AssetComponentEnum as CapellAssetComponentEnum;
 use Capell\Core\Enums\AssetEnum;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
-use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Enums\ContentTypeEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeGroupEnum;
 use Exception;
-use Illuminate\Database\Eloquent\Model;
 
 class TypeCreator
 {
-    private const string CONTENT_SECTIONS_MODEL = Section::class;
-
     /**
      * @var class-string<Blueprint>
      */
@@ -46,7 +40,10 @@ class TypeCreator
 
     public function createDefaultContentType(): void
     {
-        $this->ensureSectionPageTypeRegistered();
+        if (! CapellCore::isPackageAvailable('capell-app/content-sections')
+            || ! CapellCore::isPackageEnabled('capell-app/content-sections')) {
+            return;
+        }
 
         $this->typeModel::query()->firstOrCreate([
             'default' => true,
@@ -63,7 +60,10 @@ class TypeCreator
 
     public function createBuilderContentType(): void
     {
-        $this->ensureSectionPageTypeRegistered();
+        if (! CapellCore::isPackageAvailable('capell-app/content-sections')
+            || ! CapellCore::isPackageEnabled('capell-app/content-sections')) {
+            return;
+        }
 
         $this->typeModel::query()->firstOrCreate([
             'key' => ContentTypeEnum::Builder->value,
@@ -441,32 +441,5 @@ class TypeCreator
                 'padding' => ['lg'],
             ],
         ]);
-    }
-
-    private function ensureSectionPageTypeRegistered(): void
-    {
-        if (CapellCore::hasPageType('section')) {
-            return;
-        }
-
-        CapellCore::registerPageType(new PageTypeData(
-            name: 'section',
-            model: $this->sectionModelClass(),
-            label: 'Section',
-        ));
-    }
-
-    /**
-     * @return class-string<Model>
-     */
-    private function sectionModelClass(): string
-    {
-        $contentSectionsModel = self::CONTENT_SECTIONS_MODEL;
-
-        if (class_exists($contentSectionsModel)) {
-            return $contentSectionsModel;
-        }
-
-        return Page::class;
     }
 }

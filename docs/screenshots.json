@@ -705,6 +705,10 @@
                 {
                     "type": "click",
                     "selector": ".fi-topbar-open-collapse-sidebar-btn"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-sidebar.fi-sidebar-open"
                 }
             ]
         }

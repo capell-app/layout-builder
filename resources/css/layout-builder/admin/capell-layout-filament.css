@@ -2888,7 +2888,7 @@
 }
 
 /*
- * CAP-0240 — Layout Builder control density.
+ * Layout Builder control density.
  *
  * The builder chrome previously packed icon-only controls at 28-30px with 4-6px
  * gaps, so the toolbar, canvas block controls, and layout-tree panel read as one

@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
+use Capell\Core\Support\BlueprintSubjectRegistry;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
@@ -27,3 +29,34 @@ it('creates layout builder widget types with clear names and descriptions', func
         ->and($imageGalleryType?->name)->toBe('Image gallery')
         ->and(data_get($systemType?->admin, 'notes'))->toBe('A protected widget for generated layout output such as slots and breadcrumbs.');
 });
+
+it('creates default and builder section types idempotently for enabled content sections', function (): void {
+    $creator = resolve(TypeCreator::class);
+
+    expect(CapellCore::isPackageEnabled('capell-app/content-sections'))->toBeTrue();
+
+    $creator->create('section');
+    $creator->createDefaultContentType();
+    $creator->createBuilderContentType();
+
+    expect(Blueprint::query()->where('type', 'section')->where('key', 'default')->count())->toBe(1)
+        ->and(Blueprint::query()->where('type', 'section')->where('key', 'builder')->count())->toBe(1)
+        ->and(resolve(BlueprintSubjectRegistry::class)->descriptor('section')->ownerPackage)->toBe('capell-app/content-sections');
+});
+
+it('does not create section types for an uninstalled or disabled content sections package', function (string $state): void {
+    match ($state) {
+        'uninstalled' => CapellCore::markPackageUninstalled('capell-app/content-sections'),
+        'disabled' => CapellCore::markPackageDisabled('capell-app/content-sections'),
+        default => throw new InvalidArgumentException('Unknown package state.'),
+    };
+
+    expect(CapellCore::isPackageEnabled('capell-app/content-sections'))->toBeFalse();
+
+    $creator = resolve(TypeCreator::class);
+    $creator->create('section');
+    $creator->createDefaultContentType();
+    $creator->createBuilderContentType();
+
+    expect(Blueprint::query()->where('type', 'section')->exists())->toBeFalse();
+})->with(['uninstalled', 'disabled']);

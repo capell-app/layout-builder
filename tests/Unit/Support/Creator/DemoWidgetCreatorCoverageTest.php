@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderDemoContentPage;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderDemoWidgetCreatorHarness;
+use Illuminate\Database\Eloquent\Relations\Relation;
 
 it('creates modern and application preview demo widgets with asset-backed content', function (): void {
     $language = Language::factory()->create(['code' => 'en']);
@@ -29,6 +30,11 @@ it('creates modern and application preview demo widgets with asset-backed conten
     LayoutBuilderDemoContentPage::$defaultSiteId = $site->getKey();
     LayoutBuilderDemoContentPage::$defaultLayoutId = $layout->getKey();
     LayoutBuilderDemoContentPage::$defaultBlueprintId = $defaultPageType->getKey();
+
+    // Core requires every morph target to be in the morph map and this fixture
+    // is not a registered Capell model; it is stored by class name. The test
+    // case resets the morph map after each test.
+    Relation::morphMap([LayoutBuilderDemoContentPage::class => LayoutBuilderDemoContentPage::class]);
 
     $creator = new LayoutBuilderDemoWidgetCreatorHarness;
 

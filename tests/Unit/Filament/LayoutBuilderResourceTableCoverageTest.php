@@ -156,6 +156,45 @@ it('builds widget table columns filters and search query branches', function ():
         ->and($tableSource)->not->toContain('filters[widget_id][value]');
 });
 
+it('describes an empty widget table with translated filter-safe copy', function (): void {
+    $table = configureLayoutBuilderWidgetsTable();
+
+    expect(__('capell-layout-builder::table.widgets_empty_heading'))->toBe('No widgets found')
+        ->and(__('capell-layout-builder::table.widgets_empty_description'))
+        ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.')
+        ->and($table->getEmptyStateHeading())->toBe('No widgets found')
+        ->and($table->getEmptyStateDescription())
+        ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.');
+});
+
+it('keeps the widget empty state truthful when a real filter excludes an existing widget', function (): void {
+    test()->actingAsAdmin();
+
+    $widget = Widget::factory()->create([
+        'key' => 'filtered-widget',
+        'status' => true,
+    ]);
+    $table = configureLayoutBuilderWidgetsTable();
+    $statusFilter = firstLayoutBuilderTableComponent(
+        layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters')),
+        'status',
+        SelectFilter::class,
+    );
+    $query = Widget::query();
+
+    if (! $statusFilter instanceof SelectFilter) {
+        throw new RuntimeException('Expected the widgets table to expose a status filter.');
+    }
+
+    $filteredQuery = $statusFilter->apply(clone $query, ['value' => false]);
+
+    expect($query->whereKey($widget)->exists())->toBeTrue()
+        ->and($filteredQuery->count())->toBe(0)
+        ->and($filteredQuery->whereKey($widget)->exists())->toBeFalse()
+        ->and($table->getEmptyStateDescription())
+        ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.');
+});
+
 it('includes soft-deleted unused widgets when the unused and trashed filters are combined', function (): void {
     test()->actingAsAdmin();
 
@@ -180,6 +219,28 @@ it('includes soft-deleted unused widgets when the unused and trashed filters are
     )->pluck('id');
 
     expect($filteredWidgetIds)->toContain($unusedWidget->getKey());
+});
+
+it('describes an empty widget asset table with translated filter-safe copy', function (): void {
+    $asset = WidgetAsset::factory()->create();
+    $table = WidgetAssetsTable::configure(layoutBuilderWidgetAssetsTable(WidgetAsset::query()));
+    $integrityFilter = firstLayoutBuilderTableComponent($table->getFilters(), 'integrity', SelectFilter::class);
+    $query = WidgetAsset::query();
+
+    if (! $integrityFilter instanceof SelectFilter) {
+        throw new RuntimeException('Expected a widget asset integrity filter.');
+    }
+
+    $filteredQuery = $integrityFilter->apply(clone $query, ['value' => 'broken_reference']);
+
+    expect($query->whereKey($asset)->exists())->toBeTrue()
+        ->and($filteredQuery->whereKey($asset)->exists())->toBeFalse()
+        ->and(__('capell-layout-builder::table.widget_assets_empty_heading'))->toBe('No widget assets found')
+        ->and(__('capell-layout-builder::table.widget_assets_empty_description'))
+        ->toBe('No assets are available for this widget. Try adjusting your search or filters.')
+        ->and($table->getEmptyStateHeading())->toBe('No widget assets found')
+        ->and($table->getEmptyStateDescription())
+        ->toBe('No assets are available for this widget. Try adjusting your search or filters.');
 });
 
 it('covers widget asset table lookup and type helper branches', function (): void {
@@ -391,7 +452,7 @@ it('uses actor-scoped layout usage projections without per-widget count queries 
     ]);
 
     $widgetSelect = WidgetSelect::make('widget_id')->withCreateForm();
-    $optionLabelsUsing = (new ReflectionProperty(Select::class, 'getOptionLabelsUsing'))->getValue($widgetSelect);
+    $optionLabelsUsing = new ReflectionProperty(Select::class, 'getOptionLabelsUsing')->getValue($widgetSelect);
 
     if (! $optionLabelsUsing instanceof Closure) {
         throw new RuntimeException('Expected a selected widget labels callback.');
@@ -507,18 +568,23 @@ function layoutBuilderWidgetUsageQueries(array $queries): array
  */
 function layoutBuilderTableContainsColumn(array $columns, array $names): bool
 {
-    foreach ($columns as $column) {
-        if ($column instanceof TextColumn && in_array($column->getName(), $names, true)) {
-            return true;
-        }
-    }
-
-    return false;
+    return array_any($columns, fn ($column): bool => $column instanceof TextColumn && in_array($column->getName(), $names, true));
 }
 
 function layoutBuilderWidgetAssetsTable(Builder $query): Table
 {
     return Table::make(layoutBuilderWidgetAssetsTableLivewire($query))->query($query);
+}
+
+function configureLayoutBuilderWidgetsTable(): Table
+{
+    $livewire = Mockery::mock(HasTable::class);
+    $table = Table::make($livewire)->query(Widget::query());
+
+    $livewire->shouldReceive('makeFilamentTranslatableContentDriver')->andReturn(null)->byDefault();
+    $livewire->shouldReceive('getTable')->andReturn($table)->byDefault();
+
+    return WidgetsTable::configure($table);
 }
 
 function layoutBuilderWidgetAssetsTableLivewire(Builder $query): HasTable

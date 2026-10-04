@@ -10,8 +10,6 @@ Layout Builder adds a visual page composition workflow with layout areas, widget
 
 Editors can add, reorder, resize, and edit page widgets in admin. Visitors receive the saved layout graph as ordinary public output without authoring markers.
 
-Evidence: [`src/LayoutBuilderServiceProvider.php`](src/LayoutBuilderServiceProvider.php), [`src/Actions/PersistLayoutBuilderStateAction.php`](src/Actions/PersistLayoutBuilderStateAction.php), [`src/Actions/SaveLayoutPresetAction.php`](src/Actions/SaveLayoutPresetAction.php), [`tests/Feature/Livewire/LayoutBuilderContentFirstTest.php`](tests/Feature/Livewire/LayoutBuilderContentFirstTest.php), [`src/Actions/BuildPublicLayoutGraphAction.php`](src/Actions/BuildPublicLayoutGraphAction.php), [`tests/Feature/Render/LayoutBuilderPublicRenderingSafetyTest.php`](tests/Feature/Render/LayoutBuilderPublicRenderingSafetyTest.php), [`tests/Feature/Livewire/LayoutPresetLivewireTest.php`](tests/Feature/Livewire/LayoutPresetLivewireTest.php).
-
 Status details:
 
 - Status: Available
@@ -26,8 +24,6 @@ Status details:
 **For developers:** Registries and typed Actions provide stable extension points for widget definitions, layout widgets, presets, and public render data.
 
 **For teams:** Choose Layout Builder when page composition changes; use Content Sections for reusable published sections or Structured Content Library for typed records such as testimonials and FAQs. Both can feed a Layout Builder composition. If a site only needs a few fixed templates, its existing Laravel templates may be enough.
-
-Evidence: [`src/Support/LayoutWidgets/LayoutWidgetRegistry.php`](src/Support/LayoutWidgets/LayoutWidgetRegistry.php), [`src/Support/WidgetExtensions/WidgetExtensionRegistry.php`](src/Support/WidgetExtensions/WidgetExtensionRegistry.php), [`src/Actions/BuildPublicLayoutGraphAction.php`](src/Actions/BuildPublicLayoutGraphAction.php), [`tests/Integration/PublicLayoutGraphActionTest.php`](tests/Integration/PublicLayoutGraphActionTest.php), [`docs/overview.admin.md`](docs/overview.admin.md), [`src/Actions/CreateLinkedLayoutPresetAction.php`](src/Actions/CreateLinkedLayoutPresetAction.php), [`src/Actions/InsertLinkedLayoutPresetAction.php`](src/Actions/InsertLinkedLayoutPresetAction.php).
 
 ## Screens And Workflow
 
@@ -166,6 +162,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `WidgetSettingsTab`
 - `TranslationsRepeater`
 - `TypeSelect`
+- `WidgetFileUpload`
 - `WidgetSelect`
 - `DefaultLayoutContainerConfigurator`
 - `DefaultLayoutWidgetConfigurator`
@@ -562,7 +559,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 
 1. Install the package: `composer require capell-app/layout-builder`.
 2. Run the package setup: `php artisan capell:layout-builder-install`.
-3. Open the package admin surface at `/screenshot-fixtures/layout-builder-admin-editor` and confirm Layout Builder is available.
+3. Open the package admin surface at `/admin/layout-builder/widgets` and confirm Layout Builder is available.
 
 ## Next Steps
 
@@ -578,6 +575,5 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
 - Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md).
-- Focused tests: `vendor/bin/pest packages/layout-builder/tests --configuration=phpunit.xml`.
 
 <!-- prettier-ignore-end -->

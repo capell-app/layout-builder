@@ -51,6 +51,8 @@ class LayoutsTable extends \Capell\Admin\Filament\Resources\Layouts\Tables\Layou
     public static function configure(Table $table): Table
     {
         return parent::configure($table)
+            ->emptyStateHeading(__('capell-layout-builder::table.layouts_empty_heading'))
+            ->emptyStateDescription(__('capell-layout-builder::table.layouts_empty_description'))
             ->headerActions([
                 self::getBulkChangeLayoutsAction(),
             ]);

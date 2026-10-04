@@ -15,6 +15,7 @@ use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderStandardDemoContentPage;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderStandardDemoWidgetCreatorHarness;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 
 /**
@@ -22,6 +23,11 @@ use Illuminate\Support\Collection;
  */
 function prepareStandardDemoCreatorHarness(Language $language): array
 {
+    // Core requires every morph target to be in the morph map and this fixture
+    // is not a registered Capell model; it is stored by class name. The test
+    // case resets the morph map after each test.
+    Relation::morphMap([LayoutBuilderStandardDemoContentPage::class => LayoutBuilderStandardDemoContentPage::class]);
+
     if (! CapellCore::hasPageType('section')) {
         CapellCore::registerPageType(new PageTypeData(
             name: 'section',

@@ -13,9 +13,11 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class PageSelectionTable implements TableConfigurator
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         /* @var class-string<\Capell\Core\Models\Page> $model */
@@ -30,6 +32,8 @@ class PageSelectionTable implements TableConfigurator
                 'type',
             ]))
             ->defaultSort('updated_at', 'desc')
+            ->emptyStateHeading(__('capell-layout-builder::table.page_selection_empty_heading'))
+            ->emptyStateDescription(__('capell-layout-builder::table.page_selection_empty_description'))
             ->columns([
                 IdentifierColumn::make('id'),
                 PageNameColumn::make('name'),

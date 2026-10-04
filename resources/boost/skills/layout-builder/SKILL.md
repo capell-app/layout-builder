@@ -1,6 +1,6 @@
 ---
 name: layout-builder
-description: Use when editing Capell Layout Builder widgets, containers, assets, presets, admin Livewire builder behavior, or public layout rendering.
+description: Layout Builder owns admin layout composition, widgets, assets, presets, and public layout output. Use when editing Capell Layout Builder widgets, containers, assets, presets, admin Livewire builder behavior, or public layout rendering.
 ---
 
 # Capell Layout Builder

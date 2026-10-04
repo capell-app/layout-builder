@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
@@ -25,7 +26,7 @@ it('configures a card gallery without changing widget selection semantics', func
         'status' => false,
     ]);
 
-    $table = cap0180ConfigureWidgetSelectionTable();
+    $table = configureWidgetSelectionTable();
     $columns = array_values($table->getColumns());
     $cardColumn = collect($table->getColumnsLayout())->first(
         fn (mixed $column): bool => $column instanceof LayoutView,
@@ -34,6 +35,7 @@ it('configures a card gallery without changing widget selection semantics', func
     if (! $cardColumn instanceof LayoutView) {
         throw new RuntimeException('Expected the widget selection table to expose a card view column.');
     }
+
     $columnNames = collect($columns)
         ->filter(fn (mixed $column): bool => $column instanceof Column)
         ->map(fn (Column $column): string => $column->getName())
@@ -67,6 +69,45 @@ it('configures a card gallery without changing widget selection semantics', func
         ->and($loadedWidget->key)->toBe($activeWidget->key)
         ->and($loadedWidget->getAttribute('layouts_count'))->toBe(0)
         ->and($loadedWidget->getAttribute('widget_assets_count'))->toBe(0);
+});
+
+it('describes an empty widget selection with translated filter-safe copy', function (): void {
+    $table = configureWidgetSelectionTable();
+
+    expect(__('capell-layout-builder::table.widget_selection_empty_heading'))->toBe('No widgets found')
+        ->and(__('capell-layout-builder::table.widget_selection_empty_description'))
+        ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.')
+        ->and($table->getEmptyStateHeading())->toBe('No widgets found')
+        ->and($table->getEmptyStateDescription())
+        ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.');
+});
+
+it('keeps the empty state truthful when a filter excludes an existing widget', function (): void {
+    test()->actingAsAdmin();
+
+    $widget = Widget::factory()->create([
+        'key' => 'selection-filtered-widget',
+        'status' => true,
+    ]);
+    $table = configureWidgetSelectionTable();
+    $statusFilter = $table->getFilter('status');
+    $query = $table->getQuery();
+
+    if (! $statusFilter instanceof StatusFilter) {
+        throw new RuntimeException('Expected the widget selection table to expose a status filter.');
+    }
+
+    if (! $query instanceof Builder) {
+        throw new RuntimeException('Expected the widget selection table to expose an Eloquent query.');
+    }
+
+    $filteredQuery = $statusFilter->apply(clone $query, ['value' => false]);
+
+    expect($query->whereKey($widget)->exists())->toBeTrue()
+        ->and($filteredQuery->count())->toBe(0)
+        ->and($filteredQuery->whereKey($widget)->exists())->toBeFalse()
+        ->and($table->getEmptyStateDescription())
+        ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.');
 });
 
 it('renders a preview URL, accessible image text, counts, and a no-image fallback', function (): void {
@@ -108,7 +149,7 @@ it('renders a preview URL, accessible image text, counts, and a no-image fallbac
         ->not->toContain('<img');
 });
 
-function cap0180ConfigureWidgetSelectionTable(): Table
+function configureWidgetSelectionTable(): Table
 {
     $livewire = Mockery::mock(HasTable::class);
     $table = Table::make($livewire)->query(Widget::query());

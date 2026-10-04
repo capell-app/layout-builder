@@ -47,7 +47,9 @@ use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
+use Capell\LayoutBuilder\Policies\WidgetPolicy;
 use Capell\LayoutBuilder\Support\Assets\PageContentLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutWidgetContentGraphExtractor;
@@ -188,6 +190,9 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         ], LayoutContainerPresentationViewComposer::class);
 
         Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
+        // Defer until every provider has booted so a policy the host registered for the
+        // model is never replaced by this package's default.
+        $this->app->booted($this->registerDefaultWidgetPolicy(...));
 
         if (! $this->isPackageInstalled()) {
             return;
@@ -226,6 +231,13 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->registerLazyLayoutWidgetRoute();
         $this->reservePublicFragmentPath();
         $this->reserveLazyLayoutWidgetPath();
+    }
+
+    public function registerDefaultWidgetPolicy(): void
+    {
+        if (Gate::getPolicyFor(Widget::class) === null) {
+            Gate::policy(Widget::class, WidgetPolicy::class);
+        }
     }
 
     /**

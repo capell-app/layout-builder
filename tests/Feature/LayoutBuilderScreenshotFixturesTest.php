@@ -36,6 +36,7 @@ use Livewire\Livewire;
 use Override;
 use RuntimeException;
 use Workbench\App\Actions\PrepareWidgetScreenshotsAction;
+use Workbench\App\Support\WidgetScreenshotFixtureRoutes;
 use Workbench\App\Support\WidgetScreenshotFixtures;
 
 final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
@@ -97,10 +98,10 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 
             $html = (string) $response->getContent();
 
-            self::assertStringNotContainsString('data-layout-builder-editor', $html);
-            self::assertStringNotContainsString('wire:', $html);
-            self::assertStringNotContainsString('signed', $html);
-            self::assertStringNotContainsString('filament', $html);
+            $this->assertStringNotContainsString('data-layout-builder-editor', $html);
+            $this->assertStringNotContainsString('wire:', $html);
+            $this->assertStringNotContainsString('signed', $html);
+            $this->assertStringNotContainsString('filament', $html);
         }
     }
 
@@ -130,7 +131,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             ->assertSee('data-layout-builder-tree-item="main"', false)
             ->assertSee('data-layout-builder-tree-item="sidebar"', false);
 
-        self::assertTrue($site->default);
+        $this->assertTrue($site->default);
     }
 
     public function test_it_seeds_widget_integrity_screenshot_data_idempotently_before_capture(): void
@@ -159,17 +160,14 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             ->mapWithKeys(fn (WidgetAsset $asset): array => [$asset->container => $asset->updated_at?->toAtomString()])
             ->all();
 
-        self::assertSame($firstFixtureState, $secondFixtureState);
+        $this->assertSame($firstFixtureState, $secondFixtureState);
         $this->assertDatabaseCount('widgets', 2);
         $this->assertDatabaseCount('widget_assets', 2);
     }
 
     public function test_it_does_not_register_screenshot_fixture_seeding_in_the_package_console(): void
     {
-        self::assertArrayNotHasKey(
-            'capell:layout-builder-seed-screenshot-integrity-fixtures',
-            $this->app->make(Kernel::class)->all(),
-        );
+        $this->assertArrayNotHasKey('capell:layout-builder-seed-screenshot-integrity-fixtures', $this->app->make(Kernel::class)->all());
     }
 
     public function test_it_protects_and_renders_widget_integrity_tables_without_mutating_capture_gets(): void
@@ -219,7 +217,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             ->mapWithKeys(fn (WidgetAsset $asset): array => [$asset->container => $asset->updated_at?->toAtomString()])
             ->all();
 
-        self::assertSame($beforeCapture, $afterCapture);
+        $this->assertSame($beforeCapture, $afterCapture);
 
         $this->assertDatabaseHas('widgets', [
             'key' => SeedWidgetIntegrityScreenshotFixturesAction::UNUSED_WIDGET_KEY,
@@ -278,20 +276,21 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         ];
 
         foreach (WidgetScreenshotFixtures::states() as $widget => $state) {
-            self::assertInstanceOf($classes[$widget], $classes[$widget]::validateAndCreate($state));
+            $this->assertInstanceOf($classes[$widget], $classes[$widget]::validateAndCreate($state));
         }
 
         $instances = [];
         foreach (WidgetScreenshotFixtures::blocks('showcase') as $block) {
             $metadata = $block['data']['__capell'];
-            self::assertIsArray($metadata);
-            self::assertArrayHasKey('instance_id', $metadata);
-            self::assertIsString($metadata['instance_id']);
+            $this->assertIsArray($metadata);
+            $this->assertArrayHasKey('instance_id', $metadata);
+            $this->assertIsString($metadata['instance_id']);
             $instances[] = $metadata['instance_id'];
         }
-        self::assertCount(count($instances), array_unique($instances));
-        self::assertContains(WidgetScreenshotFixtures::uuid('showcase-' . WidgetScreenshotFixtures::uuid('content-reveal-target')), $instances);
-        self::assertNotContains(WidgetScreenshotFixtures::uuid('live-poll'), $instances);
+
+        $this->assertCount(count($instances), array_unique($instances));
+        $this->assertContains(WidgetScreenshotFixtures::uuid('showcase-' . WidgetScreenshotFixtures::uuid('content-reveal-target')), $instances);
+        $this->assertNotContains(WidgetScreenshotFixtures::uuid('live-poll'), $instances);
     }
 
     public function test_widget_preparation_creates_real_pages_media_and_poll_state_idempotently(): void
@@ -305,6 +304,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             $provider = 'Capell\\Widget' . $name . '\\Providers\\Widget' . $name . 'ServiceProvider';
             $this->app->register($provider);
         }
+
         $site = Site::factory()->create(['default' => true]);
         SiteDomain::query()->updateOrCreate([
             'site_id' => $site->id, 'domain' => 'localhost', 'path' => null,
@@ -317,37 +317,39 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
 
         try {
-            $action = app(PrepareWidgetScreenshotsAction::class);
+            $action = resolve(PrepareWidgetScreenshotsAction::class);
             $action->handle();
             $action->handle();
 
-            self::assertSame($initialPages + 11, Page::query()->count());
-            self::assertSame(2, Poll::query()->count());
+            $this->assertSame($initialPages + 11, Page::query()->count());
+            $this->assertSame(2, Poll::query()->count());
             foreach ([...array_keys(WidgetScreenshotFixtures::states()), 'showcase'] as $widget) {
                 $page = Page::query()->where('uuid', WidgetScreenshotFixtures::uuid('page-' . $widget))->sole();
-                self::assertSame(ContentStructure::Blocks, $page->content_structure);
-                self::assertTrue($page->pageUrls()->exists(), $widget . ' must have a real public URL');
+                $this->assertSame(ContentStructure::Blocks, $page->content_structure);
+                $this->assertTrue($page->pageUrls()->exists(), $widget . ' must have a real public URL');
                 $page->setRelation('translation', $page->translations()->firstOrFail());
                 $context = new FrontendRenderContextData($page, $site, $site->language, $page->layout, $site->theme);
                 $payloads = BuildPublicPageRenderDataAction::run($context);
                 foreach (WidgetScreenshotFixtures::blocks($widget) as $block) {
-                    $html = app(RenderPublicWidgetExtensionAction::class)->render($block, $payloads);
-                    self::assertStringContainsString('class="capell-', $html, $widget);
-                    self::assertStringNotContainsString('Representative workflow', $html);
-                    self::assertStringNotContainsString('__capell', $html);
-                    self::assertStringNotContainsString('state_version', $html);
+                    $html = resolve(RenderPublicWidgetExtensionAction::class)->render($block, $payloads);
+                    $this->assertStringContainsString('class="capell-', $html, $widget);
+                    $this->assertStringNotContainsString('Representative workflow', $html);
+                    $this->assertStringNotContainsString('__capell', $html);
+                    $this->assertStringNotContainsString('state_version', $html);
                     if ($block['type'] === 'capell-app.content-reveal') {
-                        self::assertStringContainsString('data-capell-interaction-target-url=', $html);
+                        $this->assertStringContainsString('data-capell-interaction-target-url=', $html);
                     }
+
                     if ($block['type'] === 'capell-app.live-poll') {
-                        self::assertStringContainsString('data-poll-form', $html);
+                        $this->assertStringContainsString('data-poll-form', $html);
                     }
                 }
 
                 $content = $page->translations()->firstOrFail()->getRawOriginal('content');
-                self::assertIsString($content);
-                self::assertStringContainsString('capell-app.', $content);
+                $this->assertIsString($content);
+                $this->assertStringContainsString('capell-app.', $content);
             }
+
             Storage::disk('public')->assertExists([
                 'widget-screenshots/workspace.jpg', 'widget-screenshots/workflow.jpg', 'widget-screenshots/reference.wav',
             ]);
@@ -361,7 +363,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('explicitly selected disposable application');
-        app(PrepareWidgetScreenshotsAction::class)->handle();
+        resolve(PrepareWidgetScreenshotsAction::class)->handle();
     }
 
     #[Override]
@@ -387,12 +389,8 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             require dirname(__DIR__, 4) . '/workbench/routes/screenshot-fixtures.php';
         }
 
-        if (! function_exists('widgetScreenshotFixtureDefinitions')) {
-            require dirname(__DIR__, 4) . '/workbench/routes/screenshot-fixtures-widgets.php';
-        }
-
         $this->registerFixtureRoutes('registerLayoutBuilderScreenshotFixtureRoutes');
-        $this->registerFixtureRoutes('registerWidgetScreenshotFixtureRoutes');
+        WidgetScreenshotFixtureRoutes::register();
     }
 
     /**
@@ -400,20 +398,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
      */
     private function widgetScreenshotFixtureDefinitions(): array
     {
-        $callback = $this->fixtureCallback('widgetScreenshotFixtureDefinitions');
-
-        $definitions = $callback();
-        throw_unless(is_array($definitions), RuntimeException::class, 'Widget screenshot fixture definitions must be an array.');
-
-        $normalized = [];
-
-        foreach ($definitions as $widget => $definition) {
-            if (is_string($widget)) {
-                $normalized[$widget] = $definition;
-            }
-        }
-
-        return $normalized;
+        return WidgetScreenshotFixtureRoutes::definitions();
     }
 
     private function registerFixtureRoutes(string $callback): void

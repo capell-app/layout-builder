@@ -10,9 +10,11 @@ use Filament\Tables\Columns\Layout\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class WidgetSelectionTable implements TableConfigurator
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         WidgetsTable::configure($table);
@@ -47,6 +49,8 @@ class WidgetSelectionTable implements TableConfigurator
                 'md' => 2,
                 'xl' => 3,
             ])
+            ->emptyStateHeading(__('capell-layout-builder::table.widget_selection_empty_heading'))
+            ->emptyStateDescription(__('capell-layout-builder::table.widget_selection_empty_description'))
             ->recordClasses('capell-layout-builder-widget-selection-card-record')
             ->checkIfRecordIsSelectableUsing(fn (Widget $record): bool => $record->status === true);
     }

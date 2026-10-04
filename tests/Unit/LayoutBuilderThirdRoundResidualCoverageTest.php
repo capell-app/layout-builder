@@ -1309,6 +1309,44 @@ it('covers cold type configurator and modal page table setup with livewire table
         ->and($component->render()->name())->toBe('capell-layout-builder::livewire.filament.layout-builder.widgets-table-select');
 });
 
+it('shows a truthful empty state when modal page constraints leave no selectable pages', function (): void {
+    $site = Site::factory()->create();
+    $otherSite = Site::factory()->create();
+    $currentPage = Page::factory()->site($site)->withTranslations()->create();
+    $excludedPage = Page::factory()->site($site)->withTranslations()->create();
+    $otherSitePage = Page::factory()->site($otherSite)->withTranslations()->create();
+    $explicitlyExcludedPageIds = Page::query()
+        ->where('site_id', $site->getKey())
+        ->whereKeyNot($currentPage->getKey())
+        ->pluck('id')
+        ->all();
+    $component = new LayoutBuilderResidualModalTableSelect;
+    $component->tableConfiguration = PageSelectionTable::class;
+    $component->tableQuery = Page::query();
+    $component->tableArguments = [
+        'excludeIds' => $explicitlyExcludedPageIds,
+        'pageId' => $currentPage->getKey(),
+        'siteId' => $site->getKey(),
+    ];
+
+    $table = $component->table(Table::make($component));
+    $query = $table->getQuery();
+
+    if (! $query instanceof Builder) {
+        throw new RuntimeException('Expected the page selection table to expose an Eloquent query.');
+    }
+
+    capell_expect(Page::query()->pluck('id')->all())
+        ->toContain($currentPage->getKey(), $excludedPage->getKey(), $otherSitePage->getKey())
+        ->and($explicitlyExcludedPageIds)->toContain($excludedPage->getKey())
+        ->and($query->pluck('id')->all())->toBe([])
+        ->and($table->isSelectionEnabled())->toBeTrue()
+        ->and($table->getCurrentSelectionLivewireProperty())->toBe('selectedTableRecords')
+        ->and($table->getEmptyStateHeading())->toBe('No pages found')
+        ->and($table->getEmptyStateDescription())
+        ->toBe('No pages are available for the current selection. Try adjusting your search or filters.');
+});
+
 it('loads frontend layout widgets into the layout manager and formats missing asset context', function (): void {
     $language = Language::factory()->create(['code' => 'en']);
     $page = Page::factory()->withTranslations($language)->create();

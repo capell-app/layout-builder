@@ -8,7 +8,7 @@ Layout Builder assembles public pages from reusable Widgets arranged in named La
 
 ## When to choose Layout Builder
 
-Use Layout Builder when the changing thing is page composition: which widgets appear in named areas and how those areas are arranged. Use [Content Sections](../../content-sections/README.md) when editors need to maintain a reusable, published section selected by several pages. Use [Structured Content Library](../../structured-content-library/README.md) for typed records such as testimonials, team members, services, and FAQs that pages can reuse. Those packages can be composed through Layout Builder. For a site with only a few fixed templates and no need for widget composition, the application's existing Laravel templates may be sufficient.
+Use Layout Builder when the changing thing is page composition: which widgets appear in named areas and how those areas are arranged. Use [Content Sections](../../content-sections/README.md) when editors need to maintain a reusable, published section selected by several pages. Use [Structured Content Library](../../structured-content-library/README.md) for typed records such as testimonials, team members, services, and FAQs that pages can reuse. Those packages can be composed through Layout Builder. Layout Builder setup creates its widget blueprints and default layout without Content Sections. Section blueprints are created only when Content Sections is present and enabled; that package owns the section blueprint subject. For a site with only a few fixed templates and no need for widget composition, the application's existing Laravel templates may be sufficient.
 
 ## Installation and setup
 

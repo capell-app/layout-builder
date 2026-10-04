@@ -31,6 +31,7 @@ use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAsset;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetEnum;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetForm;
+use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -45,6 +46,8 @@ use Livewire\Livewire;
 use Sinnbeck\DomAssertions\Asserts\AssertElement;
 use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 uses(CreatesAdminUser::class);
 
@@ -54,6 +57,10 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     SchemaFacade::dropIfExists('layout_builder_non_publishable_assets');
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId(null);
+    resolve(PermissionRegistrar::class)->teams = false;
+    resolve(PermissionRegistrar::class)->forgetCachedPermissions();
+    config(['permission.teams' => false]);
 });
 
 it('renders the content first editor by default from the package namespace', function (): void {
@@ -598,10 +605,24 @@ it('lets content editors submit widget asset edits without layout access from th
     Permission::findOrCreate('Update:Layout');
     Permission::findOrCreate('View:Page');
 
-    test()->actingAs(test()->createUserWithPermission(['EditContent:Layout', 'View:Page']));
+    config(['permission.teams' => true]);
+    resolve(PermissionRegistrar::class)->teams = true;
+    $site = Site::factory()->withTranslations()->create();
+    $roleName = 'layout-content-editor';
+    $role = Role::findOrCreate($roleName, 'web');
+    $role->givePermissionTo(['EditContent:Layout', 'View:Page']);
+
+    $editor = User::factory()->create();
+    $editor->assignRoleForSite($site, $roleName);
+
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId($site);
+    test()->actingAs($editor);
+
+    expect($editor->isGlobalAdmin())->toBeFalse()
+        ->and($editor->getAssignedSiteIds()->all())->toBe([$site->getKey()]);
 
     $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
-    $asset = Page::factory()->withTranslations()->create(['name' => 'Featured page']);
+    $asset = Page::factory()->site($site)->withTranslations()->create(['name' => 'Featured page']);
     $widgetAsset = WidgetAsset::factory()
         ->widget($widget)
         ->asset($asset)

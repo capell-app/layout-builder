@@ -30,7 +30,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Resources\Resource;
+use Filament\Resources\Resource as FilamentResource;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -39,11 +39,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 use RuntimeException;
 use Throwable;
 
 class WidgetAssetsTable implements TableConfigurator
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         return $table
@@ -56,6 +58,8 @@ class WidgetAssetsTable implements TableConfigurator
             )
             ->columns(self::getTableColumns())
             ->filters(self::getTableFilters())
+            ->emptyStateHeading(__('capell-layout-builder::table.widget_assets_empty_heading'))
+            ->emptyStateDescription(__('capell-layout-builder::table.widget_assets_empty_description'))
             ->recordActions([
                 EditAction::make(),
                 ActionGroup::make([
@@ -92,9 +96,9 @@ class WidgetAssetsTable implements TableConfigurator
                         ? (string) __('capell-layout-builder::table.widget_asset_usage_used')
                         : (string) __('capell-layout-builder::table.widget_asset_usage_unscoped'))
                     : (string) __('capell-layout-builder::table.widget_asset_usage_broken'))
-                ->color(fn (WidgetAsset $record): string => ! $record->asset instanceof Model
-                    ? 'danger'
-                    : ($record->pageable instanceof Model ? 'success' : 'warning'))
+                ->color(fn (WidgetAsset $record): string => $record->asset instanceof Model
+                    ? $record->pageable instanceof Model ? 'success' : 'warning'
+                    : ('danger'))
                 ->toggleable(),
             PageNameColumn::make('pageable.name')
                 ->label(__('capell-admin::table.page'))
@@ -324,7 +328,7 @@ class WidgetAssetsTable implements TableConfigurator
 
             $resource = GetResourceFromBlueprintAction::run($blueprint);
 
-            if (! is_subclass_of($resource, Resource::class)) {
+            if (! is_subclass_of($resource, FilamentResource::class)) {
                 return null;
             }
 
@@ -337,7 +341,7 @@ class WidgetAssetsTable implements TableConfigurator
     }
 
     /**
-     * @param  class-string<\Filament\Resources\Resource>  $resource
+     * @param  class-string<FilamentResource>  $resource
      */
     private static function canEdit(string $resource, Model $record): bool
     {

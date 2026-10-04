@@ -48,9 +48,11 @@ use Illuminate\Database\Query\Builder as BaseQueryBuilder;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
+use Override;
 
 class WidgetsTable implements TableConfigurator
 {
+    #[Override]
     public static function configure(Table $table): Table
     {
         return $table
@@ -68,6 +70,8 @@ class WidgetsTable implements TableConfigurator
             ->defaultSort('name')
             ->columns(self::getTableColumns())
             ->filters(self::getTableFilters())
+            ->emptyStateHeading(__('capell-layout-builder::table.widgets_empty_heading'))
+            ->emptyStateDescription(__('capell-layout-builder::table.widgets_empty_description'))
             ->recordClasses(fn (Widget $record): ?string => match (true) {
                 (bool) $record->deleted_at => 'table-row-warning',
                 default => null,
@@ -214,13 +218,13 @@ class WidgetsTable implements TableConfigurator
                     ? (string) (self::hasAuthoritativeLayoutUsage()
                         ? __('capell-layout-builder::table.unused')
                         : __('capell-layout-builder::table.widget_usage_no_tracked_uses'))
-                    : (string) trans_choice('capell-layout-builder::table.widget_usage_layouts', (int) $record->layouts_count, ['count' => (int) $record->layouts_count]))
+                    : trans_choice('capell-layout-builder::table.widget_usage_layouts', (int) $record->layouts_count, ['count' => (int) $record->layouts_count]))
                 ->color(fn (Widget $record): string => (int) $record->layouts_count === 0 ? 'warning' : 'success')
                 ->tooltip(fn (Widget $record): string => (int) $record->layouts_count === 0
                     ? (string) (self::hasAuthoritativeLayoutUsage()
                         ? __('capell-layout-builder::table.widget_usage_unused_tooltip')
                         : __('capell-layout-builder::table.widget_usage_no_tracked_uses_tooltip'))
-                    : (string) trans_choice('capell-layout-builder::table.widget_usage_layouts_tooltip', (int) $record->layouts_count, ['count' => (int) $record->layouts_count]))
+                    : trans_choice('capell-layout-builder::table.widget_usage_layouts_tooltip', (int) $record->layouts_count, ['count' => (int) $record->layouts_count]))
                 ->toggleable(),
             StatusIconColumn::make('status'),
             DateColumn::make('visible_from')
@@ -267,10 +271,10 @@ class WidgetsTable implements TableConfigurator
                         caseInsensitive: true,
                     );
 
-                    (new SqlFragment(
+                    new SqlFragment(
                         $position->sql . ' > 0',
                         $position->bindings,
-                    ))->applyWhere(
+                    )->applyWhere(
                         $query->getQuery(),
                         $index === 0 ? 'and' : 'or',
                     );
@@ -414,7 +418,7 @@ class WidgetsTable implements TableConfigurator
             return (string) __('capell-layout-builder::message.widget_delete_impact_no_tracked_uses');
         }
 
-        return (string) trans_choice(
+        return trans_choice(
             'capell-layout-builder::message.widget_delete_impact_layouts',
             $impact->layouts,
             ['count' => $impact->layouts],
