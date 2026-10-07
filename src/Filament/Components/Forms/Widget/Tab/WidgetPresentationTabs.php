@@ -18,24 +18,28 @@ use Capell\LayoutBuilder\Filament\Components\Forms\ResponsiveLayoutPatternSchema
 use Capell\LayoutBuilder\Filament\Components\Forms\SizeSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\ComponentSection;
 use Capell\LayoutBuilder\Support\Media\BackgroundCompositionGuidance;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Contracts\Support\Htmlable;
 
 class WidgetPresentationTabs
 {
     /**
-     * @param  array<array-key, mixed>  $layoutSchema
-     * @param  array<array-key, mixed>  $styleFields
-     * @param  array<array-key, mixed>  $styleSchema
-     * @param  array<array-key, mixed>  $itemsSchema
-     * @param  array<array-key, mixed>  $appearanceSchema
-     * @param  array<array-key, mixed>  $renderingSchema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $layoutSchema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $styleFields
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $styleSchema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $itemsSchema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $appearanceSchema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $renderingSchema
      * @return array<int, Tab>
      */
     public static function make(
@@ -97,7 +101,7 @@ class WidgetPresentationTabs
     }
 
     /**
-     * @param  array<array-key, mixed>  $schema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $schema
      */
     public static function itemsTab(array $schema = []): Tab
     {
@@ -114,8 +118,8 @@ class WidgetPresentationTabs
     }
 
     /**
-     * @param  array<array-key, mixed>  $fields
-     * @param  array<array-key, mixed>  $schema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $fields
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $schema
      */
     public static function appearanceTab(array $fields = [], array $schema = []): Tab
     {
@@ -236,7 +240,7 @@ class WidgetPresentationTabs
     }
 
     /**
-     * @param  array<array-key, mixed>  $schema
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $schema
      */
     public static function renderingTab(array $schema = [], bool $withComponentSection = true): Tab
     {

@@ -182,7 +182,7 @@ it('does not add theme fields when the extender does not support the container c
 });
 
 /**
- * @param  array<int, Htmlable>  $components
+ * @param  array<int, Htmlable|string>  $components
  * @return array<int, mixed>
  */
 function layoutContainerSchemaExtenderFlattenComponents(array $components): array

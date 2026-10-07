@@ -12,17 +12,21 @@ use Capell\LayoutBuilder\Filament\Components\Forms\MarginSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\PaddingSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\ResponsiveLayoutPatternSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\SizeSelect;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Contracts\Support\Htmlable;
 
 class DisplaySection
 {
     /**
-     * @param  array<array-key, mixed>  $configurator
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $configurator
      */
     public static function make(array $configurator = []): Section
     {

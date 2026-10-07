@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Components\Forms;
 
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Contracts\Support\Htmlable;
 
 class CarouselSettingsSchema
 {
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     public static function make(): array
     {

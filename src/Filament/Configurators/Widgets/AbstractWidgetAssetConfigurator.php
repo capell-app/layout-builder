@@ -10,8 +10,12 @@ use Capell\Admin\Filament\Concerns\HasConfigurator;
 use Capell\LayoutBuilder\Contracts\Extenders\WidgetAssetSchemaExtender;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Enums\SchemaExtenderEnum;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 
 abstract class AbstractWidgetAssetConfigurator implements ConfiguratorInterface
 {
@@ -20,7 +24,7 @@ abstract class AbstractWidgetAssetConfigurator implements ConfiguratorInterface
     protected static ConfiguratorTypeEnumInterface $configuratorType = ConfiguratorTypeEnum::WidgetAsset;
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     abstract protected function getAssetSchema(Schema $configurator): array;
 
@@ -33,7 +37,7 @@ abstract class AbstractWidgetAssetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     public function make(Schema $configurator): array
     {
@@ -46,8 +50,8 @@ abstract class AbstractWidgetAssetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @param  array<int, mixed>  $components
-     * @return array<int, mixed>
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $components
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function extendAssetComponents(Schema $configurator, array $components): array
     {

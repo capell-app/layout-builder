@@ -31,6 +31,7 @@ it('adds layout builder runtime manifest flags for blade layouts with blade widg
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
     $context->shouldReceive('theme')->andReturnNull();
@@ -65,6 +66,7 @@ it('adds livewire island flags for blade layouts with livewire widgets', functio
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
     $context->shouldReceive('theme')->andReturnNull();
@@ -96,6 +98,7 @@ it('extracts livewire widget keys from container key fallbacks', function (): vo
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
     $context->shouldReceive('theme')->andReturnNull();
@@ -126,6 +129,7 @@ it('ignores disabled livewire widgets when contributing blade runtime flags', fu
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
     $context->shouldReceive('theme')->andReturnNull();
@@ -156,6 +160,7 @@ it('ignores future livewire widgets when contributing blade runtime flags', func
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
     $context->shouldReceive('theme')->andReturnNull();
@@ -189,6 +194,7 @@ it('ignores livewire widgets with inaccessible widget blueprints when contributi
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
     $context->shouldReceive('theme')->andReturnNull();
@@ -223,6 +229,7 @@ it('does not change non blade-only runtime manifests', function (): void {
     ]);
 
     $context = Mockery::mock(FrontendContextReader::class);
+    $context->shouldReceive('site')->andReturnNull();
     $context->shouldReceive('page')->andReturn($page);
     $context->shouldReceive('layout')->andReturn($layout);
 

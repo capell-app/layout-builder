@@ -101,6 +101,9 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     public static string $packageName = 'capell-app/layout-builder';
 
+    private bool $installedRuntimeBooted = false;
+
+    #[Override]
     public function configurePackage(Package $package): void
     {
         $package
@@ -111,6 +114,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             ->hasViews(self::$name);
     }
 
+    #[Override]
     public function packageRegistered(): void
     {
         $this->app->singleton(LayoutAreaRegistry::class, fn (): LayoutAreaRegistry => new LayoutAreaRegistry);
@@ -182,8 +186,20 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         }
     }
 
-    public function packageBooted(): void
+    public function registerDefaultWidgetPolicy(): void
     {
+        if (Gate::getPolicyFor(Widget::class) === null) {
+            Gate::policy(Widget::class, WidgetPolicy::class);
+        }
+    }
+
+    #[Override]
+    protected function bootInstalledPackage(): self
+    {
+        if ($this->installedRuntimeBooted) {
+            return $this;
+        }
+
         View::composer([
             'capell-layout-builder::components.layout.container',
             'capell::components.layout.container',
@@ -194,10 +210,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         // model is never replaced by this package's default.
         $this->app->booted($this->registerDefaultWidgetPolicy(...));
 
-        if (! $this->isPackageInstalled()) {
-            return;
-        }
-
+        $this->registerPageTypes();
         CapellCore::subscriberManager()->subscribe(WidgetSnapshotWorkflowSubscriber::class);
         Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
         Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
@@ -231,26 +244,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->registerLazyLayoutWidgetRoute();
         $this->reservePublicFragmentPath();
         $this->reserveLazyLayoutWidgetPath();
-    }
-
-    public function registerDefaultWidgetPolicy(): void
-    {
-        if (Gate::getPolicyFor(Widget::class) === null) {
-            Gate::policy(Widget::class, WidgetPolicy::class);
-        }
-    }
-
-    /**
-     * Blueprint subjects live here rather than in packageBooted() because this
-     * hook is re-runnable: when a fresh-database install marks the package
-     * installed mid-process, the installer boots the package again and the
-     * `widget` subject has to arrive with it. packageBooted() fires once, too
-     * early for that.
-     */
-    #[Override]
-    protected function bootInstalledPackage(): self
-    {
-        $this->registerPageTypes();
+        $this->installedRuntimeBooted = true;
 
         return $this;
     }

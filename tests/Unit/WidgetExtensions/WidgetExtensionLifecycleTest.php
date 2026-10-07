@@ -18,6 +18,7 @@ use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ConflictingFilamentWidg
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleFilamentWidget;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
 use Illuminate\Container\Container;
+use Illuminate\View\Compilers\BladeCompiler;
 
 it('binds the canonical registry through the Layout Builder provider', function (): void {
     expect(app()->bound(WidgetExtensionRegistry::class))->toBeTrue()
@@ -239,4 +240,15 @@ it('preserves ordinary replacement behavior for unprefixed legacy layout widgets
     $registry->register('legacy-banner', LayoutWidgetTarget::FrontendBlade, 'legacy::second');
 
     expect($registry->get('legacy-banner', LayoutWidgetTarget::FrontendBlade))->toBe('legacy::second');
+});
+
+it('registers the Blade alias for an extension accepted after application boot', function (): void {
+    $compiler = resolve(BladeCompiler::class);
+    $definition = ExampleWidgetExtensionDefinition::make();
+    $registry = new WidgetExtensionRegistry(new WidgetExtensionDefinitionAdapter(app()));
+
+    $registry->register($definition);
+
+    expect($compiler->getClassComponentAliases()[$definition->key] ?? null)
+        ->toBe(WidgetExtensionDefinitionAdapter::GATED_COMPONENT);
 });

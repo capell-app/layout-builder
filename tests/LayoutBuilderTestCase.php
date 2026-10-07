@@ -10,6 +10,7 @@ use Capell\Admin\Providers\Filament\AdminPanelProvider;
 use Capell\BlockLibrary\Providers\BlockLibraryServiceProvider;
 use Capell\ContentSections\Providers\ContentSectionsServiceProvider;
 use Capell\Core\Facades\CapellCore;
+use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\HtmlCache\Providers\HtmlCacheServiceProvider;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
@@ -63,6 +64,7 @@ abstract class LayoutBuilderTestCase extends AbstractTestCase
             BlockLibraryServiceProvider::class,
             ContentSectionsServiceProvider::class,
             FrontendServiceProvider::class,
+            FoundationThemeServiceProvider::class,
             HtmlCacheServiceProvider::class,
             AdminPanelProvider::class,
             LayoutBuilderServiceProvider::class,

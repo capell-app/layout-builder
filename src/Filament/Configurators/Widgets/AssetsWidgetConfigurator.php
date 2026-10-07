@@ -15,6 +15,8 @@ use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
@@ -23,6 +25,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 use Override;
 
 class AssetsWidgetConfigurator extends DefaultWidgetConfigurator
@@ -37,7 +40,7 @@ class AssetsWidgetConfigurator extends DefaultWidgetConfigurator
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getOptionSchema(Schema $configurator): array
     {

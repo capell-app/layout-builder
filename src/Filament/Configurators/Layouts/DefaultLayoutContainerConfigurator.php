@@ -24,10 +24,12 @@ use Capell\LayoutBuilder\Filament\Components\Forms\PaddingSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\SpacingSelect;
 use Capell\LayoutBuilder\Filament\Components\Forms\TagSelect;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
@@ -36,7 +38,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
 /**
- * @method array<array-key, Htmlable> make(Schema $configurator, ?LayoutContainerSchemaContextData $context = null)
+ * @method array<int, Component|Action|ActionGroup|string|Htmlable> make(Schema $configurator, ?LayoutContainerSchemaContextData $context = null)
  */
 class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
 {
@@ -53,7 +55,7 @@ class DefaultLayoutContainerConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     public function make(Schema $configurator, ?LayoutContainerSchemaContextData $context = null): array
     {

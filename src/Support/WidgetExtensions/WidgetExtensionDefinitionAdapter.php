@@ -9,6 +9,7 @@ use Capell\LayoutBuilder\Data\LayoutWidgets\LayoutWidgetDefinitionData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
 use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\View\Compilers\BladeCompiler;
 
 final class WidgetExtensionDefinitionAdapter
 {
@@ -46,6 +47,16 @@ final class WidgetExtensionDefinitionAdapter
                 resourceGroupLoadingStrategies: $definition->resourceGroupLoadingStrategies,
             ));
             $this->adaptedLayoutDefinitions[$registrationKey] = true;
+
+            // Frontend component discovery may already have run before installation.
+            $registerBladeAlias = static function (BladeCompiler $compiler) use ($definition): void {
+                $compiler->component(self::GATED_COMPONENT, $definition->key);
+            };
+            $this->container->afterResolving(BladeCompiler::class, $registerBladeAlias);
+
+            if ($this->container->resolved(BladeCompiler::class)) {
+                $registerBladeAlias($this->container->make(BladeCompiler::class));
+            }
         };
 
         $registerFilamentWidget = function (WidgetDiscovery $discovery) use ($definition): void {

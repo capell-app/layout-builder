@@ -11,6 +11,8 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 
@@ -124,4 +126,39 @@ test('widget edit header shows authoritative layout usage alongside disabled sta
     ])
         ->assertSee(__('capell-admin::generic.disabled'))
         ->assertSee('1 layout');
+});
+
+test('widget background replacement keeps the uploaded media attached', function (): void {
+    Storage::fake('public');
+    $widget = Widget::factory()->create([
+        'meta' => [
+            'background_image' => 'media/background_image/legacy.jpg',
+        ],
+    ]);
+    $existing = $widget->addMediaFromString('existing-image')
+        ->usingFileName('existing.jpg')
+        ->toMediaCollection('background_image');
+    $existingPath = $existing->getPathRelativeToRoot();
+
+    $replacement = UploadedFile::fake()->image('replacement.jpg');
+
+    Livewire::test(EditWidget::class, [
+        'record' => $widget->getRouteKey(),
+    ])
+        ->fillForm([
+            'background_mode' => 'image',
+            'background_image' => [$replacement],
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $saved = $widget->refresh()->getFirstMedia('background_image');
+
+    expect($saved)->not->toBeNull()
+        ->and($saved?->file_name)->not->toBe('existing.jpg')
+        ->and($saved?->getPathRelativeToRoot())->not->toBe($existingPath);
+
+    if ($saved !== null) {
+        Storage::disk('public')->assertExists($saved->getPathRelativeToRoot());
+    }
 });

@@ -25,7 +25,8 @@
             "capell-app/content-sections",
             "capell-app/frontend-authoring",
             "capell-app/publishing-studio",
-            "capell-app/structured-content-library"
+            "capell-app/structured-content-library",
+            "capell-app/theme-foundation"
         ],
         "conflicts": []
     },

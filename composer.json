@@ -21,7 +21,8 @@
         "capell-app/content-sections": "Allows reusable content sections in layouts.",
         "capell-app/frontend-authoring": "Adds authenticated in-page layout authoring.",
         "capell-app/publishing-studio": "Connects layout snapshots to publishing workflows.",
-        "capell-app/structured-content-library": "Allows structured content records in layouts."
+        "capell-app/structured-content-library": "Allows structured content records in layouts.",
+        "capell-app/theme-foundation": "Provides shared Blade rendering for installed layouts."
     },
     "autoload": {
         "psr-4": {

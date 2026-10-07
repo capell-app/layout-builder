@@ -1565,6 +1565,12 @@
     box-shadow: none;
 }
 
+.fi-tabs.fi-contained .fi-tabs-item:focus-visible {
+    outline: 2px solid var(--primary-600);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.9);
+}
+
 .dark .fi-tabs.fi-contained {
     border-bottom-color: rgba(255, 255, 255, 0.1);
 }
@@ -1572,6 +1578,11 @@
 .dark .fi-tabs.fi-contained .fi-tabs-item.fi-active {
     border-bottom-color: var(--primary-400);
     color: rgb(255, 255, 255);
+}
+
+.dark .fi-tabs.fi-contained .fi-tabs-item:focus-visible {
+    outline-color: var(--primary-400);
+    box-shadow: 0 0 0 2px rgb(15 23 42 / 0.9);
 }
 
 .layout-builder-shadow-preview {

@@ -94,6 +94,16 @@ it('registers the layout builder admin stylesheet through Filament assets', func
         />");
 });
 
+it('keeps contained admin tabs visibly focused in both themes', function (): void {
+    $stylesheet = file_get_contents(dirname(__DIR__, 2) . '/resources/css/layout-builder/admin/capell-layout-filament.css');
+
+    expect($stylesheet)
+        ->toContain('.fi-tabs.fi-contained .fi-tabs-item:focus-visible')
+        ->toContain('outline: 2px solid var(--primary-600)')
+        ->toContain('.dark .fi-tabs.fi-contained .fi-tabs-item:focus-visible')
+        ->toContain('outline-color: var(--primary-400)');
+});
+
 it('registers and resolves layout asset bridges by key', function (): void {
     $registry = new LayoutAssetBridgeRegistry;
     $asset = new LayoutAssetBridgeData(

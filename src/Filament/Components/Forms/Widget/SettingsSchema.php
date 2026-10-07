@@ -8,17 +8,21 @@ use Capell\Admin\Filament\Components\Forms\NameInput;
 use Capell\Admin\Filament\Components\Forms\StatusToggle;
 use Capell\Core\Support\Slug\SlugGenerator;
 use Capell\LayoutBuilder\Models\Widget;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Validation\Rules\Unique;
 
 class SettingsSchema
 {
     /**
-     * @param  array<array-key, mixed>  $components
-     * @return array<array-key, mixed>
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $components
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     public static function make(Schema $configurator, array $components = []): array
     {

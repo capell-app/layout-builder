@@ -24,12 +24,16 @@ use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentation
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetSettingsTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
 use Capell\LayoutBuilder\Models\Widget;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Checkbox;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
 class DefaultWidgetConfigurator implements ConfiguratorInterface
@@ -52,7 +56,7 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     public function make(Schema $configurator): array
     {
@@ -64,7 +68,7 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getFormSchema(Schema $configurator): array
     {
@@ -117,7 +121,7 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getEditOptionSchema(Schema $configurator): array
     {
@@ -128,7 +132,7 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getCreateOptionSchema(Schema $configurator): array
     {
@@ -140,7 +144,7 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @return array<array-key, mixed>
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function getExtraSchema(Schema $configurator, bool $withSettingsTab = false): array
     {
@@ -179,8 +183,8 @@ class DefaultWidgetConfigurator implements ConfiguratorInterface
     }
 
     /**
-     * @param  array<int, mixed>  $components
-     * @return array<int, mixed>
+     * @param  array<int, Component | Action | ActionGroup | string | Htmlable>  $components
+     * @return array<int, Component | Action | ActionGroup | string | Htmlable>
      */
     protected function extendDisplayComponents(Schema $configurator, array $components): array
     {
