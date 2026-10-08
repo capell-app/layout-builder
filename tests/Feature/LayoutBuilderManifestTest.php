@@ -24,6 +24,9 @@ use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\WidgetWidget;
+use Composer\Semver\Intervals;
+use Composer\Semver\Semver;
+use Composer\Semver\VersionParser;
 use Illuminate\Support\Arr;
 
 it('declares the admin resources and extension points owned by layout builder', function (): void {
@@ -90,10 +93,27 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
         expect($composerRequires)->toContain($requiredPackage);
     }
 
-    expect($composerRequirements['capell-app/admin'] ?? null)->toBe('^1.0.10')
+    $coreConstraint = $composerRequirements['capell-app/core'] ?? null;
+
+    throw_unless(is_string($coreConstraint), RuntimeException::class, 'Expected Layout Builder to require capell-app/core.');
+
+    // Widget logs activity through Core's activity-log compatibility layer, which
+    // first ships in Core 1.0.66; an older Core must fail to resolve, not fatal.
+    $adminConstraint = $composerRequirements['capell-app/admin'] ?? null;
+
+    throw_unless(is_string($adminConstraint), RuntimeException::class, 'Expected Layout Builder to require capell-app/admin.');
+    $frontendConstraint = $composerRequirements['capell-app/frontend'] ?? null;
+    throw_unless(is_string($frontendConstraint), RuntimeException::class, 'Expected Layout Builder to require capell-app/frontend.');
+    $parser = new VersionParser;
+
+    // BackgroundCompositionGuidance imports MediaCompositionGuidancePresenter, which
+    // first ships in admin 1.0.61.
+    expect(Semver::satisfies('1.0.60', $adminConstraint))->toBeFalse()
+        ->and(Semver::satisfies('1.0.61', $adminConstraint))->toBeTrue()
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
-        ->and($composerRequirements['capell-app/core'] ?? null)->toBe('^1.0.21')
-        ->and($composerRequirements['capell-app/frontend'] ?? null)->toBe('^1.0.31')
+        ->and(Semver::satisfies('1.0.65', $coreConstraint))->toBeFalse()
+        ->and(Semver::satisfies('1.0.66', $coreConstraint))->toBeTrue()
+        ->and(Intervals::isSubsetOf($parser->parseConstraints($frontendConstraint), $parser->parseConstraints('>=1.0.31')))->toBeTrue()
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^1.0');
 });
 

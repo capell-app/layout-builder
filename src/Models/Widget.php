@@ -25,6 +25,9 @@ use Capell\Core\Models\Contracts\Translatable;
 use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\Activity\ActivityLogCompat;
+use Capell\Core\Support\Activity\LogOptions;
+use Capell\Core\Support\Activity\LogsActivity;
 use Capell\LayoutBuilder\Database\Factories\WidgetFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -36,8 +39,6 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Override;
-use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Staudenmeir\EloquentHasManyDeep\HasRelationships;
@@ -100,12 +101,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
     public function getActivitylogOptions(): LogOptions
     {
-        return LogOptions::defaults()
-            ->useLogName('widget')
-            ->logAll()
-            ->logExcept(['updated_at', 'created_at', 'deleted_at'])
-            ->logOnlyDirty()
-            ->dontSubmitEmptyLogs();
+        return ActivityLogCompat::options('widget', ['updated_at', 'created_at', 'deleted_at']);
     }
 
     public function registerMediaCollections(): void
