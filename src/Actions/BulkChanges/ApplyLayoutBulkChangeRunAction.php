@@ -76,7 +76,7 @@ final class ApplyLayoutBulkChangeRunAction
                 $layout->containers = $result->proposed_containers ?? [];
                 $layout->save();
                 $this->migratePageScopedAssets($layout, $result);
-                $this->deleteRemovedPageScopedAssets($operation, $result);
+                $this->deleteRemovedPageScopedAssets($layout, $operation, $result);
                 $applied++;
                 $result->update(['status' => LayoutBulkChangeResultStatus::Applied, 'applied_at' => Date::now()]);
             }
@@ -122,7 +122,7 @@ final class ApplyLayoutBulkChangeRunAction
         }
     }
 
-    private function deleteRemovedPageScopedAssets(LayoutBulkWidgetOperationData $operation, LayoutBulkChangeResult $result): void
+    private function deleteRemovedPageScopedAssets(Layout $layout, LayoutBulkWidgetOperationData $operation, LayoutBulkChangeResult $result): void
     {
         if ($operation->typeEnum() !== LayoutBulkWidgetOperationType::RemoveWidget || $operation->removeWidgetAssetMode !== 'delete_page_scoped') {
             return;
@@ -137,13 +137,15 @@ final class ApplyLayoutBulkChangeRunAction
                 continue;
             }
 
-            WidgetAsset::query()
-                ->where('widget_id', $widget->id)
-                ->where('container', $this->stringValue($assetRemoval['container'] ?? null))
-                ->where('occurrence', $this->integerValue($assetRemoval['occurrence'] ?? null, 1))
-                ->whereNotNull('pageable_type')
-                ->whereNotNull('pageable_id')
-                ->delete();
+            foreach ($this->pageScopesForLayout($layout) as $pageScope) {
+                WidgetAsset::query()
+                    ->where('widget_id', $widget->id)
+                    ->where('container', $this->stringValue($assetRemoval['container'] ?? null))
+                    ->where('occurrence', $this->integerValue($assetRemoval['occurrence'] ?? null, 1))
+                    ->where('pageable_type', $pageScope['type'])
+                    ->where('pageable_id', $pageScope['id'])
+                    ->delete();
+            }
         }
     }
 
@@ -184,7 +186,7 @@ final class ApplyLayoutBulkChangeRunAction
             if (is_array($item)) {
                 $items[] = array_filter(
                     $item,
-                    static fn (int|string $key): bool => is_string($key),
+                    is_string(...),
                     ARRAY_FILTER_USE_KEY,
                 );
             }

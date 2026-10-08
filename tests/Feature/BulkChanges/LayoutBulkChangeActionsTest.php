@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\PageVariationData;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -20,6 +22,7 @@ use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderDemoContentPage;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBulkChangeScopedUser;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Facades\File;
@@ -324,6 +327,101 @@ it('warns about removed page-scoped assets unless auto delete is selected', func
     expect(WidgetAsset::query()->whereKey($asset->getKey())->exists())->toBeFalse();
 });
 
+it('deletes removed widget assets only for pages using the selected layout', function (): void {
+    CapellCore::registerPageVariation(new PageVariationData('bulk-change-demo-page', LayoutBuilderDemoContentPage::class));
+    $site = Site::factory()->create();
+    $otherSite = Site::factory()->create();
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $hero = Widget::factory()->create(['key' => 'hero']);
+    $containers = [
+        'main' => ['widgets' => [
+            ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1],
+            ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 2],
+            ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1],
+        ]],
+        'sidebar' => ['widgets' => [
+            ['widget_key' => 'breadcrumbs', 'container' => 'sidebar', 'occurrence' => 3],
+        ]],
+    ];
+    $layout = bulkLayout($containers, ['site_id' => $site->getKey()]);
+    $otherLayout = bulkLayout($containers, ['site_id' => $site->getKey()]);
+    $otherSiteLayout = bulkLayout($containers, ['site_id' => $otherSite->getKey()]);
+    $page = Page::factory()->create(['layout_id' => $layout->getKey(), 'site_id' => $site->getKey()]);
+    $secondPage = Page::factory()->create(['layout_id' => $layout->getKey(), 'site_id' => $site->getKey()]);
+    $otherPage = Page::factory()->create(['layout_id' => $otherLayout->getKey(), 'site_id' => $site->getKey()]);
+    $otherSitePage = Page::factory()->create(['layout_id' => $otherSiteLayout->getKey(), 'site_id' => $otherSite->getKey()]);
+    $pageVariation = LayoutBuilderDemoContentPage::query()->whereKey($page->getKey())->firstOrFail();
+    $otherPageVariation = LayoutBuilderDemoContentPage::query()->whereKey($otherPage->getKey())->firstOrFail();
+    $removedAssets = [
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($secondPage, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create([
+            'pageable_type' => $pageVariation->getMorphClass(),
+            'pageable_id' => $pageVariation->getKey(),
+        ]),
+    ];
+    $retainedAssets = [
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($otherPage, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($otherSitePage, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create([
+            'pageable_type' => $otherPageVariation->getMorphClass(),
+            'pageable_id' => $otherPageVariation->getKey(),
+        ]),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'sidebar', 3)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 2)->create(),
+        WidgetAsset::factory()->widget($hero)->asset($page)->page($page, 'main', 1)->create(),
+    ];
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'source_container_key' => 'main',
+        'occurrence_mode' => 'specific',
+        'source_occurrence_number' => 1,
+        'remove_widget_asset_mode' => 'delete_page_scoped',
+    ]));
+
+    expect($run->results()->pluck('layout_id')->all())->toBe([$layout->getKey()]);
+
+    $summary = ApplyLayoutBulkChangeRunAction::run($run);
+
+    expect($summary['applied_layouts'])->toBe(1)
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe(['breadcrumbs', 'hero'])
+        ->and(bulkWidgetKeys($otherLayout, 'main'))->toBe(['breadcrumbs', 'breadcrumbs', 'hero'])
+        ->and(bulkWidgetKeys($otherSiteLayout, 'main'))->toBe(['breadcrumbs', 'breadcrumbs', 'hero']);
+
+    foreach ($removedAssets as $asset) {
+        $this->assertModelMissing($asset);
+    }
+
+    foreach ($retainedAssets as $asset) {
+        $this->assertModelExists($asset);
+    }
+});
+
+it('preserves foreign page assets when the selected layout has no pages', function (): void {
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $containers = ['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]]];
+    $layout = bulkLayout($containers);
+    $otherLayout = bulkLayout($containers);
+    $otherPage = Page::factory()->create(['layout_id' => $otherLayout->getKey()]);
+    $asset = WidgetAsset::factory()->widget($breadcrumbs)->asset($otherPage)->page($otherPage, 'main', 1)->create();
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'remove_widget_asset_mode' => 'delete_page_scoped',
+    ]));
+
+    expect(bulkFirstResult($run)->page_count)->toBe(0);
+
+    $summary = ApplyLayoutBulkChangeRunAction::run($run);
+
+    expect($summary['applied_layouts'])->toBe(1)
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe([])
+        ->and(bulkWidgetKeys($otherLayout, 'main'))->toBe(['breadcrumbs']);
+    $this->assertModelExists($asset);
+});
+
 it('queues a preview run for asynchronous apply', function (): void {
     Queue::fake();
     $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1], ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1]]]]);
@@ -354,6 +452,7 @@ it('does not apply a queued bulk change after its actor is deleted or de-authori
     Permission::findOrCreate(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission(), 'web');
     $actor = User::factory()->createOne();
     $actor->givePermissionTo(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
+
     $queuedRun = QueueLayoutBulkChangeRunAction::run($run, bulkLayoutTestInteger($actor->getKey()));
 
     if ($deleteActor) {
@@ -362,7 +461,7 @@ it('does not apply a queued bulk change after its actor is deleted or de-authori
         $actor->revokePermissionTo(LayoutBuilderPermissionRegistrar::bulkMutateLayoutsPermission());
     }
 
-    (new ApplyLayoutBulkChangeRunJob(bulkLayoutTestInteger($queuedRun->getKey()), bulkLayoutTestInteger($actor->getKey())))->handle();
+    new ApplyLayoutBulkChangeRunJob(bulkLayoutTestInteger($queuedRun->getKey()), bulkLayoutTestInteger($actor->getKey()))->handle();
 
     expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Failed)
         ->and(bulkFreshRun($queuedRun)->summary)->toMatchArray([
