@@ -15,7 +15,7 @@
         "capell-app/admin": "^1.0.61",
         "capell-app/block-library": "^1.0",
         "capell-app/core": "^1.0.66",
-        "capell-app/frontend": "^1.0.31"
+        "capell-app/frontend": "^1.0.70"
     },
     "suggest": {
         "capell-app/content-sections": "Allows reusable content sections in layouts.",

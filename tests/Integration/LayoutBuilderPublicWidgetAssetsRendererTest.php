@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\RenderableContributionIdentityData;
 use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Enums\ExtensionContributionType;
 use Capell\Core\Enums\RenderableTypeEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -10,13 +12,16 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Core\Models\Translation;
+use Capell\Core\Support\Publishing\PublishSentinel;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
 use Capell\Frontend\Data\FrontendRenderPayload;
+use Capell\Frontend\Enums\FrontendRenderAudience;
 use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
+use Capell\Frontend\Support\State\FrontendState;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
@@ -512,3 +517,38 @@ function layoutBuilderRendererContext(Page $page, Site $site, Language $language
         }
     };
 }
+
+it('renders deferred content inline for draft and scheduled preview pages', function (string $state): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create(['status' => true]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create(['visible_from' => $state === 'draft' ? PublishSentinel::draftValue() : now()->addDay(), 'visible_until' => null]);
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Preview deferred content', ['kind' => 'feature', 'performance' => ['defer' => true, 'fragment_owner' => 'test-owner']]);
+    $attachment = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
+    $attachment->setRelation('asset', $asset);
+    $context = (new FrontendState)->withSite($site)->withLanguage($language)->withPage($page)->withLayout($layout)->setFrontendData('renderAudience', FrontendRenderAudience::Preview);
+    app()->instance(FrontendContextReader::class, $context);
+    registerLayoutBuilderRendererDeferredOwner();
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render($widget, 'main', widgetAssets: collect([$attachment]));
+    expect($html)->toContain('Preview deferred content')->not->toContain('data-deferred-fragment');
+})->with([
+    'draft' => 'draft',
+    'scheduled' => 'scheduled',
+]);
+
+it('renders cache-unsafe contributed renderables inline rather than minting shared fragment references', function (): void {
+    $language = Language::factory()->create();
+    $site = Site::factory()->language($language)->withTranslations($language)->create();
+    $layout = Layout::factory()->site($site)->create(['status' => true]);
+    $page = Page::factory()->site($site)->layout($layout)->withTranslations($language)->create();
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Private inline content', ['kind' => 'feature', 'performance' => ['defer' => true, 'fragment_owner' => 'test-owner']]);
+    $attachment = WidgetAsset::factory()->widget($widget)->asset($asset)->create();
+    $attachment->setRelation('asset', $asset);
+    resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(key: 'feature', type: RenderableTypeEnum::Section, blade: 'layout-builder-renderer-test::asset', contribution: new RenderableContributionIdentityData(owner: 'capell-app/layout-builder', type: ExtensionContributionType::ContentWidget, cacheSafe: false)));
+    app()->instance(FrontendContextReader::class, layoutBuilderRendererContext($page, $site, $language, $layout));
+    registerLayoutBuilderRendererDeferredOwner();
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render($widget, 'main', widgetAssets: collect([$attachment]));
+    expect($html)->toContain('Private inline content')->not->toContain('data-deferred-fragment');
+});

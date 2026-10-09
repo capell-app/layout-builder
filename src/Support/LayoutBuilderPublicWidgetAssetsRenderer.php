@@ -8,11 +8,15 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentAssetVersionAction;
+use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentCacheIdentityAction;
 use Capell\Frontend\Actions\Fragments\ResolvePublicFragmentContentVersionAction;
 use Capell\Frontend\Actions\RenderRenderableAction;
 use Capell\Frontend\Actions\ResolveDeferredFragmentPlaceholderDataAction;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\Fragments\PublicFragmentReferenceData;
+use Capell\Frontend\Enums\FrontendRenderAudience;
 use Capell\Frontend\Support\Fragments\DeferredFragmentPlaceholderData;
 use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
@@ -152,6 +156,19 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
     private function deferredPlaceholder(Model $asset, array $meta): ?DeferredFragmentPlaceholderData
     {
         $performance = is_array($meta['performance'] ?? null) ? $meta['performance'] : [];
+        if (($performance['defer'] ?? false) !== true) {
+            return null;
+        }
+
+        $kind = is_string($meta['kind'] ?? null) && $meta['kind'] !== '' ? $meta['kind'] : 'section';
+        $translation = $asset->getRelationValue('translation');
+        if ($this->frontendContext()?->renderPayload()->renderAudience === FrontendRenderAudience::Preview
+            || ! $translation instanceof Model
+            || ! $this->dynamicData->isCacheSafe('section', $kind, $asset, $translation, $meta)
+            || resolve(RenderableRegistry::class)->get('section', $kind)->contribution?->cacheSafe === false) {
+            return null;
+        }
+
         $owner = is_string($performance['fragment_owner'] ?? null)
             ? trim($performance['fragment_owner'])
             : '';
@@ -162,8 +179,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
         $layout = $context?->layout();
         $assetId = $asset->getKey();
 
-        if (($performance['defer'] ?? false) !== true
-            || $owner === ''
+        if ($owner === ''
             || ! $page instanceof Page
             || ! $site instanceof Site
             || ! $language instanceof Language
@@ -182,7 +198,7 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             'layoutId' => $this->scalarKey($layout),
             'assetType' => $asset->getMorphClass(),
             'assetId' => $assetId,
-            'assetVersion' => $this->assetVersion($asset),
+            'assetVersion' => ResolvePublicFragmentAssetVersionAction::run($asset),
         ];
         $contentVersion = ResolvePublicFragmentContentVersionAction::run(
             $page,
@@ -205,43 +221,9 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
 
         return ResolveDeferredFragmentPlaceholderDataAction::run(
             $meta,
-            $this->fragmentCacheIdentity($reference),
+            ResolvePublicFragmentCacheIdentityAction::run($reference),
             $url,
         );
-    }
-
-    private function fragmentCacheIdentity(PublicFragmentReferenceData $reference): string
-    {
-        $ownerContext = $reference->ownerContext;
-        ksort($ownerContext);
-
-        return json_encode([
-            'owner' => $reference->owner,
-            'formatVersion' => $reference->formatVersion,
-            'pageableType' => $reference->pageableType,
-            'pageableId' => $reference->pageableId,
-            'siteId' => $reference->siteId,
-            'languageId' => $reference->languageId,
-            'contentVersion' => $reference->contentVersion,
-            'ownerContext' => $ownerContext,
-        ], JSON_THROW_ON_ERROR);
-    }
-
-    private function assetVersion(Model $asset): string
-    {
-        $translation = $asset->getRelationValue('translation');
-        $assetAttributes = $asset->getAttributes();
-        $translationAttributes = $translation instanceof Model ? $translation->getAttributes() : null;
-
-        ksort($assetAttributes);
-        if (is_array($translationAttributes)) {
-            ksort($translationAttributes);
-        }
-
-        return hash('sha256', json_encode([
-            'asset' => $assetAttributes,
-            'translation' => $translationAttributes,
-        ], JSON_THROW_ON_ERROR));
     }
 
     private function scalarKey(Model $model): int|string

@@ -11,7 +11,7 @@ This guide is for editors who build pages and owners deciding how to use widgets
 3. Drop it where you want it to appear.
 4. Save the page.
 
-![Compose a page visually with reusable widgets and named layout areas.](screenshots/layout-builder-screen.png)
+![Edit a layout and its widget containers.](screenshots/layout-builder-editor-main-sidebar.png)
 
 ### How to edit a widget's text, image, or colour
 
