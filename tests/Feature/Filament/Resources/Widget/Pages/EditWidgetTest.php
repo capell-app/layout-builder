@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Admin\Enums\CapellPermission;
+use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Enums\PresentationWidthMode;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
@@ -127,6 +128,27 @@ test('widget edit header shows authoritative layout usage alongside disabled sta
         ->assertSee(__('capell-admin::generic.disabled'))
         ->assertSee('1 layout');
 });
+
+test('widget edit derives the background mode from stored media before the upload hydrates', function (MediaCollectionEnum $collection, ?string $color, string $mode): void {
+    Storage::fake('public');
+    $widget = Widget::factory()->create([
+        'meta' => ['background_color' => $color],
+    ]);
+    $widget->addMediaFromString('existing-image')
+        ->usingFileName('existing.jpg')
+        ->toMediaCollection($collection->value);
+
+    Livewire::test(EditWidget::class, [
+        'record' => $widget->getRouteKey(),
+    ])
+        ->assertSuccessful()
+        ->assertSet('data.background_mode', $mode);
+})->with([
+    'background image' => [MediaCollectionEnum::BackgroundImage, null, 'image'],
+    'background colour and image' => [MediaCollectionEnum::BackgroundImage, '#123456', 'color_image'],
+    'foreground image only' => [MediaCollectionEnum::Image, null, 'none'],
+    'foreground image and background colour' => [MediaCollectionEnum::Image, '#123456', 'color'],
+]);
 
 test('widget background replacement keeps the uploaded media attached', function (): void {
     Storage::fake('public');

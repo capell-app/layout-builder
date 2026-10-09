@@ -25,6 +25,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderDemoContentPage;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBulkChangeScopedUser;
 use Capell\Tests\Fixtures\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Spatie\Permission\Models\Permission;
@@ -284,6 +285,93 @@ it('migrates page-scoped widget assets when moved widgets change occurrence', fu
         ->and($asset->fresh()->occurrence)->toBe(2);
 });
 
+it('moves page-scoped assets in bounded batches on apply and revert', function (string $phase): void {
+    config()->set('capell-layout-builder.bulk_change_asset_delete_chunk_size', 4);
+    CapellCore::registerPageVariation(new PageVariationData('bulk-change-demo-page', LayoutBuilderDemoContentPage::class));
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $containers = [
+        'main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]],
+        'sidebar' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'sidebar', 'occurrence' => 1]]],
+    ];
+    $layout = bulkLayout($containers, ['site_id' => Site::factory()->create()->getKey()]);
+    $otherLayout = bulkLayout($containers);
+    $pages = Page::factory()->count(17)->create(['layout_id' => $layout->getKey(), 'site_id' => $layout->site_id]);
+    $page = $pages->firstOrFail();
+    $otherPage = Page::factory()->create(['layout_id' => $otherLayout->getKey()]);
+    $pageTypes = [$page->getMorphClass(), (new LayoutBuilderDemoContentPage)->getMorphClass()];
+
+    foreach ($pages as $scopedPage) {
+        foreach ($pageTypes as $pageType) {
+            WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create([
+                'pageable_type' => $pageType,
+                'pageable_id' => $scopedPage->getKey(),
+            ]);
+        }
+    }
+
+    $retainedAssets = [
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($otherPage, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(3)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'sidebar', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 3)->create(),
+    ];
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::MoveWidgetToContainer->value,
+        'source_widget_key' => 'breadcrumbs',
+        'source_container_key' => 'main',
+        'target_container_key' => 'sidebar',
+        'placement' => 'bottom',
+        'occurrence_mode' => 'first',
+    ]));
+
+    if ($phase === 'revert') {
+        ApplyLayoutBulkChangeRunAction::run($run);
+    }
+
+    $connection = DB::connection();
+    $wasLoggingQueries = $connection->logging();
+    $connection->flushQueryLog();
+    $connection->enableQueryLog();
+
+    try {
+        $summary = $phase === 'apply'
+            ? ApplyLayoutBulkChangeRunAction::run($run)
+            : RevertLayoutBulkChangeRunAction::run(bulkFreshRun($run));
+    } finally {
+        $queries = $connection->getQueryLog();
+        $connection->flushQueryLog();
+
+        if (! $wasLoggingQueries) {
+            $connection->disableQueryLog();
+        }
+    }
+
+    $updateQueries = array_filter(
+        $queries,
+        static fn (array $query): bool => str_starts_with(strtolower(ltrim($query['query'])), 'update ')
+            && str_contains($query['query'], 'widget_assets'),
+    );
+    $movedAssets = WidgetAsset::query()->where('widget_id', $breadcrumbs->getKey())
+        ->where('container', $phase === 'apply' ? 'sidebar' : 'main')
+        ->where('occurrence', $phase === 'apply' ? 2 : 1)
+        ->whereIn('pageable_type', $pageTypes)
+        ->whereIn('pageable_id', $pages->modelKeys())
+        ->count();
+
+    expect($summary[$phase === 'apply' ? 'applied_layouts' : 'reverted_layouts'])->toBe(1)
+        ->and($movedAssets)->toBe(34)
+        ->and($updateQueries)->toHaveCount(10);
+
+    foreach ($updateQueries as $query) {
+        expect(count($query['bindings']))->toBeLessThanOrEqual(11);
+    }
+
+    foreach ($retainedAssets as $asset) {
+        expect($asset->fresh()->container)->toBe($asset->container)
+            ->and($asset->fresh()->occurrence)->toBe($asset->occurrence);
+    }
+})->with(['apply', 'revert']);
+
 it('blocks approval when default widget assets would become ambiguous', function (): void {
     $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
     $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]], 'sidebar' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'sidebar', 'occurrence' => 1]]]]);
@@ -372,6 +460,19 @@ it('deletes removed widget assets only for pages using the selected layout', fun
         WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 2)->create(),
         WidgetAsset::factory()->widget($hero)->asset($page)->page($page, 'main', 1)->create(),
     ];
+    $warningRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'source_container_key' => 'main',
+        'occurrence_mode' => 'specific',
+        'source_occurrence_number' => 1,
+        'remove_widget_asset_mode' => 'warn',
+    ]));
+
+    expect(bulkResultWarnings(bulkFirstResult($warningRun)))->toBe([
+        'Removing this widget will leave 3 page-scoped widget assets unused. Select auto-delete page-scoped assets to remove them during apply.',
+    ]);
+
     $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
         'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
         'source_widget_key' => 'breadcrumbs',
@@ -399,6 +500,218 @@ it('deletes removed widget assets only for pages using the selected layout', fun
     }
 });
 
+it('counts removed page-scoped assets separately for each selected layout', function (): void {
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $containers = ['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]]];
+    $firstLayout = bulkLayout($containers);
+    $secondLayout = bulkLayout($containers);
+    $otherLayout = bulkLayout($containers);
+    $firstPage = Page::factory()->create(['layout_id' => $firstLayout->getKey()]);
+    $secondPages = Page::factory()->count(2)->create(['layout_id' => $secondLayout->getKey()]);
+    $otherPage = Page::factory()->create(['layout_id' => $otherLayout->getKey()]);
+    $assets = [
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($firstPage)->page($firstPage, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($otherPage)->page($otherPage, 'main', 1)->create(),
+    ];
+
+    foreach ($secondPages as $page) {
+        $assets[] = WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 1)->create();
+    }
+
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$firstLayout->key, $secondLayout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'remove_widget_asset_mode' => 'warn',
+    ]));
+    $results = $run->results()->get();
+    $firstResult = $results->firstOrFail(static fn (LayoutBulkChangeResult $result): bool => $result->layout_id === $firstLayout->getKey());
+    $secondResult = $results->firstOrFail(static fn (LayoutBulkChangeResult $result): bool => $result->layout_id === $secondLayout->getKey());
+
+    expect($results)->toHaveCount(2)
+        ->and(bulkResultWarnings($firstResult))->toBe([
+            'Removing this widget will leave 1 page-scoped widget asset unused. Select auto-delete page-scoped assets to remove them during apply.',
+        ])
+        ->and(bulkResultWarnings($secondResult))->toBe([
+            'Removing this widget will leave 2 page-scoped widget assets unused. Select auto-delete page-scoped assets to remove them during apply.',
+        ]);
+
+    foreach ($assets as $asset) {
+        $this->assertModelExists($asset);
+    }
+});
+
+it('deletes page-scoped assets in bounded batches for each page variation', function (): void {
+    config()->set('capell-layout-builder.bulk_change_asset_delete_chunk_size', 2);
+    CapellCore::registerPageVariation(new PageVariationData('bulk-change-demo-page', LayoutBuilderDemoContentPage::class));
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $hero = Widget::factory()->create(['key' => 'hero']);
+    $containers = ['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]]];
+    $layout = bulkLayout($containers);
+    $otherLayout = bulkLayout($containers);
+    $pages = Page::factory()->count(5)->create(['layout_id' => $layout->getKey()]);
+    $page = $pages->firstOrFail();
+    $otherPage = Page::factory()->create(['layout_id' => $otherLayout->getKey()]);
+
+    foreach ($pages as $scopedPage) {
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($scopedPage, 'main', 1)->create();
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create([
+            'pageable_type' => (new LayoutBuilderDemoContentPage)->getMorphClass(),
+            'pageable_id' => $scopedPage->getKey(),
+        ]);
+    }
+
+    $retainedAssets = [
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($otherPage, 'main', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create([
+            'pageable_type' => (new LayoutBuilderDemoContentPage)->getMorphClass(),
+            'pageable_id' => $otherPage->getKey(),
+        ]),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->container('main')->occurrence(1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'sidebar', 1)->create(),
+        WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 2)->create(),
+        WidgetAsset::factory()->widget($hero)->asset($page)->page($page, 'main', 1)->create(),
+    ];
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'remove_widget_asset_mode' => 'delete_page_scoped',
+    ]));
+    $connection = DB::connection();
+    $wasLoggingQueries = $connection->logging();
+    $connection->flushQueryLog();
+    $connection->enableQueryLog();
+
+    try {
+        $summary = ApplyLayoutBulkChangeRunAction::run($run);
+    } finally {
+        $queries = $connection->getQueryLog();
+        $connection->flushQueryLog();
+
+        if (! $wasLoggingQueries) {
+            $connection->disableQueryLog();
+        }
+    }
+
+    $deleteQueries = array_filter(
+        $queries,
+        static fn (array $query): bool => str_starts_with(strtolower(ltrim($query['query'])), 'delete ')
+            && str_contains($query['query'], 'widget_assets'),
+    );
+    $bindingCounts = array_map(static fn (array $query): int => count($query['bindings']), $deleteQueries);
+    sort($bindingCounts);
+    $remainingAssetCount = WidgetAsset::query()
+        ->where('widget_id', $breadcrumbs->getKey())
+        ->where('container', 'main')
+        ->where('occurrence', 1)
+        ->whereIn('pageable_type', [$page->getMorphClass(), (new LayoutBuilderDemoContentPage)->getMorphClass()])
+        ->whereIn('pageable_id', Page::query()->where('layout_id', $layout->getKey())->select('id'))
+        ->count();
+
+    expect($summary['applied_layouts'])->toBe(1)
+        ->and($deleteQueries)->toHaveCount(6)
+        ->and($bindingCounts)->toBe([5, 5, 6, 6, 6, 6])
+        ->and($remainingAssetCount)->toBe(0)
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe([])
+        ->and(bulkWidgetKeys($otherLayout, 'main'))->toBe(['breadcrumbs']);
+
+    foreach ($deleteQueries as $query) {
+        expect(count($query['bindings']))->toBeLessThanOrEqual(6);
+    }
+
+    foreach ($retainedAssets as $asset) {
+        $this->assertModelExists($asset);
+    }
+});
+
+it('clamps oversized page-scoped asset deletion batches', function (): void {
+    config()->set('capell-layout-builder.bulk_change_asset_delete_chunk_size', 1000000);
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]]], ['site_id' => Site::factory()->create()->getKey()]);
+    $page = Page::factory()->create(['layout_id' => $layout->getKey(), 'site_id' => $layout->site_id]);
+    $pages = Page::factory()->count(1000)->make([
+        'layout_id' => $layout->getKey(),
+        'site_id' => $page->site_id,
+        'blueprint_id' => $page->blueprint_id,
+    ]);
+
+    foreach ($pages->chunk(50) as $pageChunk) {
+        Page::query()->insert($pageChunk->map(static fn (Page $page): array => $page->getAttributes())->all());
+    }
+
+    $lastPage = Page::query()->where('layout_id', $layout->getKey())->orderByDesc('id')->firstOrFail();
+    WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 1)->create();
+    WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($lastPage, 'main', 1)->create();
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'remove_widget_asset_mode' => 'delete_page_scoped',
+    ]));
+    $connection = DB::connection();
+    $wasLoggingQueries = $connection->logging();
+    $connection->flushQueryLog();
+    $connection->enableQueryLog();
+
+    try {
+        ApplyLayoutBulkChangeRunAction::run($run);
+    } finally {
+        $queries = $connection->getQueryLog();
+        $connection->flushQueryLog();
+
+        if (! $wasLoggingQueries) {
+            $connection->disableQueryLog();
+        }
+    }
+
+    $deleteQueries = array_filter(
+        $queries,
+        static fn (array $query): bool => str_starts_with(strtolower(ltrim($query['query'])), 'delete ')
+            && str_contains($query['query'], 'widget_assets'),
+    );
+
+    expect(WidgetAsset::query()->where('widget_id', $breadcrumbs->getKey())->count())->toBe(0)
+        ->and($deleteQueries)->toHaveCount(2);
+
+    foreach ($deleteQueries as $query) {
+        expect(count($query['bindings']))->toBeLessThanOrEqual(1004);
+    }
+});
+
+it('counts duplicate removal tuples once so preview matches deleted asset rows', function (): void {
+    $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
+    $layout = bulkLayout(['main' => ['widgets' => [
+        ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1],
+        ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1],
+        ['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 2],
+    ]]]);
+    $page = Page::factory()->create(['layout_id' => $layout->getKey()]);
+    $otherAssetPage = Page::factory()->create(['site_id' => $page->site_id]);
+    WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 1)->create();
+    WidgetAsset::factory()->widget($breadcrumbs)->asset($otherAssetPage)->page($page, 'main', 1)->create();
+    WidgetAsset::factory()->widget($breadcrumbs)->asset($page)->page($page, 'main', 2)->create();
+    $payload = [
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+    ];
+    $warningRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        ...$payload,
+        'remove_widget_asset_mode' => 'warn',
+    ]));
+    $deleteRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        ...$payload,
+        'remove_widget_asset_mode' => 'delete_page_scoped',
+    ]));
+    $before = WidgetAsset::query()->count();
+
+    ApplyLayoutBulkChangeRunAction::run($deleteRun);
+
+    $deleted = $before - WidgetAsset::query()->count();
+
+    expect($deleted)->toBe(3)
+        ->and(bulkResultWarnings(bulkFirstResult($warningRun)))->toBe([
+            sprintf('Removing this widget will leave %d page-scoped widget assets unused. Select auto-delete page-scoped assets to remove them during apply.', $deleted),
+        ]);
+});
+
 it('preserves foreign page assets when the selected layout has no pages', function (): void {
     $breadcrumbs = Widget::factory()->create(['key' => 'breadcrumbs']);
     $containers = ['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1]]]];
@@ -406,6 +719,14 @@ it('preserves foreign page assets when the selected layout has no pages', functi
     $otherLayout = bulkLayout($containers);
     $otherPage = Page::factory()->create(['layout_id' => $otherLayout->getKey()]);
     $asset = WidgetAsset::factory()->widget($breadcrumbs)->asset($otherPage)->page($otherPage, 'main', 1)->create();
+    $warningRun = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'remove_widget_asset_mode' => 'warn',
+    ]));
+
+    expect(bulkResultWarnings(bulkFirstResult($warningRun)))->toBe([]);
+
     $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
         'type' => LayoutBulkWidgetOperationType::RemoveWidget->value,
         'source_widget_key' => 'breadcrumbs',
@@ -539,7 +860,7 @@ it('applies a redelivered queued bulk change only once', function (): void {
 
 it('previews and approves bulk changes through the artisan command with json output', function (): void {
     $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1], ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1]]]]);
-    $specPath = sys_get_temp_dir() . '/testing-layout-bulk-change.json';
+    $specPath = storage_path('app/testing-layout-bulk-change.json');
     File::put($specPath, json_encode(['criteria' => ['layout_keys' => [$layout->key]], 'operation' => ['type' => LayoutBulkWidgetOperationType::MoveWidget->value, 'source_widget_key' => 'breadcrumbs', 'target_widget_key' => 'hero', 'placement' => 'after']], JSON_THROW_ON_ERROR));
 
     $this->artisan('capell:layouts:bulk-change', ['--spec' => $specPath, '--preview' => true, '--json' => true])->assertSuccessful();
@@ -550,14 +871,14 @@ it('previews and approves bulk changes through the artisan command with json out
 });
 
 it('rejects invalid artisan specs', function (): void {
-    $specPath = sys_get_temp_dir() . '/testing-layout-bulk-change-invalid.json';
+    $specPath = storage_path('app/testing-layout-bulk-change-invalid.json');
     File::put($specPath, json_encode(['criteria' => []], JSON_THROW_ON_ERROR));
 
     $this->artisan('capell:layouts:bulk-change', ['--spec' => $specPath, '--preview' => true, '--json' => true])->assertFailed();
 });
 
 it('rejects specs missing required targets for operation type', function (): void {
-    $specPath = sys_get_temp_dir() . '/testing-layout-bulk-change-missing-target.json';
+    $specPath = storage_path('app/testing-layout-bulk-change-missing-target.json');
     File::put($specPath, json_encode(['criteria' => [], 'operation' => ['type' => LayoutBulkWidgetOperationType::MoveWidget->value, 'source_widget_key' => 'breadcrumbs']], JSON_THROW_ON_ERROR));
 
     $this->artisan('capell:layouts:bulk-change', ['--spec' => $specPath, '--preview' => true, '--json' => true])->assertFailed();

@@ -36,5 +36,9 @@ return [
 
     'bulk_change_retention_days' => 90,
 
+    // Page ids per UPDATE or DELETE during bulk apply/revert, clamped to 1–1000 to keep
+    // statements bounded even when a layout is used by thousands of pages.
+    'bulk_change_asset_delete_chunk_size' => 500,
+
     'default_widget' => 'capell.widget.default',
 ];

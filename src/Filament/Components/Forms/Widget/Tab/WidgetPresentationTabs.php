@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab;
 
 use Capell\Admin\Filament\Components\Forms\MediaLibraryFileUpload;
+use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\LayoutBuilder\Enums\BackgroundPosition;
 use Capell\LayoutBuilder\Enums\BackgroundRepeat;
 use Capell\LayoutBuilder\Enums\BackgroundSize;
@@ -30,6 +31,8 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
 
 class WidgetPresentationTabs
 {
@@ -162,9 +165,10 @@ class WidgetPresentationTabs
                         'image' => __('capell-layout-builder::form.background_mode_image'),
                         'color_image' => __('capell-layout-builder::form.background_mode_color_image'),
                     ])
-                    ->afterStateHydrated(function (ToggleButtons $component, Get $get): void {
+                    ->afterStateHydrated(function (ToggleButtons $component, Get $get, ?Model $record): void {
                         $hasColor = filled($get('meta.background_color'));
-                        $hasImage = filled($get('background_image'));
+                        // The upload hydrates its relationship state after this toggle.
+                        $hasImage = $record instanceof HasMedia && $record->hasMedia(MediaCollectionEnum::BackgroundImage->value);
 
                         $component->state(match (true) {
                             $hasColor && $hasImage => 'color_image',

@@ -56,7 +56,7 @@ final class PreviewLayoutBulkChangeAction
                 $warnings = [
                     ...$operationResult->warnings,
                     ...$blockingWarnings,
-                    ...$this->removedAssetWarnings($operation, $operationResult->assetRemovals),
+                    ...$this->removedAssetWarnings($layout, $operation, $operationResult->assetRemovals),
                 ];
                 $status = $operationResult->changed ? LayoutBulkChangeResultStatus::Changed : LayoutBulkChangeResultStatus::Skipped;
 
@@ -150,13 +150,13 @@ final class PreviewLayoutBulkChangeAction
      * @param  list<array<string, mixed>>  $assetRemovals
      * @return list<string>
      */
-    private function removedAssetWarnings(LayoutBulkWidgetOperationData $operation, array $assetRemovals): array
+    private function removedAssetWarnings(Layout $layout, LayoutBulkWidgetOperationData $operation, array $assetRemovals): array
     {
         if ($operation->typeEnum() !== LayoutBulkWidgetOperationType::RemoveWidget || $operation->removeWidgetAssetMode !== 'warn') {
             return [];
         }
 
-        $assetCount = $this->pageScopedAssetCountForRemovals($assetRemovals);
+        $assetCount = $this->pageScopedAssetCountForRemovals($layout, $assetRemovals);
 
         if ($assetCount === 0) {
             return [];
@@ -168,24 +168,41 @@ final class PreviewLayoutBulkChangeAction
     /**
      * @param  list<array<string, mixed>>  $assetRemovals
      */
-    private function pageScopedAssetCountForRemovals(array $assetRemovals): int
+    private function pageScopedAssetCountForRemovals(Layout $layout, array $assetRemovals): int
     {
         $count = 0;
+        $seenRemovals = [];
 
         foreach ($assetRemovals as $assetRemoval) {
-            $widget = Widget::query()->where('key', $this->stringValue($assetRemoval['widget_key'] ?? null))->first();
+            $widgetKey = $this->stringValue($assetRemoval['widget_key'] ?? null);
+            $container = $this->stringValue($assetRemoval['container'] ?? null);
+            $occurrence = $this->integerValue($assetRemoval['occurrence'] ?? null, 1);
+            $removalKey = json_encode([$widgetKey, $container, $occurrence], JSON_THROW_ON_ERROR);
+
+            if (isset($seenRemovals[$removalKey])) {
+                continue;
+            }
+
+            $seenRemovals[$removalKey] = true;
+            $widget = Widget::query()->where('key', $widgetKey)->first();
 
             if (! $widget instanceof Widget) {
                 continue;
             }
 
-            $count += WidgetAsset::query()
-                ->where('widget_id', $widget->id)
-                ->where('container', $this->stringValue($assetRemoval['container'] ?? null))
-                ->where('occurrence', $this->integerValue($assetRemoval['occurrence'] ?? null, 1))
-                ->whereNotNull('pageable_type')
-                ->whereNotNull('pageable_id')
-                ->count();
+            foreach (array_unique(CapellCore::getPageVariationModels()) as $pageModel) {
+                if (! is_a($pageModel, Model::class, true)) {
+                    continue;
+                }
+
+                $count += WidgetAsset::query()
+                    ->where('widget_id', $widget->id)
+                    ->where('container', $container)
+                    ->where('occurrence', $occurrence)
+                    ->where('pageable_type', (new $pageModel)->getMorphClass())
+                    ->whereIn('pageable_id', $pageModel::query()->where('layout_id', $layout->id)->select('id'))
+                    ->count();
+            }
         }
 
         return $count;

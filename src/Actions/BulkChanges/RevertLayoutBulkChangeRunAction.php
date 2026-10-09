@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions\BulkChanges;
 
-use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Layout;
+use Capell\LayoutBuilder\Actions\BulkChanges\Concerns\HasPageScopedAssetBatches;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use LogicException;
@@ -26,6 +25,7 @@ final class RevertLayoutBulkChangeRunAction
 {
     use AsFake;
     use AsObject;
+    use HasPageScopedAssetBatches;
 
     /** @return array<string, mixed> */
     public function handle(LayoutBulkChangeRun $run, ?int $actorId = null): array
@@ -100,49 +100,36 @@ final class RevertLayoutBulkChangeRunAction
     private function restoreMovedPageScopedAssets(Layout $layout, LayoutBulkChangeResult $result): void
     {
         $changes = $result->changes ?? [];
+        $assetMoves = $this->arrayList($changes['asset_moves'] ?? []);
 
-        foreach ($this->arrayList($changes['asset_moves'] ?? []) as $assetMove) {
+        if ($assetMoves === []) {
+            return;
+        }
+
+        $pageIdsByType = $this->pageIdsByTypeForLayout($layout);
+
+        foreach ($assetMoves as $assetMove) {
             $widget = Widget::query()->where('key', $this->stringValue($assetMove['widget_key'] ?? null))->first();
 
             if (! $widget instanceof Widget) {
                 continue;
             }
 
-            foreach ($this->pageScopesForLayout($layout) as $pageScope) {
-                WidgetAsset::query()
-                    ->where('widget_id', $widget->id)
-                    ->where('container', $this->stringValue($assetMove['to_container'] ?? null))
-                    ->where('occurrence', $this->integerValue($assetMove['to_occurrence'] ?? null, 1))
-                    ->where('pageable_type', $pageScope['type'])
-                    ->where('pageable_id', $pageScope['id'])
-                    ->update([
-                        'container' => $this->stringValue($assetMove['from_container'] ?? null),
-                        'occurrence' => $this->integerValue($assetMove['from_occurrence'] ?? null, 1),
-                    ]);
-            }
-        }
-    }
-
-    /** @return list<array{type: string, id: int|string}> */
-    private function pageScopesForLayout(Layout $layout): array
-    {
-        $scopes = [];
-
-        foreach (CapellCore::getPageVariationModels() as $pageModel) {
-            if (! is_a($pageModel, Model::class, true)) {
-                continue;
-            }
-
-            $pageModel::query()->where('layout_id', $layout->id)->get(['id'])->each(function (Model $page) use (&$scopes): void {
-                $pageKey = $page->getKey();
-
-                if (is_int($pageKey) || is_string($pageKey)) {
-                    $scopes[] = ['type' => $page->getMorphClass(), 'id' => $pageKey];
+            foreach ($pageIdsByType as $pageType => $pageIds) {
+                foreach (array_chunk($pageIds, $this->assetChunkSize()) as $pageIdChunk) {
+                    WidgetAsset::query()
+                        ->where('widget_id', $widget->id)
+                        ->where('container', $this->stringValue($assetMove['to_container'] ?? null))
+                        ->where('occurrence', $this->integerValue($assetMove['to_occurrence'] ?? null, 1))
+                        ->where('pageable_type', $pageType)
+                        ->whereIn('pageable_id', $pageIdChunk)
+                        ->update([
+                            'container' => $this->stringValue($assetMove['from_container'] ?? null),
+                            'occurrence' => $this->integerValue($assetMove['from_occurrence'] ?? null, 1),
+                        ]);
                 }
-            });
+            }
         }
-
-        return $scopes;
     }
 
     /**
