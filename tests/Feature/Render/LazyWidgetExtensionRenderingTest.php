@@ -11,6 +11,7 @@ use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\BuildPublicPageRenderDataAction;
+use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
 use Capell\Frontend\Data\Assets\FrontendResourceData;
 use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\Assets\PublicResourceSourceData;
@@ -235,23 +236,31 @@ it('fails open without writes when locator encryption fails during ordinary publ
     $context = lazyWidgetContext('Encryption failure');
     RebuildPublicWidgetSnapshotsAction::run($context);
     $before = PublicWidgetSnapshot::query()->count();
-    app()->instance(WidgetSnapshotLocatorCodec::class, new WidgetSnapshotLocatorCodec(new class implements WidgetSnapshotLocatorCipher
+    $cipher = new class implements WidgetSnapshotLocatorCipher
     {
+        public int $encryptCalls = 0;
+
+        #[Override]
         public function encrypt(string $plaintext): string
         {
+            $this->encryptCalls++;
+
             throw new RuntimeException('Unavailable key service.');
         }
 
+        #[Override]
         public function decrypt(string $ciphertext): string
         {
             throw new RuntimeException('Unavailable key service.');
         }
-    }));
-    app()->forgetInstance(BuildPublicWidgetInteractionLocatorsAction::class);
+    };
+    app()->instance(WidgetSnapshotLocatorCodec::class, new WidgetSnapshotLocatorCodec($cipher));
+    app()->forgetInstance(PublicWidgetInteractionLocatorBuilder::class);
 
     $renderData = BuildPublicPageRenderDataAction::run($context);
 
     expect($renderData->widgetInteractionLocators)->toBe([])
+        ->and($cipher->encryptCalls)->toBeGreaterThan(0)
         ->and(PublicWidgetSnapshot::query()->count())->toBe($before);
 });
 
