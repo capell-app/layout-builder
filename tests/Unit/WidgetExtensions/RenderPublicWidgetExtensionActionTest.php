@@ -9,10 +9,14 @@ use Capell\Frontend\Data\PublicPageRenderData;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\Frontend\Support\View\ThemeViewRegistrar;
+use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
+use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleRenderData;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
+use Dom\HTMLDocument;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\View;
 use Illuminate\View\FileViewFinder;
 
@@ -33,6 +37,7 @@ afterEach(function (): void {
         @rmdir($this->extensionViewRoot . '/' . $themeDirectory . '/widgets');
         @rmdir($this->extensionViewRoot . '/' . $themeDirectory);
     }
+
     @rmdir($this->extensionViewRoot . '/missing');
     collect(glob($this->extensionViewRoot . '/**/*') ?: [])->reverse()->each(static function (string $path): void {
         is_dir($path) ? @rmdir($path) : @unlink($path);
@@ -129,13 +134,15 @@ it('switches active parent and fallback views and payloads in one long-lived pro
     ];
     $renderer = resolve(RenderPublicWidgetExtensionAction::class);
 
-    $viewFinder = app('view')->getFinder();
+    $viewFinder = resolve(Factory::class)->getFinder();
     expect($viewFinder)->toBeInstanceOf(FileViewFinder::class);
     if (! $viewFinder instanceof FileViewFinder) {
         throw new RuntimeException('Expected a file view finder.');
     }
+
     $themeViews = new ThemeViewRegistrar($viewFinder, []);
     $themeViews->register([$activeRoot, $parentRoot], 'active-widget-theme');
+
     $active = $renderer->render($widgetData, widgetExtensionPublicRenderData([
         'request-payload' => new ExampleRenderData('First'),
     ]));
@@ -154,6 +161,66 @@ it('switches active parent and fallback views and payloads in one long-lived pro
         ->and($parent)->toContain('PARENT Second')->not->toContain('First', 'Third', 'ACTIVE', 'FALLBACK')
         ->and($fallback)->toContain('FALLBACK Third')->not->toContain('First', 'Second', 'ACTIVE', 'PARENT');
 });
+
+it('gives each resource group the same activation strategy in the wrapper and collector', function (array $capell, array $expected): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make(
+        fallbackView: 'widget-render-test::widget',
+    ));
+    $widget = [
+        'type' => 'capell-app.slideshow',
+        'data' => ['__capell' => ['instance_id' => 'strategy-instance', ...$capell]],
+    ];
+    $usages = BuildLayoutWidgetResourceUsagesAction::run([$widget], LayoutWidgetTarget::FrontendBlade);
+    $html = resolve(RenderPublicWidgetExtensionAction::class)->render(
+        $widget,
+        widgetExtensionPublicRenderData(['strategy-instance' => new ExampleRenderData('Group strategies')]),
+    );
+    $document = HTMLDocument::createFromString($html, LIBXML_NOERROR);
+    $strategies = [];
+
+    foreach ($document->querySelectorAll('[data-capell-widget-runtime]') as $runtime) {
+        $ids = json_decode($runtime->getAttribute('data-capell-widget-resources') ?: '[]', true, flags: JSON_THROW_ON_ERROR);
+        $settings = json_decode($runtime->getAttribute('data-capell-widget-settings') ?? '{}', true, flags: JSON_THROW_ON_ERROR);
+        if (! is_array($ids) || ! is_array($settings)) {
+            throw new LogicException('Expected resource ids and runtime settings to be JSON arrays or objects.');
+        }
+
+        foreach ($ids as $id) {
+            if (! is_string($id)) {
+                throw new LogicException('Expected an opaque string resource id.');
+            }
+
+            expect($strategies)->not->toHaveKey($id);
+            $strategies[$id] = $settings['loading_strategy'];
+        }
+
+        expect($runtime->textContent)->toContain('Group strategies');
+    }
+
+    foreach ($usages as $index => $usage) {
+        expect($usage->presentation->loadingStrategy->value)->toBe($expected[$index])
+            ->and($strategies[$usage->publicId] ?? null)->toBe($expected[$index]);
+    }
+
+    expect($strategies)->toHaveCount(2)
+        ->and($html)->not->toContain('strategy-instance', '__capell', 'loading_overrides', 'capell-app.slideshow');
+})->with([
+    'definition per-group defaults' => [[], ['visible', 'interaction']],
+    'global instance strategy' => [['presentation' => ['loading_strategy' => 'idle']], ['idle', 'idle']],
+    'per-group instance strategies' => [[
+        'presentation' => ['loading_strategy' => 'visible'],
+        'resources' => ['loading_overrides' => [
+            ['group' => 'capell-app.widget-slideshow', 'loading_strategy' => 'idle'],
+            ['group' => 'capell-app.widget-slideshow.interaction', 'loading_strategy' => 'eager'],
+            ['group' => 'undeclared-group', 'loading_strategy' => 'interaction'],
+        ]],
+    ], ['idle', 'eager']],
+    'invalid overrides ignored' => [[
+        'resources' => ['loading_overrides' => [
+            ['group' => 'capell-app.widget-slideshow.interaction', 'loading_strategy' => 'invalid'],
+        ]],
+    ], ['visible', 'interaction']],
+]);
 
 /** @param array<string, object> $payloads */
 function widgetExtensionPublicRenderData(array $payloads): PublicPageRenderData

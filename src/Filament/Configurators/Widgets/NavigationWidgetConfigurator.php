@@ -54,7 +54,7 @@ class NavigationWidgetConfigurator extends DefaultWidgetConfigurator
         return Group::make()
             ->statePath('meta')
             ->schema([
-                (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationSelect) ? $navigationSelect::make('navigation') : TextInput::make('navigation'))
+                (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationSelect) ? $navigationSelect::make('navigation')->useKeyAsValue() : TextInput::make('navigation'))
                     ->required(),
             ]);
     }

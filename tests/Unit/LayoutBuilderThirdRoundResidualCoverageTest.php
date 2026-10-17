@@ -9,6 +9,7 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\LayoutBuilder\Actions\AddHeroWidgetToLayoutAction;
 use Capell\LayoutBuilder\Actions\CreateLayoutBuilderDemoSiteAction;
@@ -20,6 +21,7 @@ use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminWidgetPreviewDataAction;
 use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
 use Capell\LayoutBuilder\Data\Dashboard\LayoutHealthData;
+use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Enums\ActionLinkEnum;
 use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
@@ -28,6 +30,7 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
 use Capell\LayoutBuilder\Enums\TypeEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
+use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingWidgetAssetException;
 use Capell\LayoutBuilder\Filament\Components\Forms\ActionsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\AssetsRepeater;
@@ -46,8 +49,6 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
-use Capell\LayoutBuilder\Support\Creator\DemoCreator;
-use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewRenderer;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewSignature;
@@ -58,6 +59,7 @@ use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFailingPreviewRende
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContextForLoadedLayout;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualModalTableSelect;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualSuccessfulPreviewRenderer;
+use Capell\Tests\Support\Filament\AdminSurfaceAssertions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Schema;
@@ -65,15 +67,10 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
-
-function invokeLayoutBuilderResidualMethod(string|object $classOrObject, string $methodName, mixed ...$arguments): mixed
-{
-    $method = new ReflectionMethod($classOrObject, $methodName);
-
-    return $method->invoke(is_string($classOrObject) ? null : $classOrObject, ...$arguments);
-}
 
 /**
  * @param  array<string, mixed>  $data
@@ -95,8 +92,9 @@ it('covers residual filament component and table configuration setup branches', 
         ->withEditForm();
     $assetsRepeater = AssetsRepeater::make('assets');
     $actionsRepeater = ActionsRepeater::make('actions');
-    $widgetAssetColumns = invokeLayoutBuilderResidualMethod(WidgetAssetsTable::class, 'getTableColumns');
-    $widgetAssetFilters = invokeLayoutBuilderResidualMethod(WidgetAssetsTable::class, 'getTableFilters');
+    $table = WidgetAssetsTable::configure(AdminSurfaceAssertions::table()->query(WidgetAsset::query()));
+    $widgetAssetColumns = $table->getColumns();
+    $widgetAssetFilters = $table->getFilters();
 
     capell_expect($widgetSelect)->toBeInstanceOf(WidgetSelect::class)
         ->and($assetsRepeater)->toBeInstanceOf(Repeater::class)
@@ -128,7 +126,7 @@ it('covers modal table query label action and disabled submission branches', fun
 
 it('builds compact layout health work queue data without dashboard analytics', function (): void {
     $layoutHealthWidget = new LayoutHealthFilamentWidget;
-    $viewData = invokeLayoutBuilderResidualMethod($layoutHealthWidget, 'getViewData');
+    $viewData = $layoutHealthWidget->render()->getData();
     $data = $viewData['data'];
 
     if (! $data instanceof LayoutHealthData) {
@@ -362,62 +360,43 @@ it('orchestrates demo site layout population with creator collaborators', functi
         ->create(['layout_id' => $layout->getKey()]);
     $site->setRelation('languages', new Collection([$language]));
 
-    $demoCreator = Mockery::mock(DemoCreator::class);
-    $demoCreator->shouldReceive('createPageCardsWidget')->twice()->andReturn(
-        layoutBuilderResidualWidget('page-cards'),
-        layoutBuilderResidualWidget('page-cards-two'),
-    );
-    $demoCreator->shouldReceive('createGalleryWidget')->once()->andReturn(layoutBuilderResidualWidget('gallery'));
-    $demoCreator->shouldReceive('createMediaCarouselWidget')->once()->andReturn(layoutBuilderResidualWidget('carousel'));
-    $demoCreator->shouldReceive('createFaqWidget')->once()->andReturn(layoutBuilderResidualWidget('faq'));
-    $demoCreator->shouldReceive('createStaticNavigationWidget')->once()->andReturn(layoutBuilderResidualWidget('static-nav'));
-    $demoCreator->shouldReceive('createModernFeatureListWidget')->once()->andReturn(layoutBuilderResidualWidget('modern-feature-list'));
-    $demoCreator->shouldReceive('createTeamPortfolioWidget')->once()->andReturn(layoutBuilderResidualWidget('team-portfolio'));
-    $demoCreator->shouldReceive('createModernTeamMembersWidget')->once()->andReturn(layoutBuilderResidualWidget('modern-team'));
-    $demoCreator->shouldReceive('createBannerImageWidget')->once()->andReturn(layoutBuilderResidualWidget('banner-image'));
-    $demoCreator->shouldReceive('createContentWidget')->once()->andReturn(layoutBuilderResidualWidget('content'));
-    $demoCreator->shouldReceive('createStatisticsWidget')->once()->andReturn(layoutBuilderResidualWidget('statistics'));
-    $demoCreator->shouldReceive('createModernPricingTableWidget')->once()->andReturn(layoutBuilderResidualWidget('pricing'));
-    $demoCreator->shouldReceive('createBusinessFeaturesWidget')->once()->andReturn(layoutBuilderResidualWidget('business-features'));
-    $demoCreator->shouldReceive('createBannersWidget')->once()->andReturn(layoutBuilderResidualWidget('banners'));
-    $demoCreator->shouldReceive('createClientLogosWidget')->once()->andReturn(layoutBuilderResidualWidget('client-logos'));
-    $demoCreator->shouldReceive('createModernTestimonialsWidget')->once()->andReturn(layoutBuilderResidualWidget('testimonials'));
-    $demoCreator->shouldReceive('createModernFaqWidget')->once()->andReturn(layoutBuilderResidualWidget('modern-faq'));
-    $demoCreator->shouldReceive('createModernStatsSectionWidget')->once()->andReturn(layoutBuilderResidualWidget('modern-stats'));
-    $demoCreator->shouldReceive('createModernAlternatingContentWidget')->once()->andReturn(layoutBuilderResidualWidget('alternating'));
-    $demoCreator->shouldReceive('createModernProcessStepsWidget')->once()->andReturn(layoutBuilderResidualWidget('process'));
-    $demoCreator->shouldReceive('createModernImageGalleryWidget')->once()->andReturn(layoutBuilderResidualWidget('modern-gallery'));
-    $demoCreator->shouldReceive('createApHeroBannerWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-hero'));
-    $demoCreator->shouldReceive('createApCardGridWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-card'));
-    $demoCreator->shouldReceive('createApFeatureListWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-feature'));
-    $demoCreator->shouldReceive('createApCtaSectionWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-cta'));
-    $demoCreator->shouldReceive('createApImageGalleryWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-gallery'));
-    $demoCreator->shouldReceive('createSplitContentWidget')->once()->andReturn(layoutBuilderResidualWidget('split-content'));
-    $demoCreator->shouldReceive('addSplitTwoBackgroundMedia')->once()->with(Mockery::type(Layout::class));
-
-    $widgetCreator = Mockery::mock(WidgetCreator::class);
-    $widgetCreator->shouldReceive('apHeroBannerWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-hero-catalog'));
-    $widgetCreator->shouldReceive('apCardGridWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-card-catalog'));
-    $widgetCreator->shouldReceive('apFeatureListWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-feature-catalog'));
-    $widgetCreator->shouldReceive('apCtaSectionWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-cta-catalog'));
-    $widgetCreator->shouldReceive('apImageGalleryWidget')->once()->andReturn(layoutBuilderResidualWidget('ap-gallery-catalog'));
-    app()->instance(WidgetCreator::class, $widgetCreator);
-
-    $action = new CreateLayoutBuilderDemoSiteAction;
-    $demoCreatorProperty = new ReflectionProperty($action, 'demoCreator');
-    $demoCreatorProperty->setValue($action, $demoCreator);
-
-    invokeLayoutBuilderResidualMethod($action, 'setupHomepage', $page, new Collection([$language]));
+    resolve(BlueprintCreator::class)->defaultPageType();
+    Queue::fake();
+    Storage::fake('public');
+    $mediaRoot = storage_path('framework/testing/residual-layout-media');
+    File::ensureDirectoryExists($mediaRoot . '/img');
+    File::ensureDirectoryExists($mediaRoot . '/video');
+    $image = imagecreatetruecolor(4, 4);
+    imagejpeg($image, $mediaRoot . '/img/example.jpg');
+    imagedestroy($image);
+    file_put_contents($mediaRoot . '/video/SampleVideo_1280x720_1mb.mp4', 'owned test video');
+    config(['capell-layout-builder.resources.demo_path' => $mediaRoot, 'media-library.queue_conversions_by_default' => true]);
+    $contentCreator = Mockery::mock(ContentCreator::class);
+    $contentCreator->shouldReceive('createContent')->once()->andReturn($page);
+    app()->instance(ContentCreator::class, $contentCreator);
+    try {
+        expect(new CreateLayoutBuilderDemoSiteAction()->handle(new DemoSitePlanData($site, ['name' => ['en' => 'Demo root']])))->toBeTrue();
+    } finally {
+        File::deleteDirectory($mediaRoot);
+    }
 
     $containers = $layout->refresh()->containers;
+    $faq = Widget::query()->with('blueprint')->where('key', $containers['faq-main']['widgets'][0]['widget_key'])->sole();
+    $navigation = Widget::query()->with('blueprint')->where('key', $containers['faq-col']['widgets'][0]['widget_key'])->sole();
+    $split = Widget::query()->with('blueprint')->where('key', $containers['split-two']['widgets'][0]['widget_key'])->sole();
 
     capell_expect($page->refresh()->layout_id)->toBe($layout->getKey())
         ->and($containers['main']['widgets'])->toHaveCount(4)
-        ->and($containers['faq-main']['widgets'][0]['widget_key'])->toBe('faq')
-        ->and($containers['faq-col']['widgets'][0]['widget_key'])->toBe('static-nav')
+        ->and(Widget::query()->where('key', $containers['faq-main']['widgets'][0]['widget_key'])->exists())->toBeTrue()
+        ->and(Widget::query()->where('key', $containers['faq-col']['widgets'][0]['widget_key'])->exists())->toBeTrue()
         ->and($containers['secondary']['widgets'])->toHaveCount(16)
         ->and($containers['ap-widgets']['widgets'])->toHaveCount(5)
-        ->and($containers['split-two']['widgets'][0]['widget_key'])->toBe('split-content');
+        ->and(Widget::query()->where('key', $containers['split-two']['widgets'][0]['widget_key'])->exists())->toBeTrue()
+        ->and($faq->blueprint?->key)->toBe(WidgetTypeEnum::Assets->value)
+        ->and($faq->key)->toBe('faq')
+        ->and($faq->assets()->exists())->toBeTrue()
+        ->and($navigation->blueprint?->key)->toBe(WidgetTypeEnum::Navigation->value)
+        ->and($split->blueprint?->key)->toBe(WidgetTypeEnum::SectionBuilder->value);
 });
 
 it('creates demo site content recursively and stops when the site is already large', function (): void {
@@ -444,32 +423,19 @@ it('creates demo site content recursively and stops when the site is already lar
             return $page;
         });
 
+    app()->instance(ContentCreator::class, $contentCreator);
     $action = new CreateLayoutBuilderDemoSiteAction;
 
-    invokeLayoutBuilderResidualMethod(
-        $action,
-        'createSiteContents',
-        $contentCreator,
-        [
-            'name' => ['en' => 'Parent'],
-            'children' => [
-                ['name' => ['en' => 'Child']],
-            ],
+    $action->handle(new DemoSitePlanData($site, [
+        'name' => ['en' => 'Parent'],
+        'children' => [
+            ['name' => ['en' => 'Child']],
         ],
-        $site,
-        new Collection([$language]),
-    );
+    ]));
 
     Page::factory()->count(29)->site($site)->create();
 
-    invokeLayoutBuilderResidualMethod(
-        $action,
-        'createSiteContents',
-        $contentCreator,
-        ['name' => ['en' => 'Skipped']],
-        $site,
-        new Collection([$language]),
-    );
+    $action->handle(new DemoSitePlanData($site, ['name' => ['en' => 'Skipped']]));
 
     capell_expect($createdContent)->toHaveCount(2)
         ->and($createdContent[0]['translations']['en']['title'])->toBe('Parent')
@@ -500,16 +466,10 @@ it('creates demo site content from the primary language when english names are u
             return $page;
         });
 
+    app()->instance(ContentCreator::class, $contentCreator);
     $action = new CreateLayoutBuilderDemoSiteAction;
 
-    invokeLayoutBuilderResidualMethod(
-        $action,
-        'createSiteContents',
-        $contentCreator,
-        ['name' => ['fr' => 'Racine']],
-        $site,
-        new Collection([$language]),
-    );
+    $action->handle(new DemoSitePlanData($site, ['name' => ['fr' => 'Racine']]));
 
     capell_expect($createdContent)->toHaveCount(1)
         ->and($createdContent[0]['name'])->toBe('Racine')
@@ -907,27 +867,19 @@ it('covers layout builder public editor helpers and action factory private branc
     $factory = new LayoutBuilderActionFactory($harness);
     $assetType = CapellCore::getAssets()->keys()->first();
 
-    $record = invokeLayoutBuilderResidualMethod($factory, 'makeWidgetAssetRecordForCreate', [
-        'containerKey' => 'main',
-        'widgetIndex' => 0,
-        'type' => $assetType,
+    $create = $factory->addAssetAction()->livewire($harness)->arguments([
+        'containerKey' => 'main', 'widgetIndex' => 0, 'type' => $assetType,
     ]);
-    if (! $record instanceof WidgetAsset) {
-        throw new RuntimeException('Expected makeWidgetAssetRecordForCreate to return a WidgetAsset.');
-    }
-    $editableAsset = invokeLayoutBuilderResidualMethod($factory, 'resolveEditableWidgetAsset', [
-        'containerKey' => 'main',
-        'widgetIndex' => 0,
-        'index' => 0,
-        'type' => $widgetAsset->asset_type,
+    $record = $create->getSchema(Schema::make($harness)->statePath('containers'))?->getRecord();
+    throw_unless($record instanceof WidgetAsset, RuntimeException::class);
+    $edit = $factory->editWidgetAssetAction()->livewire($harness)->arguments([
+        'containerKey' => 'main', 'widgetIndex' => 0, 'index' => 0, 'type' => $widgetAsset->asset_type,
     ]);
-    $pageHeading = invokeLayoutBuilderResidualMethod($factory, 'getEditWidgetAssetModalHeading', $harness, ['type' => $widgetAsset->asset_type]);
-    $pageDescription = invokeLayoutBuilderResidualMethod($factory, 'getEditWidgetAssetModalDescription', $harness, [
-        'containerKey' => 'main',
-        'widgetIndex' => 0,
-        'index' => 0,
-    ]);
-    $changeLayoutSchema = invokeLayoutBuilderResidualMethod($factory, 'getChangeLayoutSchema');
+    $editableAsset = $edit->getRecord();
+    throw_unless($editableAsset instanceof WidgetAsset, RuntimeException::class);
+    $pageHeading = $edit->getModalHeading();
+    $pageDescription = $edit->getModalDescription();
+    $changeLayoutSchema = $factory->changeLayoutAction()->livewire($harness)->getSchema(Schema::make($harness))?->getComponents(withHidden: true);
 
     capell_expect($harness->layoutPagesCount())->toBeGreaterThanOrEqual(2)
         ->and($harness->layoutIsUsedByPages())->toBeTrue()
@@ -946,14 +898,10 @@ it('covers layout builder public editor helpers and action factory private branc
         ->and($otherPage->exists)->toBeTrue();
 
     $harness->page = null;
-    invokeLayoutBuilderResidualMethod($factory, 'changePageLayout', $layout->getKey());
+    callLayoutBuilderResidualAction($factory->changeLayoutAction(), $harness, ['layout_id' => $layout->getKey()]);
 
     capell_expect($harness->otherPagesUsingLayoutCount())->toBeGreaterThanOrEqual(2)
-        ->and(invokeLayoutBuilderResidualMethod($factory, 'getEditWidgetAssetModalDescription', $harness, [
-            'containerKey' => 'main',
-            'widgetIndex' => 0,
-            'index' => 0,
-        ]))->toBeNull();
+        ->and($edit->getModalDescription())->toBeNull();
 });
 
 it('drives layout editor action closures through a page editing workflow', function (): void {
@@ -1054,7 +1002,6 @@ it('drives layout editor action closures through a page editing workflow', funct
     $harness->originalAssets = $harness->assets;
     $harness->knownContainerKeys = ['main'];
     $harness->setContainerWidgets(['main' => [$heroWidget]]);
-    invokeLayoutBuilderResidualMethod($harness, 'captureSavedBaselineState');
 
     $factory = new LayoutBuilderActionFactory($harness);
 
@@ -1222,7 +1169,7 @@ it('covers simple residual form configurators widgets enums and widget model bra
     $schema = Mockery::mock(Schema::class);
     $schema->shouldReceive('getRecord')->andReturnNull();
     $containerSchema = $containerConfigurator->make($schema);
-    $recentActivityData = invokeLayoutBuilderResidualMethod(new RecentActivityFilamentWidget, 'getViewData')['data'];
+    $recentActivityData = new RecentActivityFilamentWidget()->render()->getData()['data'];
     $tagSelect = TagSelect::make('tag');
     $assetTypeSelect = AssetTypeSelect::make('asset_type');
 

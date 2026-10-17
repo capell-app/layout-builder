@@ -1,7 +1,21 @@
 @php
+    use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
+    use Capell\Frontend\Data\PublicPageRenderData;
     use Capell\LayoutBuilder\Actions\ResolvePublicWidgetRenderContextAction;
+    use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutRenderPreparer;
+    use Capell\LayoutBuilder\Support\LayoutWidgetData;
 
     $widgetComponent = $component;
+    $widgetKey ??= LayoutWidgetData::key($widgetData) ?? $widget->key;
+    if (! isset($publicRenderData) && app()->bound(PublicLayoutRenderPreparer::class)) {
+        $preparer = resolve(PublicLayoutRenderPreparer::class);
+        $publicRenderData = $preparer instanceof LayoutBuilderPublicLayoutRenderPreparer
+            ? $preparer->publicRenderData(is_object($layout) ? $layout : null)
+            : null;
+    }
+    $preparedWidgetHtml = ($publicRenderData ?? null) instanceof PublicPageRenderData && method_exists($publicRenderData, 'preparedWidgetHtml')
+        ? $publicRenderData->preparedWidgetHtml((string) $containerKey, $widgetKey, LayoutWidgetData::occurrence($widgetData))
+        : null;
     $renderContext = ResolvePublicWidgetRenderContextAction::run(
         layout: is_object($layout) ? $layout : null,
         containerKey: (string) $containerKey,
@@ -9,6 +23,7 @@
         widget: $widget,
         widgetData: $widgetData,
         type: $type,
+        hasPreparedHtml: $preparedWidgetHtml !== null,
     );
     $occurrence = $renderContext->occurrence;
     $widgetDomId = $renderContext->widgetDomId;
@@ -19,7 +34,24 @@
     $interactions = $renderContext->interactions;
 @endphp
 
-@if ($isLazyFragment)
+@if ($preparedWidgetHtml !== null)
+    <x-capell-layout-builder::layout-widgets.runtime-wrapper
+        :settings="$presentation"
+        :resource-public-ids="$resourcePublicIds"
+    >
+        @if ($isLazyFragment)
+            {!! $preparedWidgetHtml !!}
+        @else
+            <div
+                id="{{ $widgetDomId }}"
+                class="layout-widget"
+            >
+                {!! $preparedWidgetHtml !!}
+                <x-capell::interactions :triggers="$interactions" />
+            </div>
+        @endif
+    </x-capell-layout-builder::layout-widgets.runtime-wrapper>
+@elseif ($isLazyFragment)
     <div
         id="{{ $widgetDomId }}"
         data-deferred-fragment

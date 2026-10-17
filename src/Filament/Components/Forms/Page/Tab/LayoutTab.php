@@ -19,7 +19,8 @@ class LayoutTab
     {
         return Tab::make(__('capell-admin::tab.layout'))
             ->icon(Heroicon::OutlinedViewColumns)
-            ->visible(fn (Get $get, ?Pageable $record = null): bool => (bool) ($get('layout_id') ?? $record?->getAttribute('layout_id')))
+            // A copied layout ID alone cannot mount an editor in a recordless modal.
+            ->visible(fn (Get $get, ?Pageable $record = null): bool => $record instanceof Pageable && (bool) ($get('layout_id') ?? $record->getAttribute('layout_id')))
             ->schema([
                 Livewire::make(
                     LivewireComponentsEnum::LayoutBuilder->value,

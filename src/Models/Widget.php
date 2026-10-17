@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use BackedEnum;
 use Bkwld\Cloner\Cloneable;
 use Capell\Core\Actions\ResolveRenderableComponentAction;
 use Capell\Core\Concerns\HasCapellMedia;
@@ -400,6 +401,10 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
 
     private function nullableComponentString(mixed $value): ?string
     {
+        if ($value instanceof BackedEnum) {
+            $value = $value->value;
+        }
+
         if (! is_scalar($value)) {
             return null;
         }

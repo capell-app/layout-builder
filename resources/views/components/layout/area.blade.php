@@ -1,7 +1,10 @@
 @php
+    use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
+    use Capell\Frontend\Data\PublicPageRenderData;
     use Capell\LayoutBuilder\Actions\ResolveLayoutAreaContainersAction;
     use Capell\LayoutBuilder\Models\Widget;
     use Capell\LayoutBuilder\Support\CapellLayoutManager;
+    use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutRenderPreparer;
     use Capell\LayoutBuilder\Support\LayoutAreas\LayoutAreaRegistry;
     use Capell\LayoutBuilder\Support\LayoutWidgetData;
     use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
@@ -11,10 +14,18 @@
     'area' => LayoutAreaRegistry::MAIN,
     'containerClass' => null,
     'layout' => null,
+    'publicRenderData' => null,
 ])
 
 @php
     $previousColspan = null;
+    if ($publicRenderData === null && app()->bound(PublicLayoutRenderPreparer::class)) {
+        $preparer = resolve(PublicLayoutRenderPreparer::class);
+        $publicRenderData = $preparer instanceof LayoutBuilderPublicLayoutRenderPreparer
+            ? $preparer->publicRenderData(is_object($layout) ? $layout : null)
+            : null;
+    }
+    $publicRenderData = $publicRenderData instanceof PublicPageRenderData ? $publicRenderData : null;
 @endphp
 
 @if ($layout?->containers)
@@ -56,6 +67,7 @@
             'container' => $container,
             'containerKey' => (string) $containerKey,
             'layout' => $layout,
+            'publicRenderData' => $publicRenderData,
             'containerIndex' => $loop->index,
             'colspan' => $colspan,
             'columnStart' => $columnStart,

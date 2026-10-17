@@ -24,28 +24,43 @@ use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Schema;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Filesystem\Filesystem;
 
-it('scaffolds widget blade and livewire files with registration guidance', function (): void {
-    $name = 'Coverage Spotlight ' . str_replace('.', '', uniqid('', true));
+it('scaffolds renderable widget views and an idempotent registration seeder', function (): void {
+    $name = 'Coverage Spotlight';
     $kebab = str($name)->studly()->kebab()->toString();
-    $viewDirectory = sys_get_temp_dir() . '/capell-layout-builder-widgets-' . $kebab;
-
-    $result = MakeWidgetAction::run($name, $viewDirectory, livewire: true, force: true);
-
-    $classPath = app_path('Livewire/Widgets/' . str($name)->studly()->toString() . 'Widget.php');
-    $livewireViewPath = resource_path('views/widgets/livewire/' . $kebab . '.blade.php');
-
-    expect($result->created)->toBeTrue()
-        ->and($result->viewPath)->toBe($viewDirectory . DIRECTORY_SEPARATOR . $kebab . '.blade.php')
-        ->and(file_get_contents($result->viewPath))->toContain($kebab)
-        ->and(file_exists($classPath))->toBeTrue()
-        ->and(file_exists($livewireViewPath))->toBeTrue()
-        ->and($result->seederSnippet)->toContain(sprintf("['type' => 'widget', 'key' => '%s']", $kebab));
-
-    @unlink($result->viewPath);
-    @rmdir($viewDirectory);
-    @unlink($classPath);
-    @unlink($livewireViewPath);
+    $directory = sys_get_temp_dir() . '/widget-scaffold-' . bin2hex(random_bytes(8));
+    $previousAppPath = app_path();
+    $previousBasePath = base_path();
+    app()->useAppPath($directory . '/app');
+    app()->setBasePath($directory);
+    try {
+        $viewDirectory = $directory . '/views';
+        $result = MakeWidgetAction::run($name, $viewDirectory, livewire: true, force: true);
+        $classPath = app_path('Livewire/Widgets/' . str($name)->studly()->toString() . 'Widget.php');
+        $livewireViewPath = resource_path('views/widgets/livewire/' . $kebab . '.blade.php');
+        expect($result->created)->toBeTrue()
+            ->and($result->viewPath)->toBe($viewDirectory . DIRECTORY_SEPARATOR . $kebab . '.blade.php')
+            ->and(view()->file($result->viewPath, ['widget' => new Widget(['name' => 'Editor supplied title'])])->render())->toContain('Editor supplied title')
+            ->and($classPath)->toBeFile()
+            ->and(view()->file($livewireViewPath, ['slot' => 'Livewire supplied content'])->render())->toContain('Livewire supplied content');
+        $seederPath = $directory . '/seed.php';
+        file_put_contents($seederPath, "<?php\n" . $result->seederSnippet);
+        require $seederPath;
+        $firstWidgetId = Widget::query()->where('key', $kebab)->sole()->getKey();
+        require $seederPath;
+        $type = Blueprint::query()->where('type', 'widget')->where('key', $kebab)->sole();
+        $widget = Widget::query()->where('key', $kebab)->sole();
+        expect($widget->getKey())->toBe($firstWidgetId)
+            ->and($widget->blueprint_id)->toBe($type->getKey())
+            ->and($widget->name)->toBe($name)
+            ->and($widget->getMetaComponent())->toBe('widgets.' . $kebab)
+            ->and($widget->getAttribute('status'))->toBeTrue();
+    } finally {
+        app()->useAppPath($previousAppPath);
+        app()->setBasePath($previousBasePath);
+        new Filesystem()->deleteDirectory($directory);
+    }
 });
 
 it('previews and runs the layout builder widget maker with livewire files', function (): void {
@@ -171,13 +186,7 @@ function layoutBuilderCoverageTable(): Table
  */
 function layoutBuilderCoverageTabComponents(LayoutTab $tab, Layout $layout): array
 {
-    $property = new ReflectionProperty(LayoutTab::class, 'childComponents');
-    $childComponents = $property->getValue($tab);
-    $schema = $childComponents['default'] ?? null;
+    $tab->container(Schema::make(new LayoutBuilderCoverageSchemaHarness)->model($layout));
 
-    if (! $schema instanceof Closure) {
-        return [];
-    }
-
-    return $tab->evaluate($schema, ['record' => $layout]);
+    return $tab->getChildSchema()?->getComponents() ?? [];
 }

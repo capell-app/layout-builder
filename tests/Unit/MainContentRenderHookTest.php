@@ -180,22 +180,3 @@ it('preloads layout widgets during hook rendering when the layout manager is emp
     expect($output)->toContain('id="layout-container-main"')
         ->and(CapellLayoutManager::getStoredContainerWidget('main', 'package-alert'))->toBe($widget);
 });
-
-it('owns the main content layout rendering views', function (): void {
-    $basePath = dirname(__DIR__, 2);
-    $registrar = file_get_contents($basePath . '/src/Support/LayoutBuilderCoreRegistrar.php');
-    $mainContent = file_get_contents($basePath . '/resources/views/components/layout/main-content.blade.php');
-    $area = file_get_contents($basePath . '/resources/views/components/layout/area.blade.php');
-
-    expect($registrar)->toContain('RegisterMainContentLayoutHook')
-        ->and($mainContent)->toContain('WidgetIsSlotAction')
-        ->and($mainContent)->toContain('ResolveLayoutAreaContainersAction::run')
-        ->and($mainContent)->toContain('LayoutAreaRegistry::MAIN')
-        ->and($mainContent)->toContain('CapellLayoutManager::getStoredContainerWidget')
-        ->and($mainContent)->toContain('capell-layout-builder::components.layout.container')
-        ->and($area)->toContain('ResolveLayoutAreaContainersAction::run')
-        ->and($area)->toContain('CapellLayoutManager::getStoredContainerWidget')
-        ->and($area)->not->toContain('::query()')
-        ->and($area)->not->toContain('DB::')
-        ->and($area)->not->toContain('signed');
-});

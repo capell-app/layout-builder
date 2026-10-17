@@ -5,18 +5,23 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder;
 
 use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
+use Capell\Admin\Facades\CapellAdmin;
+use Capell\Admin\Support\AdminRuntimeActivator;
+use Capell\Core\Actions\Install\RegisterCommandsInCurrentProcessAction;
 use Capell\Core\Data\BlueprintSubjectDescriptorData;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
+use Capell\Core\Support\Packages\RouteGroupIsolation;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentUrlResolver;
 use Capell\Frontend\Contracts\FrontendComponentContributor;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
 use Capell\Frontend\Contracts\FrontendWidgetResourceUsageContributor;
 use Capell\Frontend\Contracts\PublicContentWidgetPayloadBuilder;
 use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
+use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
 use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
 use Capell\Frontend\Contracts\WidgetInteractionLocatorResolver;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
@@ -25,6 +30,7 @@ use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
+use Capell\LayoutBuilder\Bridges\LayoutBuilderAdminBridge;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\PruneLayoutBulkChangeRunsCommand;
@@ -67,6 +73,7 @@ use Capell\LayoutBuilder\Support\LayoutBuilderCoreRegistrar;
 use Capell\LayoutBuilder\Support\LayoutBuilderFrontendComponentContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutGraphBuilder;
+use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutRenderPreparer;
 use Capell\LayoutBuilder\Support\LayoutBuilderPublicWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\LayoutModelRegistrar;
@@ -86,6 +93,7 @@ use Capell\LayoutBuilder\Support\WidgetSnapshots\PrebuiltWidgetInteractionLocato
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Http\Events\RequestHandled;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
@@ -102,8 +110,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     public static string $name = 'capell-layout-builder';
 
     public static string $packageName = 'capell-app/layout-builder';
-
-    private bool $installedRuntimeBooted = false;
 
     #[Override]
     public function configurePackage(Package $package): void
@@ -148,6 +154,10 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->scoped(PublicLayoutAssetMembership::class, LayoutBuilderPublicLayoutAssetMembership::class);
         $this->app->scoped(WidgetAssetReferenceRepointer::class, RepointWidgetAssetReferencesAction::class);
         $this->app->scoped(PublicLayoutGraphBuilder::class, LayoutBuilderPublicLayoutGraphBuilder::class);
+        if (interface_exists(PublicLayoutRenderPreparer::class)) {
+            $this->app->scoped(PublicLayoutRenderPreparer::class, LayoutBuilderPublicLayoutRenderPreparer::class);
+        }
+
         $this->app->scoped(PublicContentWidgetPayloadBuilder::class, BuildPublicWidgetPayloadsAction::class);
         $this->app->scoped(PublicWidgetInteractionLocatorBuilder::class, BuildPublicWidgetInteractionLocatorsAction::class);
         $this->app->scoped(WidgetInteractionLocatorResolver::class, PrebuiltWidgetInteractionLocatorResolver::class);
@@ -156,7 +166,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([LayoutBuilderFragmentUrlResolver::class], PublicFragmentUrlResolver::TAG);
         $this->app->tag([LayoutBuilderFrontendComponentContributor::class], FrontendComponentContributor::TAG);
         $this->app->tag([LayoutBuilderLayoutWidgetResourceUsageContributor::class, PageContentLayoutWidgetResourceUsageContributor::class], FrontendWidgetResourceUsageContributor::TAG);
-        $this->registerFrontendAuthoringIntegration();
         $this->app->tag([
             WidgetAssetContentGraphExtractor::class,
             WidgetContentGraphExtractor::class,
@@ -170,48 +179,43 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             // before or after Layout Builder are adapted into WidgetDiscovery.
             $this->app->make(WidgetExtensionRegistry::class);
 
-            if (! $this->isPackageInstalled()) {
-                return;
-            }
-
-            $this->app->make(LayoutBuilderAdminRegistrar::class)->registerResources();
         });
 
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                WidgetVisualRegressionCommand::class,
-                InstallCommand::class,
-                LayoutBulkChangeCommand::class,
-                PruneLayoutBulkChangeRunsCommand::class,
-                PrunePublicWidgetSnapshotsCommand::class,
-                SeedLayoutBuilderScreenshotFixtureCommand::class,
-            ]);
-        }
     }
 
     public function registerDefaultWidgetPolicy(): void
     {
-        if (Gate::getPolicyFor(Widget::class) === null) {
+        $policy = Gate::getPolicyFor(Widget::class);
+        // Persist our conventionally discovered default before another provider changes the guesser.
+        if ($policy === null || $policy instanceof WidgetPolicy) {
             Gate::policy(Widget::class, WidgetPolicy::class);
         }
     }
 
     #[Override]
-    protected function bootInstalledPackage(): self
+    public function packageBooted(): void
     {
-        if ($this->installedRuntimeBooted) {
-            return $this;
+        if ($this->isDiscoveringPackages() || ! $this->isPackageInstalled()) {
+            return;
         }
 
+        // Boot validation must escape the installed-runtime lifecycle's failure handler.
+        $this->app->make(LayoutBuilderAdminRegistrar::class)->assertPublishDirectoryExists();
+    }
+
+    #[Override]
+    protected function bootInstalledRuntime(): void
+    {
         View::composer([
             'capell-layout-builder::components.layout.container',
             'capell::components.layout.container',
         ], LayoutContainerPresentationViewComposer::class);
 
         Gate::policy(LayoutPreset::class, LayoutPresetPolicy::class);
-        // Defer until every provider has booted so a policy the host registered for the
-        // model is never replaced by this package's default.
-        $this->app->booted($this->registerDefaultWidgetPolicy(...));
+        // Installed runtime activation follows provider boot, preserving the host's policy.
+        $this->registerDefaultWidgetPolicy();
+        $this->registerFrontendAuthoringIntegration();
+        $this->registerConsoleCommands();
 
         $this->registerPageTypes();
         CapellCore::subscriberManager()->subscribe(WidgetSnapshotWorkflowSubscriber::class);
@@ -242,20 +246,40 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         });
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
-        $this->app->make(LayoutBuilderAdminRegistrar::class)->register();
-        $this->registerPublicFragmentRoute();
-        $this->registerLazyLayoutWidgetRoute();
+        // Admin's built-ins must exist before any dependent contribution so fresh boot and late installation order them alike.
+        $this->app->make(AdminRuntimeActivator::class)->prepare();
+        CapellAdmin::registerAdminBridge(self::$packageName, LayoutBuilderAdminBridge::class);
+        RouteGroupIsolation::run($this->app->make(Router::class), function (): void {
+            $this->registerPublicFragmentRoute();
+            $this->registerLazyLayoutWidgetRoute();
+        });
+
         $this->reservePublicFragmentPath();
         $this->reserveLazyLayoutWidgetPath();
-        $this->installedRuntimeBooted = true;
-
-        return $this;
     }
 
     #[Override]
     protected function isPackageInstalled(): bool
     {
         return CapellCore::isPackageInstalled(self::$packageName);
+    }
+
+    private function registerConsoleCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $commands = [
+                WidgetVisualRegressionCommand::class,
+                InstallCommand::class,
+                LayoutBulkChangeCommand::class,
+                PruneLayoutBulkChangeRunsCommand::class,
+                PrunePublicWidgetSnapshotsCommand::class,
+                SeedLayoutBuilderScreenshotFixtureCommand::class,
+            ];
+            $this->commands($commands);
+            if ($this->app->isBooted()) {
+                RegisterCommandsInCurrentProcessAction::run($commands);
+            }
+        }
     }
 
     private function registerDefaultLayoutWidgets(): void
@@ -337,11 +361,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             }
         };
 
-        $this->app->afterResolving($registryClass, $registerSurface);
-
-        if ($this->app->resolved($registryClass)) {
-            $registerSurface($this->app->make($registryClass));
-        }
+        $this->callAfterResolving($registryClass, $registerSurface);
     }
 
     private function registerPageTypes(): void

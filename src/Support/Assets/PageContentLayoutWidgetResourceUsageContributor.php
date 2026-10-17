@@ -11,13 +11,16 @@ use Capell\Frontend\Contracts\FrontendWidgetResourceUsageContributor;
 use Capell\Frontend\Data\Assets\FrontendWidgetResourceUsageData;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
+use Capell\LayoutBuilder\Actions\ResolvePageContentStructureAction;
 use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
+use Override;
 
 class PageContentLayoutWidgetResourceUsageContributor implements FrontendWidgetResourceUsageContributor
 {
     /**
      * @return list<FrontendWidgetResourceUsageData>
      */
+    #[Override]
     public function usages(FrontendRenderContextData $context): array
     {
         $page = $context->page;
@@ -26,8 +29,7 @@ class PageContentLayoutWidgetResourceUsageContributor implements FrontendWidgetR
             return [];
         }
 
-        $type = $page->relationLoaded('blueprint') ? $page->blueprint : null;
-        if (($type->content_structure ?? null) !== ContentStructure::Blocks) {
+        if (ResolvePageContentStructureAction::run($page) !== ContentStructure::Blocks) {
             return [];
         }
 

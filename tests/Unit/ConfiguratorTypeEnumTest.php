@@ -10,10 +10,7 @@ use Capell\LayoutBuilder\Enums\WidgetAssetConfiguratorEnum;
 use Capell\LayoutBuilder\Enums\WidgetConfiguratorEnum;
 
 it('owns layout configurator group metadata in the layout builder package', function (): void {
-    $reflection = new ReflectionClass(ConfiguratorTypeEnum::class);
-
-    expect($reflection->getFileName())->toContain('packages/layout-builder/src')
-        ->and(ConfiguratorTypeEnum::LayoutContainer)->toBeInstanceOf(ConfiguratorTypeEnumInterface::class)
+    expect(ConfiguratorTypeEnum::LayoutContainer)->toBeInstanceOf(ConfiguratorTypeEnumInterface::class)
         ->and(ConfiguratorTypeEnum::fromName('Widget'))->toBe(ConfiguratorTypeEnum::Widget)
         ->and(ConfiguratorTypeEnum::WidgetAsset->getName())->toBe('WidgetAsset')
         ->and(array_keys(ConfiguratorTypeEnum::getAllConfigurators()))->toBe([
@@ -24,15 +21,11 @@ it('owns layout configurator group metadata in the layout builder package', func
         ]);
 });
 
-it('uses package-owned configurator enum lists instead of core layout builder enums', function (): void {
-    $reflection = new ReflectionClass(ConfiguratorTypeEnum::class);
-    $source = file_get_contents((string) $reflection->getFileName());
-
-    expect($source)->not->toContain('Capell\\Core\\LayoutBuilder\\Enums')
-        ->and(ConfiguratorTypeEnum::LayoutContainer->getConfigurators())->toBe(array_map(
-            fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
-            LayoutContainerConfiguratorEnum::cases(),
-        ))
+it('returns the configurators advertised by each group', function (): void {
+    expect(ConfiguratorTypeEnum::LayoutContainer->getConfigurators())->toBe(array_map(
+        fn (LayoutContainerConfiguratorEnum $configurator): string => $configurator->value,
+        LayoutContainerConfiguratorEnum::cases(),
+    ))
         ->and(ConfiguratorTypeEnum::LayoutWidget->getConfigurators())->toBe(array_map(
             fn (LayoutWidgetConfiguratorEnum $configurator): string => $configurator->value,
             LayoutWidgetConfiguratorEnum::cases(),

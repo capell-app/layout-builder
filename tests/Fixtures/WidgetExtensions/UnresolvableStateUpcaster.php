@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions;
 
 use Capell\LayoutBuilder\Contracts\WidgetExtensions\WidgetExtensionStateUpcaster;
-
-interface MissingStateUpcasterDependency {}
+use Override;
 
 final class UnresolvableStateUpcaster implements WidgetExtensionStateUpcaster
 {
@@ -14,6 +13,7 @@ final class UnresolvableStateUpcaster implements WidgetExtensionStateUpcaster
         private readonly MissingStateUpcasterDependency $dependency,
     ) {}
 
+    #[Override]
     public function upcast(array $state, int $fromVersion, int $toVersion): array
     {
         return $state;

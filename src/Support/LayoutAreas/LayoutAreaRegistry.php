@@ -17,11 +17,6 @@ final class LayoutAreaRegistry
      */
     private array $areas = [];
 
-    public function __construct()
-    {
-        $this->register(self::MAIN, __('capell-layout-builder::generic.main_content_area'));
-    }
-
     public function register(string $key, string $label, ?string $themeKey = null): void
     {
         $areaKey = $this->normalizeAreaKey($key);
@@ -77,7 +72,10 @@ final class LayoutAreaRegistry
      */
     private function areasForTheme(?string $themeKey): array
     {
-        $areas = $this->areas[self::GLOBAL_SCOPE] ?? [];
+        // Registries may be resolved before providers load their translation namespaces.
+        // Resolve the default label only when a consumer requests the available areas.
+        $areas = [self::MAIN => __('capell-layout-builder::generic.main_content_area')];
+        $areas = array_replace($areas, $this->areas[self::GLOBAL_SCOPE] ?? []);
 
         if ($themeKey !== null && $themeKey !== '' && isset($this->areas[$themeKey])) {
             return array_replace($areas, $this->areas[$themeKey]);

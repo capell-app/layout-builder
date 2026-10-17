@@ -8,18 +8,20 @@ use Capell\Core\Actions\Interactions\ResolveInteractionTriggersAction;
 use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Core\Enums\PresentationDeliveryMode;
 use Capell\Core\Models\Blueprint;
+use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
 use Capell\Frontend\Facades\Frontend;
 use Capell\LayoutBuilder\Actions\Fragments\BuildLayoutBuilderFragmentReferenceAction;
 use Capell\LayoutBuilder\Data\PublicWidgetRenderContextData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
+use Capell\LayoutBuilder\Support\LayoutBuilderPublicLayoutRenderPreparer;
 use Capell\LayoutBuilder\Support\Livewire\OpaqueWidgetReference;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 /**
- * @method static PublicWidgetRenderContextData run(?object $layout, string $containerKey, int|string $widgetIndex, Widget $widget, array<string, mixed> $widgetData, string $type)
+ * @method static PublicWidgetRenderContextData run(?object $layout, string $containerKey, int|string $widgetIndex, Widget $widget, array<string, mixed> $widgetData, string $type, bool $hasPreparedHtml = false)
  */
 final class ResolvePublicWidgetRenderContextAction
 {
@@ -36,9 +38,24 @@ final class ResolvePublicWidgetRenderContextAction
         Widget $widget,
         array $widgetData,
         string $type,
+        bool $hasPreparedHtml = false,
     ): PublicWidgetRenderContextData {
         $occurrence = is_numeric($widgetData['occurrence'] ?? null) ? (int) $widgetData['occurrence'] : 1;
         $layoutKey = $this->layoutKey($layout);
+
+        if (app()->bound(PublicLayoutRenderPreparer::class)) {
+            $preparer = resolve(PublicLayoutRenderPreparer::class);
+            $widgetKey = is_scalar($widgetData['widget_key'] ?? null) ? (string) $widgetData['widget_key'] : $widget->key;
+            $prepared = $preparer instanceof LayoutBuilderPublicLayoutRenderPreparer && is_string($widgetKey)
+                ? $preparer->context($layout, $containerKey, $widgetKey, $occurrence)
+                : null;
+            if ($prepared !== null) {
+                return $prepared['index'] === $widgetIndex
+                    ? $prepared['context']
+                    : $this->reindexed($prepared['context'], $layoutKey, $containerKey, $widget, $widgetData, $widgetIndex, $type, $hasPreparedHtml);
+            }
+        }
+
         $widgetMeta = is_array($widgetData['meta'] ?? null) ? $widgetData['meta'] : [];
         $blueprint = $widget->relationLoaded('blueprint') ? $widget->getRelation('blueprint') : null;
         $blueprintMeta = $blueprint instanceof Blueprint && is_array($blueprint->meta) ? $blueprint->meta : [];
@@ -49,9 +66,11 @@ final class ResolvePublicWidgetRenderContextAction
             typeDefaults: is_array($blueprintMeta['presentation'] ?? null) ? $blueprintMeta['presentation'] : [],
         );
         $isLazyFragment = $presentation->deliveryMode === PresentationDeliveryMode::LazyFragment;
+        // A prepared lazy placeholder already owns its reference and interactions.
+        $preparedLazyFragment = $isLazyFragment && $hasPreparedHtml;
 
         $instanceInteractions = $this->triggersWithCurrentWidgetFragment(
-            triggers: is_array($widgetMeta['interactions'] ?? null) ? $widgetMeta['interactions'] : [],
+            triggers: ! $preparedLazyFragment && is_array($widgetMeta['interactions'] ?? null) ? $widgetMeta['interactions'] : [],
             widgetReference: $widgetReference,
             containerKey: $containerKey,
             layoutKey: $layoutKey,
@@ -61,7 +80,7 @@ final class ResolvePublicWidgetRenderContextAction
             widgetIndex: $widgetIndex,
         );
         $typeDefaultInteractions = $this->triggersWithCurrentWidgetFragment(
-            triggers: is_array($blueprintMeta['interactions'] ?? null) ? $blueprintMeta['interactions'] : [],
+            triggers: ! $preparedLazyFragment && is_array($blueprintMeta['interactions'] ?? null) ? $blueprintMeta['interactions'] : [],
             widgetReference: $widgetReference,
             containerKey: $containerKey,
             layoutKey: $layoutKey,
@@ -71,13 +90,13 @@ final class ResolvePublicWidgetRenderContextAction
             widgetIndex: $widgetIndex,
         );
 
-        if ($isLazyFragment) {
+        if ($isLazyFragment && ! $preparedLazyFragment) {
             $widgetReference ??= $this->fragmentReference(
                 containerKey: $containerKey,
                 occurrence: $occurrence,
                 widget: $widget,
             );
-        } elseif ($type === 'livewire') {
+        } elseif ($type === 'livewire' && ! $hasPreparedHtml) {
             $widgetReference ??= $this->widgetReference(
                 containerKey: $containerKey,
                 layoutKey: $layoutKey,
@@ -90,7 +109,7 @@ final class ResolvePublicWidgetRenderContextAction
 
         return new PublicWidgetRenderContextData(
             occurrence: $occurrence,
-            widgetDomId: 'layout-widget-' . hash('xxh128', $layoutKey . ':' . $containerKey . ':' . $widgetIndex),
+            widgetDomId: $this->widgetDomId($layoutKey, $containerKey, $widgetIndex),
             presentation: $presentation,
             isLazyFragment: $isLazyFragment,
             widgetReference: $widgetReference,
@@ -100,6 +119,43 @@ final class ResolvePublicWidgetRenderContextAction
                 typeDefaultTriggers: $typeDefaultInteractions,
             ),
         );
+    }
+
+    /**
+     * The prepared data belongs to this exact widget and occurrence; only the
+     * values derived from the caller's loop index are recomputed, without queries.
+     *
+     * @param  array<string, mixed>  $widgetData
+     */
+    private function reindexed(
+        PublicWidgetRenderContextData $prepared,
+        string $layoutKey,
+        string $containerKey,
+        Widget $widget,
+        array $widgetData,
+        int|string $widgetIndex,
+        string $type,
+        bool $hasPreparedHtml,
+    ): PublicWidgetRenderContextData {
+        $widgetReference = $prepared->widgetReference;
+        if (! $prepared->isLazyFragment && $type === 'livewire' && ! $hasPreparedHtml) {
+            $widgetReference = $this->widgetReference($containerKey, $layoutKey, $prepared->occurrence, $widget, $widgetData, $widgetIndex);
+        }
+
+        return new PublicWidgetRenderContextData(
+            occurrence: $prepared->occurrence,
+            widgetDomId: $this->widgetDomId($layoutKey, $containerKey, $widgetIndex),
+            presentation: $prepared->presentation,
+            isLazyFragment: $prepared->isLazyFragment,
+            widgetReference: $widgetReference,
+            resourcePublicIds: $prepared->resourcePublicIds,
+            interactions: $prepared->interactions,
+        );
+    }
+
+    private function widgetDomId(string $layoutKey, string $containerKey, int|string $widgetIndex): string
+    {
+        return 'layout-widget-' . hash('xxh128', $layoutKey . ':' . $containerKey . ':' . $widgetIndex);
     }
 
     private function layoutKey(?object $layout): string

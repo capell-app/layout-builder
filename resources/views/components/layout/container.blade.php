@@ -128,6 +128,8 @@
             'widget' => $widget,
             'widgetIndex' => $widgetIndex,
             'widgetData' => $widgetData,
+            'widgetKey' => $widgetKey,
+            'publicRenderData' => $publicRenderData ?? null,
             'pageSlot' => $pageSlot,
         ])
     @endforeach

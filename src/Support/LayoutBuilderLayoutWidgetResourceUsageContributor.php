@@ -12,8 +12,12 @@ use Capell\Core\Models\Layout;
 use Capell\Frontend\Contracts\FrontendWidgetResourceUsageContributor;
 use Capell\Frontend\Data\Assets\FrontendWidgetResourceUsageData;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
+use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
+use Override;
 
 class LayoutBuilderLayoutWidgetResourceUsageContributor implements FrontendWidgetResourceUsageContributor
 {
@@ -30,6 +34,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements FrontendWidge
     /**
      * @return list<FrontendWidgetResourceUsageData>
      */
+    #[Override]
     public function usages(FrontendRenderContextData $context): array
     {
         if (! $context->layout instanceof Layout || ! $context->language instanceof Language || ! $context->page instanceof Pageable) {
@@ -44,7 +49,26 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements FrontendWidge
         $loader = resolve(LayoutLoader::class);
         $loader->preloadLayoutWidgets($context->layout, $context->language, $context->page);
 
-        $usages = [];
+        $extensionRegistry = resolve(WidgetExtensionRegistry::class);
+        $extensions = [];
+
+        foreach ($containers as $container) {
+            $entries = is_array($container) && is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+            foreach ($entries as $entry) {
+                if (! is_array($entry)) {
+                    continue;
+                }
+
+                $entry = array_filter($entry, is_string(...), ARRAY_FILTER_USE_KEY);
+                if (LayoutWidgetData::key($entry) === null
+                    && is_string($entry['type'] ?? null)
+                    && $extensionRegistry->definition($entry['type']) !== null) {
+                    $extensions[] = $entry;
+                }
+            }
+        }
+
+        $usages = BuildLayoutWidgetResourceUsagesAction::run($extensions, LayoutWidgetTarget::FrontendBlade);
 
         foreach ($containers as $containerKey => $container) {
             if (! is_array($container)) {
@@ -53,7 +77,7 @@ class LayoutBuilderLayoutWidgetResourceUsageContributor implements FrontendWidge
 
             $stringKeyedContainer = array_filter(
                 $container,
-                static fn (int|string $key): bool => is_string($key),
+                is_string(...),
                 ARRAY_FILTER_USE_KEY,
             );
 

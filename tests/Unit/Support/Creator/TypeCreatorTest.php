@@ -6,6 +6,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Support\BlueprintSubjectRegistry;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Enums\WidgetTypeEnum;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 
@@ -21,6 +22,9 @@ it('creates layout builder widget types with clear names and descriptions', func
     $callToActionType = $types->get(WidgetTypeEnum::CTASection->value);
     $imageGalleryType = $types->get(WidgetTypeEnum::ImageGallery->value);
     $systemType = $types->get(WidgetTypeEnum::System->value);
+
+    expect($types->get(WidgetTypeEnum::Navigation->value)?->component)->toBe(WidgetComponentEnum::Navigation->value)
+        ->and($types->get(WidgetTypeEnum::SectionBuilder->value)?->component)->toBe(WidgetComponentEnum::Default->value);
 
     expect($heroType?->name)->toBe('Hero')
         ->and(data_get($heroType?->admin, 'notes'))->toBe('The main opening widget for a page headline, intro copy, and primary action.')

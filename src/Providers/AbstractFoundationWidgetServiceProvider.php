@@ -14,6 +14,7 @@ use Capell\Frontend\Data\Assets\PublicResourceSourceData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistrar;
+use Override;
 use Spatie\LaravelPackageTools\Package;
 
 abstract class AbstractFoundationWidgetServiceProvider extends AbstractPackageServiceProvider
@@ -24,15 +25,31 @@ abstract class AbstractFoundationWidgetServiceProvider extends AbstractPackageSe
 
     abstract protected static function resourceGroup(): string;
 
+    #[Override]
     public function configurePackage(Package $package): void
     {
         $package->name(static::$name)->hasViews()->hasTranslations()->hasAssets();
     }
 
+    #[Override]
     public function packageBooted(): void
     {
-        resolve(WidgetExtensionRegistrar::class)->register($this->definition());
+        $this->registerWidget();
+    }
 
+    protected static function scriptLoadingStrategy(): PresentationLoadingStrategy
+    {
+        return PresentationLoadingStrategy::Visible;
+    }
+
+    protected function registerWidget(): void
+    {
+        resolve(WidgetExtensionRegistrar::class)->register($this->definition());
+        $this->registerResources();
+    }
+
+    protected function registerResources(): void
+    {
         resolve(FrontendResourceRegistry::class)->register(new FrontendResourceGroupData(
             key: static::resourceGroup(),
             label: static::$name,
@@ -54,11 +71,7 @@ abstract class AbstractFoundationWidgetServiceProvider extends AbstractPackageSe
         ));
     }
 
-    protected static function scriptLoadingStrategy(): PresentationLoadingStrategy
-    {
-        return PresentationLoadingStrategy::Visible;
-    }
-
+    #[Override]
     protected function isPackageInstalled(): bool
     {
         return CapellCore::isPackageInstalled(static::$packageName);

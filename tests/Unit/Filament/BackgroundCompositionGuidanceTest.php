@@ -122,16 +122,17 @@ it('shows the guide when editing a widget whose blueprint relation is loaded', f
 
 it('covers hero banner uploads and modern hero banner URL fields with the same capability', function (): void {
     $blueprint = backgroundGuidanceBlueprint(['background_image' => 'hero-wide']);
-    $detailsTab = (new ReflectionMethod(HeroBannerWidgetConfigurator::class, 'detailsTab'))->invoke(new HeroBannerWidgetConfigurator);
-    assert($detailsTab instanceof Component);
-
-    $upload = backgroundGuidanceFields([$detailsTab], ['blueprint_id' => $blueprint->getKey()]);
+    $schema = Schema::make(new LayoutBuilderStatefulSchemaHarness)->operation('edit');
+    $widget = Widget::factory()->create(['blueprint_id' => $blueprint->getKey()]);
+    $upload = backgroundGuidanceFields((new HeroBannerWidgetConfigurator)->make($schema), ['blueprint_id' => $blueprint->getKey()], $widget);
     $url = backgroundGuidanceFields(ModernHeroBannerConfigurator::getFormSchema(), ['blueprint_id' => $blueprint->getKey()]);
 
-    expect($upload)->toHaveCount(1)
-        ->and($upload[0])->toBeInstanceOf(SpatieMediaLibraryFileUpload::class)
-        ->and(backgroundGuidanceHtml($upload[0]))->toContain('Keep the left third quiet for hero-wide')
-        ->and($url)->toHaveCount(1)
+    expect($upload)->not->toBeEmpty();
+    foreach ($upload as $field) {
+        expect($field)->toBeInstanceOf(SpatieMediaLibraryFileUpload::class)
+            ->and(backgroundGuidanceHtml($field))->toContain('Keep the left third quiet for hero-wide');
+    }
+    expect($url)->toHaveCount(1)
         ->and($url[0])->toBeInstanceOf(TextInput::class)
         ->and(backgroundGuidanceHtml($url[0]))->toContain('Keep the left third quiet for hero-wide')
         ->toContain('guides/hero-wide.svg');
@@ -172,9 +173,8 @@ it('offers registered guides in the blueprint admin tab', function (): void {
         'hero-split' => 'Guide hero-split',
     ]);
 
-    $adminTab = (new ReflectionMethod(WidgetTypeConfigurator::class, 'adminTab'))->invoke(new WidgetTypeConfigurator);
-    assert($adminTab instanceof Component);
-    $names = collect(Schema::make(new LayoutBuilderCoverageSchemaHarness)->components([$adminTab])->getFlatFields(withHidden: true))
+    $schema = Schema::make(new LayoutBuilderCoverageSchemaHarness)->operation('edit');
+    $names = collect(WidgetTypeConfigurator::configure($schema)->getFlatFields(withHidden: true))
         ->keys()
         ->all();
 

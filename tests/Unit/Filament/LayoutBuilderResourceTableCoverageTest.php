@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Components\Forms\WidgetSelect;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
@@ -18,10 +19,14 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutPreviews\LayoutPreviewMetaKey;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Capell\Tests\Support\Filament\AdminSurfaceAssertions;
+use Capell\Tests\Support\RenderedHtml;
+use Capell\Tests\Support\SchemaStateHarness;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -29,17 +34,12 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Livewire\Livewire;
 
 uses(CreatesAdminUser::class);
-
-function invokeLayoutBuilderTableMethod(string $className, string $methodName, mixed ...$arguments): mixed
-{
-    $method = new ReflectionMethod($className, $methodName);
-
-    return $method->invoke(null, ...$arguments);
-}
 
 function createEnglishLayoutBuilderLanguage(): Language
 {
@@ -102,22 +102,17 @@ it('builds widget table columns filters and search query branches', function ():
         'content' => 'Needle content',
     ]);
 
-    $columns = invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableColumns');
-    $filters = layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters'));
-    $tableSource = file_get_contents(__DIR__ . '/../../../src/Filament/Resources/Widgets/Tables/WidgetsTable.php');
+    $columns = array_values(configureLayoutBuilderWidgetsTable()->getColumns());
+    $filters = layoutBuilderTableComponents(array_values(configureLayoutBuilderWidgetsTable()->getFilters()));
 
-    $contentSearchQuery = invokeLayoutBuilderTableMethod(
-        WidgetsTable::class,
-        'applyContentSearch',
-        Widget::query(),
-        'Needle content',
-    );
-    $componentSearchQuery = invokeLayoutBuilderTableMethod(
-        WidgetsTable::class,
-        'applyComponentSearch',
-        Widget::query(),
-        'hero-card',
-    );
+    $table = configureLayoutBuilderWidgetsTable();
+    $contentColumn = $table->getColumn('translation.content');
+    $componentColumn = $table->getColumn('component');
+    throw_unless($contentColumn instanceof TextColumn && $componentColumn instanceof TextColumn, RuntimeException::class);
+    $isFirst = true;
+    $contentSearchQuery = $contentColumn->applySearchConstraint(Widget::query(), 'Needle content', $isFirst);
+    $isFirst = true;
+    $componentSearchQuery = $componentColumn->applySearchConstraint(Widget::query(), 'hero-card', $isFirst);
 
     $languageFilter = firstLayoutBuilderTableComponent($filters, 'filter');
     $unusedFilter = firstLayoutBuilderTableComponent($filters, 'unused', Filter::class);
@@ -136,12 +131,9 @@ it('builds widget table columns filters and search query branches', function ():
         throw new RuntimeException('Expected an unused widget filter.');
     }
 
-    $unusedWidgetIds = $unusedFilter->apply(
-        Widget::query()
-            /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
-            ->withLayoutsCount(),
-        ['isActive' => true],
-    )->pluck('id');
+    $unusedQuery = Widget::query();
+    $unusedQuery->scopes('withLayoutsCount');
+    $unusedWidgetIds = $unusedFilter->apply($unusedQuery, ['isActive' => true])->pluck('id');
 
     expect($columns)->toContainOnlyInstancesOf(Column::class)
         ->and($filters)->toHaveCount(6)
@@ -150,10 +142,38 @@ it('builds widget table columns filters and search query branches', function ():
         ->and($languageFilter)->not->toBeNull()
         ->and($unusedFilter)->toBeInstanceOf(Filter::class)
         ->and($unusedWidgetIds)->toContain($unusedWidget->getKey())
-        ->and($unusedWidgetIds)->not->toContain($usedWidget->getKey())
-        ->and($tableSource)->toContain('moveOrReplaceInLayouts')
-        ->and($tableSource)->toContain('filters[widget_key][value]')
-        ->and($tableSource)->not->toContain('filters[widget_id][value]');
+        ->and($unusedWidgetIds)->not->toContain($usedWidget->getKey());
+});
+
+it('links widget usage to layouts by key and preselects the bulk change source', function (): void {
+    test()->actingAsAdmin();
+    $widget = Widget::factory()->create(['key' => 'customer-feature', 'status' => true]);
+    Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]],
+    ]]);
+    $usageQuery = Widget::query();
+    $usageQuery->scopes('withLayoutsCount');
+    $widget = $usageQuery->whereKey($widget)->firstOrFail();
+    $usageCount = $widget->getAttribute('layouts_count');
+    throw_unless(is_int($usageCount), RuntimeException::class);
+    $table = configureLayoutBuilderWidgetsTable();
+    $column = $table->getColumn('layouts_count');
+    throw_unless($column instanceof TextColumn, RuntimeException::class);
+    $column->record($widget);
+    $formatted = $column->formatState($usageCount);
+    throw_unless($formatted instanceof Htmlable, RuntimeException::class);
+    $document = new RenderedHtml($formatted->toHtml());
+    $query = parse_url($document->element('//a')->getAttribute('href'), PHP_URL_QUERY);
+    throw_unless(is_string($query), RuntimeException::class);
+    parse_str($query, $parameters);
+
+    expect(data_get($parameters, 'filters.widget_key.value'))->toBe('customer-feature')
+        ->and(data_get($parameters, 'filters.widget_id'))->toBeNull();
+
+    Livewire::test(ListWidgets::class)
+        ->assertTableActionExists('moveOrReplaceInLayouts')
+        ->mountTableAction('moveOrReplaceInLayouts', $widget)
+        ->assertTableActionDataSet(['source_widget_key' => 'customer-feature']);
 });
 
 it('describes an empty widget table with translated filter-safe copy', function (): void {
@@ -176,7 +196,7 @@ it('keeps the widget empty state truthful when a real filter excludes an existin
     ]);
     $table = configureLayoutBuilderWidgetsTable();
     $statusFilter = firstLayoutBuilderTableComponent(
-        layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters')),
+        layoutBuilderTableComponents(array_values(configureLayoutBuilderWidgetsTable()->getFilters())),
         'status',
         SelectFilter::class,
     );
@@ -198,7 +218,7 @@ it('keeps the widget empty state truthful when a real filter excludes an existin
 it('includes soft-deleted unused widgets when the unused and trashed filters are combined', function (): void {
     test()->actingAsAdmin();
 
-    $filters = layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(WidgetsTable::class, 'getTableFilters'));
+    $filters = layoutBuilderTableComponents(array_values(configureLayoutBuilderWidgetsTable()->getFilters()));
     $unusedFilter = firstLayoutBuilderTableComponent($filters, 'unused', Filter::class);
     $trashedFilter = firstLayoutBuilderTableComponent($filters, 'trashed', TrashedFilter::class);
     $unusedWidget = Widget::factory()->create(['key' => 'soft-deleted-unused-widget', 'status' => true]);
@@ -208,11 +228,11 @@ it('includes soft-deleted unused widgets when the unused and trashed filters are
         throw new RuntimeException('Expected unused and trashed widget filters.');
     }
 
+    $unusedQuery = Widget::query();
+    $unusedQuery->scopes('withLayoutsCount');
     $filteredWidgetIds = $unusedFilter->apply(
         $trashedFilter->apply(
-            Widget::query()
-                /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
-                ->withLayoutsCount(),
+            $unusedQuery,
             ['value' => false],
         ),
         ['isActive' => true],
@@ -253,12 +273,28 @@ it('covers widget asset table lookup and type helper branches', function (): voi
         'blueprint_id' => $pageType->getKey(),
     ]);
 
-    $lookupKey = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'buildLookupKey', 'page', 123);
-    $blankAssetTypes = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'getAssetTypes', '');
-    $missingAssetTypes = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'getAssetTypes', 'missing');
-    $pageAssetTypes = invokeLayoutBuilderTableMethod(WidgetAssetsTable::class, 'getAssetTypes', 'page');
+    $page = Page::query()->where('blueprint_id', $pageType->getKey())->sole();
+    WidgetAsset::factory()->create(['pageable_type' => $page->getMorphClass(), 'pageable_id' => $page->getKey()]);
+    $table = WidgetAssetsTable::configure(layoutBuilderWidgetAssetsTable(WidgetAsset::query()));
+    $filter = $table->getFilter('filter');
+    throw_unless($filter instanceof Filter, RuntimeException::class);
+    $owner = new SchemaStateHarness;
+    $schema = Schema::make($owner)->statePath('data')->components($filter->getSchemaComponents());
+    $fields = $schema->getFlatFields(withHidden: true);
+    $pages = $fields['pages'] ?? null;
+    $types = $fields['blueprint_id'] ?? null;
+    throw_unless($pages instanceof Select && $types instanceof Select, RuntimeException::class);
+    $pageOptions = $pages->evaluate(new ReflectionProperty($pages, 'options')->getValue($pages), ['livewire' => $table->getLivewire()]);
+    $owner->data = ['type' => ''];
+    $blankAssetTypes = $types->getOptions();
+    $owner->data = ['type' => 'missing'];
+    $missingAssetTypes = $types->getOptions();
+    $owner->data = ['type' => 'page'];
+    $pageAssetTypes = $types->getOptions();
 
-    expect($lookupKey)->toBe('page:123')
+    $pageId = $page->getKey();
+    throw_unless(is_int($pageId), RuntimeException::class);
+    expect($pageOptions)->toHaveKey($page->getMorphClass() . ':' . $pageId)
         ->and($blankAssetTypes)->toBe([])
         ->and($missingAssetTypes)->toBe([])
         ->and($pageAssetTypes)->toHaveKey($pageType->getKey())
@@ -382,7 +418,9 @@ it('filters indicates and creates widget assets through the widget assets table 
         'livewire' => $relationManager,
     ]));
 
-    expect($pageOptions)->toHaveKey($page->getMorphClass() . ':' . $page->getKey())
+    $pageId = $page->getKey();
+    throw_unless(is_int($pageId), RuntimeException::class);
+    expect($pageOptions)->toHaveKey($page->getMorphClass() . ':' . $pageId)
         ->and($filteredQuery->toSql())->toContain('asset_type', 'blueprint_id', 'pageable_type', 'pageable_id')
         ->and($indicators)->toHaveKeys(['asset_type', 'blueprint_id', 'page'])
         ->and($brokenReferenceIds)->toContain($orphanedAsset->getKey())
@@ -483,14 +521,11 @@ it('uses actor-scoped layout usage projections without per-widget count queries 
 it('adds layout-builder specific layout table filters columns and query relations', function (): void {
     $widget = Widget::factory()->create(['key' => 'hero', 'name' => 'Hero']);
 
-    $filters = layoutBuilderTableComponents(invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableFilters'));
-    $columns = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getTableColumns');
-    $query = invokeLayoutBuilderTableMethod(
-        LayoutsTable::class,
-        'getTableQueryModifier',
-        Layout::query(),
-    );
-    $bulkChangeAction = invokeLayoutBuilderTableMethod(LayoutsTable::class, 'getBulkChangeLayoutsAction');
+    $table = LayoutsTable::configure(AdminSurfaceAssertions::table()->query(Layout::query()));
+    $filters = layoutBuilderTableComponents(array_values($table->getFilters()));
+    $columns = array_values($table->getColumns());
+    $query = $table->getQuery();
+    $bulkChangeAction = collect($table->getHeaderActions())->first(fn (mixed $action): bool => $action instanceof Action && $action->getName() === 'bulkChangeLayouts');
 
     $widgetFilter = firstLayoutBuilderTableComponent($filters, 'widget_key', SelectFilter::class);
 

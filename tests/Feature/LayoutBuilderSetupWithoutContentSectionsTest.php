@@ -66,6 +66,7 @@ final class LayoutBuilderSetupWithoutContentSectionsTest extends LayoutBuilderTe
     {
         parent::getEnvironmentSetUp($app);
 
-        CapellCore::markPackageUninstalled('capell-app/content-sections');
+        // A lifecycle write clears the other providers' forced installation flags before boot.
+        CapellCore::forcePackageInstalled('capell-app/content-sections', false);
     }
 }

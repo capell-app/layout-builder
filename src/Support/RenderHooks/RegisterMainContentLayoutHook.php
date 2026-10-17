@@ -16,7 +16,7 @@ use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Support\Facades\View;
-use Livewire\Blaze\Blaze;
+use Override;
 
 final class RegisterMainContentLayoutHook implements RenderHookExtensionInterface
 {
@@ -24,6 +24,7 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
 
     public const string Target = 'capell::layout.main';
 
+    #[Override]
     public function render(RenderHookContext $context): string
     {
         if (! $context->item instanceof MainContentRenderHookData) {
@@ -43,16 +44,9 @@ final class RegisterMainContentLayoutHook implements RenderHookExtensionInterfac
             ?? 'capell-layout-builder::components.layout.main-content';
         $view = View::make($viewName, ['context' => $context->item]);
 
-        $wasBlazeEnabled = Blaze::isEnabled();
-        Blaze::disable();
-
-        try {
-            $output = $view->render();
-        } finally {
-            if ($wasBlazeEnabled) {
-                Blaze::enable();
-            }
-        }
+        // Keep the compiler and runtime in the caller's mode: nested views
+        // share the compiled cache with previews and later public renders.
+        $output = $view->render();
 
         return is_string($output) && trim($output) !== '' ? $output : '';
     }

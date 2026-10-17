@@ -98,7 +98,7 @@ final class LayoutBuilderActionFactory
             ->modalWidth(Width::ScreenSmall)
             ->requiresConfirmation()
             ->modalDescription(__('capell-layout-builder::message.copy_layout_confirmation'))
-            ->visible(fn (): bool => $this->livewire->inPageContext())
+            ->visible(fn (): bool => $this->livewire->inPageContext() && $this->livewire->canEditLayout())
             ->action(function (Action $action, LayoutBuilder $livewire): void {
                 $this->duplicateLayout();
 
@@ -120,7 +120,7 @@ final class LayoutBuilderActionFactory
             ->modalWidth(Width::ScreenSmall)
             ->requiresConfirmation()
             ->modalDescription(__('capell-layout-builder::message.clone_layout_for_page_confirmation'))
-            ->visible(fn (): bool => $this->livewire->layoutIsSharedWithOtherPages())
+            ->visible(fn (): bool => $this->livewire->layoutIsSharedWithOtherPages() && $this->livewire->canEditLayout())
             ->action(function (Action $action, LayoutBuilder $livewire): void {
                 $this->duplicateLayout();
 

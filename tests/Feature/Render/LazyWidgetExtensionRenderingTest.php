@@ -93,6 +93,8 @@ it('stores an immutable encrypted snapshot and renders HTML and registry-owned V
 });
 
 it('rejects tampered oversized expired and revoked locators with the same generic response', function (string $mode): void {
+    $this->freezeTime();
+
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('Never render');
     registerLazyWidgetResources();
@@ -117,6 +119,8 @@ it('rejects tampered oversized expired and revoked locators with the same generi
 })->with(['tampered', 'oversized', 'expired', 'revoked']);
 
 it('supersedes changed revisions while retaining the previous locator through grace', function (): void {
+    $this->freezeTime();
+
     resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
     $context = lazyWidgetContext('First');
     registerLazyWidgetResources();

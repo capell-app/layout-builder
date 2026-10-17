@@ -243,7 +243,15 @@ trait ManagesLayoutBuilderState
 
     protected function reload(): void
     {
-        $this->reset('containerWidgets', 'selectedRecords', 'assets', 'originalAssets', 'containers', 'layout');
+        // A permanently deleted layout has nothing to rebuild from; keep the
+        // current state so the caller can still report the conflict.
+        if (! $this->layout->newQueryWithoutScopes()->whereKey($this->layout->getKey())->exists()) {
+            return;
+        }
+
+        $this->layout->refresh();
+
+        $this->reset('containerWidgets', 'selectedRecords', 'assets', 'originalAssets', 'containers');
 
         $this->loadNew();
     }

@@ -12,12 +12,74 @@ use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderActionFlowHarness;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderActionSchemaHarness;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderMutationHarness;
+use Capell\Tests\Fixtures\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Filament\Support\Exceptions\Halt;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
+
+it('shows layout cloning actions only when the page context and layout permissions allow them', function (
+    bool $inPageContext,
+    bool $shared,
+    bool $canEditPageLayout,
+    bool $canEditLayout,
+    bool $cloneVisible,
+    bool $duplicateVisible,
+): void {
+    test()->actingAs(User::factory()->create());
+
+    $policy = new class($canEditPageLayout, $canEditLayout)
+    {
+        public function __construct(
+            private bool $canEditPageLayout,
+            private bool $canEditLayout,
+        ) {}
+
+        public function editContent(Authenticatable $actor, Model $record): bool
+        {
+            return true;
+        }
+
+        public function editLayout(Authenticatable $actor, Model $record): bool
+        {
+            return $record instanceof Page ? $this->canEditPageLayout : $this->canEditLayout;
+        }
+    };
+
+    app()->instance($policy::class, $policy);
+    Gate::policy(Page::class, $policy::class);
+    Gate::policy(Layout::class, $policy::class);
+
+    $layout = Layout::factory()->create();
+    $layoutBuilder = new LayoutBuilder;
+    $layoutBuilder->layout = $layout;
+
+    if ($inPageContext) {
+        $layoutBuilder->page = Page::factory()->create(['layout_id' => $layout->getKey()]);
+    }
+
+    if ($shared) {
+        Page::factory()->create(['layout_id' => $layout->getKey()]);
+    }
+
+    $factory = new LayoutBuilderActionFactory($layoutBuilder);
+
+    expect($layoutBuilder->canEditContent())->toBeTrue()
+        ->and($factory->cloneLayoutForPageAction()->livewire($layoutBuilder)->isVisible())->toBe($cloneVisible)
+        ->and($factory->duplicateLayoutAction()->livewire($layoutBuilder)->isVisible())->toBe($duplicateVisible);
+})->with([
+    'shared layout editor' => [true, true, true, true, true, true],
+    'shared content only editor' => [true, true, false, false, false, false],
+    'shared page layout permission only' => [true, true, true, false, false, false],
+    'shared layout permission only' => [true, true, false, true, false, false],
+    'unshared layout editor' => [true, false, true, true, false, true],
+    'layout editor outside page context' => [false, true, true, true, false, false],
+]);
 
 it('builds every layout builder action with stable names', function (): void {
     $layoutBuilder = new LayoutBuilder;
@@ -339,7 +401,8 @@ it('builds change layout options from site-aware layout state', function (): voi
     $layoutBuilder->page = Page::factory()->site($site)->create(['layout_id' => $currentLayout->getKey()]);
 
     $factory = new LayoutBuilderActionFactory($layoutBuilder);
-    $schema = invokeLayoutBuilderActionFactoryMethod($factory, 'getChangeLayoutSchema');
+    $schema = $factory->changeLayoutAction()->livewire($layoutBuilder)->getSchema(Schema::make($layoutBuilder))?->getComponents(withHidden: true);
+    throw_unless(is_array($schema), RuntimeException::class);
     $select = $schema[0] ?? null;
 
     expect($select)->toBeInstanceOf(Select::class);
@@ -728,11 +791,4 @@ function layoutBuilderActionRawProperty(Action $action, string $property): mixed
     }
 
     throw new RuntimeException(sprintf('Action property [%s] was not found.', $property));
-}
-
-function invokeLayoutBuilderActionFactoryMethod(LayoutBuilderActionFactory $factory, string $method): mixed
-{
-    $reflection = new ReflectionMethod($factory, $method);
-
-    return $reflection->invoke($factory);
 }

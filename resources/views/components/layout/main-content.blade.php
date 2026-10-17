@@ -53,6 +53,7 @@
             'container' => $container,
             'containerKey' => (string) $containerKey,
             'layout' => $context->layout,
+            'publicRenderData' => $context->publicRenderData ?? null,
             'page' => $context->page,
             'containerIndex' => $loop->index,
             'colspan' => $colspan,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Tests\Feature;
 
 use Capell\Core\Enums\ContentStructure;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -302,6 +303,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         ])->assertExitCode(0);
         foreach (['AudioPlaylist', 'BeforeAfter', 'ContentReveal', 'Countdown', 'DataChart', 'Hotspots', 'LivePoll', 'LocationMap', 'Slideshow', 'YouTube'] as $name) {
             $provider = 'Capell\\Widget' . $name . '\\Providers\\Widget' . $name . 'ServiceProvider';
+            CapellCore::forcePackageInstalled($provider::$packageName);
             $this->app->register($provider);
         }
 

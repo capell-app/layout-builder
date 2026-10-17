@@ -80,6 +80,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - [Frontend Authoring](../frontend-authoring/README.md): optional integration backed by the interop evidence map.
 - [Publishing Studio](../publishing-studio/README.md): optional integration backed by the interop evidence map.
 - [Structured Content Library](../structured-content-library/README.md): optional integration backed by the interop evidence map.
+- [Theme Foundation](../theme-foundation/README.md): optional integration backed by the interop evidence map.
 
 ## Technical Shape
 
@@ -239,6 +240,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 ### Policies
 
 - `LayoutPresetPolicy`
+- `WidgetPolicy`
 
 ### Extension contracts
 
@@ -249,6 +251,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `LayoutContainerThemePresentationProjector`
 - `LayoutContentGroupContributor`
 - `LayoutSidebarWidgetContributor`
+- `PublicLayoutAssetMembership`
 - `PublicLayoutWidgetPayloadContributor`
 - `PublicLayoutWidgetPayloadResolver`
 - `WidgetAssetReferenceRepointer`
@@ -283,6 +286,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `BuildWidgetVisualRegressionManifestAction`
 - `ApplyLayoutBulkChangeRunAction`
 - `ApplyLayoutWidgetOperationToContainersAction`
+- `HasPageScopedAssetBatches`
 - `PreviewLayoutBulkChangeAction`
 - `QueueLayoutBulkChangeRunAction`
 - `ResolveLayoutBulkChangeTargetsAction`
@@ -528,7 +532,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - Required packages: `capell-app/core`, `capell-app/admin`, `capell-app/block-library`, `capell-app/frontend`.
 - Admin navigation: declares `admin-resource: LayoutBuilderAdminRegistrar`; each Filament page or resource controls its own navigation visibility.
 - Admin/editor extensions: `configurator: LayoutBuilderAdminRegistrar`, `schema-extender: LayoutBuilderAdminRegistrar`.
-- Permissions: `ViewAny:Layout`, `View:Layout`, `Create:Layout`, `EditContent:Layout`, `EditLayout:Layout`, `Update:Layout`, `Delete:Layout`, `DeleteAny:Layout`, `Restore:Layout`, `ForceDelete:Layout`, `Replicate:Layout`, `Reorder:Layout`, `BulkMutate:Layout`; access also governed by package policies: `LayoutPresetPolicy`.
+- Permissions: `ViewAny:Layout`, `View:Layout`, `Create:Layout`, `EditContent:Layout`, `EditLayout:Layout`, `Update:Layout`, `Delete:Layout`, `DeleteAny:Layout`, `Restore:Layout`, `ForceDelete:Layout`, `Replicate:Layout`, `Reorder:Layout`, `BulkMutate:Layout`; access also governed by package policies: `LayoutPresetPolicy`, `WidgetPolicy`.
 - Public routes: registers `LayoutBuilderRoutesContribution`.
 - Database changes: package migrations are declared.
 - Config: `config/capell-layout-builder.php`.
@@ -574,6 +578,6 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md).
+- Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md), [Theme Foundation](../theme-foundation/README.md).
 
 <!-- prettier-ignore-end -->

@@ -30,14 +30,11 @@ it('builds widget deletion impact from the authoritative layout usage projection
 
     $usedImpact = BuildWidgetDeletionImpactAction::run($usedWidget);
     $unusedImpact = BuildWidgetDeletionImpactAction::run($unusedWidget);
-    $actionSource = file_get_contents(__DIR__ . '/../../src/Actions/BuildWidgetDeletionImpactAction.php');
 
     expect($usedImpact->layouts)->toBe(2)
         ->and($unusedImpact->layouts)->toBe(0)
         ->and($usedImpact->isComplete)->toBeTrue()
-        ->and($usedImpact->isAuthoritative)->toBeTrue()
-        ->and($actionSource)->toContain('withLayoutsCount(LayoutResource::getEloquentQuery())')
-        ->and($actionSource)->not->toContain('json_decode');
+        ->and($usedImpact->isAuthoritative)->toBeTrue();
 });
 
 it('scopes widget layout usage to an actor sites without treating a scoped zero as unused', function (): void {

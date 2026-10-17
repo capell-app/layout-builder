@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions\WidgetExtensions;
 
+use Capell\Core\Actions\Presentation\ResolvePresentationSettingsAction;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\PublicPageRenderData;
+use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionRenderContextData;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
@@ -29,7 +31,7 @@ final readonly class RenderPublicWidgetExtensionAction
     {
         $type = $widgetData['type'] ?? null;
         $definition = is_string($type) ? $this->registry->definition($type) : null;
-        if ($definition === null) {
+        if (! $definition instanceof WidgetExtensionDefinitionData) {
             return '';
         }
 
@@ -44,7 +46,7 @@ final readonly class RenderPublicWidgetExtensionAction
         }
 
         try {
-            return $this->views->make($this->viewResolver->resolve($definition), [
+            $html = $this->views->make($this->viewResolver->resolve($definition), [
                 'widget' => $payload,
                 'renderData' => $payload,
                 'context' => $this->safeContext(),
@@ -52,11 +54,43 @@ final readonly class RenderPublicWidgetExtensionAction
                     ? $payloadSource
                     : $this->currentRenderData(),
             ])->render();
+
+            return $this->withRuntime($definition, $widgetData, $html);
         } catch (Throwable $throwable) {
             $this->diagnostic($definition->key, $throwable);
 
             return $this->fallback();
         }
+    }
+
+    /**
+     * The frontend runtime only activates lazily loaded resource groups for an
+     * element that names them, so a widget with declared resources must carry
+     * the same runtime wrapper as every other public widget.
+     *
+     * @param  array<string, mixed>  $widgetData
+     */
+    private function withRuntime(WidgetExtensionDefinitionData $definition, array $widgetData, string $html): string
+    {
+        $usages = BuildWidgetExtensionResourceUsagesAction::run($definition, $widgetData);
+        $resourceRuntimes = [];
+
+        foreach ($usages as $usage) {
+            $strategy = $usage->presentation->loadingStrategy->value;
+            $resourceRuntimes[$strategy] ??= ['settings' => $usage->presentation, 'ids' => []];
+            $resourceRuntimes[$strategy]['ids'][] = $usage->publicId;
+        }
+
+        $primaryRuntime = array_shift($resourceRuntimes);
+        $typeDefaults = $definition->defaultPresentationSettings;
+        $typeDefaults['loading_strategy'] = $definition->defaultResourceLoadingStrategy->value;
+
+        return $this->views->make('capell-layout-builder::components.layout-widgets.extension-runtime', [
+            'settings' => $primaryRuntime['settings'] ?? ResolvePresentationSettingsAction::make()->fromWidgetBlockData($widgetData, $typeDefaults),
+            'resourcePublicIds' => $primaryRuntime['ids'] ?? [],
+            'resourceRuntimes' => array_values($resourceRuntimes),
+            'html' => $html,
+        ])->render();
     }
 
     /** @param array<string, object>|PublicPageRenderData|null $payloadSource */

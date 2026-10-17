@@ -12,10 +12,10 @@
     "license": "proprietary",
     "require": {
         "php": "^8.4",
-        "capell-app/admin": "^1.0.61",
+        "capell-app/admin": "^1.0.72",
         "capell-app/block-library": "^1.0",
-        "capell-app/core": "^1.0.66",
-        "capell-app/frontend": "^1.0.70"
+        "capell-app/core": "^1.0.72",
+        "capell-app/frontend": "^1.0.72"
     },
     "suggest": {
         "capell-app/content-sections": "Allows reusable content sections in layouts.",

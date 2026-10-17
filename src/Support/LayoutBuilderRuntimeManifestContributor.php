@@ -11,10 +11,13 @@ use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Override;
 
 final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeManifestContributor
 {
+    #[Override]
     public function contribute(FrontendContextReader $context, FrontendRuntimeManifestData $manifest): void
     {
         if ($manifest->renderingStrategy !== RenderingStrategyEnum::BladeOnly) {
@@ -31,7 +34,7 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
         $manifest->usesAlpine = true;
         $manifest->modules['layout-builder'] = true;
 
-        if (! $this->layoutUsesLivewireWidgets($widgetKeys)) {
+        if (! $this->layoutUsesLivewireWidgets($layout, $widgetKeys)) {
             return;
         }
 
@@ -80,8 +83,25 @@ final class LayoutBuilderRuntimeManifestContributor implements FrontendRuntimeMa
     /**
      * @param  list<string>  $widgetKeys
      */
-    private function layoutUsesLivewireWidgets(array $widgetKeys): bool
+    private function layoutUsesLivewireWidgets(?Layout $layout, array $widgetKeys): bool
     {
+        $loadedWidgets = $layout?->relationLoaded('layoutWidgets')
+            ? $layout->getRelation('layoutWidgets')
+            : null;
+
+        if ($loadedWidgets instanceof Collection) {
+            $widgets = $loadedWidgets
+                ->filter(static fn (mixed $widget): bool => $widget instanceof Widget)
+                ->whereIn('key', $widgetKeys);
+
+            // Reuse only a complete, hydrated selection; partial container
+            // preloads and unavailable widgets retain the existing query path.
+            if (collect($widgetKeys)->every(static fn (string $key): bool => $widgets->contains('key', $key))
+                && $widgets->every(static fn (Widget $widget): bool => $widget->relationLoaded('blueprint'))) {
+                return $widgets->contains(static fn (Widget $widget): bool => $widget->getMetaComponentType() === 'livewire');
+            }
+        }
+
         return Widget::query()
             ->with('blueprint')
             ->whereIn('key', $widgetKeys)

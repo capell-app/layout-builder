@@ -106,13 +106,14 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
     throw_unless(is_string($frontendConstraint), RuntimeException::class, 'Expected Layout Builder to require capell-app/frontend.');
     $parser = new VersionParser;
 
-    // BackgroundCompositionGuidance imports MediaCompositionGuidancePresenter, which
-    // first ships in admin 1.0.61.
-    expect(Semver::satisfies('1.0.60', $adminConstraint))->toBeFalse()
-        ->and(Semver::satisfies('1.0.61', $adminConstraint))->toBeTrue()
+    // The installed-runtime admin bridge relies on receipt attribution and the
+    // provider registers commands through the current-process helper; both first
+    // ship in the 1.0.72 foundation release.
+    expect(Semver::satisfies('1.0.71', $adminConstraint))->toBeFalse()
+        ->and(Semver::satisfies('1.0.72', $adminConstraint))->toBeTrue()
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
-        ->and(Semver::satisfies('1.0.65', $coreConstraint))->toBeFalse()
-        ->and(Semver::satisfies('1.0.66', $coreConstraint))->toBeTrue()
+        ->and(Semver::satisfies('1.0.71', $coreConstraint))->toBeFalse()
+        ->and(Semver::satisfies('1.0.72', $coreConstraint))->toBeTrue()
         ->and(Intervals::isSubsetOf($parser->parseConstraints($frontendConstraint), $parser->parseConstraints('>=1.0.31')))->toBeTrue()
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^1.0');
 });

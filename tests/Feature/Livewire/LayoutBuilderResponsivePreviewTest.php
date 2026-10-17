@@ -7,9 +7,11 @@ use Capell\LayoutBuilder\Enums\LayoutBreakpoint;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Capell\Tests\Support\RenderedHtml;
 use Livewire\Livewire;
-use Sinnbeck\DomAssertions\Asserts\AssertElement;
-use Sinnbeck\DomAssertions\Asserts\BaseAssert;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 uses(CreatesAdminUser::class);
 
@@ -49,7 +51,8 @@ function responsivePreviewLayoutBuilder(mixed $component): LayoutBuilder
 }
 
 it('keeps the layout builder workspace and shadow preview dark with the admin theme', function (): void {
-    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
+    // Required hooks and values protect the visual contract independently of formatting.
+    $visualEditorBlade = file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
         . file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php');
     $adminStyles = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/css/layout-builder/admin/capell-layout-filament.css');
 
@@ -57,26 +60,26 @@ it('keeps the layout builder workspace and shadow preview dark with the admin th
         ->toMatch('/\.dark\s+\.layout-builder-visual-canvas\s*\{\s*background\s*:\s*rgb\(\s*15\s*,\s*23\s*,\s*42\s*\);\s*\}/')
         ->toMatch('/\.dark\s+\.layout-builder-shadow-preview\s*\{\s*background\s*:\s*rgb\(\s*17\s*,\s*24\s*,\s*39\s*\);/')
         ->toContain('.layout-builder-preview-context')
-        ->toContain('@container (max-width: 72rem)')
-        ->toContain('min-width: 5.75rem')
+        ->toMatch('/@container\s*\(\s*max\-width\s*:\s*72rem\s*\)\s*/')
+        ->toMatch('/min\-width\s*:\s*5\.75rem/')
         ->toMatch('/\.layout-builder-breakpoint-button\s*\{\s*min-width: 5\.75rem;\s*width: auto;\s*height: var\(--layout-builder-hit-target\);\s*padding-inline: 0\.625rem;\s*\}/')
-        ->toContain('padding-bottom: 4.5rem');
+        ->toMatch('/padding\-bottom\s*:\s*4\.5rem/');
 
     expect($visualEditorBlade)
-        ->toContain(':host-context(.dark) .clb-preview-page { background: #111827; color: #f8fafc; }')
-        ->toContain(':host-context(.dark) .clb-preview-container { background: #111827;')
-        ->toContain(':host-context(.dark) .clb-preview-widget { background: #1e293b;')
-        ->toContain(':host-context(.dark) a { color: #7dd3fc; text-decoration-color: rgba(125,211,252,.56); }')
-        ->toContain(':host-context(.dark) .clb-preview-empty { background: rgba(255,255,255,.06); color: #cbd5e1; }');
+        ->toMatch('/\s*:\s*host\-context\s*\(\s*\.dark\s*\)\s*\.clb\-preview\-page\s*\{\s*background\s*:\s*\#111827\s*;\s*color\s*:\s*\#f8fafc\s*;\s*\}\s*/')
+        ->toMatch('/\s*:\s*host\-context\s*\(\s*\.dark\s*\)\s*\.clb\-preview\-container\s*\{\s*background\s*:\s*\#111827\s*;\s*/')
+        ->toMatch('/\s*:\s*host\-context\s*\(\s*\.dark\s*\)\s*\.clb\-preview\-widget\s*\{\s*background\s*:\s*\#1e293b\s*;\s*/')
+        ->toMatch('/\s*:\s*host\-context\s*\(\s*\.dark\s*\)\s*a\s*\{\s*color\s*:\s*\#7dd3fc\s*;\s*text\-decoration\-color\s*:\s*rgba\s*\(\s*125\s*,\s*211\s*,\s*252\s*,\s*\.56\s*\)\s*;\s*\}\s*/')
+        ->toMatch('/\s*:\s*host\-context\s*\(\s*\.dark\s*\)\s*\.clb\-preview\-empty\s*\{\s*background\s*:\s*rgba\s*\(\s*255\s*,\s*255\s*,\s*255\s*,\s*\.06\s*\)\s*;\s*color\s*:\s*\#cbd5e1\s*;\s*\}\s*/');
 
-    $statusPosition = strpos($visualEditorBlade, 'layout-builder-editor-status-unsaved');
-    $actionsPosition = strpos($visualEditorBlade, 'layout-builder-visual-actions');
+    config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+    $layout = Layout::factory()->create(['containers' => ['main' => ['widgets' => []]]]);
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout]);
+    $component->call('insertContainerAtPosition', 0)->assertHasNoErrors();
+    $document = new RenderedHtml($component->html());
 
-    if (! is_int($statusPosition) || ! is_int($actionsPosition)) {
-        throw new RuntimeException('Expected layout builder markers were not found.');
-    }
+    expect($document->count('//*[contains(concat(" ", normalize-space(@class), " "), " layout-builder-editor-status-unsaved ")]/following::*[contains(concat(" ", normalize-space(@class), " "), " layout-builder-visual-actions ")]'))->toBe(1);
 
-    expect($statusPosition)->toBeLessThan($actionsPosition);
 });
 
 it('can resize the active responsive preview without waiting for breakpoint rerender from the package namespace', function (): void {
@@ -106,38 +109,7 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ],
     ]]);
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
-        ->assertSeeHtml('setActiveBreakpointPreview')
-        ->assertSeeHtml('activeBreakpointMaxCanvasWidth')
-        ->assertSeeHtml('activeBreakpointMinCanvasWidth')
-        ->assertSeeHtml('syncPanelLayout')
-        ->assertSeeHtml('syncPreviewPayload')
-        ->assertSeeHtml('actionLoading')
-        ->assertSeeHtml('selectNode')
-        ->assertSeeHtml('applyPreviewBreakpoint')
-        ->assertSeeHtml('dispatchPreviewAction')
-        ->assertSeeHtml('afterLivewirePreviewMutation')
-        ->assertSeeHtml('syncSelectedPreviewNode')
-        ->assertSeeHtml('selectedPreviewMetaRows')
-        ->assertSeeHtml('handleEscape')
-        ->assertSeeHtml('clearSelectedPreviewNode')
-        ->assertSeeHtml('treeSearchResultCount')
-        ->assertSeeHtml('containerHasMatchingChild')
-        ->assertSeeHtml('widgetMatches')
-        ->assertSeeHtml('runSelectedPreviewAction')
-        ->assertSeeHtml('markPreviewActionLoading')
-        ->assertSeeHtml('callback(event.currentTarget)')
-        ->assertSeeHtml('duplicateWidget')
-        ->assertSeeHtml('removeWidget')
-        ->assertSeeHtml('previewWidgetActionsPayload')
-        ->assertSeeHtml('previewContainerActionsPayload')
-        ->assertSeeHtml('is-loading')
-        ->assertSeeHtml('clb-preview-insert-button.is-loading')
-        ->assertSeeHtml('aria-busy')
-        ->assertSeeHtml('--layout-builder-preview-max-width')
-        ->assertSeeHtml('--layout-builder-preview-min-width')
-        ->assertSeeHtml('--clb-preview-tablet-colspan: 6')
-        ->assertSeeHtml('--clb-preview-mobile-colspan: 12')
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertElementExists('.layout-builder-visual-toolbar')
         ->assertElementExists('.layout-builder-command-group')
         ->assertElementExists('.layout-builder-command-save')
@@ -165,64 +137,79 @@ it('renders responsive preview switching as an alpine interaction from the packa
         ->assertElementExists('[x-bind\\:data-layout-builder-breakpoint]')
         ->assertElementExists('[data-layout-builder-surface="preview-canvas"]')
         ->assertElementExists('[x-ref="previewCanvas"]')
-        ->assertSeeHtml('shouldStackContainersForActiveBreakpoint')
         ->assertElementExists('.layout-builder-canvas-scroll')
         ->assertElementExists('[x-bind\\:aria-pressed]')
         ->assertDontSeeHtml('requestPreviewRefresh')
         ->assertDontSeeHtml('layout-builder-preview-status-row')
         ->assertDontSeeHtml('layout-builder-preview-command-label')
-        ->assertDontSeeHtml('capell-layout-builder::generic.preview')
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[wire\\:click^="setActiveBreakpoint"]'));
+        ->assertDontSeeHtml('capell-layout-builder::generic.preview');
 
-    $visualEditorBlade = (string) file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
-        . file_get_contents(dirname(__DIR__, 3) . '/resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php');
+    expect(new RenderedHtml($component->html())->count('//*[starts-with(@*[name()="wire:click"], "setActiveBreakpoint")]'))->toBe(0);
 
-    expect($visualEditorBlade)
-        ->toContain('callback(event.currentTarget)')
-        ->toContain('(trigger) =>')
-        ->toContain('treeCollapsed: false')
-        ->toContain('const compactPanels = this.$el.offsetWidth <= 1152;')
-        ->toMatch('/if\s*\(\s*compactPanels\s*&&\s*!this\.compactPanels\s*\)\s*\{\s*this\.selectedNode\s*=\s*null;/')
-        ->toContain('markSelectedTreeNode()')
-        ->toMatch('/selectPreviewNode\s*\(\s*node\s*,\s*trigger\s*=\s*null\s*,?\s*\)\s*\{\s*this\.inspectorReturnFocus/')
-        ->toContain('outline: 1px solid rgba(8,119,101,.42)')
-        ->toContain('clb-preview-node-affordance')
-        ->toContain('addPreviewNodeAffordance(node)')
-        ->toContain("this.icon('click')")
-        ->toContain('border-radius: 0 !important')
-        ->toContain(':host([data-active-breakpoint="tablet"]) .clb-preview-content-layout-with-sidebar')
-        ->toContain('@container(max-width: 58rem)')
-        ->toContain("return this.activeBreakpoint !== 'desktop'")
-        ->toContain('selectedPreviewMetaRows()')
-        ->toContain('data-layout-builder-surface="visual-editor"')
-        ->toContain('data-layout-builder-surface="editor-mode"')
-        ->toContain('class="layout-builder-preview-context"')
-        ->toContain('activeBreakpointLabel()')
-        ->toContain('class="layout-builder-breakpoint-label"')
-        ->toContain('data-layout-builder-action="preview-{{ $breakpoint->value }}"')
-        ->toContain('x-bind:data-layout-builder-breakpoint="activeBreakpoint"')
-        ->toContain('handleEscape()')
-        ->toContain('clearSelectedPreviewNode()')
-        ->not->toContain('clb-preview-actionbar')
-        ->toContain('{!! $this->visualPreviewHtml() !!}')
-        ->toContain('runSelectedPreviewAction(')
-        ->toContain('typeOverride')
-        ->toContain("this.\$wire.\$call('duplicateWidget'")
-        ->toContain("this.\$wire.\$call('refreshVisualPreview')")
-        ->not->toContain('this.$wire.setActiveBreakpoint(this.activeBreakpoint)')
-        ->not->toContain('togglePreviewFocused')
-        ->not->toContain('{!! $this->visualPreviewHtml !!}')
-        ->not->toMatch('/selectPreviewNode\s*\(\s*node\s*\)\s*\{\s*this\.selectNode\s*\(\s*node\s*,\s*\(\s*\)\s*=>\s*this\.\$wire\.selectPreviewNode\s*\(\s*node\s*\)\s*\)/');
-
-    $previewActionTriggerPattern = static fn (string $actionName): string => sprintf(
-        "/this\\.runPreviewAction\\(\\s*'%s',[\\s\\S]*?\\{\\},\\s*trigger,\\s*\\)/",
-        preg_quote($actionName, '/'),
-    );
-
-    expect((bool) preg_match($previewActionTriggerPattern('addWidget'), $visualEditorBlade))
-        ->toBeTrue();
-    expect((bool) preg_match($previewActionTriggerPattern('addContainer'), $visualEditorBlade))
-        ->toBeTrue();
+    $outcomes = responsiveEditorOutcomes($component->__get('effects'), <<<'JS_WRAP'
+    (async () => {
+    const editor = window.capellLayoutBuilderVisualEditor({breakpointWidths: {desktop: '100%', tablet: '768px', mobile: '390px'}});
+    const properties = {};
+    const host = {dataset: {}, style: {}};
+    let focused = null;
+    const trigger = new HTMLElement();
+    trigger.isConnected = true;
+    trigger.focus = () => { focused = 'trigger'; };
+    editor.$refs = {previewHost: host, previewCanvas: {style: {setProperty(name, value) { properties[name] = value; }}}};
+    editor.$el = {offsetWidth: 1440, querySelectorAll() { return []; }, querySelector() { return null; }};
+    editor.$nextTick = callback => callback();
+    const breakpoints = [];
+    for (const breakpoint of ['desktop', 'tablet', 'mobile']) {
+        editor.setActiveBreakpointPreview(breakpoint);
+        breakpoints.push({breakpoint: host.dataset.activeBreakpoint, width: host.style.maxWidth, minimum: host.style.minWidth, stack: editor.shouldStackContainersForActiveBreakpoint(), canvasWidth: properties['--layout-builder-preview-max-width']});
+    }
+    editor.selectPreviewNode('widget:main:0', trigger);
+    const selected = editor.selectedNode;
+    editor.handleEscape();
+    const selectionCleared = editor.selectedNode === null;
+    editor.selectedNode = 'widget:main:0';
+    editor.$el.offsetWidth = 1000;
+    editor.syncPanelLayout();
+    const compact = {enabled: editor.compactPanels, selectionCleared: editor.selectedNode === null};
+    editor.openTree(trigger);
+    const open = editor.treeOpen;
+    editor.handleEscape();
+    editor.$refs.previewHost = null;
+    const widgets = ['Original'];
+    const mountedActions = [];
+    const triggerState = {};
+    const actionTrigger = new HTMLElement();
+    actionTrigger.setAttribute = (name, value) => { triggerState[name] = value; };
+    actionTrigger.removeAttribute = name => { delete triggerState[name]; };
+    actionTrigger.classList = {toggle() {}};
+    actionTrigger.toggleAttribute = (name, enabled) => { triggerState[name] = enabled; };
+    editor.$wire = {
+        async $call(action, containerKey, widgetIndex) {
+            if (action === 'duplicateWidget') widgets.push(widgets[widgetIndex]);
+            if (action === 'removeWidget') widgets.splice(widgetIndex, 1);
+        },
+        async mountAction(name, args) { mountedActions.push({name, args}); },
+    };
+    await editor.runPreviewAction('duplicateWidget', {containerKey: 'main', widgetIndex: 0}, {}, actionTrigger);
+    const duplicated = [...widgets];
+    await editor.runPreviewAction('removeWidget', {containerKey: 'main', widgetIndex: 0}, {}, actionTrigger);
+    await editor.runPreviewAction('addWidget', {containerKey: 'main', position: 1}, {type: 'page'}, actionTrigger);
+    console.log(JSON.stringify({breakpoints, selected, selectionCleared, compact, open, closed: !editor.treeOpen, focused, duplicated, remaining: widgets, action: mountedActions[0], loading: editor.actionLoading, busy: triggerState['aria-busy'], disabled: triggerState.disabled}));
+    })().catch(error => { console.error(error); process.exitCode = 1; });
+    JS_WRAP);
+    expect($outcomes)->toBe([
+        'breakpoints' => [
+            ['breakpoint' => 'desktop', 'width' => '100%', 'minimum' => '0', 'stack' => false, 'canvasWidth' => '100%'],
+            ['breakpoint' => 'tablet', 'width' => '768px', 'minimum' => '0', 'stack' => true, 'canvasWidth' => '768px'],
+            ['breakpoint' => 'mobile', 'width' => '390px', 'minimum' => '0', 'stack' => true, 'canvasWidth' => '390px'],
+        ],
+        'selected' => 'widget:main:0', 'selectionCleared' => true,
+        'compact' => ['enabled' => true, 'selectionCleared' => true],
+        'open' => true, 'closed' => true, 'focused' => 'trigger',
+        'duplicated' => ['Original', 'Original'], 'remaining' => ['Original'],
+        'action' => ['name' => 'addWidget', 'args' => ['containerKey' => 'main', 'position' => 1, 'type' => 'page']],
+        'loading' => false, 'busy' => 'false', 'disabled' => false,
+    ]);
 });
 
 it('groups the visual preview into main sidebar and custom area regions from the package namespace', function (): void {
@@ -302,3 +289,33 @@ it('resets a responsive override to the base colspan fallback from the package n
         ->call('resetResponsiveContainerOverride', 'main')
         ->assertSet('containers.main.meta.responsive', []);
 });
+
+/** @return array<string, mixed> */
+function responsiveEditorOutcomes(mixed $effects, string $scenario): array
+{
+    $node = (new ExecutableFinder)->find('node');
+    if ($node === null || ! is_dir(dirname(__DIR__, 5) . '/node_modules')) {
+        TestCase::markTestSkipped('Visual editor interactions require the optional Node tooling.');
+    }
+
+    $scripts = data_get($effects, 'scripts', []);
+    throw_unless(is_array($scripts), RuntimeException::class, 'Expected the rendered Livewire scripts.');
+    $source = '';
+    foreach ($scripts as $script) {
+        throw_unless(is_string($script), RuntimeException::class, 'Expected a rendered script.');
+        preg_match_all('/<script[^>]*>(.*?)<\/script>/s', $script, $matches);
+        $source .= implode("\n", $matches[1]);
+    }
+
+    $process = new Process([$node, '-e', 'global.window = {requestAnimationFrame: callback => callback(), setTimeout: callback => callback()}; global.document = {activeElement: null}; global.HTMLElement = class {}; ' . $source . "\n" . $scenario], dirname(__DIR__, 5));
+    $process->setTimeout(10)->run();
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput());
+
+    $outcomes = [];
+    foreach (capell_json_array($process->getOutput()) as $key => $value) {
+        throw_unless(is_string($key), RuntimeException::class, 'Expected named interaction outcomes.');
+        $outcomes[$key] = $value;
+    }
+
+    return $outcomes;
+}

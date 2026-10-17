@@ -33,6 +33,11 @@ use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetEnum;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderNonPublishableAssetForm;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Capell\Tests\Support\CssDeclarations;
+use Capell\Tests\Support\RenderedHtml;
+use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Events\QueryExecuted;
@@ -43,11 +48,11 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema as SchemaFacade;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Sinnbeck\DomAssertions\Asserts\AssertElement;
-use Sinnbeck\DomAssertions\Asserts\BaseAssert;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
+use Symfony\Component\Process\ExecutableFinder;
+use Symfony\Component\Process\Process;
 
 uses(CreatesAdminUser::class);
 
@@ -68,12 +73,13 @@ it('renders the content first editor by default from the package namespace', fun
         'main' => ['widgets' => []],
     ]]);
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertElementExists('[data-layout-builder-surface="content-editor"]')
         ->assertSee(__('capell-layout-builder::generic.content_first_editor'))
-        ->assertSee(__('capell-layout-builder::button.advanced_layout'))
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[data-layout-builder-surface="visual-editor"]'));
+        ->assertSee(__('capell-layout-builder::button.advanced_layout'));
+
+    expect((new RenderedHtml($component->html()))->count('//*[@data-layout-builder-surface="visual-editor"]'))->toBe(0);
 });
 
 it('mounts with public widget extension blocks beside editable widgets', function (): void {
@@ -158,13 +164,25 @@ it('renders a full width empty page preview when a layout has no containers', fu
 
     $layout = Layout::factory()->create(['containers' => []]);
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee(__('capell-layout-builder::message.layout_empty'))
         ->assertElementExists('.clb-preview-empty-page')
         ->assertElementExists('.layout-builder-shadow-preview-empty');
 
-    expect(file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php'))
-        ->toContain('.clb-preview-empty-page { grid-column: 1 / -1; }');
+    $document = new RenderedHtml($component->html());
+    expect($document->count('//*[contains(concat(" ", normalize-space(@class), " "), " clb-preview-empty-page ")]'))->toBe(1)
+        ->and($document->count('//*[@data-clb-preview-node-type="widget"]'))->toBe(0);
+
+    // Livewire delivers this script separately; execute the public editor
+    // factory and parse the CSS returned for its preview shadow root.
+    $outcomes = contentFirstEditorOutcomes($component->__get('effects'), <<<'JS'
+console.log(JSON.stringify({styles: window.capellLayoutBuilderVisualEditor().shadowStyles()}));
+JS);
+    $styles = $outcomes['styles'] ?? null;
+    throw_unless(is_string($styles), RuntimeException::class, 'Expected preview shadow CSS.');
+    $declarations = CssDeclarations::parse($styles);
+    expect(collect($declarations)->where('selector', '.clb-preview-empty-page')->where('property', 'grid-column')->pluck('value')->all())
+        ->toContain('1 / -1');
 });
 
 it('inserts a positioned container after hydrating an empty layout', function (): void {
@@ -199,11 +217,21 @@ it('duplicates an empty container after hydrating the layout', function (): void
         ->and(array_keys($layout->refresh()->containers))->toBe(['main', 'container-2']);
 });
 
-it('preloads the visual editor Alpine factory before dynamic mode changes', function (): void {
-    $indexView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/index.blade.php');
+it('can switch to the visual editor after mounting the content editor', function (): void {
+    $layout = Layout::factory()->create(['containers' => ['main' => ['widgets' => []]]]);
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->assertSet('editorMode', 'content_first');
 
-    expect($indexView)
-        ->toContain("'scriptOnly' => true");
+    $outcomes = contentFirstEditorOutcomes($component->__get('effects'), <<<'JS'
+const editor = window.capellLayoutBuilderVisualEditor({breakpointWidths: {mobile: '390px'}});
+editor.$refs = {previewHost: {dataset: {}, style: {}}};
+editor.setActiveBreakpointPreview('mobile');
+console.log(JSON.stringify({breakpoint: editor.$refs.previewHost.dataset.activeBreakpoint, width: editor.$refs.previewHost.style.maxWidth}));
+JS);
+    expect($outcomes)->toBe(['breakpoint' => 'mobile', 'width' => '390px']);
+    $component->call('showAdvancedLayout')
+        ->assertSet('editorMode', 'layout_first')
+        ->assertElementExists('[data-layout-builder-surface="visual-editor"]');
 });
 
 it('resolves lazy mount scalar identifiers into builder models', function (): void {
@@ -271,7 +299,7 @@ it('selects the requested widget when mounted from frontend authoring', function
         ->assertSet('selectedContainerKey', 'main')
         ->assertSet('selectedWidgetIndex', 1);
 
-    $selectedWidget = $component->instance()->selectedWidget();
+    $selectedWidget = capell_test_instance($component->instance(), LayoutBuilder::class)->selectedWidget();
 
     expect($selectedWidget?->name)->toBe('Proof widget')
         ->and($selectedWidget?->relationLoaded('type'))->toBeTrue();
@@ -288,6 +316,273 @@ it('dispatches frontend authoring dirty and saved lifecycle events', function ()
         ->assertNotified(__('capell-layout-builder::message.layout_unsaved'));
 
     expect($component->instance()->saveLayout())->toBeTrue();
+});
+
+it('acknowledges an untouched automatic layout save for page editors without shared layout permission', function (): void {
+    [$site, $layout, $page, $editor, $widgetAsset] = contentFirstPageSaveFixture();
+    $layoutAttributes = $layout->refresh()->getAttributes();
+    $pageAttributes = $page->refresh()->getAttributes();
+    $widgetAssetAttributes = $widgetAsset->refresh()->getAttributes();
+
+    expect($editor->isGlobalAdmin())->toBeFalse()
+        ->and($editor->getAssignedSiteIds()->all())->toBe([$site->getKey()])
+        ->and(Gate::forUser($editor)->allows('update', $page))->toBeTrue()
+        ->and(Gate::forUser($editor)->allows('editContent', $page))->toBeTrue()
+        ->and(Gate::forUser($editor)->allows('editLayout', $page))->toBeTrue()
+        ->and(Gate::forUser($editor)->allows('editLayout', $layout))->toBeFalse()
+        ->and(Gate::forUser($editor)->allows('update', $layout))->toBeFalse();
+
+    $component = Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])
+        ->assertSet('editorMode', 'content_first')
+        ->assertSet('layoutModified', false)
+        ->assertSet('layout.pages_count', 2);
+    $containers = $component->get('containers');
+    $assets = $component->get('assets');
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    $component
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertOk()
+        ->assertHasNoErrors()
+        ->assertSet('layoutModified', false)
+        ->assertSet('layout.id', $layout->getKey())
+        ->assertSet('page.id', $page->getKey())
+        ->assertSet('site.id', $site->getKey())
+        ->assertSet('containers', $containers)
+        ->assertSet('assets', $assets)
+        ->assertDispatched('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null)
+        ->assertNotDispatched('layout-builder-reset');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($layoutAttributes)
+        ->and($page->refresh()->getAttributes())->toBe($pageAttributes)
+        ->and($widgetAsset->refresh()->getAttributes())->toBe($widgetAssetAttributes);
+});
+
+it('forbids modified automatic layout saves for page editors without shared layout permission', function (): void {
+    [$site, $layout, $page, $editor, $widgetAsset] = contentFirstPageSaveFixture();
+    $layoutAttributes = $layout->refresh()->getAttributes();
+    $pageAttributes = $page->refresh()->getAttributes();
+    $widgetAssetAttributes = $widgetAsset->refresh()->getAttributes();
+
+    $component = Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])
+        ->set('containers.main.meta.html_class', 'unauthorised-layout-change')
+        ->set('layoutModified', true);
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    $component
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertForbidden()
+        ->assertNotDispatched('capell-layout-builder-authoring-saved');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($layoutAttributes)
+        ->and($page->refresh()->getAttributes())->toBe($pageAttributes)
+        ->and($widgetAsset->refresh()->getAttributes())->toBe($widgetAssetAttributes);
+});
+
+it('keeps direct untouched layout saves forbidden for page editors without shared layout permission', function (): void {
+    [$site, $layout, $page, $editor, $widgetAsset] = contentFirstPageSaveFixture();
+    $layoutAttributes = $layout->refresh()->getAttributes();
+    $widgetAssetAttributes = $widgetAsset->refresh()->getAttributes();
+
+    $component = Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])->assertSet('layoutModified', false);
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    $component
+        ->call('saveLayout', withNotifications: true)
+        ->assertForbidden()
+        ->assertNotDispatched('capell-layout-builder-authoring-saved');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($layoutAttributes)
+        ->and($widgetAsset->refresh()->getAttributes())->toBe($widgetAssetAttributes);
+});
+
+it('forbids an automatic untouched layout save after its site no longer matches the page', function (): void {
+    [$site, $layout, $page] = contentFirstPageSaveFixture();
+    $component = Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])->assertSet('layoutModified', false);
+
+    $layout->update(['site_id' => Site::factory()->create()->getKey()]);
+    $layoutAttributes = $layout->refresh()->getAttributes();
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    $component
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertForbidden()
+        ->assertNotDispatched('capell-layout-builder-authoring-saved');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($layoutAttributes);
+});
+
+it('forbids an automatic untouched layout save after the page editors site role is revoked', function (): void {
+    [$site, $layout, $page, $editor] = contentFirstPageSaveFixture();
+    $layoutAttributes = $layout->refresh()->getAttributes();
+    $component = Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])->assertSet('layoutModified', false);
+
+    $editor->removeRoleForSite($site, 'page-save-content-editor');
+    expect($editor->getAssignedSiteIds())->toBeEmpty();
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    $component
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertForbidden()
+        ->assertNotDispatched('capell-layout-builder-authoring-saved');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($layoutAttributes);
+});
+
+it('rejects an automatic untouched layout save after the page editor signs out', function (): void {
+    [$site, $layout, $page] = contentFirstPageSaveFixture();
+    $layoutAttributes = $layout->refresh()->getAttributes();
+    $component = Livewire::test(LayoutBuilder::class, [
+        'siteId' => $site->getKey(),
+        'layoutId' => $layout->getKey(),
+        'pageId' => $page->getKey(),
+        'pageClass' => Page::class,
+    ])->assertSet('layoutModified', false);
+
+    Filament::auth()->logout();
+    test()->withoutExceptionHandling();
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    expect(function () use ($component): void {
+        $component->dispatch('save-layout', withNotifications: true);
+    })->toThrow(AuthenticationException::class);
+
+    $component->assertNotDispatched('capell-layout-builder-authoring-saved');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($layoutAttributes);
+});
+
+it('persists authorised automatic layout saves with the existing notifications and lifecycle', function (): void {
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+
+    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('insertContainerAtPosition', 1)
+        ->assertSet('layoutModified', true)
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertOk()
+        ->assertHasNoErrors()
+        ->assertSet('layoutModified', false)
+        ->assertDispatched('layout-builder-reset')
+        ->assertDispatched('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null)
+        ->assertNotified(Notification::make('layout-saved')
+            ->body(__('capell-layout-builder::message.layout_saved'))
+            ->success());
+
+    expect(array_keys($layout->refresh()->containers))->toBe(['main', 'container-2'])
+        ->and($layout->containers['container-2']['widgets'])->toBe([]);
+});
+
+it('reports stale layout saves without writes and recovers using the other editors layout', function (): void {
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('insertContainerAtPosition', 1)
+        ->assertSet('layoutModified', true);
+
+    $otherEditorContainers = [
+        'main' => ['widgets' => [], 'meta' => ['html_class' => 'other-editor']],
+        'other-editor' => ['widgets' => [], 'meta' => []],
+    ];
+    Layout::query()->whereKey($layout->getKey())->firstOrFail()->forceFill([
+        'containers' => $otherEditorContainers,
+        'updated_at' => now()->addMinute(),
+    ])->save();
+    $otherEditorAttributes = $layout->refresh()->getAttributes();
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    $component
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertOk()
+        ->assertHasErrors(['layoutConflict' => 'The layout changed in another editor. Reload before saving.'])
+        ->assertSet('layout.id', $layout->getKey())
+        ->assertSet('containers', $otherEditorContainers)
+        ->assertSet('expectedLayoutUpdatedAt', $layout->updated_at?->toIso8601String())
+        ->assertNotDispatched('capell-layout-builder-authoring-saved')
+        ->assertNotDispatched('layout-builder-reset');
+
+    expect($writes)->toBeEmpty()
+        ->and($layout->refresh()->getAttributes())->toBe($otherEditorAttributes);
+
+    $component
+        ->call('insertContainerAtPosition', 2)
+        ->dispatch('save-layout', withNotifications: true)
+        ->assertOk()
+        ->assertHasNoErrors()
+        ->assertSet('layoutModified', false)
+        ->assertDispatched('layout-builder-reset')
+        ->assertDispatched('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null);
+
+    expect($writes)->not->toBeEmpty()
+        ->and($layout->refresh()->containers)->toBe([
+            ...$otherEditorContainers,
+            'container-3' => ['widgets' => []],
+        ]);
+});
+
+it('reports a permanently deleted layout as a conflict without writes', function (): void {
+    $layout = Layout::factory()->create(['containers' => [
+        'main' => ['widgets' => []],
+    ]]);
+
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('insertContainerAtPosition', 1);
+
+    $instance = $component->instance();
+    if (! $instance instanceof LayoutBuilder) {
+        throw new RuntimeException('Expected a Layout Builder component.');
+    }
+
+    $instance->hydrate();
+    Layout::query()->whereKey($layout->getKey())->firstOrFail()->forceDelete();
+    $writes = [];
+    contentFirstTrackDatabaseWrites($writes);
+
+    expect($instance->saveLayout(withNotifications: true))->toBeFalse()
+        ->and($instance->getErrorBag()->first('layoutConflict'))->toBe('The layout no longer exists.')
+        ->and($writes)->toBeEmpty()
+        ->and(Layout::query()->withoutGlobalScopes()->whereKey($layout->getKey())->exists())->toBeFalse();
 });
 
 it('clears cached pages affected by frontend authoring widget edits', function (): void {
@@ -572,8 +867,9 @@ it('lets content editors use content first without advanced layout access from t
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSet('editorMode', 'content_first')
         ->assertElementExists('[data-layout-builder-surface="content-editor"]')
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.layout-builder-add-container-button'))
         ->assertDontSeeHtml("mountAction('addWidget')");
+
+    expect((new RenderedHtml($component->html()))->count('//*[contains(concat(" ", normalize-space(@class), " "), " layout-builder-add-container-button ")]'))->toBe(0);
 
     $component
         ->call('showAdvancedLayout')
@@ -732,7 +1028,7 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->and($tree->containers[0]->widgets[0]->nodeId)
         ->toBe(hash('xxh128', 'widget:main:0'));
 
-    Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->assertSee(__('capell-layout-builder::form.search_layout_tree'))
         ->assertSee(__('capell-layout-builder::button.clear_layout_tree_search'))
         ->assertSee(__('capell-layout-builder::message.layout_tree_search_empty'))
@@ -747,25 +1043,20 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->assertElementExists('[data-layout-builder-tree-container][role="treeitem"] > [role="group"]')
         ->assertElementExists('[role="treeitem"][aria-level="2"]')
         ->assertElementExists('[role="treeitem"][aria-level="1"] > .layout-builder-tree-row-container[tabindex="-1"]')
-        ->assertSeeHtml('x-bind:data-layout-builder-selected')
         ->assertElementExists('[data-layout-builder-surface="tree"]')
         ->assertElementExists('[data-layout-builder-surface="visual-editor"]')
         ->assertElementExists('[data-layout-builder-surface="toolbar"]')
         ->assertElementExists('[data-layout-builder-surface="preview-canvas"]')
         ->assertElementExists('[data-layout-builder-surface="inspector"]')
         ->assertElementExists('[data-clb-preview-node]')
-        ->assertSeeHtml('previewWidgetActions')
-        ->assertSeeHtml('runPreviewAction')
-        ->assertSeeHtml('editWidget')
-        ->assertSeeHtml('duplicateWidget')
-        ->assertSeeHtml('removeWidget')
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('.visual-inspector'))
         ->call('selectWidget', 'main', 0)
         ->assertSet('selectedContainerKey', 'main')
         ->assertSet('selectedWidgetIndex', 0)
-        ->assertSee(__('capell-layout-builder::button.edit_widget'))
-        ->assertSeeHtml('mountAction')
-        ->assertElementExists(fn (AssertElement $body): BaseAssert => $body->doesntContain('[data-layout-content-action="editWidgetAsset"]'));
+        ->assertSee(__('capell-layout-builder::button.edit_widget'));
+
+    $document = new RenderedHtml($component->html());
+    expect($document->count('//*[contains(concat(" ", normalize-space(@class), " "), " visual-inspector ")]'))->toBe(0)
+        ->and($document->count('//*[@data-layout-content-action="editWidgetAsset"]'))->toBe(0);
 
     Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->set('visualPreviewNodeMap', [])
@@ -773,59 +1064,48 @@ it('renders widget rows in the structure tree and wires preview widget actions f
         ->assertSet('selectedContainerKey', 'main')
         ->assertSet('selectedWidgetIndex', 0);
 
-    $treeView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-tree.blade.php');
-    $editorView = file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor.blade.php')
-        . file_get_contents(__DIR__ . '/../../../resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php');
-
-    expect($treeView)
-        ->not->toContain('$this->editWidgetAssetAction')
-        ->toContain('x-show="containerMatches($el)"')
-        ->toContain('x-bind:hidden="! containerMatches($el)"')
-        ->toContain('x-show="widgetMatches($el)"')
-        ->toContain('treeContainerOpen(')
-        ->toContain('treeSearchResultLabel()')
-        ->toContain('clearTreeSearch()')
-        ->toContain('data-layout-builder-tree-widget')
-        ->toContain('data-layout-builder-tree-item="{{ $container->key }}"')
-        ->toContain('role="tree"')
-        ->toContain('role="treeitem"')
-        ->toContain('role="group"')
-        ->toContain('aria-level="2"')
-        ->toContain('handleTreeKeydown($event, $el)')
-        ->toContain('x-bind:data-layout-builder-selected')
-        ->and($editorView)
-        ->not->toContain('visual-inspector')
-        ->toContain('treeSearchActive()')
-        ->toContain('treeSearchScope()')
-        ->toContain('treeSearchResultCount()')
-        ->toContain('handleTreeKeydown(event, item)')
-        ->toContain("event.key === 'ArrowDown'")
-        ->toContain("event.key === 'ArrowUp'")
-        ->toContain("const visibleNodes = (scope, selector = '[role=\"treeitem\"]')")
-        ->toContain('filter((node) => node.offsetParent !== null)')
-        ->toContain("visibleNodes(container, '[data-layout-builder-tree-widget]')[0]?.focus()")
-        ->toContain("['Enter', ' '].includes(event.key)")
-        ->toContain('containerHasMatchingChild(element)')
-        ->toContain('containerMatches(element)')
-        ->toContain('widgetMatches(element)')
-        ->toContain('mountAction(actionName, args)')
-        ->toContain("node.setAttribute('role', 'button')")
-        ->toContain("node.setAttribute('aria-label', label)")
-        ->toContain("['Enter', ' '].includes(event.key)")
-        ->not->toContain('clb-preview-actionbar')
-        ->toContain('x-bind:data-layout-builder-action')
-        ->toContain("'edit-container' : 'edit-widget'")
-        ->toContain('data-layout-builder-action="edit-layout-widget"')
-        ->toContain('data-layout-builder-action="${actionName}"')
-        ->toContain('if (this.compactPanels) this.closeTree(false)')
-        ->and($treeView)
-        ->toContain('compactPanels ? closeTree() : toggleTreeCollapsed()')
-        ->and($editorView)
-        ->toContain('data-layout-builder-surface="inspector-backdrop"')
-        ->toContain('data-layout-builder-surface="structure-drawer"')
-        ->toContain('x-trap.noscroll="compactPanels && treeOpen"')
-        ->toContain('x-bind:aria-labelledby="compactPanels ? \'layout-builder-inspector-title\' : null"')
-        ->toContain('this.inspectorReturnFocus = this.$refs.treeToggle');
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout]);
+    $outcomes = contentFirstEditorOutcomes($component->__get('effects'), <<<'JS'
+const editor = window.capellLayoutBuilderVisualEditor({actionLabels: {treeSearchResult: '1 match', treeSearchResults: ':count matches'}});
+let focused = null;
+let activated = null;
+const item = (id, label, visible = true) => ({
+    dataset: {layoutBuilderTreeNode: id, layoutBuilderTreeSearch: label},
+    offsetParent: visible ? {} : null,
+    focus() { focused = id; },
+    click() { activated = id; },
+    matches() { return false; },
+    closest() { return null; },
+});
+const widgets = [item('first', 'Featured story'), item('hidden', 'Hidden story', false), item('last', 'Other story')];
+const container = {dataset: {layoutBuilderTreeNode: 'main', layoutBuilderTreeSearch: 'Main'}, querySelectorAll() { return widgets; }};
+const scope = {querySelectorAll(selector) { return selector.includes('tree-container') ? [container] : widgets; }};
+editor.$el = {closest() { return scope; }};
+editor.$refs = {treeSearchInput: {focus() { focused = 'search'; }}};
+editor.$nextTick = callback => callback();
+editor.search = '  FEATURED  ';
+const search = {matches: widgets.map(widget => editor.widgetMatches(widget)), parentVisible: editor.containerMatches(container), count: editor.treeSearchResultCount(), label: editor.treeSearchResultLabel()};
+const key = (key, target) => editor.handleTreeKeydown({key, preventDefault() {}}, target);
+key('ArrowDown', widgets[0]);
+const down = focused;
+key('ArrowUp', widgets[2]);
+const up = focused;
+key('End', widgets[0]);
+const end = focused;
+key('Home', widgets[2]);
+const home = focused;
+key('Enter', widgets[0]);
+const enter = activated;
+key(' ', widgets[2]);
+const space = activated;
+editor.clearTreeSearch();
+console.log(JSON.stringify({search, down, up, end, home, enter, space, cleared: editor.search, focus: focused, allVisible: widgets.every(widget => editor.widgetMatches(widget))}));
+JS);
+    expect($outcomes)->toBe([
+        'search' => ['matches' => [true, false, false], 'parentVisible' => true, 'count' => 1, 'label' => '1 match'],
+        'down' => 'last', 'up' => 'first', 'end' => 'last', 'home' => 'first',
+        'enter' => 'first', 'space' => 'last', 'cleared' => '', 'focus' => 'search', 'allVisible' => true,
+    ]);
 });
 
 it('renders widget copy in the visual preview from the package namespace', function (): void {
@@ -994,3 +1274,77 @@ it('rejects stale content first asset saves from the package namespace', functio
 /**
  * @property string|null $title
  */
+
+/** @return array{Site, Layout, Page, User, WidgetAsset} */
+function contentFirstPageSaveFixture(): array
+{
+    foreach (['View:Page', 'Update:Page', 'EditLayout:Page', 'EditContent:Layout', 'EditLayout:Layout', 'Update:Layout'] as $permission) {
+        Permission::findOrCreate($permission, 'web');
+    }
+
+    config(['permission.teams' => true]);
+    resolve(PermissionRegistrar::class)->teams = true;
+
+    $site = Site::factory()->withTranslations()->create();
+    $widget = Widget::factory()->create(['key' => 'featured', 'name' => 'Featured']);
+    $layout = Layout::factory()->site($site)->create(['containers' => [
+        'main' => ['widgets' => [
+            ['widget_key' => $widget->key, 'occurrence' => 1],
+        ]],
+    ]]);
+    $page = Page::factory()->for($site)->create(['layout_id' => $layout->getKey()]);
+    $otherPage = Page::factory()->for($site)->withTranslations()->create(['layout_id' => $layout->getKey()]);
+    $widgetAsset = WidgetAsset::factory()
+        ->widget($widget)
+        ->asset($otherPage)
+        ->occurrence(1)
+        ->create(['order' => 1, 'meta' => ['variant' => 'default']]);
+    $role = Role::findOrCreate('page-save-content-editor', 'web');
+    $role->givePermissionTo(['View:Page', 'Update:Page', 'EditLayout:Page']);
+
+    $editor = User::factory()->create();
+    $editor->assignRoleForSite($site, $role);
+
+    resolve(PermissionRegistrar::class)->setPermissionsTeamId($site);
+    test()->actingAs($editor);
+
+    return [$site, $layout, $page, $editor, $widgetAsset];
+}
+
+/** @param list<string> $writes */
+function contentFirstTrackDatabaseWrites(array &$writes): void
+{
+    DB::listen(function (QueryExecuted $query) use (&$writes): void {
+        if (preg_match('/^\s*(?:insert|update|delete|replace|alter|create|drop|truncate)\b/i', $query->sql) === 1) {
+            $writes[] = $query->sql;
+        }
+    });
+}
+
+/** @return array<string, mixed> */
+function contentFirstEditorOutcomes(mixed $effects, string $scenario): array
+{
+    $node = (new ExecutableFinder)->find('node');
+    if ($node === null || ! is_dir(dirname(__DIR__, 5) . '/node_modules')) {
+        throw new RuntimeException('Visual editor interactions require provisioned Node tooling.');
+    }
+    $scripts = data_get($effects, 'scripts', []);
+    throw_unless(is_array($scripts), RuntimeException::class, 'Expected the rendered Livewire scripts.');
+    $source = '';
+    foreach ($scripts as $script) {
+        throw_unless(is_string($script), RuntimeException::class, 'Expected a rendered script.');
+        preg_match_all('/<script[^>]*>(.*?)<\/script>/s', $script, $matches);
+        $source .= implode("\n", $matches[1]);
+    }
+    $process = new Process([$node, '-e', 'global.window = {}; ' . $source . "\n" . $scenario], dirname(__DIR__, 5));
+    $process->setTimeout(10)->run();
+    expect($process->getExitCode())->toBe(0, $process->getErrorOutput());
+
+    $outcomes = [];
+    foreach (capell_json_array($process->getOutput()) as $key => $value) {
+        throw_unless(is_string($key), RuntimeException::class, 'Expected named interaction outcomes.');
+        $outcomes[$key] = $value;
+    }
+
+    return $outcomes;
+}

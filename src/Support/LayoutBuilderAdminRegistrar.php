@@ -26,10 +26,11 @@ use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Support\Assets\FileVersionedCss;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Facades\FilamentAsset;
-use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Translation\FileLoader;
 use Livewire\Livewire;
+use Override;
 use RuntimeException;
 
 final class LayoutBuilderAdminRegistrar implements ExtensionContribution, RegistersExtensionAdminResource, RegistersExtensionAsset
@@ -44,8 +45,9 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private const string WIDGET_TYPE_CONFIGURATOR = WidgetTypeConfigurator::class;
 
-    public function __construct(private readonly Container $app) {}
+    public function __construct(private readonly Application $app) {}
 
+    #[Override]
     public static function compatibleCapellApiVersion(): string
     {
         return '^1.0';
@@ -80,6 +82,15 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         $this->app->instance(self::REGISTRATION_FLAG, true);
     }
 
+    public function assertPublishDirectoryExists(): void
+    {
+        $directory = realpath($this->packageBasePath() . '/publishes');
+
+        if ($directory === false) {
+            throw new RuntimeException('Publish directory not found.');
+        }
+    }
+
     public function registerResources(): void
     {
         CapellAdmin::contributeToAdminSurface(AdminSurfaceContributionData::resource(
@@ -104,10 +115,13 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
     {
         $basePath = $this->packageBasePath();
 
-        $this->app->make(ViewFactory::class)->replaceNamespace(
-            'capell-layout-builder',
-            $basePath . '/resources/views',
-        );
+        // Package Tools appends its namespace during provider boot; replace it afterwards.
+        $this->app->booted(function () use ($basePath): void {
+            $this->app->make(ViewFactory::class)->replaceNamespace(
+                'capell-layout-builder',
+                $basePath . '/resources/views',
+            );
+        });
 
         $this->app->afterResolving('translation.loader', function (mixed $translatorLoader) use ($basePath): void {
             if ($translatorLoader instanceof FileLoader) {
@@ -176,7 +190,9 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
         $register = function (): void {
             Livewire::component('capell-layout-builder::filament.layout-builder', LayoutBuilder::class);
 
-            if (! method_exists(Livewire::getFacadeRoot(), 'addNamespace')) {
+            $livewire = Livewire::getFacadeRoot();
+
+            if (! is_object($livewire) || ! method_exists($livewire, 'addNamespace')) {
                 return;
             }
 
@@ -201,12 +217,12 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private function registerFilamentAssets(): void
     {
+        $this->assertPublishDirectoryExists();
+
         $basePath = $this->packageBasePath();
-        $publishDir = realpath($basePath . '/publishes');
+        $publishDir = $basePath . '/publishes';
         $cssSourcePath = $basePath . '/resources/css/layout-builder/admin/capell-layout-filament.css';
         $cssRelativePublicPath = 'css/capell-layout-builder/capell-layout-builder-filament.css';
-
-        throw_if($publishDir === false, RuntimeException::class, 'Publish directory not found.');
 
         FilamentAsset::register(
             [
@@ -242,12 +258,6 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
      */
     private function containsResource(array $resources, string ...$classes): bool
     {
-        foreach ($classes as $class) {
-            if (in_array($class, $resources, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($classes, fn (string $class): bool => in_array($class, $resources, true));
     }
 }

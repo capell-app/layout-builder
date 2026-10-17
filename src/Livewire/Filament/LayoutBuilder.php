@@ -310,6 +310,25 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
     }
 
     #[On('save-layout')]
+    public function saveLayoutAfterRecordSaved(bool $withNotifications = false, ?LayoutPreset $linkedPreset = null, ?LayoutPresetLinkData $linkedPresetLink = null, ?string $linkedContainerKey = null): bool
+    {
+        $this->assertCanUseLayoutBuilder();
+
+        // Record saves also dispatch this event when the shared layout is untouched.
+        if (! $this->layoutModified) {
+            $this->dispatch('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null);
+
+            return true;
+        }
+
+        return $this->saveLayout(
+            withNotifications: $withNotifications,
+            linkedPreset: $linkedPreset,
+            linkedPresetLink: $linkedPresetLink,
+            linkedContainerKey: $linkedContainerKey,
+        );
+    }
+
     public function saveLayout(bool $withNotifications = false, ?LayoutPreset $linkedPreset = null, ?LayoutPresetLinkData $linkedPresetLink = null, ?string $linkedContainerKey = null): bool
     {
         $this->assertCanUpdateLayout();

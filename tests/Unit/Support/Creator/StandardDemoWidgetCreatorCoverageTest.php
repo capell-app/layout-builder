@@ -11,6 +11,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderStandardDemoContentPage;
@@ -85,6 +86,10 @@ it('builds standard content, faq, gallery, carousel, and navigation demo widgets
     $carouselWidget = $creator->createMediaCarouselWidget();
     $navigationWidget = $creator->createStaticNavigationWidget($languages, $site);
     $pageCardsWidget = $creator->createPageCardsWidget($homePage, occurrence: 3);
+
+    expect($faqWidget->refresh()->getMetaComponent())->toBe(WidgetComponentEnum::AssetAccordion->value)
+        ->and($navigationWidget->refresh()->load('blueprint')->getMetaComponent())->toBe(WidgetComponentEnum::Navigation->value)
+        ->and($splitContentWidget->refresh()->load('blueprint')->getMetaComponent())->toBe(WidgetComponentEnum::Default->value);
 
     expect($contentWidget->key)->toBe('example-content')
         ->and($splitContentWidget->key)->toBe('example-split-content')

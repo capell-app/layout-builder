@@ -40,11 +40,9 @@ use Illuminate\Support\Facades\App;
 final class LayoutBuilderCoreRegistrar
 {
     /**
-     * LayoutModelRegistrar::register() and page type registration already run
-     * eagerly during LayoutBuilderServiceProvider::packageRegistered() (the
-     * Laravel register phase, which always completes before any provider's
-     * boot phase runs), so they are intentionally not repeated here -- see
-     * that method for the single source of truth.
+     * Model and morph-map registration remains in packageRegistered(); blueprint
+     * subjects are registered by the installed-runtime hook before this registrar.
+     * Neither registration needs to be repeated here.
      */
     public function register(): void
     {

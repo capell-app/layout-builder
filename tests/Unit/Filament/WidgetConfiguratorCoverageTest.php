@@ -278,9 +278,9 @@ it('replaces the widget display tab with focused presentation tabs', function ()
  */
 function layoutBuilderWidgetTypeAdminTabComponents(): array
 {
-    $adminTab = new ReflectionMethod(WidgetTypeConfigurator::class, 'adminTab');
-
-    $mountedTab = layoutBuilderMountedComponentTree([$adminTab->invoke(new WidgetTypeConfigurator)])[0] ?? null;
+    $schema = WidgetTypeConfigurator::configure(Schema::make(new LayoutBuilderCoverageSchemaHarness));
+    $mountedTab = collect($schema->getFlatComponents(withHidden: true))
+        ->first(fn (mixed $component): bool => $component instanceof Tab && $component->getLabel() === __('capell-admin::generic.admin'));
 
     if (! is_object($mountedTab) || ! method_exists($mountedTab, 'getDefaultChildComponents')) {
         return [];

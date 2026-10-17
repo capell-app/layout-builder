@@ -7,7 +7,6 @@ namespace Capell\LayoutBuilder\Filament\Components\Forms\Widget;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Filament\Components\Forms\BlueprintSelect as BaseBlueprintSelect;
-use Capell\Core\Enums\BlueprintSubjectEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Filament\Schemas\Schema;
@@ -16,12 +15,12 @@ use Override;
 
 class TypeSelect extends BaseBlueprintSelect
 {
-    protected null|BlueprintSubjectEnum|string $type = LayoutTypeEnum::Widget->value;
-
     #[Override]
     protected function setUp(?string $label = null): void
     {
         parent::setUp($label);
+
+        $this->subject(LayoutTypeEnum::Widget->value);
 
         $this->disableOptionWhen(
             fn (self $component, mixed $value, string $operation): bool => $operation === 'edit'
