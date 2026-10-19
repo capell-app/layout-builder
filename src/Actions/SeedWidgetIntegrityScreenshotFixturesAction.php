@@ -7,9 +7,11 @@ namespace Capell\LayoutBuilder\Actions;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\ScreenshotFixtures\FixtureState;
 use LogicException;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
+use RuntimeException;
 
 /**
  * @method static void run()
@@ -29,6 +31,21 @@ final class SeedWidgetIntegrityScreenshotFixturesAction
 
     public function handle(): void
     {
+        $path = getenv('CAPELL_SCREENSHOT_APP_PATH');
+        throw_unless(
+            app()->environment(['local', 'testing'])
+                && getenv('CAPELL_SCREENSHOT_FIXTURE') === 'record-state'
+                && is_string($path)
+                && realpath($path) !== false
+                && realpath($path) === realpath(base_path())
+                && (realpath($path) === realpath(dirname(__DIR__, 4) . '/vendor/orchestra/testbench-core/laravel')
+                    || str_starts_with((string) realpath($path), dirname(__DIR__, 4) . '/tmp/testbench-skeletons/')),
+            RuntimeException::class,
+            'Screenshot fixtures require the explicit disposable local screenshot environment.',
+        );
+
+        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        FixtureState::boot();
         $widgetType = resolve(TypeCreator::class)->defaultWidgetType();
 
         $this->upsertWidget(self::UNUSED_WIDGET_KEY, [

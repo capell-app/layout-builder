@@ -7,17 +7,24 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\MainContentRenderHookData;
 use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
+use Capell\LayoutBuilder\Actions\ApplyLayoutSidebarWidgetContributionsAction;
+use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderResidualFrontendContextForLoadedLayout;
+use Capell\LayoutBuilder\Tests\Fixtures\StandardLayoutSidebarContributor;
 use Capell\LayoutBuilder\Tests\Fixtures\View\Components\PackageAlert;
+use Dom\HTMLDocument;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\HtmlString;
+use Symfony\Component\HttpFoundation\Response;
 
 beforeEach(function (): void {
     CapellLayoutManager::clearContainerWidgets();
@@ -179,4 +186,40 @@ it('preloads layout widgets during hook rendering when the layout manager is emp
 
     expect($output)->toContain('id="layout-container-main"')
         ->and(CapellLayoutManager::getStoredContainerWidget('main', 'package-alert'))->toBe($widget);
+});
+
+it('renders dynamic results beside a contributed sidebar without authoring internals', function (): void {
+    app()->bind(StandardLayoutSidebarContributor::class, fn (): StandardLayoutSidebarContributor => new StandardLayoutSidebarContributor);
+    app()->tag([StandardLayoutSidebarContributor::class], LayoutSidebarWidgetContributor::TAG);
+
+    $sidebar = Widget::factory()->create(['key' => 'standard-sidebar', 'component' => 'capell.widget.default', 'meta' => []]);
+    $slot = Widget::factory()->create(['key' => 'page-slot', 'component' => 'capell.widget.slot', 'meta' => ['type' => 'slot']]);
+    $layout = Layout::factory()->create(['key' => 'results']);
+    $layout->forceFill(['containers' => []])->save();
+
+    ApplyLayoutSidebarWidgetContributionsAction::run($layout);
+    CapellLayoutManager::storeContainerWidget('main', 'page-slot', $slot);
+    CapellLayoutManager::storeContainerWidget('sidebar', 'standard-sidebar', $sidebar);
+    $context = new MainContentRenderHookData(
+        layout: $layout->refresh(),
+        page: null,
+        pageSlot: new HtmlString('<p data-public-results>Public results</p>'),
+    );
+    $output = resolve(RenderHookRegistry::class)->renderAll(
+        RenderHookLocation::MainContent,
+        $context,
+        scenario: 'frontend-main-layout',
+        target: 'capell::layout.main',
+    );
+    $html = '<!doctype html><html><head><title>Results</title></head><body>' . $output . '</body></html>';
+    $document = HTMLDocument::createFromString($html);
+
+    expect($document->querySelectorAll('#layout-container-main [data-public-results]'))->toHaveCount(1)
+        ->and($document->querySelectorAll('#layout-container-sidebar'))->toHaveCount(1)
+        ->and($context->slotRendered)->toBeTrue();
+    AssertPublicHtmlContainsNoAuthoringSurfaceAction::run(new Response(
+        $html,
+        Response::HTTP_OK,
+        ['Content-Type' => 'text/html'],
+    ));
 });

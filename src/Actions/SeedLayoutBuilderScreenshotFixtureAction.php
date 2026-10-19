@@ -6,6 +6,7 @@ namespace Capell\LayoutBuilder\Actions;
 
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
+use Capell\ScreenshotFixtures\FixtureState;
 use RuntimeException;
 
 /**
@@ -28,6 +29,9 @@ final class SeedLayoutBuilderScreenshotFixtureAction
     public static function run(): int
     {
         self::assertDisposableScreenshotEnvironment();
+
+        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        FixtureState::boot();
 
         $widgetType = resolve(TypeCreator::class)->defaultWidgetType();
 
@@ -62,7 +66,9 @@ final class SeedLayoutBuilderScreenshotFixtureAction
                 && in_array(getenv('CAPELL_SCREENSHOT_FIXTURE'), ['1', 'true', 'record-state'], true)
                 && is_string($basePath)
                 && is_string($appPath)
-                && $basePath === $appPath,
+                && $basePath === $appPath
+                && ($basePath === realpath(dirname(__DIR__, 4) . '/vendor/orchestra/testbench-core/laravel')
+                    || str_starts_with($basePath, dirname(__DIR__, 4) . '/tmp/testbench-skeletons/')),
             RuntimeException::class,
             'Layout Builder screenshot fixtures require the explicit disposable local screenshot environment.',
         );

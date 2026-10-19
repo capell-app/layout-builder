@@ -9,9 +9,9 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
-use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\FrontendContext;
 use Capell\Frontend\Data\FrontendRenderContextData;
+use Capell\Frontend\Facades\Frontend;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -62,6 +62,7 @@ final class RestoreWidgetInteractionContextAction
             if (! $translation instanceof Model) {
                 return null;
             }
+
             $page->setRelation('translation', $translation);
 
             $layout = $this->optionalLayout($envelope['layout_id'] ?? null);
@@ -88,7 +89,7 @@ final class RestoreWidgetInteractionContextAction
             }
 
             $context = new FrontendRenderContextData($page, $site, $language, $layout, $theme);
-            app()->instance(FrontendContextReader::class, new FrontendContext(
+            Frontend::swap(new FrontendContext(
                 site: $site,
                 language: $language,
                 page: $page,

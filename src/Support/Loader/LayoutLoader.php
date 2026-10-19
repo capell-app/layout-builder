@@ -27,7 +27,7 @@ class LayoutLoader
     private const string RETRIEVED_MODEL_STORE_SERVICE = 'capell.frontend.retrieved-model-store';
 
     /**
-     * Preloaded widgets per [layoutId][languageId][pageIdOr0] => [containerKey][widgetKey][occurrence] => Widget
+     * Preloaded widgets per [layoutId][composition][languageId][pageIdOr0] => [containerKey][widgetKey][occurrence] => Widget
      * Used to avoid N+1 queries when resolving multiple widgets for a layout.
      *
      * @var array<string, array<string, array<string, array<int, Widget>>>>
@@ -339,7 +339,10 @@ class LayoutLoader
     {
         $containers = $containerKeys === null ? '*' : implode(',', array_values(array_unique($containerKeys)));
 
-        return 'layout:' . $layout->id . ':lang:' . $language->id . ':page:' . ($page instanceof Pageable ? $page->id : 0) . ':containers:' . $containers;
+        // A layout can acquire containers after an earlier render in this scope.
+        $composition = hash('sha256', json_encode($this->selectedLayoutContainers($layout, $containerKeys), JSON_THROW_ON_ERROR));
+
+        return 'layout:' . $layout->id . ':lang:' . $language->id . ':page:' . ($page instanceof Pageable ? $page->id : 0) . ':containers:' . $containers . ':composition:' . $composition;
     }
 
     /**

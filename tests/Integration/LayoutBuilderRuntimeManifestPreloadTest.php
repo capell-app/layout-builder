@@ -60,6 +60,40 @@ it('reuses fully preloaded widgets and their blueprint runtime flags without que
         ->and($manifest->modules['layout-builder'])->toBeTrue();
 })->with(['blade blueprint' => false, 'livewire blueprint' => true]);
 
+it('refreshes preloaded widgets when the same layout composition changes', function (string $initial, bool $scoped): void {
+    $language = Language::factory()->create();
+    $first = Widget::factory()->create(['key' => 'before-composition-change']);
+    $second = Widget::factory()->create(['key' => 'after-composition-change']);
+    $layout = Layout::factory()->create([
+        'containers' => $initial === 'empty' ? null : ['main' => ['widgets' => [['widget_key' => $first->key, 'occurrence' => 1]]]],
+    ]);
+    $loader = resolve(LayoutLoader::class);
+    $containerKeys = $scoped ? ['main'] : null;
+    $loader->preloadLayoutWidgets($layout, $language, null, $containerKeys);
+    $layout->update(['containers' => ['main' => ['widgets' => [['widget_key' => $second->key, 'occurrence' => 2]]]]]);
+
+    $resolved = $loader->getLayoutWidget($layout, $second->key, $language, null, 'main', 2, $containerKeys);
+    expect($resolved?->getKey())->toBe($second->getKey())
+        ->and($loader->getLayoutWidget($layout, $first->key, $language, null, 'main', 1, $containerKeys))->toBeNull();
+    $freshLayout = $layout->fresh();
+    assertInstanceOf(Layout::class, $freshLayout);
+    $connection = DB::connection();
+    $wasLogging = $connection->logging();
+    $connection->flushQueryLog();
+    $connection->enableQueryLog();
+    try {
+        $reused = $loader->getLayoutWidget($freshLayout, $second->key, $language, null, 'main', 2, $containerKeys);
+        expect($reused?->getKey())->toBe($second->getKey())
+            ->and($connection->getQueryLog())->toBeEmpty();
+    } finally {
+        if (! $wasLogging) {
+            $connection->disableQueryLog();
+        }
+
+        $connection->flushQueryLog();
+    }
+})->with([['empty', false], ['replacement', false], ['empty', true], ['replacement', true]]);
+
 it('retains the widget query when the preload is unavailable or incomplete', function (string $preload): void {
     $blade = Widget::factory()->create(['is_livewire' => false]);
     $livewire = Widget::factory()->create(['is_livewire' => true, 'component' => 'runtime-preload-widget']);

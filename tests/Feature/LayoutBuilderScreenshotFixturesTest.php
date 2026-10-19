@@ -137,7 +137,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 
     public function test_it_seeds_widget_integrity_screenshot_data_idempotently_before_capture(): void
     {
-        SeedWidgetIntegrityScreenshotFixturesAction::run();
+        $this->seedIntegrityFixtures();
 
         $firstFixtureState = WidgetAsset::query()
             ->whereIn('container', [
@@ -149,7 +149,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             ->mapWithKeys(fn (WidgetAsset $asset): array => [$asset->container => $asset->updated_at?->toAtomString()])
             ->all();
 
-        SeedWidgetIntegrityScreenshotFixturesAction::run();
+        $this->seedIntegrityFixtures();
 
         $secondFixtureState = WidgetAsset::query()
             ->whereIn('container', [
@@ -179,7 +179,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         $this->get($usagePath)->assertForbidden();
         $this->actingAs(User::factory()->create())->get($usagePath)->assertForbidden();
 
-        SeedWidgetIntegrityScreenshotFixturesAction::run();
+        $this->seedIntegrityFixtures();
 
         $beforeCapture = WidgetAsset::query()
             ->whereIn('container', [
@@ -310,7 +310,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         $site = Site::factory()->create(['default' => true]);
         SiteDomain::query()->updateOrCreate([
             'site_id' => $site->id, 'domain' => 'localhost', 'path' => null,
-        ], ['scheme' => 'http', 'language_id' => $site->language_id, 'status' => true, 'default' => true]);
+        ], ['scheme' => 'http', 'port' => request()->getPort(), 'language_id' => $site->language_id, 'status' => true, 'default' => true]);
         Page::factory()->site($site)->create(['name' => 'Existing page']);
         $initialPages = Page::query()->count();
         $originalFixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
@@ -393,6 +393,20 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 
         $this->registerFixtureRoutes('registerLayoutBuilderScreenshotFixtureRoutes');
         WidgetScreenshotFixtureRoutes::register();
+    }
+
+    private function seedIntegrityFixtures(): void
+    {
+        $fixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
+        $path = getenv('CAPELL_SCREENSHOT_APP_PATH');
+        putenv('CAPELL_SCREENSHOT_FIXTURE=record-state');
+        putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
+        try {
+            SeedWidgetIntegrityScreenshotFixturesAction::run();
+        } finally {
+            putenv($fixture === false ? 'CAPELL_SCREENSHOT_FIXTURE' : 'CAPELL_SCREENSHOT_FIXTURE=' . $fixture);
+            putenv($path === false ? 'CAPELL_SCREENSHOT_APP_PATH' : 'CAPELL_SCREENSHOT_APP_PATH=' . $path);
+        }
     }
 
     /**
