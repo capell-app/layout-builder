@@ -194,7 +194,7 @@ it('renders responsive preview switching as an alpine interaction from the packa
     const duplicated = [...widgets];
     await editor.runPreviewAction('removeWidget', {containerKey: 'main', widgetIndex: 0}, {}, actionTrigger);
     await editor.runPreviewAction('addWidget', {containerKey: 'main', position: 1}, {type: 'page'}, actionTrigger);
-    console.log(JSON.stringify({breakpoints, selected, selectionCleared, compact, open, closed: !editor.treeOpen, focused, duplicated, remaining: widgets, action: mountedActions[0], loading: editor.actionLoading, busy: triggerState['aria-busy'], disabled: triggerState.disabled}));
+    console.log(JSON.stringify({breakpoints, selected, selectionCleared, compact, open, closed: !editor.treeOpen, focused, duplicated, remaining: widgets, action: mountedActions[1], duplicateAction: mountedActions[0], loading: editor.actionLoading, busy: triggerState['aria-busy'], disabled: triggerState.disabled}));
     })().catch(error => { console.error(error); process.exitCode = 1; });
     JS_WRAP);
     expect($outcomes)->toBe([
@@ -206,8 +206,9 @@ it('renders responsive preview switching as an alpine interaction from the packa
         'selected' => 'widget:main:0', 'selectionCleared' => true,
         'compact' => ['enabled' => true, 'selectionCleared' => true],
         'open' => true, 'closed' => true, 'focused' => 'trigger',
-        'duplicated' => ['Original', 'Original'], 'remaining' => ['Original'],
+        'duplicated' => ['Original'], 'remaining' => [],
         'action' => ['name' => 'addWidget', 'args' => ['containerKey' => 'main', 'position' => 1, 'type' => 'page']],
+        'duplicateAction' => ['name' => 'duplicateWidget', 'args' => ['containerKey' => 'main', 'widgetIndex' => 0]],
         'loading' => false, 'busy' => 'false', 'disabled' => false,
     ]);
 });

@@ -1006,7 +1006,6 @@
 
 .layout-builder-visual-editor {
     position: relative;
-    isolation: isolate;
     min-width: 0;
     overflow: hidden;
     border: 0;
@@ -2387,7 +2386,7 @@
 .layout-builder-drawer-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 80;
+    z-index: 30;
     background: rgba(15, 23, 42, 0.45);
 }
 
@@ -2395,7 +2394,7 @@
     position: fixed;
     top: 0;
     bottom: 0;
-    z-index: 90;
+    z-index: 35;
     width: min(28rem, calc(100vw - 2rem));
     overflow: auto;
     background: rgb(255, 255, 255);
@@ -2765,6 +2764,10 @@
     color: rgb(248, 250, 252);
 }
 
+.dark .layout-builder-inspector-card h4 {
+    color: rgb(148, 163, 184);
+}
+
 .dark .layout-builder-inspector-header-actions > span {
     background: color-mix(in srgb, var(--primary-500) 20%, transparent);
     color: var(--primary-300);
@@ -2855,7 +2858,7 @@
         top: 0;
         right: 0;
         bottom: 0;
-        z-index: 90;
+        z-index: 35;
         display: flex;
         width: min(28rem, calc(100vw - 2rem));
         overflow-y: auto;

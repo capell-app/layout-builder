@@ -7,6 +7,12 @@ use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderContainerWidgetMutationHarness;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Text;
+use Filament\Schemas\Schema;
+use Illuminate\Contracts\Translation\Translator;
+use Illuminate\Support\Facades\Validator;
 
 uses(CreatesAdminUser::class);
 
@@ -242,4 +248,27 @@ it('mutates widgets across positions containers and occurrence metadata', functi
     capell_expect($mainWidgets[0]['widget_key'] ?? null)->toBe('card')
         ->and($harness->assets['main'])->toHaveCount(1)
         ->and($harness->selectedRecords['main'])->toHaveCount(1);
+});
+
+it('displays the translated container key helper and normalises accepted input', function (): void {
+    $translation = 'capell-layout-builder::message.container_key_helper';
+    expect(resolve(Translator::class)->has($translation))->toBeTrue();
+
+    $harness = makeLayoutBuilderMutationHarness(Layout::factory()->create());
+    $schema = Schema::make($harness);
+    $schema->components(array_values(array_filter(
+        $harness->getContainerSchema($schema, []),
+        static fn (mixed $component): bool => $component instanceof Component,
+    )));
+    $field = $schema->getFlatFields()['key'];
+    throw_unless($field instanceof TextInput, RuntimeException::class);
+
+    $helper = $field->getChildSchema('below_content')?->getComponents()[0] ?? null;
+    expect($helper)->toBeInstanceOf(Text::class);
+    throw_unless($helper instanceof Text, RuntimeException::class);
+
+    expect($helper->getContent())->toBe(__($translation))
+        ->and(Validator::make(['key' => 'News_2026'], ['key' => $field->getValidationRules()])->passes())->toBeTrue()
+        ->and(Validator::make(['key' => 'News desk'], ['key' => $field->getValidationRules()])->passes())->toBeFalse()
+        ->and($field->getStateToDehydrate('News_2026'))->toBe(['key' => 'news-2026']);
 });

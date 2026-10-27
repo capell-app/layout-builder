@@ -6,6 +6,7 @@ use Capell\Admin\Filament\Components\Tables\Filters\StatusFilter;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Capell\Tests\Support\RenderedDocument;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\Layout\View as LayoutView;
 use Filament\Tables\Contracts\HasTable;
@@ -110,7 +111,7 @@ it('keeps the empty state truthful when a filter excludes an existing widget', f
         ->toBe('No widgets are available for the current selection. Try adjusting your search or filters.');
 });
 
-it('renders a preview URL, accessible image text, counts, and a no-image fallback', function (): void {
+it('renders an accessible preview without developer usage badges and uses an icon fallback', function (): void {
     $widget = Widget::factory()->make([
         'name' => 'Hero Widget',
         'key' => 'internal-hero-key',
@@ -131,11 +132,11 @@ it('renders a preview URL, accessible image text, counts, and a no-image fallbac
     expect($html)
         ->toContain('Hero Widget')
         ->toContain('widget-previews/hero.png')
-        ->toContain('alt="Preview of Hero Widget"')
-        ->toContain('3 layouts')
-        ->toContain('2 assets')
+        ->toContain('alt="' . __('capell-layout-builder::table.widget_preview_alt', ['widget' => $widget->name]) . '"')
         ->not->toContain('internal-hero-key')
         ->not->toContain('component_item');
+
+    expect(new RenderedDocument($html)->elements('//article//ul'))->toBe([]);
 
     $widget->setAttribute('admin', []);
     $html = view(
@@ -144,9 +145,12 @@ it('renders a preview URL, accessible image text, counts, and a no-image fallbac
     )->render();
 
     expect($html)
-        ->toContain(__('capell-layout-builder::table.widget_preview_fallback'))
+        ->not->toContain(__('capell-layout-builder::table.widget_preview_fallback'))
+        ->toContain('<svg')
         ->toContain('role="img"')
         ->not->toContain('<img');
+    expect(new RenderedDocument($html)->element('//article//div[@role="img"]')->getAttribute('aria-label'))
+        ->toBe(__('capell-layout-builder::table.widget_icon_alt', ['widget' => $widget->name]));
 });
 
 function configureWidgetSelectionTable(): Table

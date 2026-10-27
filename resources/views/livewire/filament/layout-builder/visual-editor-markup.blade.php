@@ -397,6 +397,16 @@
                                 <button
                                     type="button"
                                     class="layout-builder-inspector-action layout-builder-inspector-action-secondary"
+                                    x-show="selectedPreviewAction()?.type === 'widget'"
+                                    x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
+                                    x-on:click="runSelectedPreviewAction('makeIndependentWidgetCopy', $event.currentTarget)"
+                                >
+                                    {{ __('capell-layout-builder::button.make_independent_widget_copy') }}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="layout-builder-inspector-action layout-builder-inspector-action-secondary"
                                     x-bind:disabled="! selectedPreviewAction()?.canEditLayout"
                                     x-on:click="
                                     runSelectedPreviewAction(

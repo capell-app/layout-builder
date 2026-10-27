@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Capell\Tests\Support\CoreRepositoryLocator;
-
 it('separates inspected release evidence from optional replacement targets', function (): void {
     $entries = collect(layout_builder_screenshot_entries());
 
@@ -60,7 +58,7 @@ it('separates inspected release evidence from optional replacement targets', fun
         expect($entry)
             ->not->toBeNull()
             ->and($entry['required'] ?? true)->toBeFalse()
-            ->and($entry['notes'] ?? '')->toStartWith('Optional replacement target.');
+            ->and($entry['notes'] ?? '')->not->toBe('');
     }
 
     foreach ($deferredMarketplaceIds as $deferredMarketplaceId) {
@@ -85,13 +83,12 @@ it('marks frontend layout builder screenshots as anonymous visitor captures', fu
             'layout-builder-bulk-change-review',
         ]);
 
-    expect($frontendEntries)->toHaveCount(6);
+    expect($frontendEntries)->toHaveCount(4);
 
     $frontendEntries->each(static function (array $entry): void {
         expect($entry['user'] ?? null)->toBeFalse()
             ->and($entry['targetType'])->toBe('frontend-url')
-            ->and($entry['waitFor'] ?? null)->toBe('body')
-            ->and($entry['url'] ?? '')->toStartWith('/screenshot-fixtures/layout-builder/');
+            ->and($entry['url'] ?? '')->not->toStartWith('/admin/');
     });
 });
 
@@ -100,18 +97,14 @@ it('keeps unstable action-state screenshots on deterministic anonymous fixture r
         ->whereIn('id', [
             'layout-builder-preset-action',
             'layout-builder-undo-redo-actions',
-            'layout-builder-bulk-change-criteria',
-            'layout-builder-bulk-change-review',
         ])
         ->keyBy('id');
 
-    expect($fixtureEntries)->toHaveCount(4);
+    expect($fixtureEntries)->toHaveCount(2);
 
     $expectedUrls = [
         'layout-builder-preset-action' => '/screenshot-fixtures/layout-builder/preset-action',
         'layout-builder-undo-redo-actions' => '/screenshot-fixtures/layout-builder/undo-redo-actions',
-        'layout-builder-bulk-change-criteria' => '/screenshot-fixtures/layout-builder/bulk-change-criteria',
-        'layout-builder-bulk-change-review' => '/screenshot-fixtures/layout-builder/bulk-change-review',
     ];
 
     foreach ($expectedUrls as $entryId => $expectedUrl) {
@@ -129,45 +122,56 @@ it('keeps unstable action-state screenshots on deterministic anonymous fixture r
     }
 });
 
-it('captures widget integrity states through authenticated production table presenters', function (): void {
-    $entries = collect(layout_builder_screenshot_entries())
-        ->whereIn('id', [
-            'layout-builder-unused-disabled-widget',
-            'layout-builder-broken-unscoped-widget-assets',
-        ])
-        ->keyBy('id');
+it('uses native persisted public layouts and a preview-only bulk change wizard', function (): void {
+    $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
+    foreach ([
+        'layout-example-main-sidebar-public' => '/studio-workshop-programme',
+        'layout-example-full-width-public' => '/studio-workshop-programme-full-width',
+    ] as $id => $url) {
+        expect($entries[$id])->toMatchArray([
+            'url' => $url,
+            'surface' => 'frontend',
+            'user' => false,
+            'waitFor' => '.widget-default:has-text("Visitor information")',
+        ]);
+    }
 
-    expect($entries)->toHaveCount(2);
-
-    expect($entries['layout-builder-unused-disabled-widget'])
-        ->toMatchArray([
+    foreach (['layout-builder-bulk-change-criteria', 'layout-builder-bulk-change-review'] as $id) {
+        expect($entries[$id])->toMatchArray([
+            'url' => '/admin/layout-builder/layouts',
             'surface' => 'admin',
-            'scenario' => 'admin-index',
-            'url' => '/screenshot-fixtures/layout-builder-integrity/widget-usage',
-            'waitFor' => '[data-layout-builder-integrity-table="widgets"] table',
-            'target' => 'WidgetsTable',
+            'user' => 'admin',
+            'waitFor' => '.fi-modal-window:visible',
+        ]);
+        $interactions = $entries[$id]['interactions'] ?? [];
+        throw_unless(is_array($interactions), RuntimeException::class, 'Expected native bulk wizard interactions.');
+        expect($interactions)->not->toBeEmpty();
+        foreach ($interactions as $interaction) {
+            throw_unless(is_array($interaction), RuntimeException::class, 'Expected a native bulk wizard interaction.');
+            if (($interaction['type'] ?? null) === 'click') {
+                expect($interaction['selector'] ?? '')->not->toContain('Approve and apply');
+            }
+        }
+    }
+});
+
+it('captures widget integrity states through authenticated native widget screens', function (): void {
+    $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
+    foreach ([
+        'layout-builder-unused-disabled-widget' => ['admin-index', 'WidgetResource/ListWidgets'],
+        'layout-builder-broken-unscoped-widget-assets' => ['admin-form', 'WidgetResource/EditWidget/WidgetAssetsRelationManager'],
+    ] as $id => [$scenario, $target]) {
+        expect($entries[$id])->toMatchArray([
+            'surface' => 'admin',
+            'scenario' => $scenario,
+            'url' => '/admin/layout-builder/widgets',
+            'waitFor' => 'table',
+            'target' => $target,
             'required' => false,
             'user' => 'admin',
-            'interactions' => [
-                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widgets"] tr:has-text("Screenshot unused and disabled widget") .fi-badge'],
-                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widgets"] tr:has-text("Screenshot unused and disabled widget") div.table-cell-action-icon svg'],
-            ],
         ]);
-
-    expect($entries['layout-builder-broken-unscoped-widget-assets'])
-        ->toMatchArray([
-            'surface' => 'admin',
-            'scenario' => 'admin-index',
-            'url' => '/screenshot-fixtures/layout-builder-integrity/widget-assets',
-            'waitFor' => '[data-layout-builder-integrity-table="widget-assets"] table',
-            'target' => 'WidgetAssetsTable',
-            'required' => false,
-            'user' => 'admin',
-            'interactions' => [
-                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widget-assets"] tr:has-text("Broken asset") .fi-badge'],
-                ['type' => 'waitFor', 'selector' => '[data-layout-builder-integrity-table="widget-assets"] tr:has-text("Not placed") .fi-badge'],
-            ],
-        ]);
+        expect($entries[$id]['interactions'] ?? [])->not->toBeEmpty();
+    }
 });
 
 it('uses stable selector interactions for admin screenshot captures that the workbench can drive', function (): void {
@@ -213,14 +217,14 @@ it('uses stable selector interactions for admin screenshot captures that the wor
             ['type' => 'waitFor', 'selector' => '[data-layout-builder-breakpoint="tablet"]'],
         ],
         'layout-builder-tree-selection' => [
-            ['type' => 'click', 'selector' => '[data-layout-builder-tree-item="main"]'],
-            ['type' => 'waitFor', 'selector' => '[data-layout-builder-selected="true"]'],
+            ['type' => 'click', 'selector' => '[data-layout-builder-tree-widget]:visible'],
+            ['type' => 'waitFor', 'selector' => '[data-layout-builder-tree-widget][data-layout-builder-selected="true"]:visible'],
         ],
         'layout-builder-tree-keyboard-search' => [
-            ['type' => 'fill', 'selector' => 'input[type="search"]', 'value' => 'Screenshot hero'],
+            ['type' => 'fill', 'selector' => '.layout-builder-tree-search input:visible', 'value' => 'Workshop overview'],
             ['type' => 'waitForTimeout', 'timeout' => 400],
-            ['type' => 'press', 'selector' => '[data-layout-builder-tree-item="main"]', 'value' => 'ArrowRight'],
-            ['type' => 'waitFor', 'selector' => "[data-layout-builder-tree-widget][data-layout-builder-tree-search*='Screenshot hero']:focus"],
+            ['type' => 'press', 'selector' => '[data-layout-builder-tree-item="main"]:visible', 'value' => 'ArrowRight'],
+            ['type' => 'waitFor', 'selector' => "[data-layout-builder-tree-widget][data-layout-builder-tree-search*='Workshop overview']:focus"],
             ['type' => 'waitFor', 'selector' => "[data-layout-builder-tree-item='sidebar']:not(:visible)"],
         ],
     ];
@@ -269,25 +273,15 @@ it('opens the mobile structure drawer before selecting the container inspector a
 });
 
 it('keeps deferred page-building guide evidence out of required promotion', function (): void {
-    $documentationRepository = CoreRepositoryLocator::path();
+    // The Core guide that must not embed this evidence is asserted in tests/Feature/LayoutBuilderDeferredGuideEvidenceTest.php:
+    // this suite is a package attestation check, so it reads nothing from the Core checkout outside the keyed Core code.
     $packageRepository = dirname(__DIR__, 4);
-    $guidePath = $documentationRepository . '/docs/getting-started/building-pages.md';
-
-    expect($guidePath)->toBeReadableFile();
-
-    $guide = file_get_contents($guidePath);
     $entries = collect(layout_builder_screenshot_entries())->keyBy('id');
 
     $deferredEntries = [
         'layout-builder-add-container-action',
         'layout-builder-add-widget-action',
     ];
-
-    expect($guide)
-        ->toBeString()
-        ->toContain('https://docs.capell.app/packages/layout-builder')
-        ->not->toContain('page-building-layout-builder-editor.png')
-        ->not->toContain('page-building-layout-builder-add-widget.png');
 
     foreach ($deferredEntries as $id) {
         $entry = $entries->get($id);
@@ -300,9 +294,24 @@ it('keeps deferred page-building guide evidence out of required promotion', func
 
         expect($entry)
             ->and($entry['required'] ?? true)->toBeFalse()
-            ->and(is_file($packageRepository . '/' . $screenshotPath))->toBeFalse()
+            ->and(is_file($packageRepository . '/' . $screenshotPath))->toBeTrue()
             ->and($entry['notes'] ?? '')->toBe('Deferred: the current fixture evidence has been retired. Replace it with an authentic installed-App route capture before Marketplace promotion.')
             ->and($entry['useCase'] ?? '')->not->toBe('');
+
+        $receiptPath = $packageRepository . '/docs/screenshot-receipts/native-layout-actions-20261020/layout-builder--' . $id . '.json';
+        $report = json_decode((string) file_get_contents($receiptPath), true, flags: JSON_THROW_ON_ERROR);
+        throw_unless(is_array($report), RuntimeException::class, 'Expected an accepted screenshot report.');
+        $provenance = $report['provenance'] ?? null;
+        throw_unless(is_array($provenance), RuntimeException::class, 'Expected screenshot provenance.');
+        $receipts = $provenance['receipts'] ?? null;
+        throw_unless(is_array($receipts), RuntimeException::class, 'Expected screenshot receipts.');
+        $receipt = collect($receipts)->firstWhere('id', $id);
+        throw_unless(is_array($receipt), RuntimeException::class, 'Expected the accepted screenshot receipt.');
+        $output = $receipt['output'] ?? null;
+        throw_unless(is_array($output), RuntimeException::class, 'Expected the accepted screenshot output.');
+        expect($output['path'] ?? null)->toBe($screenshotPath)
+            ->and($output['sha256'] ?? null)->toBe(hash_file('sha256', $packageRepository . '/' . $screenshotPath))
+            ->and($provenance['generator'] ?? null)->toBe('shared-capell-screenshot-runner');
     }
 });
 

@@ -72,6 +72,11 @@
         'widgetIndex' => $widgetIndex,
     ]);
 
+    $independentWidgetCopyAction = ($this->makeIndependentWidgetCopyAction)([
+        'containerKey' => $containerKey,
+        'widgetIndex' => $widgetIndex,
+    ]);
+
     $duplicateWidgetAction = ($this->duplicateWidgetAction)([
         'containerKey' => $containerKey,
         'widgetIndex' => $widgetIndex,
@@ -91,6 +96,7 @@
         || $editLayoutWidgetAction?->isVisible()
         || $togglePageAssetsAction?->isVisible()
         || $duplicateWidgetAction?->isVisible()
+        || $independentWidgetCopyAction?->isVisible()
         || $removeWidgetAction?->isVisible();
 @endphp
 {{-- format-ignore-end --}}
@@ -238,6 +244,9 @@
 
                         @if ($duplicateWidgetAction?->isVisible())
                             {{ $duplicateWidgetAction }}
+                        @endif
+                        @if ($independentWidgetCopyAction?->isVisible())
+                            {{ $independentWidgetCopyAction }}
                         @endif
 
                         @if ($removeWidgetAction?->isVisible())

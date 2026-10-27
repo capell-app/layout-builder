@@ -901,10 +901,6 @@
                         await this.$wire.$call('removeContainer', args.containerKey);
                         await this.$wire.$call('refreshVisualPreview');
                     },
-                    duplicateWidget: async () => {
-                        await this.$wire.$call('duplicateWidget', args.containerKey, args.widgetIndex);
-                        await this.$wire.$call('refreshVisualPreview');
-                    },
                     removeWidget: async () => {
                         await this.$wire.$call('removeWidget', args.containerKey, args.widgetIndex);
                         await this.$wire.$call('refreshVisualPreview');

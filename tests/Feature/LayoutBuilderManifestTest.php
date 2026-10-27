@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use Capell\Core\Contracts\Extensions\RegistersExtensionPageType;
+use Capell\Core\Contracts\Extensions\RegistersExtensionPublicRenderData;
 use Capell\Core\Contracts\Extensions\RegistersExtensionRoute;
 use Capell\Core\Contracts\Extensions\RunsExtensionMigration;
 use Capell\Core\Contracts\PackageLifecycleAction;
+use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageUrl;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
@@ -24,6 +26,7 @@ use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Models\WidgetWidget;
+use Capell\LayoutBuilder\Support\BuilderBlockPublicRenderDataContributor;
 use Composer\Semver\Intervals;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
@@ -330,3 +333,13 @@ function layoutBuilderJson(string $path): array
 
     return json_decode($contents !== false ? $contents : '[]', true, flags: JSON_THROW_ON_ERROR);
 }
+
+it('declares media invalidation for the public builder block render data', function (): void {
+    $manifest = json_decode((string) file_get_contents(dirname(__DIR__, 2) . '/capell.json'), true, flags: JSON_THROW_ON_ERROR);
+    $sources = data_get($manifest, 'performance.cacheSafety.invalidationSources');
+    throw_unless(is_array($sources), LogicException::class);
+
+    expect(array_column($sources, 'model'))->toContain(Media::class)
+        ->and(data_get($manifest, 'performance.cacheSafety.variesBy'))->toBe(['site', 'locale', 'page'])
+        ->and(class_implements(BuilderBlockPublicRenderDataContributor::class))->toContain(RegistersExtensionPublicRenderData::class);
+});

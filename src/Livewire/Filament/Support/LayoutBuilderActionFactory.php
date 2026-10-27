@@ -406,6 +406,7 @@ final class LayoutBuilderActionFactory
                 : __('capell-layout-builder::button.add_widget'))
             ->tooltip(__('capell-layout-builder::button.add_widget'))
             ->modalHeading(__('capell-layout-builder::heading.add_widget_to_container'))
+            ->modalSubmitActionLabel(__('capell-layout-builder::button.add_selected'))
             ->icon('heroicon-c-plus')
             ->size(Size::Small)
             ->color('primary')
@@ -482,7 +483,7 @@ final class LayoutBuilderActionFactory
                 fn (Widget $record): string => __(
                     'capell-layout-builder::heading.widget_type',
                     ['type' => $record->type?->name],
-                ),
+                ) . ' ' . __('capell-layout-builder::message.edit_widget_linked'),
             )
             ->modalSubmitActionLabel(
                 fn (array $arguments): string => __(
@@ -520,6 +521,8 @@ final class LayoutBuilderActionFactory
     {
         return Action::make('duplicateWidget')
             ->label(__('capell-layout-builder::button.duplicate_widget'))
+            ->requiresConfirmation()
+            ->modalDescription(__('capell-layout-builder::message.duplicate_widget_linked'))
             ->grouped()
             ->groupedIcon('heroicon-o-square-2-stack')
             ->color('gray')
@@ -528,6 +531,23 @@ final class LayoutBuilderActionFactory
             ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
                 $livewire->duplicateWidget(containerKey: $arguments['containerKey'], originalIndex: $arguments['widgetIndex']);
 
+                $action->success();
+            });
+    }
+
+    public function makeIndependentWidgetCopyAction(): Action
+    {
+        return Action::make('makeIndependentWidgetCopy')
+            ->label(__('capell-layout-builder::button.make_independent_widget_copy'))
+            ->grouped()
+            ->groupedIcon('heroicon-o-document-duplicate')
+            ->color('gray')
+            ->size('sm')
+            ->requiresConfirmation()
+            ->modalDescription(__('capell-layout-builder::message.independent_widget_copy'))
+            ->visible(fn (array $arguments, LayoutBuilder $livewire): bool => ! $livewire->containerIsLinkedToPreset($arguments['containerKey']))
+            ->action(function (Action $action, LayoutBuilder $livewire, array $arguments): void {
+                $livewire->makeIndependentWidgetCopy($arguments['containerKey'], $arguments['widgetIndex']);
                 $action->success();
             });
     }

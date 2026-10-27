@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Actions;
 
+use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\ScreenshotFixtures\FixtureState;
@@ -37,13 +38,17 @@ final class SeedLayoutBuilderScreenshotFixtureAction
 
         foreach (self::Widgets as $row) {
             $widget = Widget::query()->firstOrNew(['key' => $row['key']]);
+            if ($widget->exists) {
+                FixtureState::assertOwned($widget, __FILE__);
+            }
+
             $widget->fill([
                 'name' => $row['name'],
                 'blueprint_id' => $widgetType->getKey(),
-                'component' => 'capell.layout-builder.widget.default',
+                'component' => WidgetComponentEnum::Default->value,
                 'is_livewire' => false,
                 'status' => $row['status'],
-                'meta' => ['component' => 'capell.layout-builder.widget.default'],
+                'meta' => ['component' => WidgetComponentEnum::Default->value],
             ]);
 
             if (! $widget->exists || $widget->isDirty()) {

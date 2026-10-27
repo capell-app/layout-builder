@@ -28,6 +28,7 @@ use Capell\LayoutBuilder\Actions\PersistLayoutBuilderStateAction;
 use Capell\LayoutBuilder\Actions\RenderAdminLayoutPreviewAction;
 use Capell\LayoutBuilder\Actions\SaveLayoutPresetAction;
 use Capell\LayoutBuilder\Actions\StripLayoutPresetLinkAction;
+use Capell\LayoutBuilder\Contracts\LayoutEditorState;
 use Capell\LayoutBuilder\Data\AdminLayoutPreviewData;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutBuilderTreeData;
@@ -79,7 +80,7 @@ use Throwable;
  * @property-read mixed $addWidgetAction
  * @property-read mixed $editWidgetAssetAction
  */
-class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource
+class LayoutBuilder extends Component implements HasActions, HasForms, HasPageResource, LayoutEditorState
 {
     use AuthorizesLayoutBuilderAccess;
     use HasLayoutActions;

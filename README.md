@@ -63,8 +63,8 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - Layout Builder filtered tree keyboard navigation (admin, supplementary evidence).
 - Layout Builder preset action fixture (frontend, supplementary evidence).
 - Layout Builder undo and redo actions fixture (frontend, supplementary evidence).
-- Layout Builder bulk change criteria fixture (frontend, supplementary evidence).
-- Layout Builder bulk change review fixture (frontend, supplementary evidence).
+- Layout Builder native bulk-change criteria (admin, supplementary evidence).
+- Layout Builder native bulk-change review (admin, supplementary evidence).
 - Layout Builder main and sidebar public example (frontend, supplementary evidence).
 - Layout Builder full-width public example (frontend, supplementary evidence).
 - Widgets admin index (admin, required evidence).
@@ -317,6 +317,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `LinkLayoutPresetContainerAction`
 - `ListLayoutPresetsAction`
 - `MakeWidgetAction`
+- `MergeWidgetMetadataAction`
 - `CreateLayoutFragmentAction`
 - `NormalizeLayoutBuilderStateAction`
 - `PasteLayoutFragmentAction`
@@ -337,8 +338,10 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `ResolveAdminWidgetPreviewDataAction`
 - `ResolveLayoutAreaContainersAction`
 - `ResolveLayoutContainerPresentationAction`
+- `ResolvePageContentStructureAction`
 - `ResolvePublicWidgetAssetsAction`
 - `ResolvePublicWidgetRenderContextAction`
+- `ResolveWidgetPickerPreviewAction`
 - `ResolveWidgetPresentationDataAction`
 - `RunLinkedLayoutPresetSyncAction`
 - `SaveFormComponentRelationshipAction`
@@ -352,6 +355,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `UpdateLinkedLayoutPresetItemAction`
 - `WidgetContractValidatorAction`
 - `BuildPublicWidgetPayloadsAction`
+- `BuildWidgetExtensionResourceUsagesAction`
 - `RenderPublicWidgetExtensionAction`
 - `ResolveWidgetExtensionDependenciesAction`
 - `RestoreWidgetInteractionContextAction`
@@ -418,6 +422,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `WidgetExtensionPayloadInputData`
 - `WidgetExtensionRenderContextData`
 - `WidgetLayoutUsageData`
+- `WidgetPickerPreviewData`
 - `WidgetScaffoldData`
 - `WidgetSnapshotLocatorData`
 
@@ -485,6 +490,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `packages/layout-builder/resources/views/components/layout-widget-assets.blade.php`
 - `packages/layout-builder/resources/views/components/layout-widgets/content.blade.php`
 - `packages/layout-builder/resources/views/components/layout-widgets/extension-gated.blade.php`
+- `packages/layout-builder/resources/views/components/layout-widgets/extension-runtime.blade.php`
 - `packages/layout-builder/resources/views/components/layout-widgets/extension-unavailable.blade.php`
 - `packages/layout-builder/resources/views/components/layout-widgets/image.blade.php`
 - `packages/layout-builder/resources/views/components/layout-widgets/index.blade.php`
@@ -564,6 +570,12 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 1. Install the package: `composer require capell-app/layout-builder`.
 2. Run the package setup: `php artisan capell:layout-builder-install`.
 3. Open the package admin surface at `/admin/layout-builder/widgets` and confirm Layout Builder is available.
+
+## Upgrading
+
+No manual steps between minor versions.
+
+Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 
 ## Next Steps
 

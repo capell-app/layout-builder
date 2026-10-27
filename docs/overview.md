@@ -26,6 +26,8 @@ Editors receive view and content-edit access by default. Structural layout chang
 
 ## Edit and save safely
 
+The Add widget picker shows uploaded/generated images or package-declared previews, with a labelled icon when an image is unavailable. Usage counts remain on the Widgets management screen.
+
 Use **Content first** for widget content and assets without rearranging the page. Use **Layout first** to add, remove, move, resize, or configure containers and widget occurrences. Before changing a shared Layout, follow the pages-using-this-layout link and review the full impact.
 
 Changes remain unsaved until **Save layout** succeeds. Undo and redo cover the current unsaved mutation history and are cleared after a successful save or reload. Saving is blocked when a Layout references an unknown widget; responsive-width diagnostics are warnings. If another editor saved the Layout after you opened it, your save is rejected and the builder reloads the current record. Reapply the intended change to the refreshed Layout instead of assuming your earlier state was stored.

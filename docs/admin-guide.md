@@ -7,7 +7,7 @@ This guide is for editors who build pages and owners deciding how to use widgets
 ### How to add a widget to a page
 
 1. Open the page you want to edit in the admin.
-2. From the **widget panel**, drag a widget (for example a text block, image, or button) onto your page.
+2. From the widget panel, drag a widget (for example a text block, image, or button) onto your page.
 3. Drop it where you want it to appear.
 4. Save the page.
 
@@ -16,7 +16,7 @@ This guide is for editors who build pages and owners deciding how to use widgets
 ### How to edit a widget's text, image, or colour
 
 1. Click the widget on the page.
-2. Change its **text**, swap its **image**, or pick a **colour** in the panel that opens.
+2. Change its text, swap its image, or pick a colour in the panel that opens.
 3. Save the page.
 
 ### How to reorder widgets
@@ -33,7 +33,7 @@ This guide is for editors who build pages and owners deciding how to use widgets
     - **Padding** for space between the container edge and its widgets.
     - **Border** for the container edge treatment.
 3. Leave a value at **Theme default** to inherit the theme's normal treatment. Choose **None** when the container must explicitly have no spacing, padding, or border, even if the theme supplies one.
-4. To vary padding by screen size, enable **Customise by breakpoint**. Base padding applies at every size, tablet replaces it from the tablet breakpoint, and desktop replaces the effective tablet or base value from the desktop breakpoint. An empty override inherits the preceding value; **None** removes padding at that breakpoint.
+4. To vary padding by screen size, enable **Customise padding by breakpoint**. Base padding applies at every size, tablet replaces it from the tablet breakpoint, and desktop replaces the effective tablet or base value from the desktop breakpoint. An empty override inherits the preceding value; **None** removes padding at that breakpoint.
 5. Open **Background** only when the container needs its own background.
 6. Open **Theme settings · {Theme name}** for controls supplied by the active theme. The swatch icon and description identify these as theme-owned values for this container only.
 7. Use **Reset theme settings** to clear only this container's values for the active theme. Confirm the action, then save the container normally. Core settings and values saved for other themes are left in place.
@@ -59,11 +59,11 @@ This guide is for editors who build pages and owners deciding how to use widgets
 
 ![Configure a reusable widget, its display settings, translations, and widget assets.](screenshots/create-edit-widget-form.png)
 
-### How to reuse a block with Save as section
+### How to reuse a widget on another page
 
-1. Arrange the widgets you want to reuse.
-2. Click **Save as section** and give the section a clear name.
-3. On another page, add that section from your section library instead of rebuilding it.
+1. Create or edit a reusable widget in **Widgets** and give it a clear name.
+2. In the other page's layout container, click **Add Widget**.
+3. Select the existing widget and save the page instead of rebuilding it.
 
 ### How to review your sections
 
@@ -76,14 +76,14 @@ This guide is for editors who build pages and owners deciding how to use widgets
 
 ### Turn on first
 
-- **Pages with a few core widgets.** Start with text, image, and button widgets so editors get comfortable building and arranging pages before you introduce more advanced blocks.
+- Pages with a few core widgets. Start with text, image, and button widgets so editors get comfortable building and arranging pages before you introduce more advanced blocks.
 
 ### Add when needed
 
-| Need                         | Enable                                             |
-| ---------------------------- | -------------------------------------------------- |
-| The same block on many pages | Save it once with **Save as section** and reuse it |
-| Richer page sections         | Add more widget types as your team is ready        |
+| Need                         | Enable                                                            |
+| ---------------------------- | ----------------------------------------------------------------- |
+| The same block on many pages | Create it once in **Widgets**, then select it with **Add Widget** |
+| Richer page sections         | Add more widget types as your team is ready                       |
 
 ### Don't enable yet
 
@@ -98,9 +98,9 @@ This guide is for editors who build pages and owners deciding how to use widgets
 
 ## Troubleshooting for editors
 
-| What you see                           | What it means                                              | What to do                                                         |
-| -------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------ |
-| A widget isn't where I dropped it      | The page wasn't saved, or another widget shifted it        | Drag it back into place and save the page                          |
-| My change isn't on the live page       | The page is still serving a cached copy                    | Wait a moment, or ask whoever manages caching to clear that page   |
-| I can't find a block I built before    | It wasn't saved as a section                               | Rebuild it and use **Save as section** so it is reusable next time |
-| The image looks wrong on the live site | The wrong file was picked, or it needs a moment to process | Re-open the widget, confirm the image, and save again              |
+| What you see                           | What it means                                              | What to do                                                              |
+| -------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| A widget isn't where I dropped it      | The page wasn't saved, or another widget shifted it        | Drag it back into place and save the page                               |
+| My change isn't on the live page       | The page is still serving a cached copy                    | Wait a moment, or ask whoever manages caching to clear that page        |
+| I can't find a block I built before    | It was not saved as a reusable widget                      | Rebuild it in **Widgets**, then select it with **Add Widget** next time |
+| The image looks wrong on the live site | The wrong file was picked, or it needs a moment to process | Re-open the widget, confirm the image, and save again                   |

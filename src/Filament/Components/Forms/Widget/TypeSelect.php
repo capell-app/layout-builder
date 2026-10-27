@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Filament\Components\Forms\Widget;
 use Capell\Admin\Data\Configurators\ConfiguratorContextData;
 use Capell\Admin\Enums\ConfiguratorTypeEnum as AdminConfiguratorTypeEnum;
 use Capell\Admin\Filament\Components\Forms\BlueprintSelect as BaseBlueprintSelect;
+use Capell\LayoutBuilder\Actions\MergeWidgetMetadataAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Filament\Configurators\Types\WidgetTypeConfigurator;
 use Filament\Schemas\Schema;
@@ -81,7 +82,7 @@ class TypeSelect extends BaseBlueprintSelect
         $existing = $record->getAttribute($key);
 
         if (isset($data[$key]) && is_array($data[$key]) && is_array($existing)) {
-            $data[$key] = array_replace_recursive($existing, $data[$key]);
+            $data[$key] = MergeWidgetMetadataAction::run($existing, $data[$key]);
         }
 
         return $data;

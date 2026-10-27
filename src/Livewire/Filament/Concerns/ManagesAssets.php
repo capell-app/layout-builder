@@ -1195,9 +1195,9 @@ trait ManagesAssets
     /**
      * @return Collection<int, WidgetAsset>
      */
-    protected function loadWidgetAssetsFor(Widget $widget, string $containerKey, int $widgetIndex): Collection
+    protected function loadWidgetAssetsFor(Widget $widget, string $containerKey, int $widgetIndex, ?int $sourceOccurrence = null): Collection
     {
-        $occurrence = $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
+        $occurrence = $sourceOccurrence ?? $this->getContainerWidgetOccurrence($containerKey, $widgetIndex);
 
         $widgetAssets = new SupportCollection($this->assets[$containerKey][$widgetIndex] ?? []);
 

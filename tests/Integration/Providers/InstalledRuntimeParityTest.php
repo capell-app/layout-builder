@@ -2,12 +2,15 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Support\AdminRuntimeActivator;
 use Capell\Core\Actions\InstallPackageAction;
 use Capell\Core\Actions\RuntimeRefresh\RefreshInstalledPackageRuntimeAction;
 use Capell\Core\Data\Runtime\RuntimeRoleSelectionData;
+use Capell\Core\Enums\RuntimeRole;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\Packages\InstalledRuntimeLifecycle;
 use Capell\Core\Support\Runtime\RuntimeRoleResolver;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Models\Widget;
@@ -17,6 +20,7 @@ use Capell\Tests\Support\InstalledRuntimeTestCase;
 use Illuminate\Console\Scheduling\Event as ScheduledEvent;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
+use Illuminate\Routing\Router;
 
 it('matches fresh installed boot after in-process installation and repeated refresh', function (): void {
     InstalledRuntimeParity::assertPackage('layout-builder');
@@ -76,5 +80,27 @@ it('retains presentation in a payload consumer built before installation', funct
         RefreshInstalledPackageRuntimeAction::run($package);
 
         expect($resolver->data($widget, $page, $language, 'body', 0))->toBe($before);
+    });
+});
+
+it('registers its public routes without failures when the public runtime has no admin provider', function (): void {
+    InstalledRuntimeState::run(static function (): void {
+        $app = InstalledRuntimeTestCase::boot(
+            InstalledRuntimeParity::manifest('layout-builder'),
+            true,
+            static function (Application $app): void {
+                $app->instance(RuntimeRoleResolver::class, new RuntimeRoleResolver(RuntimeRoleSelectionData::fromConfiguredValue('public')));
+            },
+            sourceRoot: dirname(__DIR__, 3),
+            runtimeRole: RuntimeRole::Public,
+        );
+        $routes = $app->make(Router::class)->getRoutes();
+        $routes->refreshNameLookups();
+
+        expect($app->bound(AdminRuntimeActivator::class))->toBeFalse()
+            ->and($app->make(InstalledRuntimeLifecycle::class)->failures())->toBe([])
+            ->and($routes->getByName('capell-layout-builder.fragments.show'))->not->toBeNull()
+            ->and($routes->getByName('capell-layout-builder.layout-widgets.show'))->not->toBeNull()
+            ->and($routes->getByName('capell-layout-builder.layout-widgets.localized.show'))->not->toBeNull();
     });
 });

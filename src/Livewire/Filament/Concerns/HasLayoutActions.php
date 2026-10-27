@@ -90,6 +90,11 @@ trait HasLayoutActions
         return $this->layoutBuilderActionFactory()->editWidgetAction();
     }
 
+    public function makeIndependentWidgetCopyAction(): Action
+    {
+        return $this->layoutBuilderActionFactory()->makeIndependentWidgetCopyAction();
+    }
+
     public function duplicateWidgetAction(): Action
     {
         return $this->layoutBuilderActionFactory()->duplicateWidgetAction();

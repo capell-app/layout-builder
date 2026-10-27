@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
+use Capell\LayoutBuilder\Actions\MakeIndependentWidgetCopyAction;
 use Capell\LayoutBuilder\Actions\Mutations\ReorderLayoutWidgetAction;
 use Capell\LayoutBuilder\Actions\ResolveAdminWidgetPreviewDataAction;
 use Capell\LayoutBuilder\Data\AdminWidgetPreviewData;
@@ -187,6 +188,39 @@ trait ManagesWidgets
         if ($withAssets) {
             $this->assets[$containerKey][$widgetIndex] = $this->assets[$containerKey][$originalIndex];
         }
+
+        $this->layoutUpdated();
+    }
+
+    public function makeIndependentWidgetCopy(string $containerKey, int $widgetIndex): void
+    {
+        $this->assertCanUpdateLayout();
+        $this->assertContainerIsDetached($containerKey);
+        $this->ensureLoaded();
+
+        $source = $this->getContainerWidget($containerKey, $widgetIndex);
+        // An unsaved linked repeat still references the source placement's asset rows.
+        $firstOccurrence = data_get($this->assets, [$containerKey, $widgetIndex, 0, 'occurrence']);
+        $copy = MakeIndependentWidgetCopyAction::run(
+            $source,
+            $this->loadWidgetAssetsFor($source, $containerKey, $widgetIndex, is_numeric($firstOccurrence) ? (int) $firstOccurrence : null),
+        );
+
+        $containers = $this->containers ?? [];
+        $container = $containers[$containerKey] ?? [];
+        $placements = is_array($container['widgets'] ?? null) ? $container['widgets'] : [];
+        $placement = is_array($placements[$widgetIndex] ?? null) ? $placements[$widgetIndex] : [];
+        $placement['widget_key'] = $copy->key;
+        $placement['occurrence'] = 1;
+        $placements[$widgetIndex] = $placement;
+        $container['widgets'] = $placements;
+        $containers[$containerKey] = $container;
+        $this->containers = $containers;
+        $this->containerWidgets = $this->withContainerEntry($this->containerWidgets, $containerKey, $widgetIndex, $copy);
+        $this->assets = $this->withContainerEntry($this->assets, $containerKey, $widgetIndex, $this->mapWidgetAssets($copy, $containerKey));
+        // The new placement must never update or delete the original placement's assets.
+        $this->originalAssets = $this->withContainerEntry($this->originalAssets ?? [], $containerKey, $widgetIndex, []);
+        $this->selectedRecords = $this->withContainerEntry($this->selectedRecords, $containerKey, $widgetIndex, null, forget: true);
 
         $this->layoutUpdated();
     }
@@ -692,5 +726,24 @@ trait ManagesWidgets
         }
 
         return $allWidgetAssets;
+    }
+
+    /**
+     * @param  array<mixed>  $state
+     * @return array<mixed>
+     */
+    private function withContainerEntry(array $state, string $containerKey, int $widgetIndex, mixed $value, bool $forget = false): array
+    {
+        $entries = is_array($state[$containerKey] ?? null) ? $state[$containerKey] : [];
+
+        if ($forget) {
+            unset($entries[$widgetIndex]);
+        } else {
+            $entries[$widgetIndex] = $value;
+        }
+
+        $state[$containerKey] = $entries;
+
+        return $state;
     }
 }

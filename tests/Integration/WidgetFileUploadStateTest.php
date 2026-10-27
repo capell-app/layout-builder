@@ -5,16 +5,21 @@ declare(strict_types=1);
 use Capell\Admin\Contracts\Widgets\FilamentWidget;
 use Capell\Admin\Filament\Components\Forms\Editor\ContentBuilder;
 use Capell\Admin\Filament\Resources\Pages\Pages\EditPage;
+use Capell\Admin\Support\Media\AdminUploadOwnership;
 use Capell\Admin\Support\Widgets\WidgetDiscovery;
 use Capell\Core\Enums\ContentStructure;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderStatefulSchemaHarness;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Capell\WidgetAudioPlaylist\Filament\AudioPlaylistWidget;
 use Capell\WidgetBeforeAfter\Filament\BeforeAfterWidget;
 use Capell\WidgetHotspots\Filament\HotspotsWidget;
+use Capell\WidgetHotspots\Providers\WidgetHotspotsServiceProvider;
 use Capell\WidgetSlideshow\Filament\SlideshowWidget;
 use Capell\WidgetYouTube\Filament\YouTubeWidget;
+use Capell\WidgetYouTube\Providers\WidgetYouTubeServiceProvider;
+use Dom\HTMLDocument;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Schema;
@@ -83,6 +88,8 @@ function widgetUploadTestDisk(): LocalFilesystemAdapter
 }
 
 beforeEach(function (): void {
+    CapellCore::forcePackageInstalled('capell-app/widget-hotspots');
+    $this->app->register(WidgetHotspotsServiceProvider::class);
     Storage::set('public', widgetUploadTestDisk());
     config()->set('filament.default_filesystem_disk', 'public');
     Storage::disk('public')->put('widget-screenshots/workspace.jpg', UploadedFile::fake()->image('workspace.jpg')->getContent());
@@ -202,19 +209,14 @@ it('round trips stored single files without changing their persisted shape or up
 
     foreach ($uploads as $upload) {
         $original = $upload->getRawState();
+        // A record-less harness cannot prove where the paths came from; record them as loaded.
+        resolve(AdminUploadOwnership::class)->remember($upload, array_values(array_filter(Arr::wrap($original), is_string(...))));
         $path = $upload->getState();
         expect($original)->toBeArray()->toHaveCount(1)
             ->and($upload->getUploadedFiles())->toHaveCount(1)
             ->and($upload->getRawState())->toBe($original);
         $upload->saveUploadedFiles();
         expect($upload->getState())->toBe($path);
-    }
-
-    if ($widget === 'youtube') {
-        $item = array_values($builder->getItems())[0];
-        $videoId = $item->getComponent('videoId', withHidden: true);
-        assert($videoId instanceof Field);
-        $videoId->state('https://youtu.be/aqz-KE-bpKQ');
     }
 
     $state = $schema->getState(shouldCallHooksBefore: false);
@@ -229,8 +231,10 @@ it('round trips stored single files without changing their persisted shape or up
     expect($media($blocks[0]['data']))->toBe($media(WidgetScreenshotFixtures::states()[$widget]));
 })->with(['audio-playlist', 'before-after', 'hotspots', 'slideshow', 'youtube']);
 
-it('stores a newly uploaded file as a single path and reopens it safely', function (): void {
+it('stores a youtube block and saves caption changes and unchanged content after reopening', function (string $url): void {
     test()->actingAsAdmin();
+    CapellCore::forcePackageInstalled('capell-app/widget-youtube');
+    $this->app->register(WidgetYouTubeServiceProvider::class);
     resolve(WidgetDiscovery::class)->registerAuthoritative(YouTubeWidget::class);
     $page = Page::factory()->state(['content_structure_override' => ContentStructure::Blocks->value])
         ->withTranslations(data: ['content' => json_encode(WidgetScreenshotFixtures::blocks('youtube'), JSON_THROW_ON_ERROR)], contentStructure: ContentStructure::Blocks)
@@ -241,8 +245,7 @@ it('stores a newly uploaded file as a single path and reopens it safely', functi
     $statePath = widgetUploadStatePath($upload);
     $livewire->set($statePath, [])
         ->set($statePath, [UploadedFile::fake()->image('new-poster.jpg')]);
-    // The URL field's input contract differs from the stored video ID.
-    $livewire->set(str_replace('.poster', '.videoId', $statePath), 'https://youtu.be/aqz-KE-bpKQ')
+    $livewire->set(str_replace('.poster', '.videoId', $statePath), $url)
         ->call('save')->assertHasNoFormErrors();
     $translation = $page->translations()->sole();
     $content = $translation->content;
@@ -258,7 +261,39 @@ it('stores a newly uploaded file as a single path and reopens it safely', functi
     $savedUpload = array_values(widgetUploadFields($form))[0];
     expect($savedUpload->getState())->toBe($path);
     $reopened->call('callSchemaComponentMethod', $savedUpload->getKey(), 'getUploadedFiles')->assertSuccessful();
-});
+    $savedPath = widgetUploadStatePath($savedUpload);
+    $reopened->set(str_replace('.poster', '.caption', $savedPath), 'Caption changed after reopening')
+        ->call('save')->assertHasNoFormErrors();
+    $unchanged = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()]);
+    $unchanged->call('save')->assertHasNoFormErrors();
+    $persisted = $translation->refresh()->content;
+    expect(data_get($persisted, '0.data.videoId'))->toBe('aqz-KE-bpKQ')
+        ->and(data_get($persisted, '0.data.poster'))->toBe($path)
+        ->and(data_get($persisted, '0.data.caption'))->toBe('Caption changed after reopening');
+
+    foreach (['https://example.com/watch?v=aqz-KE-bpKQ', 'https://youtube.com/watch?v=broken'] as $invalidUrl) {
+        $invalid = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()]);
+        $invalidUpload = array_values(widgetUploadFields(widgetUploadPageForm($invalid)))[0];
+        $videoPath = str_replace('.poster', '.videoId', widgetUploadStatePath($invalidUpload));
+        // getStatePath() is absolute; assertHasFormErrors() would prefix data twice.
+        $invalid->set($videoPath, $invalidUrl)->call('save')
+            ->assertHasErrors([$videoPath => __('capell-widget-youtube::widget.invalid_url')]);
+        $document = HTMLDocument::createFromString($invalid->html(), LIBXML_NOERROR);
+        $input = $document->querySelector('input[wire\:model="' . $videoPath . '"]');
+        $this->assertNotNull($input);
+        $error = $document->getElementById($input->id . '-error');
+        $this->assertNotNull($error);
+        expect($input->getAttribute('type'))->toBe('url')
+            ->and($input->getAttribute('aria-invalid'))->toBe('true')
+            ->and(explode(' ', (string) $input->getAttribute('aria-describedby')))->toContain($error->id)
+            ->and(trim((string) $error->textContent))->toBe(__('capell-widget-youtube::widget.invalid_url'));
+        expect($translation->refresh()->content)->toBe($persisted);
+    }
+})->with([
+    'watch' => 'https://www.youtube.com/watch?v=aqz-KE-bpKQ',
+    'short' => 'https://youtu.be/aqz-KE-bpKQ',
+    'embed' => 'https://www.youtube.com/embed/aqz-KE-bpKQ',
+]);
 
 it('keeps empty optional uploads safe on subsequent reads', function (mixed $state): void {
     resolve(WidgetDiscovery::class)->registerAuthoritative(AudioPlaylistWidget::class);

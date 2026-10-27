@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\LayoutBuilder\Actions\SeedLayoutBuilderScreenshotFixtureAction;
+use Capell\LayoutBuilder\Models\Widget;
 
 function withLayoutBuilderScreenshotFixtureEnvironment(Closure $callback): void
 {
@@ -31,4 +32,16 @@ it('refuses to seed outside the disposable screenshot environment', function ():
 
 it('requires --force on the layout builder screenshot fixture command', function (): void {
     $this->artisan('capell:layout-builder-screenshot-fixture')->assertFailed();
+});
+
+it('preserves a foreign row occupying a screenshot widget identity', function (): void {
+    $widget = Widget::factory()->create(['key' => 'screenshot-homepage-hero', 'name' => 'Another owner']);
+    $before = $widget->refresh()->getRawOriginal();
+
+    withLayoutBuilderScreenshotFixtureEnvironment(function (): void {
+        expect(fn (): int => SeedLayoutBuilderScreenshotFixtureAction::run())
+            ->toThrow(RuntimeException::class, 'no creation receipt');
+    });
+
+    expect($widget->refresh()->getRawOriginal())->toBe($before);
 });

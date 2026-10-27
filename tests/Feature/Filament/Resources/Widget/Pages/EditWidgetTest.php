@@ -8,11 +8,15 @@ use Capell\Core\Enums\PresentationWidthMode;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar;
+use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
@@ -183,4 +187,54 @@ test('widget background replacement keeps the uploaded media attached', function
     if ($saved !== null) {
         Storage::disk('public')->assertExists($saved->getPathRelativeToRoot());
     }
+});
+
+test('widget editor exposes the native assets manager when related records may be viewed', function (): void {
+    $widget = Widget::factory()->create();
+    $user = User::factory()->create();
+    test()->actingAs($user);
+    foreach (['Update:Widget', 'View:Widget', 'ViewAny:Widget'] as $permission) {
+        $user->givePermissionTo(Permission::findOrCreate($permission));
+    }
+
+    Gate::before(fn (User $user, string $ability, array $arguments): ?bool => $ability === 'viewAny' && ($arguments[0] ?? null) === WidgetAsset::class ? true : null);
+
+    Livewire::test(EditWidget::class, ['record' => $widget->getRouteKey()])
+        ->assertSuccessful()
+        ->assertSeeHtml('wire:name="' . WidgetAssetsRelationManager::class . '"');
+});
+
+test('widget editor hides the assets manager when related records may not be viewed', function (): void {
+    $widget = Widget::factory()->create();
+    $user = User::factory()->create();
+    test()->actingAs($user);
+    foreach (['Update:Widget', 'View:Widget', 'ViewAny:Widget'] as $permission) {
+        $user->givePermissionTo(Permission::findOrCreate($permission));
+    }
+
+    Gate::before(fn (User $user, string $ability, array $arguments): ?bool => $ability === 'viewAny' && ($arguments[0] ?? null) === WidgetAsset::class ? false : null);
+
+    Livewire::test(EditWidget::class, ['record' => $widget->getRouteKey()])
+        ->assertSuccessful()
+        ->assertDontSeeHtml('wire:name="' . WidgetAssetsRelationManager::class . '"');
+});
+
+test('native widget assets table distinguishes broken and unplaced references without changing them', function (): void {
+    $widget = Widget::factory()->create();
+    $broken = WidgetAsset::factory()->widget($widget)->create([
+        'asset_type' => $widget->getMorphClass(),
+        'asset_id' => 999999999,
+    ]);
+    $unplaced = WidgetAsset::factory()->widget($widget)->asset($widget)->create();
+    $before = [$broken->refresh()->getRawOriginal(), $unplaced->refresh()->getRawOriginal()];
+
+    Livewire::test(WidgetAssetsRelationManager::class, [
+        'ownerRecord' => $widget,
+        'pageClass' => EditWidget::class,
+    ])
+        ->assertCanSeeTableRecords([$broken, $unplaced])
+        ->assertSee(__('capell-layout-builder::table.widget_asset_usage_broken'))
+        ->assertSee(__('capell-layout-builder::table.widget_asset_usage_unscoped'));
+
+    expect([$broken->refresh()->getRawOriginal(), $unplaced->refresh()->getRawOriginal()])->toBe($before);
 });

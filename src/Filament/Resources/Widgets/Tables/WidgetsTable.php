@@ -82,13 +82,18 @@ class WidgetsTable implements TableConfigurator
                 ActionGroup::make([
                     ReplicateAction::make('replicate'),
                     DeleteAction::make('delete')
-                        ->modalDescription(fn (Widget $record): string => self::deletionImpactDescription($record)),
+                        ->modalHeading(__('capell-layout-builder::widget.delete_modal.heading'))
+                        ->modalDescription(fn (Widget $record): string => __('capell-layout-builder::widget.delete_modal.description') . ' ' . self::deletionImpactDescription($record)),
                 ])
                     ->color('gray'),
             ])
             ->toolbarActions([
-                DeleteBulkAction::make('delete'),
-                ForceDeleteBulkAction::make('forceDelete'),
+                DeleteBulkAction::make('delete')
+                    ->modalHeading(__('capell-layout-builder::widget.delete_bulk_modal.heading'))
+                    ->modalDescription(__('capell-layout-builder::widget.delete_bulk_modal.description')),
+                ForceDeleteBulkAction::make('forceDelete')
+                    ->modalHeading(__('capell-layout-builder::widget.force_delete_bulk_modal.heading'))
+                    ->modalDescription(__('capell-layout-builder::widget.force_delete_bulk_modal.description')),
                 RestoreBulkAction::make('restore'),
             ]);
     }

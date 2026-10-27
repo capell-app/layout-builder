@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Policies\WidgetPolicy;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Support\Facades\Gate;
@@ -15,12 +16,36 @@ it('registers the package policy explicitly after boot when the host has none', 
         ->and(Gate::getPolicyFor(Widget::class))->toBeInstanceOf(WidgetPolicy::class);
 });
 
+it('resolves widget asset permissions through the same widget library policy', function (): void {
+    $permission = 'Update:Widget';
+    Permission::findOrCreate($permission);
+    $user = User::factory()->create();
+    $asset = new WidgetAsset;
+
+    expect(Gate::getPolicyFor(WidgetAsset::class))->toBeInstanceOf(WidgetPolicy::class)
+        ->and(Gate::forUser($user)->allows('viewAny', WidgetAsset::class))->toBeFalse()
+        ->and(Gate::forUser($user)->allows('update', $asset))->toBeFalse();
+
+    $user->givePermissionTo($permission);
+
+    expect(Gate::forUser($user)->allows('update', $asset))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('delete', $asset))->toBeFalse();
+});
+
 it('leaves a policy the host registered for the model in place', function (): void {
     Gate::policy(Widget::class, stdClass::class);
 
     new LayoutBuilderServiceProvider(app())->registerDefaultWidgetPolicy();
 
     expect(Gate::getPolicyFor(Widget::class))->toBeInstanceOf(stdClass::class);
+});
+
+it('preserves a host policy for widget assets', function (): void {
+    Gate::policy(WidgetAsset::class, stdClass::class);
+
+    new LayoutBuilderServiceProvider(app())->registerDefaultWidgetPolicy();
+
+    expect(Gate::getPolicyFor(WidgetAsset::class))->toBeInstanceOf(stdClass::class);
 });
 
 it('allows exactly the ability its own permission grants', function (string $ability, string $permission): void {

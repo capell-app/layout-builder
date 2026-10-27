@@ -355,3 +355,29 @@ declare(strict_types=1);
 $inputs = []; // Supply the arguments required by the action handle() method.
 resolve(\Capell\LayoutBuilder\Actions\SetupLayoutBuilderPackageAction::class)->handle(...$inputs);
 ```
+
+## PublicLayoutAssetMembership adapter
+
+This adapter delegates to the shipped implementation so the existing eligibility,
+ownership or pagination bounds remain in force. Resolve the backend by its concrete
+class to avoid resolving the replacement contract recursively.
+
+<!-- example: contract Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership -->
+
+```php
+<?php
+declare(strict_types=1);
+
+final class ExamplePublicLayoutAssetMembershipAdapter implements \Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership
+{
+    public function __construct(private readonly \Capell\LayoutBuilder\Support\Assets\LayoutBuilderPublicLayoutAssetMembership $backend) {}
+
+    #[\Override]
+    public function contains(\Illuminate\Database\Eloquent\Model $asset, \Capell\Core\Models\Page $page, \Capell\Core\Models\Layout $layout, \Capell\Core\Models\Language $language): bool
+    {
+        return $this->backend->contains($asset, $page, $layout, $language);
+    }
+}
+
+app()->bind(\Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership::class, ExamplePublicLayoutAssetMembershipAdapter::class);
+```

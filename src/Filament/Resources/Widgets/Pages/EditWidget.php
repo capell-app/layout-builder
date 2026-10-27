@@ -11,6 +11,7 @@ use Capell\Admin\Filament\Concerns\HasConfigurableFormActionPosition;
 use Capell\Admin\Filament\Concerns\HasExtensibleRecordHeading;
 use Capell\Admin\Support\AdminSurfaceLookup;
 use Capell\LayoutBuilder\Actions\BuildWidgetDeletionImpactAction;
+use Capell\LayoutBuilder\Actions\MergeWidgetMetadataAction;
 use Capell\LayoutBuilder\Enums\ResourceEnum;
 use Capell\LayoutBuilder\Filament\Actions\CreateWidgetAction;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
@@ -143,7 +144,7 @@ class EditWidget extends EditRecord
         $submittedMeta = is_array($data['meta'] ?? null) ? $data['meta'] : [];
 
         if ($existingMeta !== [] || $submittedMeta !== []) {
-            $data['meta'] = array_replace_recursive($existingMeta, $submittedMeta);
+            $data['meta'] = MergeWidgetMetadataAction::run($existingMeta, $submittedMeta);
         }
 
         return $data;
@@ -163,8 +164,11 @@ class EditWidget extends EditRecord
         return [
             RestoreAction::make('restore'),
             DeleteAction::make('delete')
-                ->modalDescription(fn (Widget $record): string => self::deletionImpactDescription($record)),
-            ForceDeleteAction::make('forceDelete'),
+                ->modalHeading(__('capell-layout-builder::widget.delete_modal.heading'))
+                ->modalDescription(fn (Widget $record): string => __('capell-layout-builder::widget.delete_modal.description') . ' ' . $this->deletionImpactDescription($record)),
+            ForceDeleteAction::make('forceDelete')
+                ->modalHeading(__('capell-layout-builder::widget.force_delete_modal.heading'))
+                ->modalDescription(__('capell-layout-builder::widget.force_delete_modal.description')),
             LayoutsTable::getBulkChangeLayoutsAction(sourceWidget: $this->record),
             ActionGroup::make([
                 CreateWidgetAction::make('create')
@@ -222,7 +226,7 @@ class EditWidget extends EditRecord
         return $updated_at === null || $this->record->updated_at > $updated_at;
     }
 
-    private static function deletionImpactDescription(Widget $record): string
+    private function deletionImpactDescription(Widget $record): string
     {
         $impact = BuildWidgetDeletionImpactAction::run($record);
 
@@ -234,7 +238,7 @@ class EditWidget extends EditRecord
             return (string) __('capell-layout-builder::message.widget_delete_impact_no_tracked_uses');
         }
 
-        return (string) trans_choice(
+        return trans_choice(
             'capell-layout-builder::message.widget_delete_impact_layouts',
             $impact->layouts,
             ['count' => $impact->layouts],

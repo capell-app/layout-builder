@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 return [
+    'edit_widget_linked' => 'Content changes apply to every occurrence linked to this widget. Use Make independent copy on an occurrence to edit it separately.',
+    'duplicate_widget_linked' => 'This adds another occurrence of the same widget. Editing its content updates every linked occurrence. To edit this occurrence separately, use Make independent copy.',
+    'independent_widget_copy' => 'Replace this occurrence with a separate widget, copying its content and uploaded media. Future changes to this widget will not change the original.',
     'asset_added' => 'Asset added successfully.',
     'asset_created_successfully' => 'Asset ":name" created successfully.',
     'assets_removed_save_layout' => 'Assets removed successfully. Save the layout to apply changes.',
@@ -15,7 +18,7 @@ return [
     'container_columns' => ':columns cols',
     'container_colspan_value' => ':label (:columns/12)',
     'container_empty' => 'This container is empty.',
-    'container_key_helper' => 'Lowercase text, numbers, hyphens, and underscores only.',
+    'container_key_helper' => 'Letters, numbers, dashes and underscores are accepted; saved as a lowercase key with dashes.',
     'container_pasted' => 'Container :container pasted.',
     'container_reordered' => 'Container :container moved.',
     'container_resized' => 'Container :container resized.',
@@ -156,7 +159,7 @@ return [
     'responsive_override_active' => ':breakpoint override',
     'resubmitted_for_review' => 'Resubmitted for review.',
     'revisions_column_actions' => 'Actions',
-    'revisions_column_last_updated' => 'Last updated',
+    'revisions_column_last_updated' => 'Updated',
     'revisions_column_status' => 'Status',
     'revisions_column_workspace' => 'Workspace',
     'revisions_delete' => 'Delete revision',

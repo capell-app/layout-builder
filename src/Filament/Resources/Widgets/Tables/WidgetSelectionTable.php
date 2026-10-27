@@ -26,7 +26,7 @@ class WidgetSelectionTable implements TableConfigurator
             return $model::query();
         })
             ->modifyQueryUsing(fn (Builder $query): Builder => $query
-                ->with('image')
+                ->with(['image', 'blueprint'])
                 ->withCount('widgetAssets'))
             ->columns([
                 View::make('capell-layout-builder::filament.resources.widgets.widget-card'),

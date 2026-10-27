@@ -81,7 +81,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
         $missingTables = $this->missingTables();
 
         return new DoctorCheckResultData(
-            label: 'Layout Builder storage tables',
+            label: 'Layout Builder: database tables present',
             passed: $missingTables === [],
             message: $missingTables === []
                 ? 'The layout, widget, preset, and bulk-change storage tables are present.'
@@ -89,6 +89,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
             remediation: $missingTables === []
                 ? null
                 : 'Run the Capell migrations to create the Layout Builder storage tables.',
+            id: 'legacy.layout.builder.storage.tables',
         );
     }
 
@@ -100,7 +101,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
         $isBound = $this->publicLayoutGraphBuilderIsBound();
 
         return new DoctorCheckResultData(
-            label: 'Layout Builder public graph builder binding',
+            label: 'Layout Builder: public layouts builder active',
             passed: $isBound,
             message: $isBound
                 ? 'The public layout graph builder contract resolves to the Layout Builder implementation.'
@@ -108,6 +109,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
             remediation: $isBound
                 ? null
                 : 'Ensure LayoutBuilderServiceProvider binds PublicLayoutGraphBuilder to LayoutBuilderPublicLayoutGraphBuilder.',
+            id: 'legacy.layout.builder.public.graph.builder.binding',
         );
     }
 
@@ -119,7 +121,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
         $isRegistered = $this->editorComponentIsRegistered();
 
         return new DoctorCheckResultData(
-            label: 'Layout Builder editor component registration',
+            label: 'Layout Builder: layout editor registered',
             passed: $isRegistered,
             message: $isRegistered
                 ? 'The Layout Builder editor Livewire component is registered.'
@@ -127,6 +129,7 @@ final class LayoutBuilderHealthCheck implements ChecksExtensionHealth
             remediation: $isRegistered
                 ? null
                 : 'Ensure LayoutBuilderAdminRegistrar registers the ' . self::EDITOR_LIVEWIRE_ALIAS . ' Livewire component.',
+            id: 'legacy.layout.builder.editor.component.registration',
         );
     }
 

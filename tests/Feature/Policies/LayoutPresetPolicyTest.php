@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\LayoutPreset;
+use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\Tests\Fixtures\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,9 @@ it('allows globally permitted users to manage layout presets without a site role
     $user->givePermissionTo('EditLayout:Layout');
 
     expect($user->can('create', [LayoutPreset::class, $site]))->toBeTrue()
-        ->and($user->can('apply', [$preset, $site]))->toBeTrue();
+        ->and($user->can('apply', [$preset, $site]))->toBeTrue()
+        ->and((new LayoutPresetPolicy)->delete($user, $preset))->toBeTrue()
+        ->and((new LayoutPresetPolicy)->deleteAny($user))->toBeFalse();
 });
 
 it('enforces the preset create policy in the layout builder component', function (): void {

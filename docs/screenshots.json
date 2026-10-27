@@ -4,7 +4,10 @@
     "generatedFor": "deployment-screenshot-runner",
     "requiresInstalledPackage": true,
     "outputDirectory": "packages/layout-builder/docs/screenshots",
-    "fixtureCommands": ["capell:layout-builder-screenshot-fixture"],
+    "fixtureCommands": [
+        "capell:layout-builder-screenshot-fixture",
+        "capell:prepare-public-layout-screenshots"
+    ],
     "entries": [
         {
             "id": "layout-builder-editor-main-sidebar",
@@ -18,6 +21,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -25,7 +32,8 @@
             "required": true,
             "notes": "Shows the populated visual canvas with explicit main and sidebar containers, their widgets, the layout tree, responsive preview controls, and selected-container context.",
             "useCase": "An editor composes a page by arranging reusable widgets into explicit main and sidebar layout areas.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-main-sidebar.png"
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-main-sidebar.png",
+            "frameSelector": ".layout-builder-visual-editor"
         },
         {
             "id": "layout-builder-editor-content-first",
@@ -34,11 +42,15 @@
             "surface": "admin",
             "scenario": "admin-form",
             "url": "/screenshot-fixtures/layout-builder-admin-editor",
-            "waitFor": "[data-layout-builder-surface=\"content-editor\"]",
+            "waitFor": "[data-layout-builder-surface=\"content-editor\"] [data-layout-content-item-key]",
             "beforeWait": [
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 },
                 {
                     "type": "click",
@@ -48,9 +60,10 @@
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
             "required": false,
-            "notes": "Optional replacement target. Start from the populated layout-first fixture, activate the real return-to-content control, and wait for the content inventory. Do not capture the visual toolbar as proof of content-first editing.",
+            "notes": "Use the native content-first inventory with owned workshop and visitor widget copy. Require an actual content item and frame the inventory; an empty content editor does not satisfy this capture.",
             "useCase": "An editor updates page content in existing widget slots before changing the underlying layout structure.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-content-first.png"
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-editor-content-first.png",
+            "frameSelector": "[data-layout-builder-surface=\"content-editor\"]"
         },
         {
             "id": "layout-builder-add-widget-action",
@@ -64,6 +77,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -103,6 +120,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -134,6 +155,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -173,6 +198,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -226,6 +255,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -279,6 +312,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -322,7 +359,8 @@
                     "type": "waitFor",
                     "selector": "[data-layout-container-field=\"padding-tablet\"]"
                 }
-            ]
+            ],
+            "frameSelector": "[data-layout-container-control=\"responsive-padding\"]"
         },
         {
             "id": "layout-builder-edit-container-theme-settings-mobile",
@@ -336,6 +374,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -383,7 +425,8 @@
                     "type": "waitFor",
                     "selector": "[data-layout-container-action=\"reset-theme-settings\"]:visible"
                 }
-            ]
+            ],
+            "frameSelector": "[data-layout-container-section=\"theme\"]"
         },
         {
             "id": "layout-builder-responsive-preview",
@@ -397,6 +440,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -414,7 +461,8 @@
                     "type": "waitFor",
                     "selector": "[data-layout-builder-breakpoint=\"tablet\"]"
                 }
-            ]
+            ],
+            "frameSelector": ".layout-builder-visual-editor"
         },
         {
             "id": "layout-builder-tree-selection",
@@ -428,24 +476,29 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
             "target": "PageResource/EditPage",
             "required": false,
-            "notes": "Optional replacement target. The current capture has broken icon sizing and does not clearly prove the selected tree state, so it is not release or Marketplace evidence.",
+            "notes": "Optional replacement target. Selects a nested widget through the native structure tree and shows the matching preview highlight and widget inspector; retain the hold until inspected shared-runner evidence is accepted.",
             "useCase": "An editor selects a nested layout item from the tree and sees the matching item highlighted in preview.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-tree-selection.png",
             "interactions": [
                 {
                     "type": "click",
-                    "selector": "[data-layout-builder-tree-item=\"main\"]"
+                    "selector": "[data-layout-builder-tree-widget]:visible"
                 },
                 {
                     "type": "waitFor",
-                    "selector": "[data-layout-builder-selected=\"true\"]"
+                    "selector": "[data-layout-builder-tree-widget][data-layout-builder-selected=\"true\"]:visible"
                 }
-            ]
+            ],
+            "frameSelector": ".layout-builder-visual-editor"
         },
         {
             "id": "layout-builder-tree-keyboard-search",
@@ -459,6 +512,10 @@
                 {
                     "type": "scrollIntoView",
                     "selector": "[wire\\:name=\"capell-layout-builder::filament.layout-builder\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Layout builder\")"
                 }
             ],
             "targetType": "admin-surface",
@@ -470,8 +527,8 @@
             "interactions": [
                 {
                     "type": "fill",
-                    "selector": "input[type=\"search\"]",
-                    "value": "Screenshot hero"
+                    "selector": ".layout-builder-tree-search input:visible",
+                    "value": "Workshop overview"
                 },
                 {
                     "type": "waitForTimeout",
@@ -479,18 +536,19 @@
                 },
                 {
                     "type": "press",
-                    "selector": "[data-layout-builder-tree-item=\"main\"]",
+                    "selector": "[data-layout-builder-tree-item=\"main\"]:visible",
                     "value": "ArrowRight"
                 },
                 {
                     "type": "waitFor",
-                    "selector": "[data-layout-builder-tree-widget][data-layout-builder-tree-search*='Screenshot hero']:focus"
+                    "selector": "[data-layout-builder-tree-widget][data-layout-builder-tree-search*='Workshop overview']:focus"
                 },
                 {
                     "type": "waitFor",
                     "selector": "[data-layout-builder-tree-item='sidebar']:not(:visible)"
                 }
-            ]
+            ],
+            "frameSelector": ".layout-builder-visual-editor"
         },
         {
             "id": "layout-builder-preset-action",
@@ -526,35 +584,125 @@
         },
         {
             "id": "layout-builder-bulk-change-criteria",
-            "title": "Layout Builder bulk change criteria fixture.",
+            "title": "Layout Builder native bulk-change criteria.",
             "package": "layout-builder",
-            "surface": "frontend",
-            "scenario": "frontend-page",
-            "url": "/screenshot-fixtures/layout-builder/bulk-change-criteria",
-            "waitFor": "body",
-            "user": false,
-            "targetType": "frontend-url",
-            "target": null,
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/admin/layout-builder/layouts",
+            "waitFor": ".fi-modal-window:visible",
+            "user": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutResource/ListLayouts",
             "required": false,
-            "notes": "Optional replacement target. This is illustration-only fixture artwork, not a live product capture; capture the real bulk-change criteria step before promoting it as release evidence.",
+            "notes": "Real native guided bulk-change wizard, scoped to the owned Workshop overview widget. Preview only; never approve or apply. Replaces illustrative fixture artwork.",
             "useCase": "An administrator scopes a bulk widget or container change before previewing affected layouts.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-bulk-change-criteria.png"
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-bulk-change-criteria.png",
+            "fullPage": false,
+            "colorSchemes": ["light", "dark"],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Move or replace widgets\")"
+                }
+            ],
+            "interactions": [
+                {
+                    "type": "click",
+                    "selector": "button[id=\"mountedActionSchema0.require_widget_key\"]"
+                },
+                {
+                    "type": "fill",
+                    "selector": ".fi-dropdown-panel:visible input[role=\"combobox\"]",
+                    "value": "Workshop overview"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"option\"][data-value=\"native-layout-editor-overview\"]:visible"
+                },
+                {
+                    "type": "selectOption",
+                    "selector": "select[id=\"mountedActionSchema0.operation_type\"]",
+                    "value": "remove_widget"
+                },
+                {
+                    "type": "click",
+                    "selector": "button[id=\"mountedActionSchema0.source_widget_key\"]"
+                },
+                {
+                    "type": "fill",
+                    "selector": ".fi-dropdown-panel:visible input[role=\"combobox\"]",
+                    "value": "Workshop overview"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"option\"][data-value=\"native-layout-editor-overview\"]:visible"
+                }
+            ]
         },
         {
             "id": "layout-builder-bulk-change-review",
-            "title": "Layout Builder bulk change review fixture.",
+            "title": "Layout Builder native bulk-change review.",
             "package": "layout-builder",
-            "surface": "frontend",
-            "scenario": "frontend-page",
-            "url": "/screenshot-fixtures/layout-builder/bulk-change-review",
-            "waitFor": "body",
-            "user": false,
-            "targetType": "frontend-url",
-            "target": null,
+            "surface": "admin",
+            "scenario": "admin-form",
+            "url": "/admin/layout-builder/layouts",
+            "waitFor": ".fi-modal-window:visible",
+            "user": "admin",
+            "targetType": "admin-surface",
+            "target": "LayoutResource/ListLayouts",
             "required": false,
-            "notes": "Optional replacement target. This is illustration-only fixture artwork, not a live product capture; capture the real bulk-change review step before promoting it as release evidence.",
+            "notes": "Real native guided bulk-change wizard, scoped to the owned Workshop overview widget. Preview only; never approve or apply. Replaces illustrative fixture artwork.",
             "useCase": "An administrator reviews proposed layout mutations before applying them across existing pages.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-bulk-change-review.png"
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-bulk-change-review.png",
+            "fullPage": false,
+            "colorSchemes": ["light", "dark"],
+            "beforeWait": [
+                {
+                    "type": "click",
+                    "selector": "button:has-text(\"Move or replace widgets\")"
+                }
+            ],
+            "interactions": [
+                {
+                    "type": "click",
+                    "selector": "button[id=\"mountedActionSchema0.require_widget_key\"]"
+                },
+                {
+                    "type": "fill",
+                    "selector": ".fi-dropdown-panel:visible input[role=\"combobox\"]",
+                    "value": "Workshop overview"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"option\"][data-value=\"native-layout-editor-overview\"]:visible"
+                },
+                {
+                    "type": "selectOption",
+                    "selector": "select[id=\"mountedActionSchema0.operation_type\"]",
+                    "value": "remove_widget"
+                },
+                {
+                    "type": "click",
+                    "selector": "button[id=\"mountedActionSchema0.source_widget_key\"]"
+                },
+                {
+                    "type": "fill",
+                    "selector": ".fi-dropdown-panel:visible input[role=\"combobox\"]",
+                    "value": "Workshop overview"
+                },
+                {
+                    "type": "click",
+                    "selector": "[role=\"option\"][data-value=\"native-layout-editor-overview\"]:visible"
+                },
+                {
+                    "type": "click",
+                    "selector": ".fi-modal-window:visible button:text-is(\"Next\")"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": ".fi-modal-window:visible button:text-is(\"Approve and apply\")"
+                }
+            ]
         },
         {
             "id": "layout-example-main-sidebar-public",
@@ -562,15 +710,18 @@
             "package": "layout-builder",
             "surface": "frontend",
             "scenario": "frontend-page",
-            "url": "/screenshot-fixtures/layout-builder/main-sidebar",
-            "waitFor": "body",
+            "url": "/studio-workshop-programme",
+            "waitFor": ".widget-default:has-text(\"Visitor information\")",
             "user": false,
             "targetType": "frontend-url",
-            "target": null,
+            "target": "/studio-workshop-programme",
             "required": false,
-            "notes": "Optional replacement target. This route-backed illustration is useful for deterministic QA but is not a live product render and is excluded from release evidence.",
+            "notes": "Use the persisted Foundation page prepared by capell:prepare-public-layout-screenshots. The main area has visible main/sidebar containers using native8/4 grid spans. Require both real paragraphs, correct desktop geometry, actual light/dark theme output and zero available runtime diagnostics; no illustrative route or injected layout HTML.",
             "useCase": "An anonymous visitor reads a structured page whose sidebar and main content were composed in Layout Builder.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-example-main-sidebar-public.png"
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-example-main-sidebar-public.png",
+            "colorSchemes": ["light", "dark"],
+            "darkScreenshotPath": "packages/layout-builder/docs/screenshots/layout-example-main-sidebar-public-dark.png",
+            "fullPage": true
         },
         {
             "id": "layout-example-full-width-public",
@@ -578,15 +729,18 @@
             "package": "layout-builder",
             "surface": "frontend",
             "scenario": "frontend-page",
-            "url": "/screenshot-fixtures/layout-builder/full-width",
-            "waitFor": "body",
+            "url": "/studio-workshop-programme-full-width",
+            "waitFor": ".widget-default:has-text(\"Visitor information\")",
             "user": false,
             "targetType": "frontend-url",
-            "target": null,
+            "target": "/studio-workshop-programme-full-width",
             "required": false,
-            "notes": "Optional replacement target. This route-backed illustration is useful for deterministic QA but is not a live product render and is excluded from release evidence.",
+            "notes": "Use the persisted Foundation page prepared by capell:prepare-public-layout-screenshots. The main area has one full-width12-column container with two native widget sections. Require both real paragraphs, correct desktop geometry, actual light/dark theme output and zero available runtime diagnostics; no illustrative route or injected layout HTML.",
             "useCase": "An anonymous visitor sees a full-width marketing or content layout composed through Layout Builder.",
-            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-example-full-width-public.png"
+            "screenshotPath": "packages/layout-builder/docs/screenshots/layout-example-full-width-public.png",
+            "colorSchemes": ["light", "dark"],
+            "darkScreenshotPath": "packages/layout-builder/docs/screenshots/layout-example-full-width-public-dark.png",
+            "fullPage": true
         },
         {
             "id": "widgets-admin-index",
@@ -624,24 +778,57 @@
             "package": "layout-builder",
             "surface": "admin",
             "scenario": "admin-index",
-            "url": "/screenshot-fixtures/layout-builder-integrity/widget-usage",
-            "waitFor": "[data-layout-builder-integrity-table=\"widgets\"] table",
+            "url": "/admin/layout-builder/widgets",
+            "waitFor": "table",
             "targetType": "admin-surface",
-            "target": "WidgetsTable",
+            "target": "WidgetResource/ListWidgets",
             "required": false,
-            "notes": "Optional replacement target. A protected workbench presenter renders the production WidgetsTable from deterministic pre-capture data; it is documentation coverage, not authentic installed-App Marketplace evidence.",
+            "notes": "Native widget library with the owned disabled and unused fixture. Use the native column manager to hide counts and timestamps so the usage badge, disabled status and row actions fit at desktop width; no presenter route or injected table.",
             "useCase": "An administrator distinguishes a widget that is not used by any layout from one that is also unavailable for new page composition.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-unused-disabled-widget.png",
             "colorSchemes": ["light"],
             "user": "admin",
             "interactions": [
                 {
-                    "type": "waitFor",
-                    "selector": "[data-layout-builder-integrity-table=\"widgets\"] tr:has-text(\"Screenshot unused and disabled widget\") .fi-badge"
+                    "type": "fill",
+                    "selector": ".fi-ta-search-field input",
+                    "value": "Screenshot unused and disabled widget"
                 },
                 {
                     "type": "waitFor",
-                    "selector": "[data-layout-builder-integrity-table=\"widgets\"] tr:has-text(\"Screenshot unused and disabled widget\") div.table-cell-action-icon svg"
+                    "selector": "tr:has-text(\"Screenshot unused and disabled widget\") .fi-badge"
+                },
+                {
+                    "type": "click",
+                    "selector": "button[aria-label=\"Column manager\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": ".fi-ta-col-manager button[wire\\:click=\"resetTableColumnManager\"]"
+                },
+                {
+                    "type": "click",
+                    "selector": ".fi-ta-col-manager input[id$=\"-widget_assets_count\"]:checked"
+                },
+                {
+                    "type": "click",
+                    "selector": ".fi-ta-col-manager input[id$=\"-layouts_count\"]:checked"
+                },
+                {
+                    "type": "click",
+                    "selector": ".fi-ta-col-manager input[id$=\"-updated_at\"]:checked"
+                },
+                {
+                    "type": "click",
+                    "selector": ".fi-ta-col-manager-actions-ctn button:has-text(\"Apply\")"
+                },
+                {
+                    "type": "click",
+                    "selector": "button[aria-label=\"Column manager\"]"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "tr:has-text(\"Screenshot unused and disabled widget\") .fi-badge"
                 }
             ]
         },
@@ -650,25 +837,42 @@
             "title": "Broken and unscoped widget asset integrity states.",
             "package": "layout-builder",
             "surface": "admin",
-            "scenario": "admin-index",
-            "url": "/screenshot-fixtures/layout-builder-integrity/widget-assets",
-            "waitFor": "[data-layout-builder-integrity-table=\"widget-assets\"] table",
+            "scenario": "admin-form",
+            "url": "/admin/layout-builder/widgets",
+            "waitFor": "table",
             "targetType": "admin-surface",
-            "target": "WidgetAssetsTable",
+            "target": "WidgetResource/EditWidget/WidgetAssetsRelationManager",
             "required": false,
-            "notes": "Optional replacement target. A protected workbench presenter renders the production WidgetAssetsTable from deterministic pre-capture data; it is documentation coverage, not authentic installed-App Marketplace evidence.",
+            "notes": "Native widget Assets relation manager with the owned broken reference and existing unplaced asset. Preserve both intentional integrity states; no presenter route or injected table.",
             "useCase": "An administrator can separate a missing referenced asset from an existing asset that has not yet been placed on a page.",
             "screenshotPath": "packages/layout-builder/docs/screenshots/layout-builder-broken-unscoped-widget-assets.png",
             "colorSchemes": ["light"],
             "user": "admin",
             "interactions": [
                 {
-                    "type": "waitFor",
-                    "selector": "[data-layout-builder-integrity-table=\"widget-assets\"] tr:has-text(\"Broken asset\") .fi-badge"
+                    "type": "fill",
+                    "selector": ".fi-ta-search-field input",
+                    "value": "Screenshot widget asset target"
+                },
+                {
+                    "type": "click",
+                    "selector": "tr:has-text(\"Screenshot widget asset target\") .fi-ta-actions a[href$=\"/edit\"]"
+                },
+                {
+                    "type": "scrollIntoView",
+                    "selector": "[wire\\:name$=\"WidgetAssetsRelationManager\"]"
                 },
                 {
                     "type": "waitFor",
-                    "selector": "[data-layout-builder-integrity-table=\"widget-assets\"] tr:has-text(\"Not placed\") .fi-badge"
+                    "selector": "tr:has-text(\"Broken asset\") .fi-badge"
+                },
+                {
+                    "type": "waitFor",
+                    "selector": "tr:has-text(\"Not placed\") .fi-badge"
+                },
+                {
+                    "type": "scrollIntoView",
+                    "selector": ".fi-resource-relation-manager"
                 }
             ]
         },

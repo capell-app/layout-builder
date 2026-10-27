@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Tests\Feature;
 
+use Capell\Core\Actions\SetupPageUrlsAction;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\SiteDomain;
@@ -14,8 +17,11 @@ use Capell\Frontend\Actions\BuildPublicPageRenderDataAction;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Actions\SeedWidgetIntegrityScreenshotFixturesAction;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
+use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
+use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Tests\LayoutBuilderTestCase;
+use Capell\ScreenshotFixtures\FixtureState;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\WidgetAudioPlaylist\Data\AudioPlaylistInputData;
 use Capell\WidgetBeforeAfter\Data\BeforeAfterInputData;
@@ -29,19 +35,33 @@ use Capell\WidgetLocationMap\Data\LocationMapInputData;
 use Capell\WidgetSlideshow\Data\SlideshowInputData;
 use Capell\WidgetYouTube\Data\YouTubeInputData;
 use Filament\Facades\Filament;
+use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Iterator;
 use Livewire\Livewire;
 use Override;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
+use Workbench\App\Actions\PrepareLayoutBuilderScreenshotAction;
 use Workbench\App\Actions\PrepareWidgetScreenshotsAction;
+use Workbench\App\Actions\SeedAdminScreenshotFixtureAction;
+use Workbench\App\Console\Commands\SeedLayoutBuilderIntegrityScreenshotFixturesCommand;
 use Workbench\App\Support\WidgetScreenshotFixtureRoutes;
 use Workbench\App\Support\WidgetScreenshotFixtures;
 
 final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 {
+    /** @return Iterator<string, array{bool}> */
+    public static function publicLayoutVariants(): Iterator
+    {
+        yield 'main and sidebar' => [false];
+        yield 'full width' => [true];
+    }
+
     public function test_it_renders_safe_public_layout_builder_screenshot_fixtures(): void
     {
         // Livewire's auto-injected asset state is request-scoped, but the
@@ -111,7 +131,170 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         $this->get('/screenshot-fixtures/layout-builder/missing')->assertNotFound();
     }
 
-    public function test_it_renders_the_real_visual_editor_for_the_admin_editor_capture(): void
+    public function test_it_requires_a_session_before_resolving_the_native_editor_fixture(): void
+    {
+        $language = Language::factory()->create();
+        Site::factory()->language($language)->withTranslations($language)->create();
+        $counts = [Page::query()->count(), Layout::query()->count(), Widget::query()->count()];
+
+        $this->get('/screenshot-fixtures/layout-builder-admin-editor')->assertRedirect('/admin/login');
+
+        $this->assertSame($counts, [Page::query()->count(), Layout::query()->count(), Widget::query()->count()]);
+    }
+
+    public function test_it_redirects_to_the_dedicated_native_editor_without_mutating_records(): void
+    {
+        $language = Language::factory()->create();
+        $site = Site::factory()->language($language)->withTranslations($language)->create();
+        $page = Page::factory()->site($site)->withTranslations($language)->create([
+            'uuid' => WidgetScreenshotFixtures::uuid('layout-builder-page'),
+            'name' => 'Workshop programme',
+        ]);
+        $other = Page::factory()->site($site)->withTranslations($language)->create();
+        $before = $other->refresh()->getRawOriginal();
+        $counts = [Page::query()->count(), Layout::query()->count(), Widget::query()->count()];
+        $admin = User::factory()->create()->assignRole('super_admin');
+
+        $this->actingAs($admin)->get('/screenshot-fixtures/layout-builder-admin-editor')
+            ->assertRedirect('/admin/pages/' . $page->getRouteKey() . '/edit');
+
+        $this->assertSame($counts, [Page::query()->count(), Layout::query()->count(), Widget::query()->count()]);
+        $this->assertSame($before, $other->fresh()->getRawOriginal());
+    }
+
+    public function test_it_refuses_a_missing_native_editor_seed_without_creating_content(): void
+    {
+        $language = Language::factory()->create();
+        Site::factory()->language($language)->withTranslations($language)->create();
+        $counts = [Page::query()->count(), Layout::query()->count(), Widget::query()->count()];
+        $admin = User::factory()->create()->assignRole('super_admin');
+
+        $this->actingAs($admin)->get('/screenshot-fixtures/layout-builder-admin-editor')->assertNotFound();
+
+        $this->assertSame($counts, [Page::query()->count(), Layout::query()->count(), Widget::query()->count()]);
+    }
+
+    #[DataProvider('publicLayoutVariants')]
+    public function test_it_seeds_the_native_editor_idempotently_without_overwriting_another_page(bool $fullWidth): void
+    {
+        $language = Language::factory()->create();
+        $site = Site::factory()->language($language)->withTranslations($language)->create();
+        $other = Page::factory()->site($site)->withTranslations($language)->create();
+        $before = $other->refresh()->getRawOriginal();
+
+        $this->actingAs(User::factory()->create()->assignRole('super_admin'));
+        $page = $this->seedNativeEditor($fullWidth);
+        $counts = [Page::query()->count(), Layout::query()->count(), Widget::query()->count()];
+        $again = $this->seedNativeEditor($fullWidth);
+
+        $this->assertSame($page->getKey(), $again->getKey());
+        $this->assertSame($counts, [Page::query()->count(), Layout::query()->count(), Widget::query()->count()]);
+        $this->assertSame($before, $other->fresh()->getRawOriginal());
+        $layout = $again->layout;
+        $this->assertInstanceOf(Layout::class, $layout);
+        $containers = $layout->containers;
+        $this->assertIsArray($containers);
+        $this->assertSame($fullWidth ? ['main'] : ['main', 'sidebar'], array_keys($containers));
+    }
+
+    #[DataProvider('publicLayoutVariants')]
+    public function test_it_renders_the_native_layout_fixture_on_its_anonymous_public_route(bool $fullWidth): void
+    {
+        $language = Language::factory()->english()->create();
+        $site = Site::factory()->language($language)->withTranslations($language)->create(['default' => true]);
+        SiteDomain::factory()->site($site)->language($language)->create(['domain' => 'localhost', 'scheme' => 'http', 'path' => null]);
+        $this->actingAs(User::factory()->create()->assignRole('super_admin'));
+        $page = $this->seedNativeEditor($fullWidth);
+        SetupPageUrlsAction::run($page);
+        $this->app->make(Factory::class)->guard()->logout();
+
+        $this->get($page->pageUrl()->firstOrFail()->full_url)
+            ->assertOk()
+            ->assertSee('Explore practical workshops and creative studio sessions.')
+            ->assertSee('Find opening hours and plan your studio visit.')
+            ->assertDontSee('wire:snapshot', false)
+            ->assertDontSee('capell.layout-builder.widget.default', false);
+    }
+
+    public function test_it_exposes_owned_fixture_copy_in_the_native_content_editor(): void
+    {
+        $language = Language::factory()->create();
+        $site = Site::factory()->language($language)->withTranslations($language)->create();
+        $admin = User::factory()->create()->assignRole('super_admin');
+        $this->actingAs($admin);
+        Filament::setCurrentPanel(Filament::getPanel('admin'));
+        Filament::bootCurrentPanel();
+        Filament::setServingStatus();
+        $page = $this->seedNativeEditor();
+        $layout = $page->layout;
+        $this->assertInstanceOf(Layout::class, $layout);
+
+        Livewire::test(LayoutBuilder::class, [
+            'layout' => $layout,
+            'site' => $site,
+            'page' => $page,
+        ])
+            ->call('showContentEditor')
+            ->assertSet('editorMode', 'content_first')
+            ->assertSee('Explore practical workshops and creative studio sessions.')
+            ->assertSee('Find opening hours and plan your studio visit.')
+            ->assertDontSee(__('capell-layout-builder::message.content_inventory_empty'));
+    }
+
+    public function test_it_preserves_changed_fixture_widget_copy_instead_of_overwriting_it(): void
+    {
+        $language = Language::factory()->create();
+        Site::factory()->language($language)->withTranslations($language)->create();
+        $this->actingAs(User::factory()->create()->assignRole('super_admin'));
+        $this->seedNativeEditor();
+        $widget = Widget::query()->where('key', 'native-layout-editor-overview')->firstOrFail();
+        $translation = $widget->translations()->firstOrFail();
+        $translation->update(['title' => 'Preserve this changed workshop title']);
+
+        $before = $translation->refresh()->getRawOriginal();
+
+        try {
+            $this->seedNativeEditor();
+            $this->fail('Changed widget copy must not be replaced.');
+        } catch (RuntimeException $runtimeException) {
+            $this->assertStringContainsString('translation is occupied or changed', $runtimeException->getMessage());
+        }
+
+        $this->assertSame($before, $translation->refresh()->getRawOriginal());
+    }
+
+    #[DataProvider('publicLayoutVariants')]
+    public function test_it_rejects_an_occupied_page_identity_without_partial_fixture_writes(bool $fullWidth): void
+    {
+        $language = Language::factory()->create();
+        $site = Site::factory()->language($language)->withTranslations($language)->create();
+        $other = Page::factory()->site($site)->withTranslations($language)->create([
+            'uuid' => WidgetScreenshotFixtures::uuid($fullWidth ? 'layout-builder-full-width-page' : 'layout-builder-page'),
+        ]);
+        $before = $other->refresh()->getRawOriginal();
+        $counts = [Page::query()->count(), Layout::query()->count(), Widget::query()->count()];
+
+        $this->actingAs(User::factory()->create()->assignRole('super_admin'));
+        try {
+            $this->seedNativeEditor($fullWidth);
+            $this->fail('An occupied fixture identity must be refused.');
+        } catch (RuntimeException $runtimeException) {
+            $this->assertStringContainsString('no creation receipt', $runtimeException->getMessage());
+        }
+
+        $this->assertSame($counts, [Page::query()->count(), Layout::query()->count(), Widget::query()->count()]);
+        $this->assertSame($before, $other->fresh()->getRawOriginal());
+    }
+
+    public function test_it_refuses_editor_preparation_outside_the_disposable_environment(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('explicitly selected disposable application');
+
+        resolve(PrepareLayoutBuilderScreenshotAction::class)->handle();
+    }
+
+    public function test_it_renders_the_real_visual_editor_inside_the_native_page_editor(): void
     {
         $language = Language::factory()->create();
         $site = Site::factory()
@@ -123,9 +306,18 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         Filament::setCurrentPanel(Filament::getPanel('admin'));
         Filament::bootCurrentPanel();
         Filament::setServingStatus();
+        config()->set('capell-layout-builder.editor_mode.default', 'layout_first');
+        config()->set('capell-layout-builder.layout_builder.lazy', false);
+        $this->actingAs($admin);
+        $page = $this->seedNativeEditor();
+        $key = $page->getRouteKey();
+        $this->assertTrue(is_string($key) || is_int($key));
 
         $this->actingAs($admin)
             ->get('/screenshot-fixtures/layout-builder-admin-editor')
+            ->assertRedirect('/admin/pages/' . $key . '/edit');
+
+        $this->get('/admin/pages/' . $key . '/edit')
             ->assertOk()
             ->assertSee('data-layout-builder-surface="visual-editor"', false)
             ->assertSee('class="layout-builder-visual-toolbar"', false)
@@ -166,9 +358,84 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
         $this->assertDatabaseCount('widget_assets', 2);
     }
 
+    public function test_integrity_command_only_seeds_the_selected_native_entries(): void
+    {
+        $fixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
+        $path = getenv('CAPELL_SCREENSHOT_APP_PATH');
+        $entries = getenv('CAPELL_SCREENSHOT_ENTRY_IDS');
+        putenv('CAPELL_SCREENSHOT_FIXTURE=record-state');
+        putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
+        $this->app->make(Kernel::class)->registerCommand(new SeedLayoutBuilderIntegrityScreenshotFixturesCommand);
+        try {
+            foreach (['["widgets-admin-index"]', '["sections-admin-index"]'] as $selection) {
+                putenv('CAPELL_SCREENSHOT_ENTRY_IDS=' . $selection);
+                $this->artisan('capell:layout-builder-seed-screenshot-integrity-fixtures')->assertSuccessful();
+                $this->assertDatabaseCount('widgets', 0);
+                $this->assertDatabaseCount('widget_assets', 0);
+            }
+
+            putenv('CAPELL_SCREENSHOT_ENTRY_IDS=["layout-builder-broken-unscoped-widget-assets"]');
+            $this->artisan('capell:layout-builder-seed-screenshot-integrity-fixtures')->assertSuccessful();
+            $this->assertDatabaseCount('widgets', 2);
+            $this->assertDatabaseCount('widget_assets', 2);
+        } finally {
+            putenv($fixture === false ? 'CAPELL_SCREENSHOT_FIXTURE' : 'CAPELL_SCREENSHOT_FIXTURE=' . $fixture);
+            putenv($path === false ? 'CAPELL_SCREENSHOT_APP_PATH' : 'CAPELL_SCREENSHOT_APP_PATH=' . $path);
+            putenv($entries === false ? 'CAPELL_SCREENSHOT_ENTRY_IDS' : 'CAPELL_SCREENSHOT_ENTRY_IDS=' . $entries);
+        }
+    }
+
     public function test_it_does_not_register_screenshot_fixture_seeding_in_the_package_console(): void
     {
         $this->assertArrayNotHasKey('capell:layout-builder-seed-screenshot-integrity-fixtures', $this->app->make(Kernel::class)->all());
+    }
+
+    public function test_it_refuses_an_occupied_integrity_widget_without_partial_fixture_writes(): void
+    {
+        $widget = Widget::factory()->create([
+            'key' => SeedWidgetIntegrityScreenshotFixturesAction::UNUSED_WIDGET_KEY,
+            'name' => 'Owner managed workshop reminder',
+            'status' => true,
+        ]);
+        $before = $widget->refresh()->getRawOriginal();
+        $counts = [Widget::query()->count(), WidgetAsset::query()->count(), Blueprint::query()->count()];
+
+        $failure = null;
+        try {
+            $this->seedIntegrityFixtures();
+        } catch (RuntimeException $runtimeException) {
+            $failure = $runtimeException;
+        }
+
+        $this->assertSame($before, $widget->refresh()->getRawOriginal());
+        $this->assertSame($counts, [Widget::query()->count(), WidgetAsset::query()->count(), Blueprint::query()->count()]);
+        $this->assertInstanceOf(RuntimeException::class, $failure);
+        $this->assertStringContainsString('no creation receipt', $failure->getMessage());
+    }
+
+    public function test_it_refuses_an_occupied_integrity_asset_and_rolls_back_earlier_widget_updates(): void
+    {
+        $this->seedIntegrityFixtures();
+        $widget = Widget::query()->where('key', SeedWidgetIntegrityScreenshotFixturesAction::UNUSED_WIDGET_KEY)->sole();
+        $widget->update(['name' => 'Owner copy before failed preparation']);
+
+        $asset = WidgetAsset::query()->where('container', SeedWidgetIntegrityScreenshotFixturesAction::BROKEN_ASSET_CONTAINER)->sole();
+        $asset->update(['order' => 77]);
+        DB::table(FixtureState::Table)->where('table_name', $asset->getTable())->delete();
+        $before = [$widget->refresh()->getRawOriginal(), $asset->refresh()->getRawOriginal()];
+        $counts = [Widget::query()->count(), WidgetAsset::query()->count(), Blueprint::query()->count()];
+
+        $failure = null;
+        try {
+            $this->seedIntegrityFixtures();
+        } catch (RuntimeException $runtimeException) {
+            $failure = $runtimeException;
+        }
+
+        $this->assertSame($before, [$widget->refresh()->getRawOriginal(), $asset->refresh()->getRawOriginal()]);
+        $this->assertSame($counts, [Widget::query()->count(), WidgetAsset::query()->count(), Blueprint::query()->count()]);
+        $this->assertInstanceOf(RuntimeException::class, $failure);
+        $this->assertStringContainsString('no creation receipt', $failure->getMessage());
     }
 
     public function test_it_protects_and_renders_widget_integrity_tables_without_mutating_capture_gets(): void
@@ -393,6 +660,31 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
 
         $this->registerFixtureRoutes('registerLayoutBuilderScreenshotFixtureRoutes');
         WidgetScreenshotFixtureRoutes::register();
+    }
+
+    private function seedNativeEditor(bool $fullWidth = false): Page
+    {
+        $fixture = getenv('CAPELL_SCREENSHOT_FIXTURE');
+        $path = getenv('CAPELL_SCREENSHOT_APP_PATH');
+        $email = getenv('CAPELL_SCREENSHOT_ADMIN_EMAIL');
+        $actorEmail = data_get(auth()->user(), 'email');
+        $this->assertIsString($actorEmail);
+        putenv('CAPELL_SCREENSHOT_FIXTURE=record-state');
+        putenv('CAPELL_SCREENSHOT_APP_PATH=' . base_path());
+        putenv('CAPELL_SCREENSHOT_ADMIN_EMAIL=' . $actorEmail);
+        try {
+            if ($fullWidth) {
+                return resolve(PrepareLayoutBuilderScreenshotAction::class)->handle(fullWidth: true);
+            }
+
+            resolve(SeedAdminScreenshotFixtureAction::class)->handle('layout-builder');
+
+            return Page::query()->where('uuid', WidgetScreenshotFixtures::uuid('layout-builder-page'))->firstOrFail();
+        } finally {
+            putenv($fixture === false ? 'CAPELL_SCREENSHOT_FIXTURE' : 'CAPELL_SCREENSHOT_FIXTURE=' . $fixture);
+            putenv($path === false ? 'CAPELL_SCREENSHOT_APP_PATH' : 'CAPELL_SCREENSHOT_APP_PATH=' . $path);
+            putenv($email === false ? 'CAPELL_SCREENSHOT_ADMIN_EMAIL' : 'CAPELL_SCREENSHOT_ADMIN_EMAIL=' . $email);
+        }
     }
 
     private function seedIntegrityFixtures(): void

@@ -4,10 +4,10 @@
     "scenarios": {
         "default": {
             "source": {
-                "ref": "63f03a6a2",
-                "commit": "63f03a6a2e08b0827365457dcf69efde6b663528",
+                "ref": "HEAD",
+                "commit": "ad9d3ccab5e81abdec50ccbdf9be6d833882bbca",
                 "providers": {
-                    "LayoutBuilderServiceProvider.php": "959d277e1c45bce52abecefde2b276cddc6a89beba952db6b9316bbc491b1044",
+                    "LayoutBuilderServiceProvider.php": "0443b0cdb0c509e2fa95baeac195a5acda3a5e0d3b44195508ce5ec99fd5dffb",
                     "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18"
                 }
             },
@@ -1106,6 +1106,12 @@
                     ],
                     [
                         "Filament\\Support\\Assets\\AlpineComponent",
+                        "capell-repeater-tabs",
+                        "capell-admin",
+                        "<package:admin>/publishes/build/js/components/repeater-tabs.js"
+                    ],
+                    [
+                        "Filament\\Support\\Assets\\AlpineComponent",
                         "capell-keyboard-shortcuts",
                         "capell-admin",
                         "<package:admin>/publishes/build/js/components/keyboard-shortcuts.js"
@@ -1587,6 +1593,28 @@
                             {
                                 "abstract": "Capell\\Admin\\Support\\MarketingStudio\\MarketingStudioActionRegistry",
                                 "concrete": "Capell\\Admin\\Support\\MarketingStudio\\MarketingStudioActionRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Support\\Media\\AdminUploadDeletion": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Support\\Media\\AdminUploadDeletion",
+                                "concrete": "Capell\\Admin\\Support\\Media\\AdminUploadDeletion"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Support\\Media\\AdminUploadGrantRepository": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Support\\Media\\AdminUploadGrantRepository",
+                                "concrete": "Capell\\Admin\\Support\\Media\\AdminUploadGrantRepository"
                             }
                         ],
                         "shared": true
@@ -2487,6 +2515,17 @@
                             {
                                 "abstract": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry",
                                 "concrete": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Core\\Support\\Themes\\LayoutViewRegistry": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Core\\Support\\Themes\\LayoutViewRegistry",
+                                "concrete": "Capell\\Core\\Support\\Themes\\LayoutViewRegistry"
                             }
                         ],
                         "shared": true
@@ -3885,6 +3924,28 @@
                             {
                                 "abstract": "Filament\\Auth\\Http\\Responses\\Contracts\\RegistrationResponse",
                                 "concrete": "Filament\\Auth\\Http\\Responses\\RegistrationResponse"
+                            }
+                        ],
+                        "shared": false
+                    },
+                    "Filament\\Forms\\Components\\FileUpload": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Filament\\Forms\\Components\\FileUpload",
+                                "concrete": "Capell\\Admin\\Filament\\Components\\Forms\\FileUpload"
+                            }
+                        ],
+                        "shared": false
+                    },
+                    "Filament\\Forms\\Components\\SpatieMediaLibraryFileUpload": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Filament\\Forms\\Components\\SpatieMediaLibraryFileUpload",
+                                "concrete": "Capell\\Admin\\Filament\\Components\\Forms\\SpatieMediaLibraryFileUpload"
                             }
                         ],
                         "shared": false
@@ -6612,9 +6673,17 @@
                 },
                 "bindings-removed": [],
                 "blade": {
+                    "accordion": "capell-block-library::builder.accordion",
+                    "call_to_action": "capell-block-library::builder.call-to-action",
+                    "capell-block-library::builder-block": "Capell\\BlockLibrary\\View\\Components\\BuilderBlock",
                     "capell::layout": "Capell\\Frontend\\View\\Components\\Layout",
+                    "comparison": "capell-block-library::builder.comparison",
                     "content": "capell-layout-builder::layout-widgets.content",
+                    "counter": "capell-block-library::builder.counter",
+                    "divider": "capell-block-library::builder.divider",
                     "dynamic-component": "Illuminate\\View\\DynamicComponent",
+                    "faq": "capell-block-library::builder.faq",
+                    "features": "capell-block-library::builder.features",
                     "fi-m-pencil-slash": "BladeUI\\Icons\\Components\\Svg",
                     "fi-o-align-center": "BladeUI\\Icons\\Components\\Svg",
                     "fi-o-align-end": "BladeUI\\Icons\\Components\\Svg",
@@ -7178,6 +7247,7 @@
                     "flag-4x3-za": "BladeUI\\Icons\\Components\\Svg",
                     "flag-4x3-zm": "BladeUI\\Icons\\Components\\Svg",
                     "flag-4x3-zw": "BladeUI\\Icons\\Components\\Svg",
+                    "hero": "capell-block-library::builder.hero",
                     "heroicon-c-academic-cap": "BladeUI\\Icons\\Components\\Svg",
                     "heroicon-c-adjustments-horizontal": "BladeUI\\Icons\\Components\\Svg",
                     "heroicon-c-adjustments-vertical": "BladeUI\\Icons\\Components\\Svg",
@@ -8469,6 +8539,14 @@
                     "icon": "BladeUI\\Icons\\Components\\Icon",
                     "image": "capell-layout-builder::layout-widgets.image",
                     "impersonate-icon": "BladeUI\\Icons\\Components\\Svg",
+                    "logos": "capell-block-library::builder.logos",
+                    "pricing": "capell-block-library::builder.pricing",
+                    "stats": "capell-block-library::builder.stats",
+                    "table": "capell-block-library::builder.table",
+                    "tabs": "capell-block-library::builder.tabs",
+                    "team": "capell-block-library::builder.team",
+                    "testimonial": "capell-block-library::builder.testimonial",
+                    "timeline": "capell-block-library::builder.timeline",
                     "title": "capell-layout-builder::layout-widgets.title"
                 },
                 "blade-namespaces": [],
@@ -8495,6 +8573,7 @@
                     "capell:admin-clear-configurators-cache": "Capell\\Admin\\Console\\Commands\\ClearConfiguratorsCacheCommand",
                     "capell:admin-clear-widgets-cache": "Capell\\Admin\\Console\\Commands\\ClearWidgetsCacheCommand",
                     "capell:admin-install": "Capell\\Admin\\Console\\Commands\\InstallCommand",
+                    "capell:admin-prune-upload-grants": "Capell\\Admin\\Console\\Commands\\PruneAdminUploadGrantsCommand",
                     "capell:admin-publish-resources": "Capell\\Admin\\Console\\Commands\\PublishResourcesCommand",
                     "capell:admin-setup": "Capell\\Admin\\Console\\Commands\\SetupCommand",
                     "capell:admin-sync-permissions": "Capell\\Admin\\Console\\Commands\\SyncPermissionsCommand",
@@ -9076,6 +9155,12 @@
                             "handle"
                         ]
                     ],
+                    "Capell\\Core\\Events\\SiteSpecPrivacyRepairing": [
+                        [
+                            "Capell\\Frontend\\Listeners\\RemediatePrivateSiteSpecOutput",
+                            "handle"
+                        ]
+                    ],
                     "Capell\\Frontend\\Events\\FrontendContextResolved": [
                         [
                             "Capell\\Frontend\\Listeners\\OnFrontendContextResolved",
@@ -9219,7 +9304,17 @@
                             []
                         ]
                     ],
+                    "Illuminate\\Database\\Events\\TransactionBeginning": [
+                        [
+                            "Capell\\Admin\\Listeners\\AdminUploadGrantTransactionListener",
+                            "beginning"
+                        ]
+                    ],
                     "Illuminate\\Database\\Events\\TransactionCommitted": [
+                        [
+                            "Capell\\Admin\\Listeners\\AdminUploadGrantTransactionListener",
+                            "committed"
+                        ],
                         [
                             "<tests>/Support/Concerns/ReusesPackageTestDatabase.php",
                             "Capell\\Tests\\AbstractTestCase(Illuminate\\Database\\Events\\TransactionCommitted $event):void bound=Capell\\Tests\\Support\\InstalledRuntimeTestCase",
@@ -9228,6 +9323,12 @@
                                     "object": "Illuminate\\Database\\SQLiteConnection"
                                 }
                             }
+                        ]
+                    ],
+                    "Illuminate\\Database\\Events\\TransactionRolledBack": [
+                        [
+                            "Capell\\Admin\\Listeners\\AdminUploadGrantTransactionListener",
+                            "rolledBack"
                         ]
                     ],
                     "Illuminate\\Foundation\\Http\\Events\\RequestHandled": [
@@ -9394,6 +9495,16 @@
                             "<vendor>/spatie/laravel-settings/src/SettingsEventSubscriber.php",
                             "Spatie\\LaravelSettings\\SettingsEventSubscriber(Spatie\\LaravelSettings\\Events\\SettingsSaved $event): bound=Spatie\\LaravelSettings\\SettingsEventSubscriber",
                             []
+                        ]
+                    ],
+                    "composing: capell-layout-builder::components.layout-widgets.index": [
+                        [
+                            "<vendor>/laravel/framework/src/Illuminate/View/Concerns/ManagesEvents.php",
+                            "Illuminate\\View\\Factory(): bound=Illuminate\\View\\Factory",
+                            {
+                                "class": "Capell\\LayoutBuilder\\Support\\BuilderBlockWidgetsComposer",
+                                "method": "compose"
+                            }
                         ]
                     ],
                     "composing: capell::app": [
@@ -10042,7 +10153,8 @@
                             "<package:core>/src/Models/Concerns/HasUserstamps.php",
                             "Capell\\Core\\Models\\SiteDomain(Illuminate\\Database\\Eloquent\\Model&Capell\\Core\\Models\\Contracts\\Userstampable $model):void",
                             []
-                        ]
+                        ],
+                        "Capell\\Core\\Observers\\SiteDomainObserver@restoring"
                     ],
                     "eloquent.restoring: Capell\\Core\\Models\\Theme": [
                         [
@@ -10287,6 +10399,9 @@
                             []
                         ]
                     ],
+                    "eloquent.saving: Capell\\Core\\Models\\Blueprint": [
+                        "Capell\\Core\\Observers\\BlueprintObserver@saving"
+                    ],
                     "eloquent.saving: Capell\\Core\\Models\\Layout": [
                         "Capell\\Core\\Observers\\LayoutObserver@saving"
                     ],
@@ -10320,6 +10435,9 @@
                     ],
                     "eloquent.saving: Capell\\Core\\Models\\PageUrl": [
                         "Capell\\Core\\Observers\\PageUrlObserver@saving"
+                    ],
+                    "eloquent.saving: Capell\\Core\\Models\\Site": [
+                        "Capell\\Core\\Observers\\SiteObserver@saving"
                     ],
                     "eloquent.saving: Capell\\Core\\Models\\SiteDomain": [
                         "Capell\\Core\\Observers\\SiteDomainObserver@saving"
@@ -10769,6 +10887,7 @@
                 },
                 "overview-groups-removed": [],
                 "policies": {
+                    "Capell\\Core\\Models\\BlockTemplate": "Capell\\Admin\\Policies\\BlockTemplatePolicy",
                     "Capell\\Core\\Models\\Blueprint": "Capell\\Admin\\Policies\\BlueprintPolicy",
                     "Capell\\Core\\Models\\Language": "Capell\\Admin\\Policies\\LanguagePolicy",
                     "Capell\\Core\\Models\\Layout": "Capell\\Admin\\Policies\\LayoutPolicy",
@@ -10779,6 +10898,7 @@
                     "Capell\\Core\\Models\\SiteDomain": "Capell\\Admin\\Policies\\SiteDomainPolicy",
                     "Capell\\Core\\Models\\Theme": "Capell\\Admin\\Policies\\ThemePolicy",
                     "Capell\\Tests\\Fixtures\\Models\\User": "Capell\\Admin\\Policies\\UserPolicy",
+                    "Spatie\\Activitylog\\Models\\Activity": "Capell\\Admin\\Policies\\ActivityPolicy",
                     "Spatie\\Permission\\Models\\Role": "Capell\\Tests\\Fixtures\\Policies\\RolePolicy"
                 },
                 "policies-removed": [],
@@ -10822,6 +10942,134 @@
                         "Capell\\Core\\Support\\CapellCoreManager",
                         "runtime",
                         "context"
+                    ],
+                    [
+                        "frontend-component",
+                        "accordion",
+                        "capell-block-library::builder.accordion",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "call_to_action",
+                        "capell-block-library::builder.call-to-action",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "comparison",
+                        "capell-block-library::builder.comparison",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "counter",
+                        "capell-block-library::builder.counter",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "divider",
+                        "capell-block-library::builder.divider",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "faq",
+                        "capell-block-library::builder.faq",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "features",
+                        "capell-block-library::builder.features",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "hero",
+                        "capell-block-library::builder.hero",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "logos",
+                        "capell-block-library::builder.logos",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "pricing",
+                        "capell-block-library::builder.pricing",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "stats",
+                        "capell-block-library::builder.stats",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "table",
+                        "capell-block-library::builder.table",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "tabs",
+                        "capell-block-library::builder.tabs",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "team",
+                        "capell-block-library::builder.team",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "testimonial",
+                        "capell-block-library::builder.testimonial",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "timeline",
+                        "capell-block-library::builder.timeline",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
                     ],
                     [
                         "frontend-component",
@@ -14554,6 +14802,21 @@
                             "Capell\\Frontend\\Listeners\\PurgeCdnCacheOnPageRollbackSubscriber": "Capell\\Frontend\\Listeners\\PurgeCdnCacheOnPageRollbackSubscriber"
                         }
                     },
+                    "Capell\\Core\\Support\\Themes\\LayoutViewRegistry": {
+                        "items": {
+                            "layouts": {
+                                "capell::app": "capell::app"
+                            },
+                            "masters": {
+                                "capell::livewire.page.page": "capell::livewire.page.page"
+                            }
+                        }
+                    },
+                    "Capell\\Core\\Support\\Themes\\ThemeChromeRegistry": {
+                        "logos": {
+                            "brand.capell-logo": "Capell"
+                        }
+                    },
                     "Capell\\Frontend\\Support\\Cache\\CacheInvalidationDependencyRegistry": {
                         "modelDependencies": {
                             "Capell\\Core\\Models\\Language": [
@@ -14795,6 +15058,45 @@
                     "Capell\\LayoutBuilder\\Support\\LayoutWidgets\\LayoutWidgetRegistry": {
                         "definitions": {
                             "frontend-blade": {
+                                "accordion": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.accordion",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "accordion",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "call_to_action": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.call-to-action",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "call_to_action",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "comparison": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.comparison",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "comparison",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
                                 "content": [
                                     "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
                                     {
@@ -14808,6 +15110,71 @@
                                         "target": "frontend-blade"
                                     }
                                 ],
+                                "counter": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.counter",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "counter",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "divider": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.divider",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "divider",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "faq": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.faq",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "faq",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "features": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.features",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "features",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "hero": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.hero",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "hero",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
                                 "image": [
                                     "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
                                     {
@@ -14816,6 +15183,110 @@
                                         "defaultLoadingStrategy": null,
                                         "defaultPresentationSettings": [],
                                         "key": "image",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "logos": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.logos",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "logos",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "pricing": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.pricing",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "pricing",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "stats": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.stats",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "stats",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "table": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.table",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "table",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "tabs": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.tabs",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "tabs",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "team": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.team",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "team",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "testimonial": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.testimonial",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "testimonial",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "timeline": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.timeline",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "timeline",
                                         "resourceGroupLoadingStrategies": [],
                                         "resourceGroups": [],
                                         "target": "frontend-blade"
@@ -14879,8 +15350,24 @@
                         },
                         "widgets": {
                             "frontend-blade": {
+                                "accordion": "capell-block-library::builder.accordion",
+                                "call_to_action": "capell-block-library::builder.call-to-action",
+                                "comparison": "capell-block-library::builder.comparison",
                                 "content": "capell-layout-builder::layout-widgets.content",
+                                "counter": "capell-block-library::builder.counter",
+                                "divider": "capell-block-library::builder.divider",
+                                "faq": "capell-block-library::builder.faq",
+                                "features": "capell-block-library::builder.features",
+                                "hero": "capell-block-library::builder.hero",
                                 "image": "capell-layout-builder::layout-widgets.image",
+                                "logos": "capell-block-library::builder.logos",
+                                "pricing": "capell-block-library::builder.pricing",
+                                "stats": "capell-block-library::builder.stats",
+                                "table": "capell-block-library::builder.table",
+                                "tabs": "capell-block-library::builder.tabs",
+                                "team": "capell-block-library::builder.team",
+                                "testimonial": "capell-block-library::builder.testimonial",
+                                "timeline": "capell-block-library::builder.timeline",
                                 "title": "capell-layout-builder::layout-widgets.title"
                             },
                             "frontend-inertia": {
@@ -15136,6 +15623,22 @@
                             "as": "filament-impersonate.leave",
                             "domain": null,
                             "prefix": null,
+                            "where": []
+                        }
+                    ],
+                    [
+                        "capell-installer.unlock",
+                        "install/unlock",
+                        ["POST"],
+                        [
+                            "web",
+                            "Capell\\Installer\\Http\\Middleware\\RequireInstallerBootstrap"
+                        ],
+                        "Capell\\Installer\\Http\\Controllers\\InstallController@unlock",
+                        {
+                            "as": "capell-installer.unlock",
+                            "domain": null,
+                            "prefix": "",
                             "where": []
                         }
                     ],
@@ -15493,7 +15996,7 @@
                         "capell-admin.extension-asset",
                         "admin/extension-asset",
                         ["GET", "HEAD"],
-                        ["web", "auth"],
+                        ["web"],
                         "Capell\\Admin\\Http\\Controllers\\Extensions\\ExtensionAssetController",
                         {
                             "as": "capell-admin.extension-asset",
@@ -15830,6 +16333,13 @@
                     [
                         "'<php>' 'artisan' capell:admin-upgrade-summary-email",
                         "0 0 * * 0",
+                        null,
+                        true,
+                        null
+                    ],
+                    [
+                        "'<php>' 'artisan' capell:admin-prune-upload-grants",
+                        "0 * * * *",
                         null,
                         true,
                         null
@@ -16585,6 +17095,15 @@
                             }
                         ]
                     ],
+                    "eloquent.deleted: Capell\\LayoutBuilder\\Models\\Widget": [
+                        "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@deleted"
+                    ],
+                    "eloquent.restored: Capell\\LayoutBuilder\\Models\\Widget": [
+                        "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@restored"
+                    ],
+                    "eloquent.saved: Capell\\LayoutBuilder\\Models\\Widget": [
+                        "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@saved"
+                    ],
                     "eloquent.updated: Capell\\Core\\Models\\Blueprint": [
                         [
                             "<package>/src/Support/LayoutBuilderCoreRegistrar.php",
@@ -16637,7 +17156,8 @@
                 },
                 "policies": {
                     "Capell\\LayoutBuilder\\Models\\LayoutPreset": "Capell\\LayoutBuilder\\Policies\\LayoutPresetPolicy",
-                    "Capell\\LayoutBuilder\\Models\\Widget": "Capell\\LayoutBuilder\\Policies\\WidgetPolicy"
+                    "Capell\\LayoutBuilder\\Models\\Widget": "Capell\\LayoutBuilder\\Policies\\WidgetPolicy",
+                    "Capell\\LayoutBuilder\\Models\\WidgetAsset": "Capell\\LayoutBuilder\\Policies\\WidgetPolicy"
                 },
                 "receipt-emissions": [
                     [
@@ -18255,6 +18775,88 @@
                             "Capell\\Core\\Data\\RenderableDefinitionData"
                         ]
                     ],
+                    "frontend-component": [
+                        [
+                            "frontend-component",
+                            "accordion",
+                            "capell-block-library::builder.accordion"
+                        ],
+                        [
+                            "frontend-component",
+                            "call_to_action",
+                            "capell-block-library::builder.call-to-action"
+                        ],
+                        [
+                            "frontend-component",
+                            "comparison",
+                            "capell-block-library::builder.comparison"
+                        ],
+                        [
+                            "frontend-component",
+                            "counter",
+                            "capell-block-library::builder.counter"
+                        ],
+                        [
+                            "frontend-component",
+                            "divider",
+                            "capell-block-library::builder.divider"
+                        ],
+                        [
+                            "frontend-component",
+                            "faq",
+                            "capell-block-library::builder.faq"
+                        ],
+                        [
+                            "frontend-component",
+                            "features",
+                            "capell-block-library::builder.features"
+                        ],
+                        [
+                            "frontend-component",
+                            "hero",
+                            "capell-block-library::builder.hero"
+                        ],
+                        [
+                            "frontend-component",
+                            "logos",
+                            "capell-block-library::builder.logos"
+                        ],
+                        [
+                            "frontend-component",
+                            "pricing",
+                            "capell-block-library::builder.pricing"
+                        ],
+                        [
+                            "frontend-component",
+                            "stats",
+                            "capell-block-library::builder.stats"
+                        ],
+                        [
+                            "frontend-component",
+                            "table",
+                            "capell-block-library::builder.table"
+                        ],
+                        [
+                            "frontend-component",
+                            "tabs",
+                            "capell-block-library::builder.tabs"
+                        ],
+                        [
+                            "frontend-component",
+                            "team",
+                            "capell-block-library::builder.team"
+                        ],
+                        [
+                            "frontend-component",
+                            "testimonial",
+                            "capell-block-library::builder.testimonial"
+                        ],
+                        [
+                            "frontend-component",
+                            "timeline",
+                            "capell-block-library::builder.timeline"
+                        ]
+                    ],
                     "model": [
                         [
                             "model",
@@ -18277,6 +18879,13 @@
                             "page-type",
                             "widget",
                             "Capell\\LayoutBuilder\\Models\\Widget"
+                        ]
+                    ],
+                    "public-render-data": [
+                        [
+                            "public-render-data",
+                            "builder_blocks",
+                            "Capell\\LayoutBuilder\\Support\\BuilderBlockPublicRenderDataContributor"
                         ]
                     ],
                     "render-hook": [
@@ -19309,6 +19918,14 @@
                             "Capell\\LayoutBuilder\\Support\\WidgetSnapshots\\WidgetSnapshotWorkflowSubscriber": "Capell\\LayoutBuilder\\Support\\WidgetSnapshots\\WidgetSnapshotWorkflowSubscriber"
                         }
                     },
+                    "Capell\\Frontend\\Support\\Render\\PublicRenderDataContributorRegistry": {
+                        "contributors": {
+                            "builder_blocks": [
+                                "Capell\\LayoutBuilder\\Support\\BuilderBlockPublicRenderDataContributor",
+                                []
+                            ]
+                        }
+                    },
                     "Capell\\Frontend\\Support\\Render\\RenderHookRegistry": {
                         "contributedKeys": {
                             "mainContent:capell-app/layout-builder:main-content-layout": true
@@ -20063,6 +20680,90 @@
                         "context"
                     ]
                 ],
+                "receipts": {
+                    "frontend-component": [
+                        [
+                            "frontend-component",
+                            "accordion",
+                            "capell-block-library::builder.accordion"
+                        ],
+                        [
+                            "frontend-component",
+                            "call_to_action",
+                            "capell-block-library::builder.call-to-action"
+                        ],
+                        [
+                            "frontend-component",
+                            "comparison",
+                            "capell-block-library::builder.comparison"
+                        ],
+                        [
+                            "frontend-component",
+                            "counter",
+                            "capell-block-library::builder.counter"
+                        ],
+                        [
+                            "frontend-component",
+                            "divider",
+                            "capell-block-library::builder.divider"
+                        ],
+                        [
+                            "frontend-component",
+                            "faq",
+                            "capell-block-library::builder.faq"
+                        ],
+                        [
+                            "frontend-component",
+                            "features",
+                            "capell-block-library::builder.features"
+                        ],
+                        [
+                            "frontend-component",
+                            "hero",
+                            "capell-block-library::builder.hero"
+                        ],
+                        [
+                            "frontend-component",
+                            "logos",
+                            "capell-block-library::builder.logos"
+                        ],
+                        [
+                            "frontend-component",
+                            "pricing",
+                            "capell-block-library::builder.pricing"
+                        ],
+                        [
+                            "frontend-component",
+                            "stats",
+                            "capell-block-library::builder.stats"
+                        ],
+                        [
+                            "frontend-component",
+                            "table",
+                            "capell-block-library::builder.table"
+                        ],
+                        [
+                            "frontend-component",
+                            "tabs",
+                            "capell-block-library::builder.tabs"
+                        ],
+                        [
+                            "frontend-component",
+                            "team",
+                            "capell-block-library::builder.team"
+                        ],
+                        [
+                            "frontend-component",
+                            "testimonial",
+                            "capell-block-library::builder.testimonial"
+                        ],
+                        [
+                            "frontend-component",
+                            "timeline",
+                            "capell-block-library::builder.timeline"
+                        ]
+                    ]
+                },
                 "tagged-consumers": {
                     "capell.content-graph.extractor": [
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetAssetContentGraphExtractor",
@@ -20096,1008 +20797,14 @@
                     ]
                 }
             },
-            "removableUninstalledSurfaces": [],
-            "installationReceiptEmissions": [
-                [
-                    "page-type",
-                    "widget",
-                    "Capell\\LayoutBuilder\\Models\\Widget",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "model",
-                    "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\DefaultLayoutInterceptor:default",
-                    "Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\DefaultLayoutInterceptor",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "model",
-                    "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\HomeLayoutInterceptor:home",
-                    "Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\HomeLayoutInterceptor",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "model",
-                    "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\ResultsLayoutInterceptor:results",
-                    "Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\ResultsLayoutInterceptor",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Card",
-                    "capell.asset.card",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Media",
-                    "capell.asset.media",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Page",
-                    "capell.asset.page",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Tile",
-                    "capell.asset.tile",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetAccordion",
-                    "capell.widget.asset.accordion",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetBanner",
-                    "capell.widget.asset.banners",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetWidget",
-                    "capell.widget.asset.widgets",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetCarousel",
-                    "capell.widget.asset.carousel",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetFeatures",
-                    "capell.widget.asset.features",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetMedia",
-                    "capell.widget.asset.media",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetTestimonials",
-                    "capell.widget.asset.testimonials",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AnnouncementBar",
-                    "capell.widget.announcement-bar",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Assets",
-                    "capell.widget.asset",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:BannerImage",
-                    "capell.widget.banner-image",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Default",
-                    "capell.widget.default",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Hero",
-                    "capell.widget.hero",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Navigation",
-                    "capell.widget.navigation",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:NavigationTabs",
-                    "capell.widget.navigation.tabs",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageBreadcrumbs",
-                    "capell.widget.page.breadcrumbs",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageChildren",
-                    "capell.widget.page.children",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageContent",
-                    "capell.widget.page.content",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageLatest",
-                    "capell.widget.page.latest",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageSiblings",
-                    "capell.widget.page.siblings",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageSlot",
-                    "capell.widget.slot",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Pages",
-                    "capell.widget.asset.pages",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Snippet",
-                    "capell.widget.snippet",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApHeroBanner",
-                    "capell.widget.modern.hero-banner",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApCardGrid",
-                    "capell.widget.modern.card-grid",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApFeatureList",
-                    "capell.widget.modern.feature-list",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApCTASection",
-                    "capell.widget.modern.cta-section",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApImageGallery",
-                    "capell.widget.modern.image-gallery",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApTeamMembers",
-                    "capell.widget.modern.team-members",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApPricingTable",
-                    "capell.widget.modern.pricing-table",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApTestimonials",
-                    "capell.widget.modern.testimonials",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApFaqSection",
-                    "capell.widget.modern.faq-section",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApStatsSection",
-                    "capell.widget.modern.stats-section",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApAlternatingContent",
-                    "capell.widget.modern.alternating-content",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApProcessSteps",
-                    "capell.widget.modern.process-steps",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkRichText",
-                    "capell.widget.kitchen-sink.rich-text",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkStructuredText",
-                    "capell.widget.kitchen-sink.structured-text",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkDataDisplay",
-                    "capell.widget.kitchen-sink.data-display",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkForms",
-                    "capell.widget.kitchen-sink.forms",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkInteractions",
-                    "capell.widget.kitchen-sink.interactions",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkEmbeds",
-                    "capell.widget.kitchen-sink.embeds",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkUtilityStates",
-                    "capell.widget.kitchen-sink.utility-states",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:SectionWidget",
-                    "capell.asset.section.widget",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:SectionTeamMember",
-                    "capell.asset.section.team-member",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.accordion",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.banners",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.widgets",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.carousel",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.features",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.media",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.testimonials",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.announcement-bar",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.banner-image",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.default",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.hero",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.navigation",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.navigation.tabs",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.breadcrumbs",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.children",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.content",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.latest",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.siblings",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.slot",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.pages",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.snippet",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.hero-banner",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.card-grid",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.feature-list",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.cta-section",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.image-gallery",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.team-members",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.pricing-table",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.testimonials",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.faq-section",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.stats-section",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.alternating-content",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.process-steps",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.rich-text",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.structured-text",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.data-display",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.forms",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.interactions",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.embeds",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.utility-states",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:asset:capell.asset.section.widget",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:asset:capell.asset.section.team-member",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.pages",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "render-hook",
-                    "main-content-layout",
-                    "Capell\\LayoutBuilder\\Support\\RenderHooks\\RegisterMainContentLayoutHook",
-                    "Capell\\Frontend\\Support\\Render\\RenderHookRegistry",
-                    "frontend",
-                    "context"
-                ],
-                [
-                    "render-hook",
-                    "main-content-layout",
-                    "Capell\\LayoutBuilder\\Support\\RenderHooks\\RegisterMainContentLayoutHook",
-                    "Capell\\Frontend\\Support\\Render\\FrontendHookRegistrar",
-                    null,
-                    "context"
-                ],
-                [
-                    "admin-page",
-                    "bridge:capell-app/layout-builder:Capell\\LayoutBuilder\\Bridges\\LayoutBuilderAdminBridge",
-                    "Capell\\LayoutBuilder\\Bridges\\LayoutBuilderAdminBridge",
-                    "Capell\\Admin\\Support\\Bridges\\AdminBridgeRegistrar",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "admin-resource",
-                    "resource:Widget:default",
-                    "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "admin-resource",
-                    "resource:Layout:layout-builder",
-                    "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutBuilderResource",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "admin-resource",
-                    "resource:Layout:preset",
-                    "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutPresets\\LayoutPresetResource",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutContainers:Default",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\DefaultLayoutContainerConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutWidgets:DefaultLayout",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\DefaultLayoutWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutWidgets:PageLayout",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\PageLayoutWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutWidgets:ResultsLayout",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\ResultsLayoutWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Default",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\DefaultWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Assets",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\AssetsWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Carousel",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CarouselWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Hero",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\HeroWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Navigation",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\NavigationWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:PageContent",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageContentWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Results",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ResultsWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:System",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\SystemWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:HeroBanner",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\HeroBannerWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:CardGrid",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CardGridWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:FeatureList",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\FeatureListWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:CTASection",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CTASectionWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:ImageGallery",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ImageGalleryWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:KitchenSinkReference",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\KitchenSinkReferenceWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:WidgetAssets:PageWidgetAssetForm",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageWidgetAssetForm",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:WidgetAssets:RegisteredAssetWidgetAssetForm",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\RegisteredAssetWidgetAssetForm",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Blueprints:WidgetTypeConfigurator",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Types\\WidgetTypeConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "reserved-frontend-path",
-                    "reserved-path:prefix:_fragments",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "frontend",
-                    "context"
-                ],
-                [
-                    "reserved-frontend-path",
-                    "reserved-path:prefix:_capell/layout-widgets",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "frontend",
-                    "context"
-                ]
-            ]
+            "removableUninstalledSurfaces": []
         },
         "foundation-theme": {
             "source": {
-                "ref": "63f03a6a2",
-                "commit": "63f03a6a2e08b0827365457dcf69efde6b663528",
+                "ref": "HEAD",
+                "commit": "ad9d3ccab5e81abdec50ccbdf9be6d833882bbca",
                 "providers": {
-                    "LayoutBuilderServiceProvider.php": "959d277e1c45bce52abecefde2b276cddc6a89beba952db6b9316bbc491b1044",
+                    "LayoutBuilderServiceProvider.php": "0443b0cdb0c509e2fa95baeac195a5acda3a5e0d3b44195508ce5ec99fd5dffb",
                     "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18"
                 }
             },
@@ -22196,6 +21903,12 @@
                     ],
                     [
                         "Filament\\Support\\Assets\\AlpineComponent",
+                        "capell-repeater-tabs",
+                        "capell-admin",
+                        "<package:admin>/publishes/build/js/components/repeater-tabs.js"
+                    ],
+                    [
+                        "Filament\\Support\\Assets\\AlpineComponent",
                         "capell-keyboard-shortcuts",
                         "capell-admin",
                         "<package:admin>/publishes/build/js/components/keyboard-shortcuts.js"
@@ -22677,6 +22390,28 @@
                             {
                                 "abstract": "Capell\\Admin\\Support\\MarketingStudio\\MarketingStudioActionRegistry",
                                 "concrete": "Capell\\Admin\\Support\\MarketingStudio\\MarketingStudioActionRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Support\\Media\\AdminUploadDeletion": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Support\\Media\\AdminUploadDeletion",
+                                "concrete": "Capell\\Admin\\Support\\Media\\AdminUploadDeletion"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Support\\Media\\AdminUploadGrantRepository": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Support\\Media\\AdminUploadGrantRepository",
+                                "concrete": "Capell\\Admin\\Support\\Media\\AdminUploadGrantRepository"
                             }
                         ],
                         "shared": true
@@ -23577,6 +23312,17 @@
                             {
                                 "abstract": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry",
                                 "concrete": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Core\\Support\\Themes\\LayoutViewRegistry": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Core\\Support\\Themes\\LayoutViewRegistry",
+                                "concrete": "Capell\\Core\\Support\\Themes\\LayoutViewRegistry"
                             }
                         ],
                         "shared": true
@@ -25030,6 +24776,28 @@
                             {
                                 "abstract": "Filament\\Auth\\Http\\Responses\\Contracts\\RegistrationResponse",
                                 "concrete": "Filament\\Auth\\Http\\Responses\\RegistrationResponse"
+                            }
+                        ],
+                        "shared": false
+                    },
+                    "Filament\\Forms\\Components\\FileUpload": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Filament\\Forms\\Components\\FileUpload",
+                                "concrete": "Capell\\Admin\\Filament\\Components\\Forms\\FileUpload"
+                            }
+                        ],
+                        "shared": false
+                    },
+                    "Filament\\Forms\\Components\\SpatieMediaLibraryFileUpload": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Filament\\Forms\\Components\\SpatieMediaLibraryFileUpload",
+                                "concrete": "Capell\\Admin\\Filament\\Components\\Forms\\SpatieMediaLibraryFileUpload"
                             }
                         ],
                         "shared": false
@@ -27757,9 +27525,17 @@
                 },
                 "bindings-removed": [],
                 "blade": {
+                    "accordion": "capell-block-library::builder.accordion",
+                    "call_to_action": "capell-block-library::builder.call-to-action",
+                    "capell-block-library::builder-block": "Capell\\BlockLibrary\\View\\Components\\BuilderBlock",
                     "capell::layout": "Capell\\Frontend\\View\\Components\\Layout",
+                    "comparison": "capell-block-library::builder.comparison",
                     "content": "capell-layout-builder::layout-widgets.content",
+                    "counter": "capell-block-library::builder.counter",
+                    "divider": "capell-block-library::builder.divider",
                     "dynamic-component": "Illuminate\\View\\DynamicComponent",
+                    "faq": "capell-block-library::builder.faq",
+                    "features": "capell-block-library::builder.features",
                     "fi-m-pencil-slash": "BladeUI\\Icons\\Components\\Svg",
                     "fi-o-align-center": "BladeUI\\Icons\\Components\\Svg",
                     "fi-o-align-end": "BladeUI\\Icons\\Components\\Svg",
@@ -28323,6 +28099,7 @@
                     "flag-4x3-za": "BladeUI\\Icons\\Components\\Svg",
                     "flag-4x3-zm": "BladeUI\\Icons\\Components\\Svg",
                     "flag-4x3-zw": "BladeUI\\Icons\\Components\\Svg",
+                    "hero": "capell-block-library::builder.hero",
                     "heroicon-c-academic-cap": "BladeUI\\Icons\\Components\\Svg",
                     "heroicon-c-adjustments-horizontal": "BladeUI\\Icons\\Components\\Svg",
                     "heroicon-c-adjustments-vertical": "BladeUI\\Icons\\Components\\Svg",
@@ -29614,6 +29391,14 @@
                     "icon": "BladeUI\\Icons\\Components\\Icon",
                     "image": "capell-layout-builder::layout-widgets.image",
                     "impersonate-icon": "BladeUI\\Icons\\Components\\Svg",
+                    "logos": "capell-block-library::builder.logos",
+                    "pricing": "capell-block-library::builder.pricing",
+                    "stats": "capell-block-library::builder.stats",
+                    "table": "capell-block-library::builder.table",
+                    "tabs": "capell-block-library::builder.tabs",
+                    "team": "capell-block-library::builder.team",
+                    "testimonial": "capell-block-library::builder.testimonial",
+                    "timeline": "capell-block-library::builder.timeline",
                     "title": "capell-layout-builder::layout-widgets.title"
                 },
                 "blade-namespaces": [],
@@ -29640,6 +29425,7 @@
                     "capell:admin-clear-configurators-cache": "Capell\\Admin\\Console\\Commands\\ClearConfiguratorsCacheCommand",
                     "capell:admin-clear-widgets-cache": "Capell\\Admin\\Console\\Commands\\ClearWidgetsCacheCommand",
                     "capell:admin-install": "Capell\\Admin\\Console\\Commands\\InstallCommand",
+                    "capell:admin-prune-upload-grants": "Capell\\Admin\\Console\\Commands\\PruneAdminUploadGrantsCommand",
                     "capell:admin-publish-resources": "Capell\\Admin\\Console\\Commands\\PublishResourcesCommand",
                     "capell:admin-setup": "Capell\\Admin\\Console\\Commands\\SetupCommand",
                     "capell:admin-sync-permissions": "Capell\\Admin\\Console\\Commands\\SyncPermissionsCommand",
@@ -30231,6 +30017,12 @@
                             "handle"
                         ]
                     ],
+                    "Capell\\Core\\Events\\SiteSpecPrivacyRepairing": [
+                        [
+                            "Capell\\Frontend\\Listeners\\RemediatePrivateSiteSpecOutput",
+                            "handle"
+                        ]
+                    ],
                     "Capell\\Frontend\\Events\\FrontendContextResolved": [
                         [
                             "Capell\\Frontend\\Listeners\\OnFrontendContextResolved",
@@ -30374,7 +30166,17 @@
                             []
                         ]
                     ],
+                    "Illuminate\\Database\\Events\\TransactionBeginning": [
+                        [
+                            "Capell\\Admin\\Listeners\\AdminUploadGrantTransactionListener",
+                            "beginning"
+                        ]
+                    ],
                     "Illuminate\\Database\\Events\\TransactionCommitted": [
+                        [
+                            "Capell\\Admin\\Listeners\\AdminUploadGrantTransactionListener",
+                            "committed"
+                        ],
                         [
                             "<tests>/Support/Concerns/ReusesPackageTestDatabase.php",
                             "Capell\\Tests\\AbstractTestCase(Illuminate\\Database\\Events\\TransactionCommitted $event):void bound=Capell\\Tests\\Support\\InstalledRuntimeTestCase",
@@ -30383,6 +30185,12 @@
                                     "object": "Illuminate\\Database\\SQLiteConnection"
                                 }
                             }
+                        ]
+                    ],
+                    "Illuminate\\Database\\Events\\TransactionRolledBack": [
+                        [
+                            "Capell\\Admin\\Listeners\\AdminUploadGrantTransactionListener",
+                            "rolledBack"
                         ]
                     ],
                     "Illuminate\\Foundation\\Http\\Events\\RequestHandled": [
@@ -30549,6 +30357,16 @@
                             "<vendor>/spatie/laravel-settings/src/SettingsEventSubscriber.php",
                             "Spatie\\LaravelSettings\\SettingsEventSubscriber(Spatie\\LaravelSettings\\Events\\SettingsSaved $event): bound=Spatie\\LaravelSettings\\SettingsEventSubscriber",
                             []
+                        ]
+                    ],
+                    "composing: capell-layout-builder::components.layout-widgets.index": [
+                        [
+                            "<vendor>/laravel/framework/src/Illuminate/View/Concerns/ManagesEvents.php",
+                            "Illuminate\\View\\Factory(): bound=Illuminate\\View\\Factory",
+                            {
+                                "class": "Capell\\LayoutBuilder\\Support\\BuilderBlockWidgetsComposer",
+                                "method": "compose"
+                            }
                         ]
                     ],
                     "composing: capell::app": [
@@ -31197,7 +31015,8 @@
                             "<package:core>/src/Models/Concerns/HasUserstamps.php",
                             "Capell\\Core\\Models\\SiteDomain(Illuminate\\Database\\Eloquent\\Model&Capell\\Core\\Models\\Contracts\\Userstampable $model):void",
                             []
-                        ]
+                        ],
+                        "Capell\\Core\\Observers\\SiteDomainObserver@restoring"
                     ],
                     "eloquent.restoring: Capell\\Core\\Models\\Theme": [
                         [
@@ -31442,6 +31261,9 @@
                             []
                         ]
                     ],
+                    "eloquent.saving: Capell\\Core\\Models\\Blueprint": [
+                        "Capell\\Core\\Observers\\BlueprintObserver@saving"
+                    ],
                     "eloquent.saving: Capell\\Core\\Models\\Layout": [
                         "Capell\\Core\\Observers\\LayoutObserver@saving"
                     ],
@@ -31475,6 +31297,9 @@
                     ],
                     "eloquent.saving: Capell\\Core\\Models\\PageUrl": [
                         "Capell\\Core\\Observers\\PageUrlObserver@saving"
+                    ],
+                    "eloquent.saving: Capell\\Core\\Models\\Site": [
+                        "Capell\\Core\\Observers\\SiteObserver@saving"
                     ],
                     "eloquent.saving: Capell\\Core\\Models\\SiteDomain": [
                         "Capell\\Core\\Observers\\SiteDomainObserver@saving"
@@ -31924,6 +31749,7 @@
                 },
                 "overview-groups-removed": [],
                 "policies": {
+                    "Capell\\Core\\Models\\BlockTemplate": "Capell\\Admin\\Policies\\BlockTemplatePolicy",
                     "Capell\\Core\\Models\\Blueprint": "Capell\\Admin\\Policies\\BlueprintPolicy",
                     "Capell\\Core\\Models\\Language": "Capell\\Admin\\Policies\\LanguagePolicy",
                     "Capell\\Core\\Models\\Layout": "Capell\\Admin\\Policies\\LayoutPolicy",
@@ -31934,6 +31760,7 @@
                     "Capell\\Core\\Models\\SiteDomain": "Capell\\Admin\\Policies\\SiteDomainPolicy",
                     "Capell\\Core\\Models\\Theme": "Capell\\Admin\\Policies\\ThemePolicy",
                     "Capell\\Tests\\Fixtures\\Models\\User": "Capell\\Admin\\Policies\\UserPolicy",
+                    "Spatie\\Activitylog\\Models\\Activity": "Capell\\Admin\\Policies\\ActivityPolicy",
                     "Spatie\\Permission\\Models\\Role": "Capell\\Tests\\Fixtures\\Policies\\RolePolicy"
                 },
                 "policies-removed": [],
@@ -31977,6 +31804,134 @@
                         "Capell\\Core\\Support\\CapellCoreManager",
                         "runtime",
                         "context"
+                    ],
+                    [
+                        "frontend-component",
+                        "accordion",
+                        "capell-block-library::builder.accordion",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "call_to_action",
+                        "capell-block-library::builder.call-to-action",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "comparison",
+                        "capell-block-library::builder.comparison",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "counter",
+                        "capell-block-library::builder.counter",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "divider",
+                        "capell-block-library::builder.divider",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "faq",
+                        "capell-block-library::builder.faq",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "features",
+                        "capell-block-library::builder.features",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "hero",
+                        "capell-block-library::builder.hero",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "logos",
+                        "capell-block-library::builder.logos",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "pricing",
+                        "capell-block-library::builder.pricing",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "stats",
+                        "capell-block-library::builder.stats",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "table",
+                        "capell-block-library::builder.table",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "tabs",
+                        "capell-block-library::builder.tabs",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "team",
+                        "capell-block-library::builder.team",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "testimonial",
+                        "capell-block-library::builder.testimonial",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
+                    ],
+                    [
+                        "frontend-component",
+                        "timeline",
+                        "capell-block-library::builder.timeline",
+                        "Capell\\LayoutBuilder\\Support\\LayoutBuilderFrontendComponentContributor",
+                        "frontend",
+                        "source"
                     ],
                     [
                         "frontend-component",
@@ -35709,6 +35664,21 @@
                             "Capell\\Frontend\\Listeners\\PurgeCdnCacheOnPageRollbackSubscriber": "Capell\\Frontend\\Listeners\\PurgeCdnCacheOnPageRollbackSubscriber"
                         }
                     },
+                    "Capell\\Core\\Support\\Themes\\LayoutViewRegistry": {
+                        "items": {
+                            "layouts": {
+                                "capell::app": "capell::app"
+                            },
+                            "masters": {
+                                "capell::livewire.page.page": "capell::livewire.page.page"
+                            }
+                        }
+                    },
+                    "Capell\\Core\\Support\\Themes\\ThemeChromeRegistry": {
+                        "logos": {
+                            "brand.capell-logo": "Capell"
+                        }
+                    },
                     "Capell\\Frontend\\Support\\Assets\\FrontendPackageDependencyRegistry": {
                         "dependencies": [
                             [
@@ -36044,6 +36014,45 @@
                     "Capell\\LayoutBuilder\\Support\\LayoutWidgets\\LayoutWidgetRegistry": {
                         "definitions": {
                             "frontend-blade": {
+                                "accordion": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.accordion",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "accordion",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "call_to_action": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.call-to-action",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "call_to_action",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "comparison": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.comparison",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "comparison",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
                                 "content": [
                                     "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
                                     {
@@ -36057,6 +36066,71 @@
                                         "target": "frontend-blade"
                                     }
                                 ],
+                                "counter": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.counter",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "counter",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "divider": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.divider",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "divider",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "faq": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.faq",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "faq",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "features": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.features",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "features",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "hero": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.hero",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "hero",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
                                 "image": [
                                     "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
                                     {
@@ -36065,6 +36139,110 @@
                                         "defaultLoadingStrategy": null,
                                         "defaultPresentationSettings": [],
                                         "key": "image",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "logos": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.logos",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "logos",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "pricing": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.pricing",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "pricing",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "stats": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.stats",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "stats",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "table": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.table",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "table",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "tabs": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.tabs",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "tabs",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "team": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.team",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "team",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "testimonial": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.testimonial",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "testimonial",
+                                        "resourceGroupLoadingStrategies": [],
+                                        "resourceGroups": [],
+                                        "target": "frontend-blade"
+                                    }
+                                ],
+                                "timeline": [
+                                    "Capell\\LayoutBuilder\\Data\\LayoutWidgets\\LayoutWidgetDefinitionData",
+                                    {
+                                        "component": "capell-block-library::builder.timeline",
+                                        "defaultInteractionTriggers": [],
+                                        "defaultLoadingStrategy": null,
+                                        "defaultPresentationSettings": [],
+                                        "key": "timeline",
                                         "resourceGroupLoadingStrategies": [],
                                         "resourceGroups": [],
                                         "target": "frontend-blade"
@@ -36128,8 +36306,24 @@
                         },
                         "widgets": {
                             "frontend-blade": {
+                                "accordion": "capell-block-library::builder.accordion",
+                                "call_to_action": "capell-block-library::builder.call-to-action",
+                                "comparison": "capell-block-library::builder.comparison",
                                 "content": "capell-layout-builder::layout-widgets.content",
+                                "counter": "capell-block-library::builder.counter",
+                                "divider": "capell-block-library::builder.divider",
+                                "faq": "capell-block-library::builder.faq",
+                                "features": "capell-block-library::builder.features",
+                                "hero": "capell-block-library::builder.hero",
                                 "image": "capell-layout-builder::layout-widgets.image",
+                                "logos": "capell-block-library::builder.logos",
+                                "pricing": "capell-block-library::builder.pricing",
+                                "stats": "capell-block-library::builder.stats",
+                                "table": "capell-block-library::builder.table",
+                                "tabs": "capell-block-library::builder.tabs",
+                                "team": "capell-block-library::builder.team",
+                                "testimonial": "capell-block-library::builder.testimonial",
+                                "timeline": "capell-block-library::builder.timeline",
                                 "title": "capell-layout-builder::layout-widgets.title"
                             },
                             "frontend-inertia": {
@@ -36385,6 +36579,22 @@
                             "as": "filament-impersonate.leave",
                             "domain": null,
                             "prefix": null,
+                            "where": []
+                        }
+                    ],
+                    [
+                        "capell-installer.unlock",
+                        "install/unlock",
+                        ["POST"],
+                        [
+                            "web",
+                            "Capell\\Installer\\Http\\Middleware\\RequireInstallerBootstrap"
+                        ],
+                        "Capell\\Installer\\Http\\Controllers\\InstallController@unlock",
+                        {
+                            "as": "capell-installer.unlock",
+                            "domain": null,
+                            "prefix": "",
                             "where": []
                         }
                     ],
@@ -36742,7 +36952,7 @@
                         "capell-admin.extension-asset",
                         "admin/extension-asset",
                         ["GET", "HEAD"],
-                        ["web", "auth"],
+                        ["web"],
                         "Capell\\Admin\\Http\\Controllers\\Extensions\\ExtensionAssetController",
                         {
                             "as": "capell-admin.extension-asset",
@@ -37079,6 +37289,13 @@
                     [
                         "'<php>' 'artisan' capell:admin-upgrade-summary-email",
                         "0 0 * * 0",
+                        null,
+                        true,
+                        null
+                    ],
+                    [
+                        "'<php>' 'artisan' capell:admin-prune-upload-grants",
+                        "0 * * * *",
                         null,
                         true,
                         null
@@ -37855,6 +38072,13 @@
                             []
                         ]
                     ],
+                    "Spatie\\LaravelSettings\\Events\\SettingsSaved": [
+                        [
+                            "<package:theme-foundation>/src/Providers/FoundationThemeServiceProvider.php",
+                            "Capell\\FoundationTheme\\Providers\\FoundationThemeServiceProvider(Spatie\\LaravelSettings\\Events\\SettingsSaved $event):void bound=Capell\\FoundationTheme\\Providers\\FoundationThemeServiceProvider",
+                            []
+                        ]
+                    ],
                     "composing: capell-layout-builder::components.layout.container": [
                         [
                             "<vendor>/laravel/framework/src/Illuminate/View/Concerns/ManagesEvents.php",
@@ -37975,6 +38199,15 @@
                             }
                         ]
                     ],
+                    "eloquent.deleted: Capell\\LayoutBuilder\\Models\\Widget": [
+                        "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@deleted"
+                    ],
+                    "eloquent.restored: Capell\\LayoutBuilder\\Models\\Widget": [
+                        "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@restored"
+                    ],
+                    "eloquent.saved: Capell\\LayoutBuilder\\Models\\Widget": [
+                        "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@saved"
+                    ],
                     "eloquent.updated: Capell\\Core\\Models\\Blueprint": [
                         [
                             "<package>/src/Support/LayoutBuilderCoreRegistrar.php",
@@ -38051,7 +38284,8 @@
                 },
                 "policies": {
                     "Capell\\LayoutBuilder\\Models\\LayoutPreset": "Capell\\LayoutBuilder\\Policies\\LayoutPresetPolicy",
-                    "Capell\\LayoutBuilder\\Models\\Widget": "Capell\\LayoutBuilder\\Policies\\WidgetPolicy"
+                    "Capell\\LayoutBuilder\\Models\\Widget": "Capell\\LayoutBuilder\\Policies\\WidgetPolicy",
+                    "Capell\\LayoutBuilder\\Models\\WidgetAsset": "Capell\\LayoutBuilder\\Policies\\WidgetPolicy"
                 },
                 "receipt-emissions": [
                     [
@@ -39677,6 +39911,88 @@
                             "Capell\\Core\\Data\\RenderableDefinitionData"
                         ]
                     ],
+                    "frontend-component": [
+                        [
+                            "frontend-component",
+                            "accordion",
+                            "capell-block-library::builder.accordion"
+                        ],
+                        [
+                            "frontend-component",
+                            "call_to_action",
+                            "capell-block-library::builder.call-to-action"
+                        ],
+                        [
+                            "frontend-component",
+                            "comparison",
+                            "capell-block-library::builder.comparison"
+                        ],
+                        [
+                            "frontend-component",
+                            "counter",
+                            "capell-block-library::builder.counter"
+                        ],
+                        [
+                            "frontend-component",
+                            "divider",
+                            "capell-block-library::builder.divider"
+                        ],
+                        [
+                            "frontend-component",
+                            "faq",
+                            "capell-block-library::builder.faq"
+                        ],
+                        [
+                            "frontend-component",
+                            "features",
+                            "capell-block-library::builder.features"
+                        ],
+                        [
+                            "frontend-component",
+                            "hero",
+                            "capell-block-library::builder.hero"
+                        ],
+                        [
+                            "frontend-component",
+                            "logos",
+                            "capell-block-library::builder.logos"
+                        ],
+                        [
+                            "frontend-component",
+                            "pricing",
+                            "capell-block-library::builder.pricing"
+                        ],
+                        [
+                            "frontend-component",
+                            "stats",
+                            "capell-block-library::builder.stats"
+                        ],
+                        [
+                            "frontend-component",
+                            "table",
+                            "capell-block-library::builder.table"
+                        ],
+                        [
+                            "frontend-component",
+                            "tabs",
+                            "capell-block-library::builder.tabs"
+                        ],
+                        [
+                            "frontend-component",
+                            "team",
+                            "capell-block-library::builder.team"
+                        ],
+                        [
+                            "frontend-component",
+                            "testimonial",
+                            "capell-block-library::builder.testimonial"
+                        ],
+                        [
+                            "frontend-component",
+                            "timeline",
+                            "capell-block-library::builder.timeline"
+                        ]
+                    ],
                     "model": [
                         [
                             "model",
@@ -39699,6 +40015,13 @@
                             "page-type",
                             "widget",
                             "Capell\\LayoutBuilder\\Models\\Widget"
+                        ]
+                    ],
+                    "public-render-data": [
+                        [
+                            "public-render-data",
+                            "builder_blocks",
+                            "Capell\\LayoutBuilder\\Support\\BuilderBlockPublicRenderDataContributor"
                         ]
                     ],
                     "render-hook": [
@@ -40879,6 +41202,14 @@
                             "Capell\\LayoutBuilder\\Support\\WidgetSnapshots\\WidgetSnapshotWorkflowSubscriber": "Capell\\LayoutBuilder\\Support\\WidgetSnapshots\\WidgetSnapshotWorkflowSubscriber"
                         }
                     },
+                    "Capell\\Frontend\\Support\\Render\\PublicRenderDataContributorRegistry": {
+                        "contributors": {
+                            "builder_blocks": [
+                                "Capell\\LayoutBuilder\\Support\\BuilderBlockPublicRenderDataContributor",
+                                []
+                            ]
+                        }
+                    },
                     "Capell\\Frontend\\Support\\Render\\RenderHookRegistry": {
                         "contributedKeys": {
                             "mainContent:capell-app/layout-builder:main-content-layout": true
@@ -41820,6 +42151,90 @@
                         "context"
                     ]
                 ],
+                "receipts": {
+                    "frontend-component": [
+                        [
+                            "frontend-component",
+                            "accordion",
+                            "capell-block-library::builder.accordion"
+                        ],
+                        [
+                            "frontend-component",
+                            "call_to_action",
+                            "capell-block-library::builder.call-to-action"
+                        ],
+                        [
+                            "frontend-component",
+                            "comparison",
+                            "capell-block-library::builder.comparison"
+                        ],
+                        [
+                            "frontend-component",
+                            "counter",
+                            "capell-block-library::builder.counter"
+                        ],
+                        [
+                            "frontend-component",
+                            "divider",
+                            "capell-block-library::builder.divider"
+                        ],
+                        [
+                            "frontend-component",
+                            "faq",
+                            "capell-block-library::builder.faq"
+                        ],
+                        [
+                            "frontend-component",
+                            "features",
+                            "capell-block-library::builder.features"
+                        ],
+                        [
+                            "frontend-component",
+                            "hero",
+                            "capell-block-library::builder.hero"
+                        ],
+                        [
+                            "frontend-component",
+                            "logos",
+                            "capell-block-library::builder.logos"
+                        ],
+                        [
+                            "frontend-component",
+                            "pricing",
+                            "capell-block-library::builder.pricing"
+                        ],
+                        [
+                            "frontend-component",
+                            "stats",
+                            "capell-block-library::builder.stats"
+                        ],
+                        [
+                            "frontend-component",
+                            "table",
+                            "capell-block-library::builder.table"
+                        ],
+                        [
+                            "frontend-component",
+                            "tabs",
+                            "capell-block-library::builder.tabs"
+                        ],
+                        [
+                            "frontend-component",
+                            "team",
+                            "capell-block-library::builder.team"
+                        ],
+                        [
+                            "frontend-component",
+                            "testimonial",
+                            "capell-block-library::builder.testimonial"
+                        ],
+                        [
+                            "frontend-component",
+                            "timeline",
+                            "capell-block-library::builder.timeline"
+                        ]
+                    ]
+                },
                 "tagged-consumers": {
                     "capell.content-graph.extractor": [
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetAssetContentGraphExtractor",
@@ -41853,1009 +42268,7 @@
                     ]
                 }
             },
-            "removableUninstalledSurfaces": [],
-            "installationReceiptEmissions": [
-                [
-                    "page-type",
-                    "widget",
-                    "Capell\\LayoutBuilder\\Models\\Widget",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "model",
-                    "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\DefaultLayoutInterceptor:default",
-                    "Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\DefaultLayoutInterceptor",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "model",
-                    "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\HomeLayoutInterceptor:home",
-                    "Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\HomeLayoutInterceptor",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "model",
-                    "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\ResultsLayoutInterceptor:results",
-                    "Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\ResultsLayoutInterceptor",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Card",
-                    "capell.asset.card",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Media",
-                    "capell.asset.media",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Page",
-                    "capell.asset.page",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:Tile",
-                    "capell.asset.tile",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetAccordion",
-                    "capell.widget.asset.accordion",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetBanner",
-                    "capell.widget.asset.banners",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetWidget",
-                    "capell.widget.asset.widgets",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetCarousel",
-                    "capell.widget.asset.carousel",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetFeatures",
-                    "capell.widget.asset.features",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetMedia",
-                    "capell.widget.asset.media",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AssetTestimonials",
-                    "capell.widget.asset.testimonials",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:AnnouncementBar",
-                    "capell.widget.announcement-bar",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Assets",
-                    "capell.widget.asset",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:BannerImage",
-                    "capell.widget.banner-image",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Default",
-                    "capell.widget.default",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Hero",
-                    "capell.widget.hero",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Navigation",
-                    "capell.widget.navigation",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:NavigationTabs",
-                    "capell.widget.navigation.tabs",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageBreadcrumbs",
-                    "capell.widget.page.breadcrumbs",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageChildren",
-                    "capell.widget.page.children",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageContent",
-                    "capell.widget.page.content",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageLatest",
-                    "capell.widget.page.latest",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageSiblings",
-                    "capell.widget.page.siblings",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:PageSlot",
-                    "capell.widget.slot",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Pages",
-                    "capell.widget.asset.pages",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:Snippet",
-                    "capell.widget.snippet",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApHeroBanner",
-                    "capell.widget.modern.hero-banner",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApCardGrid",
-                    "capell.widget.modern.card-grid",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApFeatureList",
-                    "capell.widget.modern.feature-list",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApCTASection",
-                    "capell.widget.modern.cta-section",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApImageGallery",
-                    "capell.widget.modern.image-gallery",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApTeamMembers",
-                    "capell.widget.modern.team-members",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApPricingTable",
-                    "capell.widget.modern.pricing-table",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApTestimonials",
-                    "capell.widget.modern.testimonials",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApFaqSection",
-                    "capell.widget.modern.faq-section",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApStatsSection",
-                    "capell.widget.modern.stats-section",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApAlternatingContent",
-                    "capell.widget.modern.alternating-content",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:ApProcessSteps",
-                    "capell.widget.modern.process-steps",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkRichText",
-                    "capell.widget.kitchen-sink.rich-text",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkStructuredText",
-                    "capell.widget.kitchen-sink.structured-text",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkDataDisplay",
-                    "capell.widget.kitchen-sink.data-display",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkForms",
-                    "capell.widget.kitchen-sink.forms",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkInteractions",
-                    "capell.widget.kitchen-sink.interactions",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkEmbeds",
-                    "capell.widget.kitchen-sink.embeds",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Widget:KitchenSinkUtilityStates",
-                    "capell.widget.kitchen-sink.utility-states",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:SectionWidget",
-                    "capell.asset.section.widget",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "component:Asset:SectionTeamMember",
-                    "capell.asset.section.team-member",
-                    "Capell\\Core\\Support\\CapellCoreManager",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.accordion",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.banners",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.widgets",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.carousel",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.features",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.media",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.testimonials",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.announcement-bar",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.banner-image",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.default",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.hero",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.navigation",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.navigation.tabs",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.breadcrumbs",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.children",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.content",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.latest",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.page.siblings",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.slot",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.asset.pages",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.snippet",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.hero-banner",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.card-grid",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.feature-list",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.cta-section",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.image-gallery",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.team-members",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.pricing-table",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.testimonials",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.faq-section",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.stats-section",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.alternating-content",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.modern.process-steps",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.rich-text",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.structured-text",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.data-display",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.forms",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.interactions",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.embeds",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.kitchen-sink.utility-states",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:asset:capell.asset.section.widget",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:asset:capell.asset.section.team-member",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "content-widget",
-                    "renderable:layout-widget:capell.widget.pages",
-                    "Capell\\Core\\Data\\RenderableDefinitionData",
-                    "Capell\\Core\\Support\\Renderables\\RenderableRegistry",
-                    "runtime",
-                    "context"
-                ],
-                [
-                    "render-hook",
-                    "main-content-layout",
-                    "Capell\\LayoutBuilder\\Support\\RenderHooks\\RegisterMainContentLayoutHook",
-                    "Capell\\Frontend\\Support\\Render\\RenderHookRegistry",
-                    "frontend",
-                    "context"
-                ],
-                [
-                    "render-hook",
-                    "main-content-layout",
-                    "Capell\\LayoutBuilder\\Support\\RenderHooks\\RegisterMainContentLayoutHook",
-                    "Capell\\Frontend\\Support\\Render\\FrontendHookRegistrar",
-                    null,
-                    "context"
-                ],
-                [
-                    "admin-page",
-                    "bridge:capell-app/layout-builder:Capell\\LayoutBuilder\\Bridges\\LayoutBuilderAdminBridge",
-                    "Capell\\LayoutBuilder\\Bridges\\LayoutBuilderAdminBridge",
-                    "Capell\\Admin\\Support\\Bridges\\AdminBridgeRegistrar",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "admin-resource",
-                    "resource:Widget:default",
-                    "Capell\\LayoutBuilder\\Filament\\Resources\\Widgets\\WidgetResource",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "admin-resource",
-                    "resource:Layout:layout-builder",
-                    "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutBuilderResource",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "admin-resource",
-                    "resource:Layout:preset",
-                    "Capell\\LayoutBuilder\\Filament\\Resources\\LayoutPresets\\LayoutPresetResource",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutContainers:Default",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\DefaultLayoutContainerConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutWidgets:DefaultLayout",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\DefaultLayoutWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutWidgets:PageLayout",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\PageLayoutWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:LayoutWidgets:ResultsLayout",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Layouts\\Widgets\\ResultsLayoutWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Default",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\DefaultWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Assets",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\AssetsWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Carousel",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CarouselWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Hero",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\HeroWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Navigation",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\NavigationWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:PageContent",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageContentWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:Results",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ResultsWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:System",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\SystemWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:HeroBanner",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\HeroBannerWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:CardGrid",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CardGridWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:FeatureList",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\FeatureListWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:CTASection",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\CTASectionWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:ImageGallery",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\ImageGalleryWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Widgets:KitchenSinkReference",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\KitchenSinkReferenceWidgetConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:WidgetAssets:PageWidgetAssetForm",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\PageWidgetAssetForm",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:WidgetAssets:RegisteredAssetWidgetAssetForm",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Widgets\\RegisteredAssetWidgetAssetForm",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "configurator",
-                    "configurator:Blueprints:WidgetTypeConfigurator",
-                    "Capell\\LayoutBuilder\\Filament\\Configurators\\Types\\WidgetTypeConfigurator",
-                    "Capell\\Admin\\Support\\CapellAdminManager",
-                    "admin",
-                    "context"
-                ],
-                [
-                    "reserved-frontend-path",
-                    "reserved-path:prefix:_fragments",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "frontend",
-                    "context"
-                ],
-                [
-                    "reserved-frontend-path",
-                    "reserved-path:prefix:_capell/layout-widgets",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "frontend",
-                    "context"
-                ],
-                [
-                    "reserved-frontend-path",
-                    "reserved-path:prefix:_capell/foundation-dynamic-form",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "Capell\\Frontend\\Support\\Routing\\ReservedFrontendPathRegistry",
-                    "frontend",
-                    "context"
-                ]
-            ]
+            "removableUninstalledSurfaces": []
         }
     }
 }

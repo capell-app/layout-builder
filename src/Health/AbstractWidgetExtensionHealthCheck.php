@@ -11,6 +11,7 @@ use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Throwable;
 
 abstract class AbstractWidgetExtensionHealthCheck implements ChecksExtensionHealth
@@ -57,11 +58,24 @@ abstract class AbstractWidgetExtensionHealthCheck implements ChecksExtensionHeal
 
     protected static function result(string $label, bool $passed): DoctorCheckResultData
     {
+        $package = Str::of(static::fallbackView())->before('::')->after('capell-')->replace('-', ' ')->title()->replace('Youtube', 'YouTube')->toString();
+        $purpose = match ($label) {
+            'Widget definition registration' => 'widget registered',
+            'Filament block resolution' => 'editor block available',
+            'Package fallback view' => 'fallback template available',
+            'Frontend resource groups' => 'frontend assets registered',
+            'Poll database tables' => 'database tables present',
+            'Poll public routes' => 'public routes registered',
+            'Poll voter pruning schedule' => 'voter cleanup scheduled',
+            default => Str::lower($label),
+        };
+
         return new DoctorCheckResultData(
-            label: $label,
+            label: $package . ': ' . $purpose,
             passed: $passed,
             message: $passed ? $label . ' is healthy.' : $label . ' is unavailable.',
             remediation: $passed ? null : 'Enable the widget package and run capell:doctor again.',
+            id: 'legacy.' . Str::of($label)->lower()->slug('.')->toString(),
         );
     }
 }

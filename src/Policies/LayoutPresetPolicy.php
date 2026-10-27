@@ -52,6 +52,12 @@ final class LayoutPresetPolicy
         return $site instanceof Site && $this->canManagePresetsForSite($user, $site);
     }
 
+    public function deleteAny(User $user): bool
+    {
+        // Presets must be authorised against their individual sites.
+        return false;
+    }
+
     private function canManagePresetsForSite(User $user, Site $site): bool
     {
         if ($user->getAuthIdentifier() === null || ! $site->exists) {

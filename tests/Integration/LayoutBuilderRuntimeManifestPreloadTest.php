@@ -15,9 +15,9 @@ use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
+use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderRuntimePreloadWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use Livewire\Component;
 use Livewire\Livewire;
 
 use function PHPUnit\Framework\assertInstanceOf;
@@ -161,5 +161,3 @@ function layoutBuilderContributeWithQueryCount(Layout $layout): array
 
     return [$manifest, $queryCount];
 }
-
-final class LayoutBuilderRuntimePreloadWidget extends Component {}

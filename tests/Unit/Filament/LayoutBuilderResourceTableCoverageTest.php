@@ -11,6 +11,7 @@ use Capell\LayoutBuilder\Filament\Components\Forms\WidgetSelect;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetAssetsTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetSelectionTable;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
@@ -83,7 +84,7 @@ it('exposes widget resource metadata search details and soft-deleted query scope
     $widget->delete();
 
     expect(WidgetResource::getEloquentQuery()->whereKey($widget->getKey())->exists())->toBeTrue()
-        ->and(WidgetResource::getRelations())->toBe([])
+        ->and(WidgetResource::getRelations())->toBe([WidgetAssetsRelationManager::class])
         ->and(WidgetResource::getPages())->toHaveKeys(['index', 'edit', 'create']);
 });
 
@@ -133,6 +134,7 @@ it('builds widget table columns filters and search query branches', function ():
 
     $unusedQuery = Widget::query();
     $unusedQuery->scopes('withLayoutsCount');
+
     $unusedWidgetIds = $unusedFilter->apply($unusedQuery, ['isActive' => true])->pluck('id');
 
     expect($columns)->toContainOnlyInstancesOf(Column::class)
@@ -153,6 +155,7 @@ it('links widget usage to layouts by key and preselects the bulk change source',
     ]]);
     $usageQuery = Widget::query();
     $usageQuery->scopes('withLayoutsCount');
+
     $widget = $usageQuery->whereKey($widget)->firstOrFail();
     $usageCount = $widget->getAttribute('layouts_count');
     throw_unless(is_int($usageCount), RuntimeException::class);
@@ -230,6 +233,7 @@ it('includes soft-deleted unused widgets when the unused and trashed filters are
 
     $unusedQuery = Widget::query();
     $unusedQuery->scopes('withLayoutsCount');
+
     $filteredWidgetIds = $unusedFilter->apply(
         $trashedFilter->apply(
             $unusedQuery,

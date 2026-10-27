@@ -16,12 +16,15 @@ use Capell\Tests\Fixtures\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\Exceptions\ActionNotResolvableException;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TableSelect;
 use Filament\Schemas\Schema;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Translation\Translator;
 
 it('shows layout cloning actions only when the page context and layout permissions allow them', function (
     bool $inPageContext,
@@ -792,3 +795,49 @@ function layoutBuilderActionRawProperty(Action $action, string $property): mixed
 
     throw new RuntimeException(sprintf('Action property [%s] was not found.', $property));
 }
+
+it('adds multiple selected widgets through translated picker controls', function (): void {
+    __('capell-layout-builder::heading.add_widget_to_container');
+    __('capell-layout-builder::button.add_selected');
+    resolve(Translator::class)->addLines(['heading.add_widget_to_container' => 'Choose components'], app()->getLocale(), 'capell-layout-builder');
+    resolve(Translator::class)->addLines(['button.add_selected' => 'Insert selection'], app()->getLocale(), 'capell-layout-builder');
+
+    $hero = Widget::factory()->create(['key' => 'hero']);
+    $cards = Widget::factory()->create(['key' => 'cards']);
+    $layoutBuilder = new LayoutBuilderMutationHarness;
+    $layoutBuilder->layout = Layout::factory()->create();
+    $layoutBuilder->containers = ['main' => ['widgets' => []]];
+    $layoutBuilder->assets = ['main' => []];
+    $layoutBuilder->selectedRecords = ['main' => []];
+    $layoutBuilder->knownContainerKeys = ['main'];
+    $layoutBuilder->seedContainerWidgets(['main' => []]);
+
+    $arguments = ['containerKey' => 'main', 'position' => 0];
+    $action = new LayoutBuilderActionFactory($layoutBuilder)->addWidgetAction()
+        ->livewire($layoutBuilder)->arguments($arguments);
+
+    $text = static fn (mixed $value): string => $value instanceof Htmlable ? $value->toHtml() : (is_string($value) ? $value : '');
+    $headingKey = 'capell-layout-builder::heading.add_widget_to_container';
+    $submitKey = 'capell-layout-builder::button.add_selected';
+    expect($text($action->getModalHeading()))->toBe(__($headingKey))->not->toBe($headingKey)
+        ->and($text($action->getModalSubmitActionLabel()))->toBe(__($submitKey))->not->toBe($submitKey);
+
+    $schema = $action->getSchema(Schema::make($layoutBuilder));
+    throw_unless($schema instanceof Schema, RuntimeException::class, 'Expected the widget picker schema.');
+    $picker = collect($schema->getComponents())->first(fn ($field): bool => $field instanceof TableSelect && $field->getName() === 'widgets');
+    throw_unless($picker instanceof TableSelect, RuntimeException::class, 'Expected the widget selection control.');
+    expect($picker->isMultiple())->toBeTrue()
+        ->and($picker->isRequired())->toBeTrue();
+
+    $handler = $action->getActionFunction();
+    throw_unless($handler instanceof Closure, RuntimeException::class, 'Expected the add widget action.');
+    $action->evaluate($handler, [
+        'livewire' => $layoutBuilder,
+        'data' => ['widgets' => [$hero->getKey(), $cards->getKey()]],
+        'arguments' => $arguments,
+    ]);
+
+    $widgets = capell_test_array(data_get($layoutBuilder->containers, 'main.widgets'));
+    expect(array_column($widgets, 'widget_key'))->toBe(['hero', 'cards'])
+        ->and($layoutBuilder->layoutModified)->toBeTrue();
+});

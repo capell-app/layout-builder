@@ -11,6 +11,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Core\Support\Themes\LayoutViewRegistry;
 use Capell\Frontend\Contracts\Fragments\PublicFragmentReferenceCodec;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
@@ -48,6 +49,9 @@ beforeEach(function (): void {
     $path = dirname(__DIR__, 2) . '/Fixtures/views/prepared-layout';
     View::addNamespace('lb-prepared', $path);
     Blade::anonymousComponentPath($path, 'lb-prepared');
+    $layouts = resolve(LayoutViewRegistry::class);
+    $layouts->registerLayout('lb-prepared::layout', 'Prepared layout');
+    $layouts->registerLayout('lb-prepared::with-area', 'Prepared layout with area');
     resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
         key: 'prepared-test-widget',
         type: 'layout-widget',

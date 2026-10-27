@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'add_group' => 'Add Group',
-    'add_widget_to_container' => 'Add Widget(s) to Container',
+    'add_widget_to_container' => 'Add widgets',
     'assets' => 'Assets',
     'broken_links' => 'Broken Links',
     'container_settings' => 'Container settings',

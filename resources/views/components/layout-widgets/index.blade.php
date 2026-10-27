@@ -12,6 +12,7 @@
     use Capell\LayoutBuilder\Support\LayoutWidgets\LayoutWidgetRegistry;
     use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
     use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
+    use Illuminate\View\ComponentAttributeBag;
 
     if (! $widgets) {
         return '';
@@ -46,6 +47,11 @@
 
         $componentData = $widgetData['data'];
         unset($componentData['__capell']);
+        $isBuilderBlock = str_starts_with($widget, 'capell-block-library::builder.');
+        if ($isBuilderBlock) {
+            // Hydrated and sanitised by BuilderBlockWidgetsComposer; saved authoring state never reaches the view.
+            $componentData = ['renderData' => $builderBlockRenderData[$widgetIndex] ?? throw new WidgetLibraryException(sprintf("Render data for builder block '%s' was not prepared.", $widgetData['type']))];
+        }
 
         $settings = ResolvePresentationSettingsAction::make()->fromWidgetBlockData(
             $widgetData,
@@ -67,7 +73,7 @@
     >
         <x-dynamic-component
             :component="$widget"
-            :attributes="$attributes->merge($componentData, escape: false)"
+            :attributes="$isBuilderBlock ? new ComponentAttributeBag($componentData) : $attributes->merge($componentData, escape: false)"
             :$context
         />
         <x-capell::interactions

@@ -64,7 +64,9 @@ class WidgetAssetsTable implements TableConfigurator
                 EditAction::make(),
                 ActionGroup::make([
                     ReplicateAction::make(),
-                    DeleteAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading(__('capell-layout-builder::widget_asset.delete_modal.heading'))
+                        ->modalDescription(__('capell-layout-builder::widget_asset.delete_modal.description')),
                 ])
                     ->color('gray'),
             ])
@@ -72,7 +74,9 @@ class WidgetAssetsTable implements TableConfigurator
                 self::createResourcesAction(),
             ])
             ->toolbarActions([
-                DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->modalHeading(__('capell-layout-builder::widget_asset.delete_bulk_modal.heading'))
+                    ->modalDescription(__('capell-layout-builder::widget_asset.delete_bulk_modal.description')),
             ]);
     }
 

@@ -69,11 +69,11 @@
         'self-end justify-self-end' => $alignment === ContainerAlignmentEnum::End,
         'w-full self-stretch justify-self-stretch' => $alignment === ContainerAlignmentEnum::Stretch,
         'hidden' => $hideOnMobile && $hideOnTablet && $hideOnDesktop,
-        'hidden lg:widget' => $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
-        'hidden md:widget lg:hidden' => $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
-        'hidden md:widget' => $hideOnMobile && ! $hideOnTablet && ! $hideOnDesktop,
+        'hidden lg:block' => $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
+        'hidden md:block lg:hidden' => $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
+        'hidden md:block' => $hideOnMobile && ! $hideOnTablet && ! $hideOnDesktop,
         'md:hidden' => ! $hideOnMobile && $hideOnTablet && $hideOnDesktop,
-        'md:hidden lg:widget' => ! $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
+        'md:hidden lg:block' => ! $hideOnMobile && $hideOnTablet && ! $hideOnDesktop,
         'lg:hidden' => ! $hideOnMobile && ! $hideOnTablet && $hideOnDesktop,
     ])
 >

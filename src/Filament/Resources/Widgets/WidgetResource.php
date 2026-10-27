@@ -12,9 +12,11 @@ use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\CreateWidget;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\EditWidget;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Pages\ListWidgets;
+use Capell\LayoutBuilder\Filament\Resources\Widgets\RelationManagers\WidgetAssetsRelationManager;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Schemas\WidgetForm;
 use Capell\LayoutBuilder\Filament\Resources\Widgets\Tables\WidgetsTable;
 use Capell\LayoutBuilder\Models\Widget;
+use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -151,6 +153,15 @@ class WidgetResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    /**
+     * @return list<class-string<RelationManager>>
+     */
+    #[Override]
+    public static function getRelations(): array
+    {
+        return [WidgetAssetsRelationManager::class];
     }
 
     #[Override]

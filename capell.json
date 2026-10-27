@@ -306,6 +306,10 @@
             "sensitiveOutput": false,
             "invalidationSources": [
                 {
+                    "model": "Capell\\Core\\Models\\Media",
+                    "events": ["saved", "deleted"]
+                },
+                {
                     "model": "Capell\\Core\\Models\\Page",
                     "events": ["saved", "deleted"]
                 },

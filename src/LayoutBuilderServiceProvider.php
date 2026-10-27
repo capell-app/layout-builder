@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder;
 use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\AdminRuntimeActivator;
+use Capell\BlockLibrary\Support\DefaultBlockCatalog;
 use Capell\Core\Actions\Install\RegisterCommandsInCurrentProcessAction;
 use Capell\Core\Data\BlueprintSubjectDescriptorData;
 use Capell\Core\Events\PageDeleted;
@@ -24,6 +25,7 @@ use Capell\Frontend\Contracts\PublicLayoutGraphBuilder;
 use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
 use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
 use Capell\Frontend\Contracts\WidgetInteractionLocatorResolver;
+use Capell\Frontend\Support\Render\PublicRenderDataContributorRegistry;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
@@ -55,10 +57,13 @@ use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
 use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
 use Capell\LayoutBuilder\Policies\WidgetPolicy;
 use Capell\LayoutBuilder\Support\Assets\LayoutBuilderPublicLayoutAssetMembership;
 use Capell\LayoutBuilder\Support\Assets\PageContentLayoutWidgetResourceUsageContributor;
+use Capell\LayoutBuilder\Support\BuilderBlockPublicRenderDataContributor;
+use Capell\LayoutBuilder\Support\BuilderBlockWidgetsComposer;
 use Capell\LayoutBuilder\Support\CapellLayoutBuilderManager;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\LayoutWidgetContentGraphExtractor;
 use Capell\LayoutBuilder\Support\ContentGraph\Extractors\PageWidgetExtensionContentGraphExtractor;
@@ -190,6 +195,11 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         if ($policy === null || $policy instanceof WidgetPolicy) {
             Gate::policy(Widget::class, WidgetPolicy::class);
         }
+
+        // Asset rows are edited as part of the same global widget library.
+        if (Gate::getPolicyFor(WidgetAsset::class) === null) {
+            Gate::policy(WidgetAsset::class, WidgetPolicy::class);
+        }
     }
 
     #[Override]
@@ -206,6 +216,11 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     protected function bootInstalledRuntime(): void
     {
+        $this->callAfterResolving(PublicRenderDataContributorRegistry::class, function (PublicRenderDataContributorRegistry $contributors): void {
+            if (! isset($contributors->all()['builder_blocks'])) {
+                $contributors->register(new BuilderBlockPublicRenderDataContributor);
+            }
+        });
         View::composer([
             'capell-layout-builder::components.layout.container',
             'capell::components.layout.container',
@@ -246,9 +261,14 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         });
 
         $this->app->make(LayoutBuilderCoreRegistrar::class)->register();
-        // Admin's built-ins must exist before any dependent contribution so fresh boot and late installation order them alike.
-        $this->app->make(AdminRuntimeActivator::class)->prepare();
-        CapellAdmin::registerAdminBridge(self::$packageName, LayoutBuilderAdminBridge::class);
+        // Roles that exclude authoring providers never register Admin, so there is nothing to bridge into;
+        // the public routes below must still be registered.
+        if ($this->app->bound(AdminRuntimeActivator::class)) {
+            // Admin's built-ins must exist before any dependent contribution so fresh boot and late installation order them alike.
+            $this->app->make(AdminRuntimeActivator::class)->prepare();
+            CapellAdmin::registerAdminBridge(self::$packageName, LayoutBuilderAdminBridge::class);
+        }
+
         RouteGroupIsolation::run($this->app->make(Router::class), function (): void {
             $this->registerPublicFragmentRoute();
             $this->registerLazyLayoutWidgetRoute();
@@ -284,8 +304,16 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     private function registerDefaultLayoutWidgets(): void
     {
+        View::composer('capell-layout-builder::components.layout-widgets.index', BuilderBlockWidgetsComposer::class);
+
         /** @var LayoutWidgetRegistry $registry */
         $registry = $this->app->make(LayoutWidgetRegistry::class);
+
+        foreach (DefaultBlockCatalog::keys() as $type) {
+            if ($type !== 'content') {
+                $registry->register($type, LayoutWidgetTarget::FrontendBlade, 'capell-block-library::builder.' . DefaultBlockCatalog::viewSlug($type));
+            }
+        }
 
         $registry->register('content', LayoutWidgetTarget::FrontendBlade, 'capell-layout-builder::layout-widgets.content');
         $registry->register('image', LayoutWidgetTarget::FrontendBlade, 'capell-layout-builder::layout-widgets.image');
