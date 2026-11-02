@@ -29,6 +29,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -170,23 +171,25 @@ class AssetsRepeater extends Repeater
 
                     return new HtmlString($label . Str::limit($record->name, 40));
                 })
-                ->createOptionForm(function (Schema $configurator, Get $get): Schema {
+                ->createOptionForm(function (Schema $schema, Get $get): Schema {
                     $asset = CapellCore::getAsset(self::assetType($get));
 
                     $assetAdmin = CapellAdmin::getAsset($get('asset_type'));
 
                     return $assetAdmin->formClass::configure(
-                        $configurator->operation('createOption')->model(self::assetModelClass($asset)),
+                        $schema->operation('createOption')->model(self::assetModelClass($asset)),
                     );
                 })
-                ->createOptionUsing(function (Select $component, Schema $configurator, Get $get, array $data) use ($createOptionUsing): int|string {
+                ->createOptionUsing(function (Select $component, Schema $schema, Get $get, array $data) use ($createOptionUsing): int|string {
                     $asset = CapellAdmin::getAsset($get('asset_type'));
+                    $coreAsset = CapellCore::getAsset(self::assetType($get));
+                    Gate::authorize('create', self::assetModelClass($coreAsset));
 
                     $record = in_array($asset->createAction, [null, '', '0'], true)
                         ? $component->evaluate($createOptionUsing)
                         : $asset->createAction::run($data);
 
-                    $configurator->model($record)->saveRelationships();
+                    $schema->model($record)->saveRelationships();
 
                     Notification::make()
                         ->title(__('capell-layout-builder::message.page_created_successfully'))
@@ -305,6 +308,7 @@ class AssetsRepeater extends Repeater
     private static function modifyCreateAction(Action $action): Action
     {
         return $action->slideOver()
+            ->databaseTransaction()
             ->modalWidth(Width::ScreenLarge)
             ->closeModalByClickingAway(false)
             ->successNotificationTitle(

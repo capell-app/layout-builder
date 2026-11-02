@@ -381,3 +381,22 @@ final class ExamplePublicLayoutAssetMembershipAdapter implements \Capell\LayoutB
 
 app()->bind(\Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership::class, ExamplePublicLayoutAssetMembershipAdapter::class);
 ```
+
+<!-- example: contract Capell\LayoutBuilder\Contracts\LayoutEditorState -->
+
+```php
+<?php
+declare(strict_types=1);
+final class ExampleLayoutEditorState implements \Capell\LayoutBuilder\Contracts\LayoutEditorState
+{
+    /**
+     * @param  array<string, array<string, mixed>>|null  $containers
+     */
+    public function __construct(public \Capell\Core\Models\Layout $layout, public ?array $containers = null)
+    {
+        $this->containers ??= [];
+    }
+}
+
+app()->bind(\Capell\LayoutBuilder\Contracts\LayoutEditorState::class, ExampleLayoutEditorState::class);
+```

@@ -14,6 +14,7 @@ use Capell\FoundationTheme\Providers\FoundationThemeServiceProvider;
 use Capell\Frontend\Providers\FrontendServiceProvider;
 use Capell\HtmlCache\Providers\HtmlCacheServiceProvider;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
+use Capell\Navigation\Providers\NavigationServiceProvider;
 use Capell\Tests\AbstractTestCase;
 use Illuminate\Foundation\Application;
 use Livewire\LivewireServiceProvider;
@@ -68,6 +69,7 @@ abstract class LayoutBuilderTestCase extends AbstractTestCase
             HtmlCacheServiceProvider::class,
             AdminPanelProvider::class,
             LayoutBuilderServiceProvider::class,
+            NavigationServiceProvider::class,
             LivewireServiceProvider::class,
         ];
     }
@@ -86,5 +88,8 @@ abstract class LayoutBuilderTestCase extends AbstractTestCase
         CapellCore::forcePackageInstalled(FrontendServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(HtmlCacheServiceProvider::$packageName);
         CapellCore::forcePackageInstalled(LayoutBuilderServiceProvider::$packageName);
+        // Content Sections requires Theme Foundation, which requires Navigation, so it only activates alongside both.
+        CapellCore::forcePackageInstalled(NavigationServiceProvider::$packageName);
+        CapellCore::forcePackageInstalled(FoundationThemeServiceProvider::$packageName);
     }
 }

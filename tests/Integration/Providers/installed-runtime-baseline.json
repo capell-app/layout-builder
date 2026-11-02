@@ -4,8 +4,8 @@
     "scenarios": {
         "default": {
             "source": {
-                "ref": "HEAD",
-                "commit": "ad9d3ccab5e81abdec50ccbdf9be6d833882bbca",
+                "ref": "origin/main",
+                "commit": "39ff0f55a8674baaaed82be05906e319e7976a35",
                 "providers": {
                     "LayoutBuilderServiceProvider.php": "0443b0cdb0c509e2fa95baeac195a5acda3a5e0d3b44195508ce5ec99fd5dffb",
                     "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18"
@@ -1202,6 +1202,61 @@
                         ],
                         "shared": true
                     },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardApprovalsDataProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardApprovalsDataProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardApprovalsDataProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageLanguageMatcher": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageLanguageMatcher",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NativeDashboardPageLanguageMatcher"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageRankingProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageRankingProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardPageRankingProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardVisitorsProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardVisitorsProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardVisitorsProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardWorkDataProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardWorkDataProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardWorkDataProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
                     "Capell\\Admin\\Contracts\\Dashboard\\MyWorkQueueDataProvider": {
                         "concrete": [
                             "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
@@ -2300,6 +2355,17 @@
                         ],
                         "shared": true
                     },
+                    "Capell\\Core\\Support\\Migration\\MigrationRootRegistry": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Core\\Support\\Migration\\MigrationRootRegistry",
+                                "concrete": "Capell\\Core\\Support\\Migration\\MigrationRootRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
                     "Capell\\Core\\Support\\Models\\ModelInterceptorRegistry": {
                         "concrete": [
                             "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
@@ -2515,6 +2581,17 @@
                             {
                                 "abstract": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry",
                                 "concrete": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Core\\Support\\TableName": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Core\\Support\\TableName",
+                                "concrete": "Capell\\Core\\Support\\TableName"
                             }
                         ],
                         "shared": true
@@ -8636,6 +8713,7 @@
                     "capell:screenshot-record-state-fixture": "Capell\\Core\\Console\\Commands\\InitializeScreenshotRecordStateFixtureCommand",
                     "capell:site-domains-audit": "Capell\\Core\\Console\\Commands\\AuditSiteDomainOriginsCommand",
                     "capell:site-spec-import": "Capell\\Core\\Console\\Commands\\ImportSiteSpecCommand",
+                    "capell:tables:adopt": "Capell\\Core\\Console\\Commands\\AdoptTableCommand",
                     "capell:theme:doctor": "Capell\\Core\\Console\\Commands\\ThemeDoctorCommand",
                     "capell:themes:validate": "Capell\\Admin\\Console\\Commands\\ValidateThemesCommand",
                     "capell:upgrade": "Capell\\Core\\Console\\Commands\\UpgradeCommand",
@@ -8976,6 +9054,7 @@
                     "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget",
                     "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget",
                     "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget",
+                    "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget",
                     "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget",
                     "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget",
                     "marketing_studio:Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget",
@@ -11770,6 +11849,7 @@
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget",
+                            "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget",
                             "marketing_studio:Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget",
@@ -11798,6 +11878,7 @@
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget": "additional",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget": "additional",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget": "activity",
+                            "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget": "additional",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget": "additional",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget": "additional",
                             "marketing_studio:Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget": "additional",
@@ -15704,6 +15785,22 @@
                         "Capell\\Installer\\Http\\Controllers\\InstallController@cancel",
                         {
                             "as": "capell-installer.cancel",
+                            "domain": null,
+                            "prefix": "",
+                            "where": []
+                        }
+                    ],
+                    [
+                        "capell-installer.remove-welcome-route",
+                        "install/{installId}/remove-welcome-route",
+                        ["POST"],
+                        [
+                            "web",
+                            "Capell\\Installer\\Http\\Middleware\\RequireInstallerBootstrap"
+                        ],
+                        "Capell\\Installer\\Http\\Controllers\\InstallController@removeWelcomeRoute",
+                        {
+                            "as": "capell-installer.remove-welcome-route",
                             "domain": null,
                             "prefix": "",
                             "where": []
@@ -20801,8 +20898,8 @@
         },
         "foundation-theme": {
             "source": {
-                "ref": "HEAD",
-                "commit": "ad9d3ccab5e81abdec50ccbdf9be6d833882bbca",
+                "ref": "origin/main",
+                "commit": "39ff0f55a8674baaaed82be05906e319e7976a35",
                 "providers": {
                     "LayoutBuilderServiceProvider.php": "0443b0cdb0c509e2fa95baeac195a5acda3a5e0d3b44195508ce5ec99fd5dffb",
                     "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18"
@@ -21999,6 +22096,61 @@
                         ],
                         "shared": true
                     },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardApprovalsDataProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardApprovalsDataProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardApprovalsDataProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageLanguageMatcher": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageLanguageMatcher",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NativeDashboardPageLanguageMatcher"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageRankingProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardPageRankingProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardPageRankingProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardVisitorsProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardVisitorsProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardVisitorsProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Admin\\Contracts\\Dashboard\\DashboardWorkDataProvider": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Admin\\Contracts\\Dashboard\\DashboardWorkDataProvider",
+                                "concrete": "Capell\\Admin\\Support\\Dashboard\\NullDashboardWorkDataProvider"
+                            }
+                        ],
+                        "shared": true
+                    },
                     "Capell\\Admin\\Contracts\\Dashboard\\MyWorkQueueDataProvider": {
                         "concrete": [
                             "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
@@ -23097,6 +23249,17 @@
                         ],
                         "shared": true
                     },
+                    "Capell\\Core\\Support\\Migration\\MigrationRootRegistry": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Core\\Support\\Migration\\MigrationRootRegistry",
+                                "concrete": "Capell\\Core\\Support\\Migration\\MigrationRootRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
                     "Capell\\Core\\Support\\Models\\ModelInterceptorRegistry": {
                         "concrete": [
                             "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
@@ -23312,6 +23475,17 @@
                             {
                                 "abstract": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry",
                                 "concrete": "Capell\\Core\\Support\\Subscriber\\SubscriberRegistry"
+                            }
+                        ],
+                        "shared": true
+                    },
+                    "Capell\\Core\\Support\\TableName": {
+                        "concrete": [
+                            "<vendor>/laravel/framework/src/Illuminate/Container/Container.php",
+                            "Illuminate\\Container\\Container( $container,  $parameters): bound=Illuminate\\Foundation\\Application",
+                            {
+                                "abstract": "Capell\\Core\\Support\\TableName",
+                                "concrete": "Capell\\Core\\Support\\TableName"
                             }
                         ],
                         "shared": true
@@ -27528,7 +27702,10 @@
                     "accordion": "capell-block-library::builder.accordion",
                     "call_to_action": "capell-block-library::builder.call-to-action",
                     "capell-block-library::builder-block": "Capell\\BlockLibrary\\View\\Components\\BuilderBlock",
+                    "capell::footer.social-links": "Capell\\FoundationTheme\\View\\Components\\Footer\\SocialLinks",
+                    "capell::form-embed": "Capell\\FoundationTheme\\View\\Components\\ThemeFormEmbed",
                     "capell::layout": "Capell\\Frontend\\View\\Components\\Layout",
+                    "capell::media.svg": "Capell\\FoundationTheme\\View\\Components\\Media\\Svg",
                     "comparison": "capell-block-library::builder.comparison",
                     "content": "capell-layout-builder::layout-widgets.content",
                     "counter": "capell-block-library::builder.counter",
@@ -29401,7 +29578,9 @@
                     "timeline": "capell-block-library::builder.timeline",
                     "title": "capell-layout-builder::layout-widgets.title"
                 },
-                "blade-namespaces": [],
+                "blade-namespaces": {
+                    "capell-theme-foundation": "Capell\\FoundationTheme\\View\\Components"
+                },
                 "blade-namespaces-removed": [],
                 "blade-removed": [],
                 "commands": {
@@ -29489,6 +29668,7 @@
                     "capell:screenshot-record-state-fixture": "Capell\\Core\\Console\\Commands\\InitializeScreenshotRecordStateFixtureCommand",
                     "capell:site-domains-audit": "Capell\\Core\\Console\\Commands\\AuditSiteDomainOriginsCommand",
                     "capell:site-spec-import": "Capell\\Core\\Console\\Commands\\ImportSiteSpecCommand",
+                    "capell:tables:adopt": "Capell\\Core\\Console\\Commands\\AdoptTableCommand",
                     "capell:theme-catalogue-report": "Capell\\FoundationTheme\\Console\\Commands\\ThemeCatalogueReportCommand",
                     "capell:theme-foundation-demo": "Capell\\FoundationTheme\\Console\\Commands\\DemoCommand",
                     "capell:theme-foundation-setup": "Capell\\FoundationTheme\\Console\\Commands\\SetupCommand",
@@ -29833,6 +30013,7 @@
                     "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget",
                     "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget",
                     "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget",
+                    "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget",
                     "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget",
                     "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget",
                     "marketing_studio:Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget",
@@ -32632,6 +32813,7 @@
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget",
+                            "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget": "Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget",
                             "marketing_studio:Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget": "Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget",
@@ -32660,6 +32842,7 @@
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\ListPagesFilamentWidget": "additional",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\NeedsAttentionFilamentWidget": "additional",
                             "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\RecentActivityFilamentWidget": "activity",
+                            "main:Capell\\Admin\\Filament\\Widgets\\Dashboard\\SiteStatsOverviewFilamentWidget": "additional",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplaceCommercialWarningFilamentWidget": "additional",
                             "main:Capell\\Marketplace\\Filament\\Widgets\\MarketplacePackageOperationsAlertFilamentWidget": "additional",
                             "marketing_studio:Capell\\Admin\\Filament\\Widgets\\MarketingStudio\\MarketingStudioAdvancedFilamentWidget": "additional",
@@ -36666,6 +36849,22 @@
                         }
                     ],
                     [
+                        "capell-installer.remove-welcome-route",
+                        "install/{installId}/remove-welcome-route",
+                        ["POST"],
+                        [
+                            "web",
+                            "Capell\\Installer\\Http\\Middleware\\RequireInstallerBootstrap"
+                        ],
+                        "Capell\\Installer\\Http\\Controllers\\InstallController@removeWelcomeRoute",
+                        {
+                            "as": "capell-installer.remove-welcome-route",
+                            "domain": null,
+                            "prefix": "",
+                            "where": []
+                        }
+                    ],
+                    [
                         "capell-installer.destroy",
                         "install/delete-installer",
                         ["POST"],
@@ -37557,6 +37756,9 @@
                     "4f15f8015242395262c24b5ea24db9e6": [
                         "<package:block-library>/src/Providers/../../resources/views"
                     ],
+                    "612a1cd988c9a1bc502a7b2face1af01": [
+                        "<package:theme-foundation>/src/Providers/../../resources/views/components"
+                    ],
                     "capell": ["<package:frontend>/resources/views"],
                     "capell-admin": ["<package:admin>/resources/views"],
                     "capell-block-library": [
@@ -37566,6 +37768,12 @@
                     "capell-layout-builder": ["<package>/resources/views"],
                     "capell-marketplace": [
                         "<package:marketplace>/resources/views"
+                    ],
+                    "capell-theme-foundation": [
+                        "<package:theme-foundation>/src/Providers/../../resources/views"
+                    ],
+                    "d5308ed143a49921d8191587abc7798b": [
+                        "<package:theme-foundation>/src/Providers/../../resources/views/components"
                     ],
                     "filament": ["<vendor>/filament/support/resources/views"],
                     "filament-actions": [
@@ -37993,11 +38201,8 @@
                     "capell::actions": "Capell\\FoundationTheme\\View\\Components\\Actions",
                     "capell::app.body": "Capell\\FoundationTheme\\View\\Components\\App\\Body",
                     "capell::footer.index": "Capell\\FoundationTheme\\View\\Components\\Footer\\Index",
-                    "capell::footer.social-links": "Capell\\FoundationTheme\\View\\Components\\Footer\\SocialLinks",
-                    "capell::form-embed": "Capell\\FoundationTheme\\View\\Components\\ThemeFormEmbed",
                     "capell::layout.index": "Capell\\FoundationTheme\\View\\Components\\Layout\\Index",
                     "capell::layout.main": "Capell\\FoundationTheme\\View\\Components\\Layout\\Main",
-                    "capell::media.svg": "Capell\\FoundationTheme\\View\\Components\\Media\\Svg",
                     "capell::newsletter-form": "Capell\\FoundationTheme\\View\\Components\\NewsletterForm",
                     "capell::widget.asset": "Capell\\FoundationTheme\\View\\Components\\Widget\\Asset",
                     "capell::widget.asset.accordion": "Capell\\FoundationTheme\\View\\Components\\Widget\\Asset\\Accordion",
@@ -38015,8 +38220,7 @@
                     "capell::widget.slot": "Capell\\FoundationTheme\\View\\Components\\Widget\\Slot"
                 },
                 "blade-namespaces": {
-                    "capell": "Capell\\FoundationTheme\\View\\Components",
-                    "capell-theme-foundation": "Capell\\FoundationTheme\\View\\Components"
+                    "capell": "Capell\\FoundationTheme\\View\\Components"
                 },
                 "commands": {
                     "capell:frontend-tailwind-assets": "Capell\\FoundationTheme\\Console\\Commands\\GenerateTailwindAssetsCommand",
@@ -42108,19 +42312,9 @@
                     ]
                 },
                 "views": {
-                    "612a1cd988c9a1bc502a7b2face1af01": [
-                        "<package:theme-foundation>/src/Providers/../../resources/views/components",
-                        "<package:theme-foundation>/src/Providers/../../resources/views/components"
-                    ],
                     "capell": [
                         "<package:theme-foundation>/src/Providers/../../resources/views",
                         "<package:theme-foundation>/src/Providers/../../resources/views"
-                    ],
-                    "capell-theme-foundation": [
-                        "<package:theme-foundation>/src/Providers/../../resources/views"
-                    ],
-                    "d5308ed143a49921d8191587abc7798b": [
-                        "<package:theme-foundation>/src/Providers/../../resources/views/components"
                     ]
                 }
             },

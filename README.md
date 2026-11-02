@@ -250,6 +250,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `WidgetSchemaExtender`
 - `LayoutContainerThemePresentationProjector`
 - `LayoutContentGroupContributor`
+- `LayoutEditorState`
 - `LayoutSidebarWidgetContributor`
 - `PublicLayoutAssetMembership`
 - `PublicLayoutWidgetPayloadContributor`
@@ -316,6 +317,8 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `RenderLazyLayoutWidgetAction`
 - `LinkLayoutPresetContainerAction`
 - `ListLayoutPresetsAction`
+- `LoadLayoutWidgetsAction`
+- `MakeIndependentWidgetCopyAction`
 - `MakeWidgetAction`
 - `MergeWidgetMetadataAction`
 - `CreateLayoutFragmentAction`
@@ -408,6 +411,7 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - `LayoutSidebarWidgetData`
 - `LayoutWidgetCatalogDefinitionData`
 - `LayoutWidgetDefinitionData`
+- `LoadedLayoutWidgetData`
 - `PublicFragmentRenderResultData`
 - `PublicLayoutContainerData`
 - `PublicLayoutGraphData`

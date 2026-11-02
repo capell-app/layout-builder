@@ -20,6 +20,7 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 
 class WidgetSelect extends Select
@@ -80,16 +81,18 @@ class WidgetSelect extends Select
                     ->all(),
             )
             ->createOptionForm(
-                fn (Select $component, Schema $configurator): Schema => WidgetForm::configure(
-                    $configurator->model(Widget::class),
+                fn (Select $component, Schema $schema): Schema => WidgetForm::configure(
+                    $schema->model(Widget::class),
                 ),
             )
-            ->createOptionUsing(static function (Select $component, array $data, Schema $configurator) {
+            ->createOptionUsing(static function (Select $component, array $data, Schema $schema) {
+                Gate::authorize('create', Widget::class);
+
                 $record = new Widget;
                 $record->fill($data);
                 $record->save();
 
-                $configurator->model($record)->saveRelationships();
+                $schema->model($record)->saveRelationships();
 
                 Notification::make('save_before_continue')
                     ->title(__('capell-admin::generic.message_save_before_continue'))
@@ -100,6 +103,7 @@ class WidgetSelect extends Select
             })
             ->createOptionAction(
                 fn (Action $action): Action => $action
+                    ->databaseTransaction()
                     ->modalHeading(__('capell-layout-builder::generic.widget'))
                     ->tooltip(__('capell-layout-builder::button.create_widget'))
                     ->modalWidth(Width::ScreenLarge)
@@ -122,7 +126,7 @@ class WidgetSelect extends Select
     public function withEditForm(): self
     {
         return $this->editOptionForm(
-            fn (?int $state, Schema $configurator): ?Schema => $state !== null ? WidgetForm::configure($configurator) : null,
+            fn (?int $state, Schema $schema): ?Schema => $state !== null ? WidgetForm::configure($schema) : null,
         )
             ->editOptionAction(
                 fn (Action $action): Action => $action

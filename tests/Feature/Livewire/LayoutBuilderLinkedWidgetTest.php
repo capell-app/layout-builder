@@ -123,3 +123,29 @@ it('copies translation media references and selected placement uploads without i
     $copiedMedia->delete();
     expect($translation->refresh()->getFirstMedia('block_images')?->uuid)->toBe($media->uuid);
 });
+
+it('makes an independent copy of a widget loaded with the admin aggregate attributes', function (): void {
+    $widget = Widget::factory()->create();
+    $layout = Layout::factory()->create(['containers' => ['main' => ['widgets' => [['widget_key' => $widget->key, 'occurrence' => 1]]]]]);
+    $page = Page::factory()->create(['layout_id' => $layout->getKey()]);
+    $asset = WidgetAsset::factory()->widget($widget)->page($page, 'main', 1)->create();
+    Translation::factory()->translatable($widget)->create(['title' => 'Original title']);
+
+    $loaded = Widget::query()
+        ->withLayoutsCount()
+        ->withCount('widgetPageAssets as page_assets_count')
+        ->whereKey($widget->getKey())
+        ->firstOrFail();
+    expect($loaded->getAttributes())->toHaveKeys(['layouts_count', 'page_assets_count']);
+
+    $loadedAsset = WidgetAsset::query()->withCount('widget as widget_count')->whereKey($asset->getKey())->get();
+
+    $copy = MakeIndependentWidgetCopyAction::run($loaded, $loadedAsset);
+    $copy->translations()->firstOrFail()->update(['title' => 'Changed title']);
+
+    expect($copy->key)->not->toBe($widget->key)
+        ->and(Widget::query()->whereKey($copy->getKey())->firstOrFail()->getAttributes())->not->toHaveKeys(['layouts_count', 'page_assets_count'])
+        ->and($copy->translations()->firstOrFail()->getAttribute('title'))->toBe('Changed title')
+        ->and($widget->translations()->firstOrFail()->title)->toBe('Original title')
+        ->and($copy->assets)->toHaveCount(1);
+});

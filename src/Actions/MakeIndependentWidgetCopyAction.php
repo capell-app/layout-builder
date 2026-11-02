@@ -10,6 +10,7 @@ use Capell\LayoutBuilder\Models\WidgetAsset;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsFake;
 use Lorisleiva\Actions\Concerns\AsObject;
@@ -26,7 +27,7 @@ final class MakeIndependentWidgetCopyAction
     public function handle(Widget $source, Collection $assets): Widget
     {
         return DB::transaction(function () use ($source, $assets): Widget {
-            $copy = $source->replicate()->unsetRelations();
+            $copy = $this->replicatePersisted($source);
             $copy->key = (string) Str::uuid();
             $copy->save();
 
@@ -34,13 +35,13 @@ final class MakeIndependentWidgetCopyAction
             $this->remapMedia($copy, $mediaMap);
 
             foreach ($source->translations()->get() as $translation) {
-                $translationCopy = $translation->replicate()->unsetRelations();
+                $translationCopy = $this->replicatePersisted($translation);
                 $copy->translations()->save($translationCopy);
                 $this->remapMedia($translationCopy, $mediaMap + $this->copyMedia($translation, $translationCopy));
             }
 
             foreach ($assets as $asset) {
-                $assetCopy = $asset->replicate()->unsetRelations();
+                $assetCopy = $this->replicatePersisted($asset);
                 $assetCopy->occurrence = 1;
                 $copy->assets()->save($assetCopy);
 
@@ -49,6 +50,24 @@ final class MakeIndependentWidgetCopyAction
 
             return $copy->load('assets');
         });
+    }
+
+    /**
+     * Replicate only attributes that exist as columns. Admin queries load
+     * aggregates such as layouts_count or page_assets_count onto the model,
+     * and a plain replicate() would try to insert them.
+     *
+     * @template TModel of Model
+     *
+     * @param  TModel  $model
+     * @return TModel
+     */
+    private function replicatePersisted(Model $model): Model
+    {
+        $columns = Schema::connection($model->getConnectionName())->getColumnListing($model->getTable());
+        $transient = array_values(array_diff(array_keys($model->getAttributes()), $columns));
+
+        return $model->replicate($transient)->unsetRelations();
     }
 
     /** @return array<string, string> */
@@ -71,7 +90,7 @@ final class MakeIndependentWidgetCopyAction
                 ->where('translatable_type', $media->getMorphClass())
                 ->where('translatable_id', $media->getKey())
                 ->get() as $translation) {
-                $translationCopy = $translation->replicate()->unsetRelations();
+                $translationCopy = $this->replicatePersisted($translation);
                 $translationCopy->translatable_type = $mediaCopy->getMorphClass();
                 $translationCopy->translatable_id = $mediaCopy->id;
                 $translationCopy->save();
