@@ -59,7 +59,7 @@
 @endif
 
 <div
-    id="layout-container-{{ $containerKey }}"
+    id="layout-container-{{ substr(hash('sha256', (string) $containerKey), 0, 16) }}"
     @class([
         'layout-container',
         ...$presentation->classes(),

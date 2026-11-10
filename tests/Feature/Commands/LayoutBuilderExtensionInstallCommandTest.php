@@ -12,12 +12,14 @@ use Capell\Core\Models\CapellExtension;
 use Capell\Core\Support\Manifest\CapellManifestData;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction;
 use Capell\LayoutBuilder\Tests\Fixtures\LayoutBuilderInstallRecorder;
+use Capell\Tests\Support\OwnedTestbenchSkeleton;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Event;
 
 beforeEach(function (): void {
     CapellCore::clearPackages();
+    $this->composerMetadata = OwnedTestbenchSkeleton::installedComposerMetadata();
 
     app()->instance(RunMigrationsAction::class, new readonly class
     {
@@ -33,6 +35,8 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     CapellCore::clearPackages();
+    // The install test records layout-builder as Composer-installed; later tests must not inherit it.
+    OwnedTestbenchSkeleton::restoreInstalledComposerMetadata($this->composerMetadata);
 });
 
 it('runs migrations when installing layout builder directly', function (): void {
@@ -85,6 +89,10 @@ it('installs layout builder from its package manifest', function (): void {
             CapellCore::forcePackageInstalled($requiredPackage);
         }
     }
+
+    // Model Composer's install of the package so Core's extension verification sees it as installed.
+    OwnedTestbenchSkeleton::recordComposerPackages(['capell-app/layout-builder' => dirname($manifestPath)]);
+    OwnedTestbenchSkeleton::verifyExtensionsAgainstOwnedVendor(app());
 
     capell_artisan('capell:extension-install', [
         'extension' => 'capell-app/layout-builder',

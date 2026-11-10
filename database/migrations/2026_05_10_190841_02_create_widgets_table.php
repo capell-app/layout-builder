@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Support\TableName;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,15 +11,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('widgets')) {
+        if (TableName::existsAndIsOwned('widgets', basename(__FILE__, '.php'))) {
             return;
         }
 
-        Schema::create('widgets', function (Blueprint $table): void {
+        Schema::create(TableName::resolve('widgets'), function (Blueprint $table): void {
             $table->id();
             $table->unsignedBigInteger('workspace_id')->default(0)->index();
             $table->string('name');
-            $table->foreignId('blueprint_id')->constrained('blueprints');
+            $table->foreignId('blueprint_id')->constrained(TableName::resolve('blueprints'));
             $table->string('key', 128);
             $table->visibleDates();
             $table->longText('content')->nullable();
@@ -39,6 +40,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('widgets');
+        Schema::dropIfExists(TableName::resolve('widgets'));
     }
 };

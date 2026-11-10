@@ -8,7 +8,7 @@
     "version": "1.0.0",
     "description": "Compose pages visually with reusable widgets and named layout areas: edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
     "product": {
-        "group": "Capell Foundation",
+        "group": "Capell Essentials",
         "tier": "free",
         "bundle": "foundation"
     },
@@ -31,7 +31,9 @@
         "conflicts": []
     },
     "providers": {
-        "metadata": [],
+        "metadata": [
+            "Capell\\LayoutBuilder\\Providers\\MigrationMetadataServiceProvider"
+        ],
         "install": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
         "runtime": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
         "admin": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
@@ -242,9 +244,9 @@
         "riskTier": "standard",
         "publicSurface": {
             "routeNames": [
-                "capell-layout-builder.fragments.show",
-                "capell-layout-builder.layout-widgets.localized.show",
-                "capell-layout-builder.layout-widgets.show"
+                "GET /_capell/layout-widgets/{reference} (capell-layout-builder.layout-widgets.show)",
+                "GET /_fragments/{reference} (capell-layout-builder.fragments.show)",
+                "GET /{siteDomainPath}/_capell/layout-widgets/{reference} (capell-layout-builder.layout-widgets.localized.show)"
             ],
             "auth": "public",
             "csrfExemptRoutes": [],
@@ -366,6 +368,22 @@
     },
     "marketplace": {
         "summary": "Compose pages visually with reusable widgets and named layout areas: edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
+        "problem": "Editors who cannot compose page layouts depend on developers for routine layout changes.",
+        "outcome": "A site has page layouts that editors can compose and revise in admin.",
+        "faq": [
+            {
+                "question": "How can editors change a layout?",
+                "answer": "Editors can add, reorder, resize and edit page widgets in admin."
+            },
+            {
+                "question": "Are layout edits reversible?",
+                "answer": "Yes. Layout Builder supports reversible layout edits."
+            },
+            {
+                "question": "What do visitors see on pages?",
+                "answer": "Visitors receive the saved layout as public output without authoring markers."
+            }
+        ],
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",

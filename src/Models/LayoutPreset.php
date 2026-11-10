@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Models\Concerns\HasUserstamps;
 use Capell\Core\Models\Contracts\Userstampable;
 use Capell\Core\Models\Site;
@@ -37,6 +38,8 @@ use Override;
  */
 final class LayoutPreset extends Model implements Userstampable
 {
+    use HasCapellTable;
+
     /** @use HasFactory<Factory<static>> */
     use HasFactory;
 

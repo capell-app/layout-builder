@@ -7,6 +7,7 @@ namespace Capell\LayoutBuilder\Support\Interceptors\Layouts;
 use Capell\Core\Contracts\ModelInterceptors\LayoutInterceptorInterface;
 use Capell\Core\Models\Layout;
 use Capell\Core\Support\Database\RuntimeSchemaState;
+use Capell\Core\Support\TableName;
 
 final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
 {
@@ -37,7 +38,7 @@ final class DefaultLayoutInterceptor implements LayoutInterceptorInterface
 
     private function ensureStarterContainers(Layout $layout): void
     {
-        if (! resolve(RuntimeSchemaState::class)->hasColumn('layouts', 'containers')) {
+        if (! resolve(RuntimeSchemaState::class)->hasColumn(TableName::resolve('layouts'), 'containers')) {
             return;
         }
 

@@ -2,32 +2,43 @@
 
 <!-- prettier-ignore-start -->
 
-## What This Plugin Adds
-
-Layout Builder is an **Available**, **Schema-owning** Capell package in the **Capell Foundation** product group. It ships as `capell-app/layout-builder` and extends these surfaces: admin, frontend, console.
+## What It Does
 
 Layout Builder adds a visual page composition workflow with layout areas, widgets, reusable widgets, presets, and reversible layout edits.
 
+- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/layout-builder).
+- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/layout-builder).
+- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.72`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.76`, `capell-app/frontend ^1.0.72`.
+- **Install:** `composer require capell-app/layout-builder`.
+
 Editors can add, reorder, resize, and edit page widgets in admin. Visitors receive the saved layout graph as ordinary public output without authoring markers.
 
-Status details:
-
-- Status: Available
-- Tier: free
-- Bundle: foundation
-- Composer package: `capell-app/layout-builder`
-- Namespace: `Capell\LayoutBuilder`
-- Theme key: not applicable
-
-## Why It Matters
+## Who It Is For
 
 **For developers:** Registries and typed Actions provide stable extension points for widget definitions, layout widgets, presets, and public render data.
 
 **For teams:** Choose Layout Builder when page composition changes; use Content Sections for reusable published sections or Structured Content Library for typed records such as testimonials and FAQs. Both can feed a Layout Builder composition. If a site only needs a few fixed templates, its existing Laravel templates may be enough.
 
-## Screens And Workflow
+## Quick Start
 
-Screenshot contract: `docs/screenshots.json`.
+1. Install the package: `composer require capell-app/layout-builder`.
+2. Run the package setup: `php artisan capell:layout-builder-install`.
+3. Open the package admin surface at `/admin/layout-builder/widgets` and confirm Layout Builder is available.
+
+## Configure
+
+- **Configuration files:** `config/capell-layout-builder.php`.
+- **Commands:** `php artisan capell:layout-builder-install`, `php artisan capell:layout-builder-widget-visual-regression`, `php artisan capell:layout-builder:prune-bulk-change-runs`, `php artisan capell:layouts:bulk-change`, `php artisan capell:widget-snapshots:prune`.
+
+## Limits And Pitfalls
+
+- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.72`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.76`, `capell-app/frontend ^1.0.72`.
+- Run migrations before opening package resources or public routes.
+- Keep the host Laravel scheduler running so package-registered schedules can execute: `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`.
+- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
+- Custom write integrations must preserve invalidation for `layout-builder` cache tags.
+
+## Screens And Workflow
 
 ## Content Composition
 
@@ -49,30 +60,30 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 
 ![Layout Builder active-theme container settings](docs/screenshots/layout-builder-edit-container-theme-settings.png)
 
-- Layout Builder visual editor with main and sidebar containers (admin, required evidence).
-- Layout Builder content-first editing mode (admin, supplementary evidence).
-- Layout Builder add widget action (admin, supplementary evidence).
-- Layout Builder add container action (admin, supplementary evidence).
-- Layout Builder edit widget action (admin, supplementary evidence).
-- Layout Builder edit container action (admin, supplementary evidence).
-- Layout Builder active-theme container settings (admin, required evidence).
-- Layout Builder responsive padding controls on mobile (admin, required evidence).
-- Layout Builder active-theme container settings on mobile (admin, required evidence).
-- Layout Builder responsive preview (admin, supplementary evidence).
-- Layout Builder tree selection (admin, supplementary evidence).
-- Layout Builder filtered tree keyboard navigation (admin, supplementary evidence).
-- Layout Builder preset action fixture (frontend, supplementary evidence).
-- Layout Builder undo and redo actions fixture (frontend, supplementary evidence).
-- Layout Builder native bulk-change criteria (admin, supplementary evidence).
-- Layout Builder native bulk-change review (admin, supplementary evidence).
-- Layout Builder main and sidebar public example (frontend, supplementary evidence).
-- Layout Builder full-width public example (frontend, supplementary evidence).
-- Widgets admin index (admin, required evidence).
-- Create and edit widget form with widget assets (admin, required evidence).
-- Unused and disabled widget integrity state (admin, supplementary evidence).
-- Broken and unscoped widget asset integrity states (admin, supplementary evidence).
-- Sections admin index (admin, required evidence).
-- Widgets admin index with admin sidebar menu open (admin, supplementary evidence).
+- Layout Builder visual editor with main and sidebar containers (admin).
+- Layout Builder content-first editing mode (admin).
+- Layout Builder add widget action (admin).
+- Layout Builder add container action (admin).
+- Layout Builder edit widget action (admin).
+- Layout Builder edit container action (admin).
+- Layout Builder active-theme container settings (admin).
+- Layout Builder responsive padding controls on mobile (admin).
+- Layout Builder active-theme container settings on mobile (admin).
+- Layout Builder responsive preview (admin).
+- Layout Builder tree selection (admin).
+- Layout Builder filtered tree keyboard navigation (admin).
+- Layout Builder preset action fixture (frontend).
+- Layout Builder undo and redo actions fixture (frontend).
+- Layout Builder native bulk-change criteria (admin).
+- Layout Builder native bulk-change review (admin).
+- Layout Builder main and sidebar public example (frontend).
+- Layout Builder full-width public example (frontend).
+- Widgets admin index (admin).
+- Create and edit widget form with widget assets (admin).
+- Unused and disabled widget integrity state (admin).
+- Broken and unscoped widget asset integrity states (admin).
+- Sections admin index (admin).
+- Widgets admin index with admin sidebar menu open (admin).
 
 ## Works With
 
@@ -81,461 +92,6 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - [Publishing Studio](../publishing-studio/README.md): optional integration backed by the interop evidence map.
 - [Structured Content Library](../structured-content-library/README.md): optional integration backed by the interop evidence map.
 - [Theme Foundation](../theme-foundation/README.md): optional integration backed by the interop evidence map.
-
-## Technical Shape
-
-### Service providers
-
-- `Capell\LayoutBuilder\LayoutBuilderServiceProvider`
-- `AbstractFoundationWidgetServiceProvider`
-
-### Config files
-
-- `packages/layout-builder/config/capell-layout-builder.php`
-
-### Migrations
-
-- `packages/layout-builder/database/migrations/2026_05_10_190841_02_create_widgets_table.php`
-- `packages/layout-builder/database/migrations/2026_05_10_190841_03_create_widget_assets_table.php`
-- `packages/layout-builder/database/migrations/2026_05_10_190841_04_create_widget_widgets_table.php`
-- `packages/layout-builder/database/migrations/2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`
-- `packages/layout-builder/database/migrations/2026_05_10_190841_06_create_layout_presets_table.php`
-- `packages/layout-builder/database/migrations/2026_06_07_000001_create_layout_bulk_change_tables.php`
-- `packages/layout-builder/database/migrations/2026_07_09_000001_create_public_widget_snapshots_table.php`
-- `packages/layout-builder/database/migrations/2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table.php`
-- `packages/layout-builder/database/migrations/2026_07_10_000002_create_layout_preset_usages_table.php`
-- `packages/layout-builder/database/migrations/2026_07_10_000003_create_layout_preset_sync_runs_table.php`
-- `packages/layout-builder/database/migrations/2026_08_28_000003_change_widget_visibility_to_datetime.php`
-- `packages/layout-builder/database/migrations/2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table.php`
-
-### Models
-
-- `Layout`
-- `LayoutBulkChangeResult`
-- `LayoutBulkChangeRun`
-- `LayoutPreset`
-- `LayoutPresetSyncResult`
-- `LayoutPresetSyncRun`
-- `LayoutPresetUsage`
-- `PublicWidgetSnapshot`
-- `Widget`
-- `WidgetAsset`
-- `WidgetWidget`
-
-### Filament classes
-
-- `CreateWidgetAction`
-- `ActionsRepeater`
-- `AlignSelect`
-- `AssetTypeSelect`
-- `AssetsRepeater`
-- `BackgroundSchema`
-- `BorderSelect`
-- `CarouselSettingsSchema`
-- `ColorSchemeComponent`
-- `ColumnInput`
-- `ContainerWidthSelect`
-- `CustomColorInput`
-- `HeadingSizeSelect`
-- `HeadingStyleSelect`
-- `HtmlClassInput`
-- `LayoutTab`
-- `MarginSelect`
-- `PaddingSelect`
-- `HeroEditor`
-- `LayoutTab`
-- `PageModelSelect`
-- `ResponsiveLayoutPatternSchema`
-- `ResponsiveLayoutPatternSelect`
-- `SizeSelect`
-- `SpacingSelect`
-- `TagSelect`
-- `AdminSchema`
-- `ComponentSection`
-- `CreateDetailsSchema`
-- `DisplaySection`
-- `ResultsOverrideSchema`
-- `ResultsSchema`
-- `SettingsSchema`
-- `WidgetAdminTab`
-- `WidgetDisplayTab`
-- `WidgetPresentationTabs`
-- `WidgetSettingsTab`
-- `TranslationsRepeater`
-- `TypeSelect`
-- `WidgetFileUpload`
-- `WidgetSelect`
-- `DefaultLayoutContainerConfigurator`
-- `DefaultLayoutWidgetConfigurator`
-- `PageLayoutWidgetConfigurator`
-- `ResultsLayoutWidgetConfigurator`
-- `WidgetTypeConfigurator`
-- `AbstractWidgetAssetConfigurator`
-- `AssetsWidgetConfigurator`
-- `CTASectionWidgetConfigurator`
-- `CardGridWidgetConfigurator`
-- `CarouselWidgetConfigurator`
-- `DefaultWidgetConfigurator`
-- `FeatureListWidgetConfigurator`
-- `HeroBannerWidgetConfigurator`
-- `HeroWidgetConfigurator`
-- `ImageGalleryWidgetConfigurator`
-- `KitchenSinkReferenceWidgetConfigurator`
-- `ModernAlternatingContentConfigurator`
-- `ModernCTASectionConfigurator`
-- `ModernCardGridConfigurator`
-- `ModernFaqConfigurator`
-- `ModernFeatureListConfigurator`
-- `ModernHeroBannerConfigurator`
-- `ModernImageGalleryConfigurator`
-- `ModernPricingTableConfigurator`
-- `ModernProcessStepsConfigurator`
-- `ModernStatsSectionConfigurator`
-- `ModernTeamMembersConfigurator`
-- `ModernTestimonialsConfigurator`
-- `NavigationWidgetConfigurator`
-- `PageContentWidgetConfigurator`
-- `PageWidgetAssetForm`
-- `RegisteredAssetWidgetAssetForm`
-- `ResultsWidgetConfigurator`
-- `SystemWidgetConfigurator`
-- `HeroPageSchemaExtender`
-- `LayoutBuilderResource`
-- `LayoutPresetResource`
-- `ListLayoutPresets`
-- `LayoutResource`
-- `CreateLayout`
-- `EditLayout`
-- `ListLayouts`
-- `LayoutSchemaExtender`
-- `LayoutsTable`
-- `PageSchemaExtender`
-- `PageSelectionTable`
-- `CreateWidget`
-- `EditWidget`
-- `ListWidgets`
-- `LayoutsRelationManager`
-- `WidgetAssetsRelationManager`
-- `WidgetAssetForm`
-- `WidgetForm`
-- `WidgetAssetsTable`
-- `WidgetSelectionTable`
-- `WidgetsTable`
-- `WidgetResource`
-- `LayoutHealthFilamentWidget`
-- `RecentActivityFilamentWidget`
-
-### Livewire components
-
-- `AuthorizesLayoutBuilderAccess`
-- `HasLayoutActions`
-- `ManagesAssets`
-- `ManagesContainers`
-- `ManagesLayoutBuilderState`
-- `ManagesWidgets`
-- `LayoutBuilder`
-- `ModalTableSelect`
-- `LayoutBuilderActionFactory`
-
-### Policies
-
-- `LayoutPresetPolicy`
-- `WidgetPolicy`
-
-### Extension contracts
-
-- `PublicLayoutWidgetAssetsRenderer`
-- `LayoutContainerSchemaExtender`
-- `WidgetAssetSchemaExtender`
-- `WidgetSchemaExtender`
-- `LayoutContainerThemePresentationProjector`
-- `LayoutContentGroupContributor`
-- `LayoutEditorState`
-- `LayoutSidebarWidgetContributor`
-- `PublicLayoutAssetMembership`
-- `PublicLayoutWidgetPayloadContributor`
-- `PublicLayoutWidgetPayloadResolver`
-- `WidgetAssetReferenceRepointer`
-- `WidgetExtensionBatchPayloadResolver`
-- `WidgetExtensionDependencyResolver`
-- `WidgetExtensionStateUpcaster`
-- `WidgetSnapshotLocatorCipher`
-
-### Listeners
-
-- `AfterRecordSaved`
-- `LayoutLoaded`
-- `MaintainPublicWidgetSnapshotsListener`
-- `SiteTreeRebuilt`
-- `TypeValidated`
-
-### Actions
-
-- `AddHeroWidgetToLayoutAction`
-- `AddWidgetToLayoutContainerAction`
-- `AnalyzeLayoutDiagnosticsAction`
-- `AnalyzeLayoutHealthAction`
-- `ApplyLayoutPresetAction`
-- `ApplyLayoutSidebarWidgetContributionsAction`
-- `ApplyStarterLayoutPresetAction`
-- `AttachWidgetToLayoutAreaAction`
-- `BuildLayoutBuilderTreeAction`
-- `BuildLayoutContentInventoryAction`
-- `BuildLayoutHealthWorkQueueAction`
-- `BuildPublicLayoutGraphAction`
-- `BuildWidgetDeletionImpactAction`
-- `BuildWidgetVisualRegressionManifestAction`
-- `ApplyLayoutBulkChangeRunAction`
-- `ApplyLayoutWidgetOperationToContainersAction`
-- `HasPageScopedAssetBatches`
-- `PreviewLayoutBulkChangeAction`
-- `QueueLayoutBulkChangeRunAction`
-- `ResolveLayoutBulkChangeTargetsAction`
-- `RevertLayoutBulkChangeRunAction`
-- `ScopeLayoutBulkChangeQueryForActorAction`
-- `CountLinkedLayoutPresetUsagesAction`
-- `CreateHeroWidgetAction`
-- `CreateLayoutBuilderDemoSiteAction`
-- `CreateLayoutPresetSyncRunAction`
-- `CreateLinkedLayoutPresetAction`
-- `FindReusableWidgetsAction`
-- `BuildLayoutBuilderFragmentReferenceAction`
-- `RenderPublicFragmentAction`
-- `ResolveLayoutBuilderFragmentWidgetVersionAction`
-- `GenerateLayoutPreviewImageAction`
-- `GetLayoutPreviewImageUrlAction`
-- `GetWidgetContainerWidthAction`
-- `HeroWidgetHasPrimaryHeadingAction`
-- `InsertLinkedLayoutPresetAction`
-- `InstallLayoutBuilderPackageAction`
-- `InstallLayoutBuilderWidgetCatalogAction`
-- `InstallPackageAction`
-- `InvalidateLayoutPreviewImageAction`
-- `InvalidateTypeLayoutPreviewImagesAction`
-- `InvalidateWidgetLayoutPreviewImagesAction`
-- `BuildLayoutWidgetResourceUsagesAction`
-- `RenderLazyLayoutWidgetAction`
-- `LinkLayoutPresetContainerAction`
-- `ListLayoutPresetsAction`
-- `LoadLayoutWidgetsAction`
-- `MakeIndependentWidgetCopyAction`
-- `MakeWidgetAction`
-- `MergeWidgetMetadataAction`
-- `CreateLayoutFragmentAction`
-- `NormalizeLayoutBuilderStateAction`
-- `PasteLayoutFragmentAction`
-- `PushLayoutMutationSnapshotAction`
-- `RedoLayoutMutationSnapshotAction`
-- `ReorderLayoutContainerAction`
-- `ReorderLayoutWidgetAction`
-- `ResizeLayoutContainerAction`
-- `UndoLayoutMutationSnapshotAction`
-- `NormalizeLayoutContainerPaddingAction`
-- `PersistLayoutBuilderStateAction`
-- `PreviewLayoutPlanAction`
-- `PruneLayoutBulkChangeRunsAction`
-- `PublishLayoutBuilderAdminAssetsAction`
-- `RenderAdminLayoutPreviewAction`
-- `RepointWidgetAssetReferencesAction`
-- `ResetLayoutContainerThemeSettingsAction`
-- `ResolveAdminWidgetPreviewDataAction`
-- `ResolveLayoutAreaContainersAction`
-- `ResolveLayoutContainerPresentationAction`
-- `ResolvePageContentStructureAction`
-- `ResolvePublicWidgetAssetsAction`
-- `ResolvePublicWidgetRenderContextAction`
-- `ResolveWidgetPickerPreviewAction`
-- `ResolveWidgetPresentationDataAction`
-- `RunLinkedLayoutPresetSyncAction`
-- `SaveFormComponentRelationshipAction`
-- `SaveLayoutPresetAction`
-- `SeedLayoutBuilderScreenshotFixtureAction`
-- `SeedWidgetIntegrityScreenshotFixturesAction`
-- `SetupLayoutBuilderPackageAction`
-- `StripLayoutPresetLinkAction`
-- `SummarizeLayoutChangesAction`
-- `SyncLayoutPresetUsagesAction`
-- `UpdateLinkedLayoutPresetItemAction`
-- `WidgetContractValidatorAction`
-- `BuildPublicWidgetPayloadsAction`
-- `BuildWidgetExtensionResourceUsagesAction`
-- `RenderPublicWidgetExtensionAction`
-- `ResolveWidgetExtensionDependenciesAction`
-- `RestoreWidgetInteractionContextAction`
-- `WidgetIsSlotAction`
-- `BuildPublicWidgetInteractionLocatorsAction`
-- `PrunePublicWidgetSnapshotsAction`
-- `RebuildPublicWidgetSnapshotsAction`
-- `ResolvePublicWidgetSnapshotAction`
-- `RevokePublicWidgetSnapshotsAction`
-- `WithdrawPublicWidgetSnapshotsAction`
-
-### Data objects
-
-- `AdminLayoutPreviewData`
-- `AdminWidgetPreviewData`
-- `ActivityItemData`
-- `LayoutHealthData`
-- `LayoutHealthWorkQueueItemData`
-- `LeastUsedWidgetData`
-- `RecentActivityData`
-- `UnusedWidgetData`
-- `WidgetGroupData`
-- `DemoSitePlanData`
-- `LayoutAssetBridgeData`
-- `LayoutBuilderStateData`
-- `LayoutBuilderTreeContainerData`
-- `LayoutBuilderTreeData`
-- `LayoutBuilderTreeWidgetData`
-- `LayoutBulkChangeCriteriaData`
-- `LayoutBulkWidgetOperationData`
-- `LayoutBulkWidgetOperationResultData`
-- `LayoutChangeData`
-- `LayoutContainerPresentationData`
-- `LayoutContainerResponsivePaddingData`
-- `LayoutContainerSchemaContextData`
-- `LayoutContainerThemePresentationData`
-- `LayoutContentGroupData`
-- `LayoutContentInventoryContextData`
-- `LayoutContentInventoryData`
-- `LayoutContentItemData`
-- `LayoutDiagnosticData`
-- `LayoutFragmentData`
-- `LayoutMutationHistoryData`
-- `LayoutMutationNavigationData`
-- `LayoutMutationResultData`
-- `LayoutPlanData`
-- `LayoutPlanResultData`
-- `LayoutPresetData`
-- `LayoutPresetLinkData`
-- `LayoutSidebarWidgetData`
-- `LayoutWidgetCatalogDefinitionData`
-- `LayoutWidgetDefinitionData`
-- `LoadedLayoutWidgetData`
-- `PublicFragmentRenderResultData`
-- `PublicLayoutContainerData`
-- `PublicLayoutGraphData`
-- `PublicLayoutWidgetData`
-- `PublicWidgetRenderContextData`
-- `DiscoveredWidgetExtensionData`
-- `WidgetExtensionCapabilitiesData`
-- `WidgetExtensionCollisionData`
-- `WidgetExtensionDefinitionData`
-- `WidgetExtensionDependencyData`
-- `WidgetExtensionPayloadBatchData`
-- `WidgetExtensionPayloadInputData`
-- `WidgetExtensionRenderContextData`
-- `WidgetLayoutUsageData`
-- `WidgetPickerPreviewData`
-- `WidgetScaffoldData`
-- `WidgetSnapshotLocatorData`
-
-### Jobs
-
-- `ApplyLayoutBulkChangeRunJob`
-- `SyncLinkedLayoutPresetJob`
-
-### Command signatures
-
-- `capell:layout-builder-install`
-- `capell:layout-builder-widget-visual-regression`
-- `capell:layout-builder:prune-bulk-change-runs`
-- `capell:layouts:bulk-change`
-- `capell:widget-snapshots:prune`
-
-### Manifest action API
-
-- `install: Capell\LayoutBuilder\Actions\InstallLayoutBuilderPackageAction`
-- `pruneLayoutBulkChangeRuns: Capell\LayoutBuilder\Actions\PruneLayoutBulkChangeRunsAction`
-- `setup: Capell\LayoutBuilder\Actions\SetupLayoutBuilderPackageAction`
-
-### Scheduled commands
-
-- `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`
-- `capell:widget-snapshots:prune (daily; manifest declared)`
-
-### Console command classes
-
-- `InstallCommand`
-- `LayoutBulkChangeCommand`
-- `PruneLayoutBulkChangeRunsCommand`
-- `PrunePublicWidgetSnapshotsCommand`
-- `ResyncLayoutPresetCommand`
-- `SeedLayoutBuilderScreenshotFixtureCommand`
-- `WidgetVisualRegressionCommand`
-
-### Manifest contributions
-
-- `admin-resource: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
-- `asset: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
-- `configurator: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
-- `console-command: Capell\LayoutBuilder\Manifest\LayoutBuilderConsoleCommandsContribution`
-- `migration: Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution`
-- `model: Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution`
-- `page-type: Capell\LayoutBuilder\Manifest\LayoutBuilderPageTypesContribution`
-- `route: Capell\LayoutBuilder\Manifest\LayoutBuilderRoutesContribution`
-- `scheduled-job: Capell\LayoutBuilder\Manifest\LayoutBuilderBulkChangePruneScheduleContribution`
-- `scheduled-job: Capell\LayoutBuilder\Manifest\LayoutBuilderSnapshotPruneScheduleContribution`
-- `schema-extender: Capell\LayoutBuilder\Support\LayoutBuilderAdminRegistrar`
-
-### Health checks
-
-- `Capell\LayoutBuilder\Health\LayoutBuilderHealthCheck`
-
-### Blade views
-
-- `packages/layout-builder/resources/views/components/filament/layout-builder/asset.blade.php`
-- `packages/layout-builder/resources/views/components/filament/layout-builder/assets.blade.php`
-- `packages/layout-builder/resources/views/components/filament/layout-builder/container.blade.php`
-- `packages/layout-builder/resources/views/components/filament/layout-builder/drag-handle-icon.blade.php`
-- `packages/layout-builder/resources/views/components/filament/layout-builder/widget.blade.php`
-- `packages/layout-builder/resources/views/components/infolists/entries/layout-widget.blade.php`
-- `packages/layout-builder/resources/views/components/infolists/entries/layout-widgets.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widget-assets.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/content.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/extension-gated.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/extension-runtime.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/extension-unavailable.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/image.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/index.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/interaction-target.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/runtime-wrapper.blade.php`
-- `packages/layout-builder/resources/views/components/layout-widgets/title.blade.php`
-- `packages/layout-builder/resources/views/components/layout/area.blade.php`
-- `packages/layout-builder/resources/views/components/layout/container.blade.php`
-- `packages/layout-builder/resources/views/components/layout/main-content.blade.php`
-- `packages/layout-builder/resources/views/components/layout/widget.blade.php`
-- `packages/layout-builder/resources/views/filament/actions/layout-bulk-change-review.blade.php`
-- `packages/layout-builder/resources/views/filament/layout-builder/admin-preview/container.blade.php`
-- `packages/layout-builder/resources/views/filament/layout-builder/admin-preview/page.blade.php`
-- `packages/layout-builder/resources/views/filament/layout-builder/admin-preview/widget-fallback.blade.php`
-- `packages/layout-builder/resources/views/filament/layout-builder/previews/default.blade.php`
-- `packages/layout-builder/resources/views/filament/layout-builder/previews/page-content.blade.php`
-- `packages/layout-builder/resources/views/filament/resources/widgets/widget-card.blade.php`
-- `packages/layout-builder/resources/views/filament/widgets/layout-health.blade.php`
-- `packages/layout-builder/resources/views/filament/widgets/recent-activity.blade.php`
-- `packages/layout-builder/resources/views/frontend-authoring/filament-shell-assets.blade.php`
-- `packages/layout-builder/resources/views/frontend-authoring/layout-builder-editor.blade.php`
-- `packages/layout-builder/resources/views/livewire/filament/layout-builder/content-first.blade.php`
-- `packages/layout-builder/resources/views/livewire/filament/layout-builder/index.blade.php`
-- `packages/layout-builder/resources/views/livewire/filament/layout-builder/visual-editor-markup.blade.php`
-- `packages/layout-builder/resources/views/livewire/filament/layout-builder/visual-editor.blade.php`
-- `packages/layout-builder/resources/views/livewire/filament/layout-builder/visual-tree.blade.php`
-- `packages/layout-builder/resources/views/livewire/filament/layout-builder/widgets-table-select.blade.php`
-
-### Cache tags
-
-- `layout-builder`
-
-
-## Data Model
-
-- Required tables: `layouts`, `widgets`, `widget_assets`, `widget_widgets`, `layout_presets`, `layout_bulk_change_runs`, `layout_bulk_change_results`, `layout_preset_usages`, `layout_preset_sync_runs`, `layout_preset_sync_results`, `public_widget_snapshots`.
-- Models: `Layout`, `LayoutBulkChangeResult`, `LayoutBulkChangeRun`, `LayoutPreset`, `LayoutPresetSyncResult`, `LayoutPresetSyncRun`, `LayoutPresetUsage`, `PublicWidgetSnapshot`, `Widget`, `WidgetAsset`, `WidgetWidget`.
-- Core record references in migrations: `sites via site_id`, `languages via language_id`, `layouts via layout_id`, `widgets via widget_id`, `themes via theme_id`.
-- Migration files: `2026_05_10_190841_02_create_widgets_table.php`, `2026_05_10_190841_03_create_widget_assets_table.php`, `2026_05_10_190841_04_create_widget_widgets_table.php`, `2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `2026_05_10_190841_06_create_layout_presets_table.php`, `2026_06_07_000001_create_layout_bulk_change_tables.php`, `2026_07_09_000001_create_public_widget_snapshots_table.php`, `2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table.php`, `2026_07_10_000002_create_layout_preset_usages_table.php`, `2026_07_10_000003_create_layout_preset_sync_runs_table.php`, `2026_08_28_000003_change_widget_visibility_to_datetime.php`, `2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table.php`.
-- Migration impact: run host migrations through the package install flow before opening package surfaces.
-- Deletion/retention behaviour: migrations declare cascade-on-delete relationships and null-on-delete relationships; retention is scheduled through `capell:widget-snapshots:prune` (daily; declared in the manifest) and `capell:layout-builder:prune-bulk-change-runs` (daily; declared in the manifest).
 
 ## Install Impact
 
@@ -551,15 +107,6 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 - Cache tags: `layout-builder`.
 - Commands: `capell:layout-builder-install`, `capell:layout-builder-widget-visual-regression`, `capell:layout-builder:prune-bulk-change-runs`, `capell:layouts:bulk-change`, `capell:widget-snapshots:prune`.
 
-## Common Pitfalls
-
-- Keep required Capell packages on compatible v4 releases: `capell-app/core`, `capell-app/admin`, `capell-app/block-library`, `capell-app/frontend`.
-- Run migrations before opening package resources or public routes.
-- Review package configuration before production-like verification: `config/capell-layout-builder.php`.
-- Keep the host Laravel scheduler running so package-registered schedules can execute: `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`.
-- Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
-- Custom write integrations must preserve invalidation for `layout-builder` cache tags.
-
 ## Troubleshooting
 
 | Symptom | Likely cause | Check | Fix |
@@ -568,12 +115,6 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 | Admin screen or command fails on missing table | Package migrations have not run | Check the tables listed in `Data Model` | Run host migrations and rerun the focused package test |
 | Background work does not run | Queue worker or declared schedule is not active | Check the jobs and scheduled commands listed in `Technical Shape` | Start the queue worker or host scheduler, then run the focused command or package test |
 | Public output leaks unexpected state | Render data, cache variation, or authoring boundary has regressed | Check public Blade, cache tags, and public-output safety tests | Move data loading out of Blade and rerun the package public-output tests |
-
-## Quick Start
-
-1. Install the package: `composer require capell-app/layout-builder`.
-2. Run the package setup: `php artisan capell:layout-builder-install`.
-3. Open the package admin surface at `/admin/layout-builder/widgets` and confirm Layout Builder is available.
 
 ## Upgrading
 
@@ -589,11 +130,11 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Admin guide](docs/admin-guide.md)
 - Configuration files: [`config/capell-layout-builder.php`](config/capell-layout-builder.php).
 - [Troubleshooting](#troubleshooting)
-- [Screenshot contract](docs/screenshots.json)
+- [Developer reference](docs/reference.md)
 - [Marketplace assets](docs/assets/marketplace/)
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md), [Theme Foundation](../theme-foundation/README.md).
+- Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md), [Foundation Theme](../theme-foundation/README.md).
 
 <!-- prettier-ignore-end -->

@@ -8,11 +8,13 @@ use BackedEnum;
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Enums\LayoutEnum;
 use Capell\Core\Enums\RenderableTypeEnum;
+use Capell\Core\EventSourcing\Contracts\PageStateContributor;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Support\Renderables\RenderableRegistry;
+use Capell\Core\Support\TableName;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\FrontendHookRegistrar;
 use Capell\LayoutBuilder\Actions\InvalidateTypeLayoutPreviewImagesAction;
@@ -32,6 +34,7 @@ use Capell\LayoutBuilder\Support\Interceptors\Layouts\DefaultLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\HomeLayoutInterceptor;
 use Capell\LayoutBuilder\Support\Interceptors\Layouts\ResultsLayoutInterceptor;
 use Capell\LayoutBuilder\Support\RenderHooks\RegisterMainContentLayoutHook;
+use Capell\LayoutBuilder\Support\Rollback\LayoutWidgetsPageStateContributor;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -39,6 +42,9 @@ use Illuminate\Support\Facades\App;
 
 final class LayoutBuilderCoreRegistrar
 {
+    /** Container binding that marks an application as already wired by this registrar. */
+    private const string REGISTERED = 'capell.layout-builder.core-registrar.registered';
+
     /**
      * Model and morph-map registration remains in packageRegistered(); blueprint
      * subjects are registered by the installed-runtime hook before this registrar.
@@ -46,6 +52,15 @@ final class LayoutBuilderCoreRegistrar
      */
     public function register(): void
     {
+        // Host applications also run this registrar from their own providers, and the container
+        // keeps every tag() call: a second run would contribute duplicate tagged services (such
+        // as the page state section) that make every page save fail. Wire each application once.
+        if (App::bound(self::REGISTERED)) {
+            return;
+        }
+
+        App::instance(self::REGISTERED, true);
+
         $this->registerManagers();
         $this->registerRelationships();
         $this->registerModelEvents();
@@ -55,6 +70,7 @@ final class LayoutBuilderCoreRegistrar
         $this->registerRenderHooks();
         $this->registerListeners();
         $this->registerCloneableRelations();
+        $this->registerPageStateContributor();
     }
 
     private function registerManagers(): void
@@ -76,7 +92,7 @@ final class LayoutBuilderCoreRegistrar
             fn (Page $model): MorphToMany => $model->morphToMany(
                 Widget::class,
                 'asset',
-                'widget_assets',
+                TableName::resolve('widget_assets'),
                 'asset_id',
                 'widget_id',
             )
@@ -221,6 +237,19 @@ final class LayoutBuilderCoreRegistrar
         CapellCore::subscriberManager()->subscribe(AfterRecordSaved::class);
         CapellCore::subscriberManager()->subscribe(SiteTreeRebuilt::class);
         CapellCore::subscriberManager()->subscribe(LayoutLoaded::class);
+    }
+
+    /**
+     * Core releases before the page state contributor contract cannot
+     * capture layouts; registration is skipped rather than failing boot.
+     */
+    private function registerPageStateContributor(): void
+    {
+        if (! interface_exists(PageStateContributor::class)) {
+            return;
+        }
+
+        App::tag([LayoutWidgetsPageStateContributor::class], PageStateContributor::TAG);
     }
 
     private function registerCloneableRelations(): void

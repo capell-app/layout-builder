@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Models\Concerns\HasMetaData;
 use Capell\Core\Models\Concerns\HasStatus;
 use Capell\Core\Models\Concerns\HasUserstamps;
@@ -19,6 +20,8 @@ use Override;
 
 class WidgetWidget extends Model implements Statusable, Userstampable
 {
+    use HasCapellTable;
+
     /** @use HasFactory<Factory<self>> */
     use HasFactory;
 

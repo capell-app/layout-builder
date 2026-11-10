@@ -4,6 +4,9 @@ All notable changes to `capell-app/layout-builder` will be documented in this fi
 
 ## Unreleased
 
+- Public routes now revalidate on every request through the shared public-read projection headers instead of a five-minute shared-cache lifetime, so restricted content cannot persist in shared caches.
+- Hide stored container keys behind deterministic public presentation identifiers.
+
 - Render saved catalogue builder blocks safely in public Blade output, including owner-scoped Spatie logo and team images.
 - Fixed installed-runtime registration in roles that exclude authoring providers (such as the public role): Layout Builder no longer aborts on the unbound Admin runtime activator, so its public fragment and lazy widget routes are registered and no registration failure is logged.
 - Blueprint selectors use the registered subject so unrelated blueprint types are not offered or selected by default.

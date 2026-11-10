@@ -111,12 +111,13 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
 
     // The installed-runtime admin bridge relies on receipt attribution and the
     // provider registers commands through the current-process helper; both first
-    // ship in the 1.0.72 foundation release.
+    // ship in the 1.0.72 foundation release. LayoutBuilderCoreRegistrar imports Core's
+    // EventSourcing PageStateContributor contract, which first ships in Core 1.0.76.
     expect(Semver::satisfies('1.0.71', $adminConstraint))->toBeFalse()
         ->and(Semver::satisfies('1.0.72', $adminConstraint))->toBeTrue()
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
-        ->and(Semver::satisfies('1.0.71', $coreConstraint))->toBeFalse()
-        ->and(Semver::satisfies('1.0.72', $coreConstraint))->toBeTrue()
+        ->and(Semver::satisfies('1.0.75', $coreConstraint))->toBeFalse()
+        ->and(Semver::satisfies('1.0.76', $coreConstraint))->toBeTrue()
         ->and(Intervals::isSubsetOf($parser->parseConstraints($frontendConstraint), $parser->parseConstraints('>=1.0.31')))->toBeTrue()
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^1.0');
 });
@@ -190,9 +191,9 @@ it('declares runtime model page type route and migration contribution metadata',
         ])
         ->and($routes['reservedFrontendPath'])->toBe('_fragments')
         ->and($security['publicSurface']['routeNames'])->toBe([
-            'capell-layout-builder.fragments.show',
-            'capell-layout-builder.layout-widgets.localized.show',
-            'capell-layout-builder.layout-widgets.show',
+            'GET /_capell/layout-widgets/{reference} (capell-layout-builder.layout-widgets.show)',
+            'GET /_fragments/{reference} (capell-layout-builder.fragments.show)',
+            'GET /{siteDomainPath}/_capell/layout-widgets/{reference} (capell-layout-builder.layout-widgets.localized.show)',
         ])
         ->and(class_implements(LayoutBuilderRoutesContribution::class))->toContain(RegistersExtensionRoute::class)
         ->and($migrations['migrationFiles'])->toBe([

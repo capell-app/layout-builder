@@ -40,13 +40,13 @@ final class SeedWidgetIntegrityScreenshotFixturesAction
                 && is_string($path)
                 && realpath($path) !== false
                 && realpath($path) === realpath(base_path())
-                && (realpath($path) === realpath(dirname(__DIR__, 4) . '/vendor/orchestra/testbench-core/laravel')
-                    || str_starts_with((string) realpath($path), dirname(__DIR__, 4) . '/tmp/testbench-skeletons/')),
+                && (realpath($path) === realpath((str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/vendor/orchestra/testbench-core/laravel')
+                    || str_starts_with((string) realpath($path), (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/tmp/testbench-skeletons/')),
             RuntimeException::class,
             'Screenshot fixtures require the explicit disposable local screenshot environment.',
         );
 
-        require_once dirname(__DIR__, 4) . '/scripts/screenshots/FixtureState.php';
+        require_once (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/scripts/screenshots/FixtureState.php';
         FixtureState::boot();
         DB::transaction(function (): void {
             $widgetType = resolve(TypeCreator::class)->defaultWidgetType();

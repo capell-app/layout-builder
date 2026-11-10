@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Models;
 
 use Capell\Core\Concerns\HasCapellMedia;
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Enums\MediaCollectionEnum;
 use Capell\Core\Models\Concerns\ComposhipsJsonRelationshipsTrait;
 use Capell\Core\Models\Concerns\HasAssets;
@@ -30,6 +31,7 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
     use ComposhipsJsonRelationshipsTrait;
     use HasAssets;
     use HasCapellMedia;
+    use HasCapellTable;
 
     /** @use HasFactory<WidgetAssetFactory> */
     use HasFactory;
@@ -57,6 +59,7 @@ class WidgetAsset extends Model implements HasMedia, Userstampable
 
     protected static string $factory = WidgetAssetFactory::class;
 
+    #[Override]
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();

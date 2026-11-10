@@ -1,0 +1,152 @@
+{
+    "create_block_assets_table": {
+        "names": [
+            "2026_05_10_190841_03_create_block_assets_table"
+        ],
+        "sha256": [
+            "7f8ba5d6bc19e0f0bf1b469e01efe22f54a8b072e11265c71d5f025cf21aa71b"
+        ]
+    },
+    "create_blocks_table": {
+        "names": [
+            "2026_05_10_190841_02_create_blocks_table"
+        ],
+        "sha256": [
+            "795dc82bcaa8a6d9d5e5b4bd2d4b849decb49aab5b13d087efca7a5738cbf3c0"
+        ]
+    },
+    "create_element_assets_table": {
+        "names": [
+            "2026_05_10_190841_03_create_element_assets_table"
+        ],
+        "sha256": [
+            "bc295f206a39d6cc79457ae53e8d9f08f0dee7faadf9bc5b5021e5c77b10cf6c"
+        ]
+    },
+    "create_elements_table": {
+        "names": [
+            "2026_05_10_190841_02_create_elements_table"
+        ],
+        "sha256": [
+            "c5af152f7938fe25e5015fcb79facaa6dd94f4c813c2fc2d6a042a7665ef6b45"
+        ]
+    },
+    "create_layout_bulk_change_tables": {
+        "names": [
+            "2026_06_07_000001_create_layout_bulk_change_tables"
+        ],
+        "sha256": [
+            "146ee1a97d63f83e60bf3a078ba39856fd322726090ab1f4e057c7f673bf7a54",
+            "15f863bbd509afc48979f8fd1cf04664525e31e875215f9abc7f45b11feeb622",
+            "21d43e6a5e4bdb7b6f6a7901c4a69f4cc78f4ff81999eb8802b9101b42ac5ccb",
+            "7f0c7807a12bdefca3c55f691c4a7ecab8a5b1876381b0cdd5d3aa73b61e8fd9",
+            "8d190a9f3bc423a71ef0adb7c8a3b09941fdd2dee7c38bdbb0c2b89e663dc1c9"
+        ]
+    },
+    "create_layout_preset_sync_runs_table": {
+        "names": [
+            "2026_07_10_000003_create_layout_preset_sync_runs_table"
+        ],
+        "sha256": [
+            "61b917f5e50bc07d70e2b2206521549b29581e41f2286e70ee831d6ecbd112ef",
+            "d148efb9c5d1489a823d3c0a7cb7b976f21de74df2e3ed9c65f6695d96549e36"
+        ]
+    },
+    "create_layout_preset_usages_table": {
+        "names": [
+            "2026_07_10_000002_create_layout_preset_usages_table"
+        ],
+        "sha256": [
+            "3ae02c64bc919cd429a3beb8b53342d0b9dedf266177fad2b6171534dd255aab",
+            "c458336655624a6fceff657005f83d3de43159b1e1a1293b00db77fc7d009ff7"
+        ]
+    },
+    "create_layout_presets_table": {
+        "names": [
+            "2026_05_10_190841_05_create_layout_presets_table",
+            "2026_05_10_190841_06_create_layout_presets_table"
+        ],
+        "sha256": [
+            "3f4e58d729efcfd88b812806ad32896ee2fa79b3ab270506cf4f6ebcfd5ab1b8",
+            "56d809fc21b2eb27999665cba245c8dda32bdc8fb27f27a8569fe8a33c54b033",
+            "5abba75e68d7fcea3b1036fd2cd7031627460b94a4a12d5650b38cdadb49f4e7"
+        ]
+    },
+    "create_layouts_table": {
+        "names": [
+            "2026_05_10_190841_01_create_layouts_table"
+        ],
+        "sha256": [
+            "0283c7faa873da101903c43c2446193e1354a9cd1cc3bbbb7182949ca6e23341",
+            "073705c38531d2dc2598c8f92f69714582c0b9d6de5f0717763734488a5f951d",
+            "9686a1074282575d67731c133927e4a44259cece3da156893a30c4a06358f282",
+            "9bacee8078744fbc3d52b7519cc20c3625fce24ad74d6f23993f5b9b4ae72406",
+            "ab37ae8a429f472daf6d640217560df1a5b6a2d63df514f52c926bd9471a52bf",
+            "e3adf40478c9417e50d549780bf49b4029d753b8fb9d91515d86f40081d8db79"
+        ]
+    },
+    "create_public_widget_snapshots_table": {
+        "names": [
+            "2026_07_09_000001_create_public_widget_snapshots_table"
+        ],
+        "sha256": [
+            "0ebf62d2134c9df7b0ec6045dae4a1f335c733d1f066d2d10844203c098b5cc6",
+            "2db7fd9760b625f2cb324c5b62f11be8f580c16203d06e25255e535f3bed13b2",
+            "62d68e9041ddd87b68a6dbe35ab38a9e368934744f55fb0ebaa4ec6fd67447b0",
+            "74a7fbf8dd6961458db9e07384735ef278d1866beaf12ed8a7a49fdc1edfb842",
+            "792c860d62eadc290e71280259b7c54e9da3a6abd74cc050a2a9081add439769"
+        ]
+    },
+    "create_sections_table": {
+        "names": [],
+        "sha256": [
+            "5d1d3c730720ff9221ea7ead3faa0ff2424ab34b3aaaec50e6d7dc95193c58d9"
+        ]
+    },
+    "create_widget_assets_table": {
+        "names": [
+            "2026_04_20_000002_create_widget_assets_table",
+            "2026_05_10_190841_03_create_widget_assets_table"
+        ],
+        "sha256": [
+            "365812b4ae076593880d35d6bdf3b7628ce24f244f2582e6c87f2c1084545360",
+            "36b5f46b469998cc443f19a7b601973596481782b26ffa9e1ac7d7ac90272f67",
+            "464de222108be28eab874d08889d1688358b08d5a197c1954dfdcfddc3218047",
+            "4d0694dcd9bd9783825847cadf8cc5dcf332e57cc8999fac14e05bae2231c435",
+            "70a1be91acc3941649a5f5747d7fc7b07132cdf989bf446d083bcc71620554f7",
+            "a847331abc291d497723173fd033ed8d10d4686aa6829c754e8917f60581e366",
+            "c1e2591999d58a55b7726d21d4ed06bbc27bc83823c43ee0d051fad7b537340e"
+        ]
+    },
+    "create_widget_blocks_table": {
+        "names": [
+            "2026_05_10_190841_04_create_widget_blocks_table"
+        ],
+        "sha256": [
+            "134c84a7750b6640659921d2784865d8ee1a0cb5aa74293b5472c5d8e9b2b8d6"
+        ]
+    },
+    "create_widget_widgets_table": {
+        "names": [
+            "2026_05_10_190841_04_create_widget_widgets_table"
+        ],
+        "sha256": [
+            "3b0caa95b4b5cb7c53545ef0eebaf0c4f2988b0f2785ec1dd069b35d07e650c5",
+            "9011d5b33ccb1ffb3038d7abf4333a78ccc75591336c29fe1b8e6790ac40bfb9"
+        ]
+    },
+    "create_widgets_table": {
+        "names": [
+            "2026_04_20_000001_create_widgets_table",
+            "2026_05_10_190841_02_create_widgets_table"
+        ],
+        "sha256": [
+            "675b8e646d1c6b70927d11c4624626d66f23d6d9493b6a282bea1e9cc886f8f0",
+            "81ffaeceb47ec2f64f73f2eb7ece51123dc04f3c27c30d417215dbe8c33c4378",
+            "825a85af074a3842e53486f224c9a57cc6129db46c87676a1031b757d4e62d58",
+            "99f36a1bcb02c649789f84d42390160061ae8660e975455269a5bad9b9cfde0f",
+            "9a987530638172220b25f9901b192e3a1304bef73a6128e6a8f4a00e84a9defc",
+            "d0ff54a0729c8d9e09d2e77ec29e11aa5f61bd817f550f12b36d796070101b22"
+        ]
+    }
+}

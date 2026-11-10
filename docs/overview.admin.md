@@ -54,4 +54,4 @@ Public fragment responses are cacheable for five minutes with a one-minute stale
 
 Keep the Laravel scheduler running. It prunes expired/revoked public widget snapshots at 02:30 and terminal bulk-change runs daily, using overlap and single-server locks. Without it, normal page rendering continues but obsolete operational records accumulate.
 
-Widget translations, layout/preset JSON, media relationships, user stamps, and activity history live in normal application storage; only public interaction snapshot payloads are encrypted by this package. Layout Builder does not register a Privacy Center exporter or eraser, so do not place subject-request data in generic widget fields without an owning export, retention, and erasure process.
+Widget translations, layout/preset JSON, media relationships, user stamps, and activity history live in normal application storage; only public interaction snapshot payloads are encrypted by this package. Layout Builder does not register a Privacy Centre exporter or eraser, so do not place subject-request data in generic widget fields without an owning export, retention, and erasure process.

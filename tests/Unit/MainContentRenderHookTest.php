@@ -77,13 +77,13 @@ it('renders stored layout containers through the shared hook and updates render 
         'meta' => ['type' => 'slot'],
     ]);
 
-    CapellLayoutManager::storeContainerWidget('main', 'page-content', $pageContentWidget);
+    CapellLayoutManager::storeContainerWidget('internal-campaign-42', 'page-content', $pageContentWidget);
     CapellLayoutManager::storeContainerWidget('sidebar', 'slot', $slotWidget);
 
     $context = new MainContentRenderHookData(
         layout: (object) [
             'containers' => [
-                'main' => [
+                'internal-campaign-42' => [
                     'widgets' => [
                         ['widget_key' => 'page-content', 'occurrence' => 1],
                     ],
@@ -123,8 +123,9 @@ it('renders stored layout containers through the shared hook and updates render 
         target: 'capell::layout.main',
     );
 
-    expect($output)->toContain('id="layout-container-main"')
-        ->and($output)->toContain('id="layout-container-sidebar"')
+    expect($output)->toContain('id="layout-container-4a6022fe62353cad"')
+        ->and($output)->toContain('id="layout-container-2aca0c68ff3e17b4"')
+        ->and($output)->not->toContain('internal-campaign-42')
         ->and($output)->toContain('capell-container-spacing-md')
         ->and($output)->toContain('capell-container-padding-sm')
         ->and($output)->toContain('capell-container-padding-tablet-t-md')
@@ -184,7 +185,7 @@ it('preloads layout widgets during hook rendering when the layout manager is emp
         target: 'capell::layout.main',
     );
 
-    expect($output)->toContain('id="layout-container-main"')
+    expect($output)->toContain('id="layout-container-0d6e4079e36703eb"')
         ->and(CapellLayoutManager::getStoredContainerWidget('main', 'package-alert'))->toBe($widget);
 });
 
@@ -214,8 +215,8 @@ it('renders dynamic results beside a contributed sidebar without authoring inter
     $html = '<!doctype html><html><head><title>Results</title></head><body>' . $output . '</body></html>';
     $document = HTMLDocument::createFromString($html);
 
-    expect($document->querySelectorAll('#layout-container-main [data-public-results]'))->toHaveCount(1)
-        ->and($document->querySelectorAll('#layout-container-sidebar'))->toHaveCount(1)
+    expect($document->querySelectorAll('#layout-container-0d6e4079e36703eb [data-public-results]'))->toHaveCount(1)
+        ->and($document->querySelectorAll('#layout-container-2aca0c68ff3e17b4'))->toHaveCount(1)
         ->and($context->slotRendered)->toBeTrue();
     AssertPublicHtmlContainsNoAuthoringSurfaceAction::run(new Response(
         $html,

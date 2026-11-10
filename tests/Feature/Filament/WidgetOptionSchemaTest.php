@@ -12,6 +12,7 @@ use Capell\Core\Models\Translation;
 use Capell\LayoutBuilder\Filament\Components\Forms\AssetsRepeater;
 use Capell\LayoutBuilder\Filament\Components\Forms\WidgetSelect;
 use Capell\LayoutBuilder\Models\Widget;
+use Capell\LayoutBuilder\Tests\Support\WidgetOptionSchemaHarness;
 use Capell\Tests\Fixtures\Models\User;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
 use Filament\Actions\Action;
@@ -19,14 +20,11 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Concerns\InteractsWithSchemas;
-use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
-use Livewire\Component;
 
 uses(CreatesAdminUser::class);
 
@@ -51,17 +49,6 @@ it('binds widget option forms to their mounted action state', function (string $
     $optionForm->fill(['name' => 'Widget draft']);
     expect(data_get($component->mountedActions, '0.data.name'))->toBe('Widget draft');
 })->with(['createOption', 'editOption']);
-
-final class WidgetOptionSchemaHarness extends Component implements HasSchemas
-{
-    use InteractsWithSchemas;
-
-    /** @var array<string, mixed> */
-    public array $data = [];
-
-    /** @var array<int, array<string, mixed>> */
-    public array $mountedActions = [];
-}
 
 it('saves widget relationships from the create option form', function (): void {
     $language = Language::factory()->create();

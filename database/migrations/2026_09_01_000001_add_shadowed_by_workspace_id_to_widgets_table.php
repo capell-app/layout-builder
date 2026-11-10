@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Support\TableName;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -27,12 +28,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasTable('widgets')) {
+        if (! Schema::hasTable(TableName::resolve('widgets'))) {
             return;
         }
 
-        Schema::table('widgets', function (Blueprint $table): void {
-            if (! Schema::hasColumn('widgets', 'shadowed_by_workspace_id')) {
+        Schema::table(TableName::resolve('widgets'), function (Blueprint $table): void {
+            if (! Schema::hasColumn(TableName::resolve('widgets'), 'shadowed_by_workspace_id')) {
                 $table->unsignedBigInteger('shadowed_by_workspace_id')->default(0)->index();
             }
         });
@@ -40,12 +41,12 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (! Schema::hasTable('widgets')) {
+        if (! Schema::hasTable(TableName::resolve('widgets'))) {
             return;
         }
 
-        Schema::table('widgets', function (Blueprint $table): void {
-            if (Schema::hasColumn('widgets', 'shadowed_by_workspace_id')) {
+        Schema::table(TableName::resolve('widgets'), function (Blueprint $table): void {
+            if (Schema::hasColumn(TableName::resolve('widgets'), 'shadowed_by_workspace_id')) {
                 $table->dropIndex(['shadowed_by_workspace_id']);
                 $table->dropColumn('shadowed_by_workspace_id');
             }

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\LayoutBuilder\Enums\LayoutPresetSyncRunStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,6 +16,11 @@ use Override;
 
 class LayoutPresetSyncRun extends Model
 {
+    use HasCapellTable;
+
+    /** @use HasFactory<Factory<static>> */
+    use HasFactory;
+
     use HasUuids;
 
     protected $table = 'layout_preset_sync_runs';

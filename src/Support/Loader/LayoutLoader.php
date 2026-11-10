@@ -11,6 +11,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\TableName;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
@@ -75,7 +76,7 @@ class LayoutLoader
             $layout->load(['media' => fn (BuilderContract $query): BuilderContract => $query->ordered()]);
         }
 
-        if ($selectedWidgetKeys === [] || ! Schema::hasTable('widgets')) {
+        if ($selectedWidgetKeys === [] || ! Schema::hasTable(TableName::resolve('widgets'))) {
             $layout->setRelation('layoutWidgets', collect());
             $this->preloaded[$cacheKey] = [];
 

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Support\TableName;
+use Capell\Core\Support\UserKeyType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,19 +12,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (! Schema::hasTable('layout_bulk_change_runs')) {
-            Schema::create('layout_bulk_change_runs', function (Blueprint $table): void {
+        if (! TableName::existsAndIsOwned('layout_bulk_change_runs', basename(__FILE__, '.php'))) {
+            Schema::create(TableName::resolve('layout_bulk_change_runs'), function (Blueprint $table): void {
                 $table->id();
                 $table->uuid('uuid')->unique();
                 $table->string('status', 32)->index();
                 $table->json('criteria');
                 $table->json('operation');
                 $table->json('summary')->nullable();
-                $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->foreignId('applied_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->foreignId('queued_by')->nullable()->constrained('users')->nullOnDelete();
-                $table->foreignId('reverted_by')->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('created_by')->type(UserKeyType::columnType())->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('approved_by')->type(UserKeyType::columnType())->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('applied_by')->type(UserKeyType::columnType())->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('queued_by')->type(UserKeyType::columnType())->nullable()->constrained('users')->nullOnDelete();
+                $table->foreignId('reverted_by')->type(UserKeyType::columnType())->nullable()->constrained('users')->nullOnDelete();
                 $table->timestamp('queued_at')->nullable();
                 $table->timestamp('approved_at')->nullable();
                 $table->timestamp('applied_at')->nullable();
@@ -31,14 +33,14 @@ return new class extends Migration
             });
         }
 
-        if (Schema::hasTable('layout_bulk_change_results')) {
+        if (TableName::existsAndIsOwned('layout_bulk_change_results', basename(__FILE__, '.php'))) {
             return;
         }
 
-        Schema::create('layout_bulk_change_results', function (Blueprint $table): void {
+        Schema::create(TableName::resolve('layout_bulk_change_results'), function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('run_id')->constrained('layout_bulk_change_runs')->cascadeOnDelete();
-            $table->foreignId('layout_id')->nullable()->constrained('layouts')->nullOnDelete();
+            $table->foreignId('run_id')->constrained(TableName::resolve('layout_bulk_change_runs'))->cascadeOnDelete();
+            $table->foreignId('layout_id')->nullable()->constrained(TableName::resolve('layouts'))->nullOnDelete();
             $table->unsignedInteger('page_count')->default(0);
             $table->string('status', 32)->index();
             $table->string('original_container_hash', 64)->nullable();
@@ -57,7 +59,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('layout_bulk_change_results');
-        Schema::dropIfExists('layout_bulk_change_runs');
+        Schema::dropIfExists(TableName::resolve('layout_bulk_change_results'));
+        Schema::dropIfExists(TableName::resolve('layout_bulk_change_runs'));
     }
 };

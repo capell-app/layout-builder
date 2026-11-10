@@ -124,7 +124,8 @@ it('exposes only the named owner route with cache headers after authorization', 
 
     $this->get($url)
         ->assertOk()
-        ->assertHeader('Cache-Control', 'max-age=300, public, stale-while-revalidate=60')
+        ->assertHeader('Cache-Control', 'no-cache, public')
+        ->assertHeader('ETag')
         ->assertHeader('X-Robots-Tag', 'noindex')
         ->assertSee('Route fragment', false);
 });

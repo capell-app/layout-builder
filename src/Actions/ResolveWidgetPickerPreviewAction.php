@@ -101,6 +101,7 @@ final class ResolveWidgetPickerPreviewAction
         $version = $index . '@' . filemtime($index);
 
         return $memo[$version] ??= (function () use ($index): array {
+            // capell-security-scan: local-stream reads a preview index inside a package's resources/previews directory
             $decoded = json_decode((string) file_get_contents($index), true);
 
             return is_array($decoded) && is_array($decoded['previews'] ?? null) ? $decoded['previews'] : [];
@@ -122,12 +123,14 @@ final class ResolveWidgetPickerPreviewAction
             return null;
         }
 
+        // capell-security-scan: local-stream reads a realpath()-checked preview image inside a package's resources/previews directory
         $image = @getimagesize($file);
         $mime = is_array($image) ? $image['mime'] : null;
         if (! in_array($mime, ['image/webp', 'image/png', 'image/jpeg'], true)) {
             return null;
         }
 
+        // capell-security-scan: local-stream reads a realpath()-checked preview image inside a package's resources/previews directory
         $bytes = file_get_contents($file);
 
         return is_string($bytes) ? 'data:' . $mime . ';base64,' . base64_encode($bytes) : null;

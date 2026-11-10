@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutPresetSyncResultStatus;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Override;
 
 class LayoutPresetSyncResult extends Model
 {
+    use HasCapellTable;
+
+    /** @use HasFactory<Factory<static>> */
+    use HasFactory;
+
     protected $table = 'layout_preset_sync_results';
 
     protected $fillable = [

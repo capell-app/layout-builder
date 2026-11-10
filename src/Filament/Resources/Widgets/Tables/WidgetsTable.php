@@ -22,6 +22,7 @@ use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Facades\CapellDatabase;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\Core\Support\TableName;
 use Capell\LayoutBuilder\Actions\BuildWidgetDeletionImpactAction;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
@@ -63,7 +64,7 @@ class WidgetsTable implements TableConfigurator
                     'type',
                     'translations.language',
                 ])
-                    ->select('widgets.*')
+                    ->select(TableName::resolve('widgets') . '.*')
                     /** @phpstan-ignore-next-line Widget exposes this local scope through Eloquent. */
                     ->withLayoutsCount(LayoutResource::getEloquentQuery()),
             )

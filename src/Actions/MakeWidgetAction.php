@@ -38,6 +38,7 @@ class MakeWidgetAction
 
         if ($force || ! file_exists($viewPath)) {
             $stubPath = __DIR__ . '/../../stubs/widget.view.stub';
+            // capell-security-scan: local-stream reads a widget stub shipped in this package's stubs directory
             $stub = (string) file_get_contents($stubPath);
 
             $contents = str_replace(

@@ -8,6 +8,7 @@ use BackedEnum;
 use Bkwld\Cloner\Cloneable;
 use Capell\Core\Actions\ResolveRenderableComponentAction;
 use Capell\Core\Concerns\HasCapellMedia;
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Contracts\Pageable;
 use Capell\Core\Data\Database\SqlFragment;
 use Capell\Core\Enums\MediaCollectionEnum;
@@ -29,6 +30,7 @@ use Capell\Core\Models\Page;
 use Capell\Core\Support\Activity\ActivityLogCompat;
 use Capell\Core\Support\Activity\LogOptions;
 use Capell\Core\Support\Activity\LogsActivity;
+use Capell\Core\Support\TableName;
 use Capell\LayoutBuilder\Database\Factories\WidgetFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -54,6 +56,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     use Cloneable;
     use HasBlueprint;
     use HasCapellMedia;
+    use HasCapellTable;
 
     /** @use HasFactory<WidgetFactory> */
     use HasFactory;
@@ -105,6 +108,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         return ActivityLogCompat::options('widget', ['updated_at', 'created_at', 'deleted_at']);
     }
 
+    #[Override]
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(MediaCollectionEnum::Image->value)->singleFile();
@@ -118,6 +122,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     }
 
     /** @return BelongsTo<CoreBlueprint, $this> */
+    #[Override]
     public function blueprint(): BelongsTo
     {
         return $this->belongsTo(CoreBlueprint::class, 'blueprint_id');
@@ -252,10 +257,10 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
     public function pageAssets(Pageable $page, string $container, int $occurrence): HasMany
     {
         return $this->assets()
-            ->where('widget_assets.pageable_type', $page->getMorphClass())
-            ->where('widget_assets.pageable_id', $page->getKey())
-            ->where('widget_assets.container', $container)
-            ->where('widget_assets.occurrence', $occurrence);
+            ->where(TableName::resolve('widget_assets') . '.pageable_type', $page->getMorphClass())
+            ->where(TableName::resolve('widget_assets') . '.pageable_id', $page->getKey())
+            ->where(TableName::resolve('widget_assets') . '.container', $container)
+            ->where(TableName::resolve('widget_assets') . '.occurrence', $occurrence);
     }
 
     /**
@@ -266,7 +271,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         return $this->morphedByMany(
             Page::class,
             'asset',
-            'widget_assets',
+            TableName::resolve('widget_assets'),
             'widget_id',
             'asset_id',
         );
@@ -287,7 +292,7 @@ class Widget extends Model implements Blueprintable, HasMedia, Publishable, Stat
         $grammar = $query->getQuery()->getGrammar();
         $matchesWidgetKey = CapellDatabase::for($query->getModel())->queryDialect()->jsonExactSearch(
             SqlFragment::raw($grammar->wrap('layout_usage.containers')),
-            SqlFragment::raw($grammar->wrap('widgets.key')),
+            SqlFragment::raw($grammar->wrap(TableName::resolve('widgets') . '.key')),
             '$.*.widgets[*].widget_key',
         );
 

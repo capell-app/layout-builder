@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -20,6 +21,8 @@ use Override;
  */
 class LayoutBulkChangeRun extends Model
 {
+    use HasCapellTable;
+
     /** @use HasFactory<Factory<static>> */
     use HasFactory;
 

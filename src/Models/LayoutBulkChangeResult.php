@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Models;
 
+use Capell\Core\Concerns\HasCapellTable;
 use Capell\Core\Models\Layout;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -22,6 +23,8 @@ use Override;
  */
 class LayoutBulkChangeResult extends Model
 {
+    use HasCapellTable;
+
     /** @use HasFactory<Factory<static>> */
     use HasFactory;
 

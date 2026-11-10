@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Http\Controllers;
 
+use Capell\Core\Support\PublicRead\PublicReadProjectionHeaders;
 use Capell\LayoutBuilder\Actions\Fragments\RenderPublicFragmentAction;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 final class PublicFragmentController
 {
-    public function __invoke(string $reference): Response
+    public function __invoke(Request $request, string $reference): Response
     {
         $result = RenderPublicFragmentAction::make()->result($reference);
 
@@ -27,9 +29,13 @@ final class PublicFragmentController
             return response('', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response($html)
-            ->header('Content-Type', 'text/html; charset=UTF-8')
-            ->header('Cache-Control', 'public, max-age=300, stale-while-revalidate=60')
-            ->header('X-Robots-Tag', 'noindex');
+        // Revalidate on every request: a fragment whose page was gated after publication must not outlive a shared cache copy.
+        return PublicReadProjectionHeaders::apply(
+            response($html)
+                ->header('Content-Type', 'text/html; charset=UTF-8')
+                ->header('X-Robots-Tag', 'noindex'),
+            $request,
+            $html,
+        );
     }
 }

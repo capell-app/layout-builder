@@ -119,6 +119,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     public function configurePackage(Package $package): void
     {
+
         $package
             ->name(self::$name)
             ->hasConfigFile('capell-layout-builder')
@@ -242,7 +243,6 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             }
 
             $event->response->headers->remove('Set-Cookie');
-            $event->response->headers->set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
             $event->response->headers->set('X-Robots-Tag', 'noindex');
         });
         $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {

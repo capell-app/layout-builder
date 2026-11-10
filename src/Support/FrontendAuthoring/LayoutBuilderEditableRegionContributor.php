@@ -8,6 +8,7 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
+use Capell\Core\Support\TableName;
 use Capell\FrontendAuthoring\Data\EditableRegionPayloadData;
 use Capell\FrontendAuthoring\Enums\EditableRegionInputType;
 use Capell\FrontendAuthoring\Enums\EditableRegionSurface;
@@ -54,7 +55,7 @@ final class LayoutBuilderEditableRegionContributor
             ->values()
             ->all();
 
-        if ($widgetKeys === [] || ! Schema::hasTable('widgets')) {
+        if ($widgetKeys === [] || ! Schema::hasTable(TableName::resolve('widgets'))) {
             return $regions;
         }
 

@@ -8,6 +8,7 @@ use Capell\Admin\Filament\Resources\Pages\PageResource;
 use Capell\Admin\Support\SiteScope;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\TableName;
 use Capell\LayoutBuilder\Data\Dashboard\LayoutHealthWorkQueueItemData;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\LayoutResource;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Tables\LayoutsTable;
@@ -207,7 +208,7 @@ final class BuildLayoutHealthWorkQueueAction
         $countedLayouts = $this->accessibleLayoutQuery($actor)
             ->where('status', true)
             ->select([
-                'layouts.id',
+                TableName::resolve('layouts') . '.id',
                 LayoutsTable::getUsesCountSelect($query, 'pages_count'),
             ]);
 

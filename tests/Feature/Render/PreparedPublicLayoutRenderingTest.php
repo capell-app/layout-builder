@@ -173,15 +173,15 @@ it('preserves every container and renders each prepared occurrence once with a t
     $html = renderPreparedLayout($context);
     $dom = HTMLDocument::createFromString($html, LIBXML_NOERROR);
 
-    expect($dom->querySelectorAll('#layout-container-main.review-shell.capell-container-padding-sm')->length)->toBe(1)
-        ->and($dom->querySelectorAll('#layout-container-sibling.sibling-shell')->length)->toBe(1)
-        ->and($dom->querySelectorAll('#layout-container-main [data-prepared]')->length)->toBe(3)
+    expect($dom->querySelectorAll('#layout-container-0d6e4079e36703eb.review-shell.capell-container-padding-sm')->length)->toBe(1)
+        ->and($dom->querySelectorAll('#layout-container-7d10de8554ed5ca4.sibling-shell')->length)->toBe(1)
+        ->and($dom->querySelectorAll('#layout-container-0d6e4079e36703eb [data-prepared]')->length)->toBe(3)
         ->and($dom->querySelectorAll('[data-prepared="first"]')->length)->toBe(1)
         ->and($dom->querySelectorAll('[data-prepared="second"]')->length)->toBe(1)
         ->and($dom->querySelectorAll('[data-prepared="repeat"]')->length)->toBe(1)
         ->and($dom->querySelectorAll('[data-capell-widget-runtime] [data-prepared="first"]')->length)->toBe(1)
-        ->and($dom->querySelectorAll('#layout-container-sibling [data-fallback="sibling:1"]')->length)->toBe(1)
-        ->and($dom->querySelectorAll('#layout-container-main [data-fallback]')->length)->toBe(0)
+        ->and($dom->querySelectorAll('#layout-container-7d10de8554ed5ca4 [data-fallback="sibling:1"]')->length)->toBe(1)
+        ->and($dom->querySelectorAll('#layout-container-0d6e4079e36703eb [data-fallback]')->length)->toBe(0)
         ->and($dom->querySelectorAll('[data-prepared="first"] + [data-prepared="second"]')->length)->toBe(1)
         ->and($queries)->toBe([]);
 
@@ -320,7 +320,7 @@ it('reuses a prepared lazy placeholder in another layout area without rebuilding
 
     $html = renderPreparedLayout($context);
     $dom = HTMLDocument::createFromString($html, LIBXML_NOERROR);
-    expect($dom->querySelectorAll('#layout-container-header.header-shell #prepared-header')->length)->toBe(1)
+    expect($dom->querySelectorAll('#layout-container-1e0584a25d9f43bf.header-shell #prepared-header')->length)->toBe(1)
         ->and($dom->querySelectorAll('[data-deferred-fragment]')->length)->toBe(1)
         ->and(substr_count($html, $placeholder))->toBe(1);
 });
@@ -334,8 +334,8 @@ it('preserves fully unhydrated layout output with and without a public graph', f
     $dom = HTMLDocument::createFromString(renderPreparedLayout($context), LIBXML_NOERROR);
     expect($dom->querySelectorAll('[data-fallback]')->length)->toBe(3)
         ->and($dom->querySelectorAll('[data-prepared]')->length)->toBe(0)
-        ->and($dom->querySelectorAll('#layout-container-main.review-shell')->length)->toBe(1)
-        ->and($dom->querySelectorAll('#layout-container-sibling.sibling-shell')->length)->toBe(1);
+        ->and($dom->querySelectorAll('#layout-container-0d6e4079e36703eb.review-shell')->length)->toBe(1)
+        ->and($dom->querySelectorAll('#layout-container-7d10de8554ed5ca4.sibling-shell')->length)->toBe(1);
 })->with([false, true])->with(['Core layout' => false, 'Foundation layout' => true]);
 
 it('preserves fully hydrated contributor output and the page introduction on the partial layout path', function (bool $partial): void {
@@ -375,7 +375,7 @@ it('preserves fully hydrated contributor output and the page introduction on the
     expect(substr_count($html, 'Page introduction fixture'))->toBe(1)
         ->and($dom->querySelectorAll('.prepared-section-reference')->length)->toBe(2)
         ->and($dom->querySelectorAll('[data-fallback]')->length)->toBe($partial ? 1 : 0)
-        ->and($dom->querySelectorAll('#layout-container-main.partial-shell')->length)->toBe($partial ? 1 : 0)
+        ->and($dom->querySelectorAll('#layout-container-0d6e4079e36703eb.partial-shell')->length)->toBe($partial ? 1 : 0)
         ->and($queries)->toBe([]);
     foreach (['admin_schema', 'signed_url', 'data-capell-authoring', 'data-field-path'] as $marker) {
         expect($html)->not->toContain($marker);
