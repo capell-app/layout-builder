@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Actions\LayoutWidgets;
 
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
+use Capell\Frontend\Exceptions\PublicRenderContractViolationException;
 use Capell\Frontend\Exceptions\WidgetLibraryException;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
@@ -79,10 +80,17 @@ class RenderLazyLayoutWidgetAction
             AssertPublicHtmlContainsNoAuthoringSurfaceAction::run(response($html));
 
             return $response;
+        } catch (PublicRenderContractViolationException $exception) {
+            report($exception);
+
+            return null;
         } catch (Throwable $throwable) {
             report($throwable);
 
-            return null;
+            return response('', Response::HTTP_INTERNAL_SERVER_ERROR, [
+                'Cache-Control' => 'private, no-store',
+                'X-Robots-Tag' => 'noindex, nofollow',
+            ]);
         }
     }
 }

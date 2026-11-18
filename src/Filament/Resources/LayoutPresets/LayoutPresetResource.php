@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Resources\LayoutPresets;
 
 use BackedEnum;
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\LayoutBuilder\Filament\Resources\LayoutPresets\Pages\ListLayoutPresets;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Filament\Resources\Resource;
@@ -63,9 +64,9 @@ final class LayoutPresetResource extends Resource
     }
 
     #[Override]
-    public static function getNavigationGroup(): string
+    public static function getNavigationGroup(): NavigationGroupEnum
     {
-        return (string) __('capell-admin::navigation.group_websites');
+        return NavigationGroupEnum::Design;
     }
 
     #[Override]

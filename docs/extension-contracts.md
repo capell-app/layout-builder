@@ -181,6 +181,30 @@ final class ExampleLayoutSidebarWidgetContributorImplementation implements \Cape
 app()->bind(\Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor::class, ExampleLayoutSidebarWidgetContributorImplementation::class);
 ```
 
+Leave out a widget that has nothing to show on this page, wrapper included. The check runs before public Blade renders, so it may query. Return false only when the widget would otherwise render empty.
+
+<!-- example: contract Capell\LayoutBuilder\Contracts\PublicLayoutWidgetAvailability -->
+
+```php
+<?php
+declare(strict_types=1);
+final class ExampleOpeningTimesWidgetAvailability implements \Capell\LayoutBuilder\Contracts\PublicLayoutWidgetAvailability
+{
+    public function available(\Capell\LayoutBuilder\Models\Widget $widget, \Capell\Frontend\Data\FrontendRenderContextData $context): bool
+    {
+        if ($widget->getMetaComponent() !== 'acme-opening-times::widget') {
+            return true;
+        }
+
+        return $context->site !== null && \Acme\OpeningTimes\Models\OpeningTime::query()
+            ->where('site_id', $context->site->id)
+            ->exists();
+    }
+}
+
+app()->tag([ExampleOpeningTimesWidgetAvailability::class], \Capell\LayoutBuilder\Contracts\PublicLayoutWidgetAvailability::TAG);
+```
+
 <!-- example: contract Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor -->
 
 ```php

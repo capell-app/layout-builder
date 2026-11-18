@@ -472,7 +472,7 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             ->assertSee('data-layout-builder-integrity-table="widget-assets"', false)
             ->assertSee('Broken asset', false)
             ->assertSee('Not placed', false)
-            ->assertDontSee('Add Asset', false)
+            ->assertDontSee(__('capell-admin::button.add_asset'), false)
             ->assertDontSee('Edit', false);
 
         $afterCapture = WidgetAsset::query()

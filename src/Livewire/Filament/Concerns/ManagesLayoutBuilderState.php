@@ -256,6 +256,13 @@ trait ManagesLayoutBuilderState
         $this->loadNew();
     }
 
+    protected function rememberLayoutMutation(): void
+    {
+        $history = PushLayoutMutationSnapshotAction::run($this->layoutState(), $this->layoutUndoSnapshots);
+        $this->layoutUndoSnapshots = $history->undoSnapshots;
+        $this->layoutRedoSnapshots = $history->redoSnapshots;
+    }
+
     protected function applyLayoutMutationResult(LayoutMutationResultData $result): void
     {
         $history = PushLayoutMutationSnapshotAction::run($this->layoutState(), $this->layoutUndoSnapshots);

@@ -21,6 +21,7 @@ use Capell\Frontend\Support\Fragments\DeferredFragmentPlaceholderData;
 use Capell\Frontend\Support\Fragments\PublicFragmentUrlResolverRegistry;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\Frontend\Support\Renderables\RenderableDynamicDataRegistry;
+use Capell\LayoutBuilder\Actions\PreparePublicWidgetAssetMetaAction;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetAssetsAction;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
 use Capell\LayoutBuilder\Models\Widget;
@@ -123,8 +124,8 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             return '';
         }
 
-        $meta = is_array($asset->getAttribute('meta')) ? $asset->getAttribute('meta') : [];
-        $deferred = $this->deferredPlaceholder($asset, $meta);
+        $meta = PreparePublicWidgetAssetMetaAction::run(is_array($asset->getAttribute('meta')) ? $asset->getAttribute('meta') : []);
+        $deferred = $this->deferredPlaceholder($asset, $meta, $widgetAsset);
 
         if ($deferred !== null) {
             return view('capell::components.deferred-fragment-placeholder', ['placeholder' => $deferred])->render();
@@ -153,8 +154,11 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
     /**
      * @param  array<string, mixed>  $meta
      */
-    private function deferredPlaceholder(Model $asset, array $meta): ?DeferredFragmentPlaceholderData
+    private function deferredPlaceholder(Model $asset, array $meta, WidgetAsset $widgetAsset): ?DeferredFragmentPlaceholderData
     {
+        // A placement's own overrides decide whether it defers and what the fragment it points at renders.
+        $placementMeta = is_array($widgetAsset->meta) ? $widgetAsset->meta : [];
+        $meta = array_replace_recursive($meta, $placementMeta);
         $performance = is_array($meta['performance'] ?? null) ? $meta['performance'] : [];
         if (($performance['defer'] ?? false) !== true) {
             return null;
@@ -200,6 +204,17 @@ final readonly class LayoutBuilderPublicWidgetAssetsRenderer implements PublicLa
             'assetId' => $assetId,
             'assetVersion' => ResolvePublicFragmentAssetVersionAction::run($asset),
         ];
+        $widgetAssetId = $widgetAsset->getKey();
+
+        // The placement travels with the reference so the fragment renders the same per-page overrides
+        // as the inline path; its version makes a changed override retire every previously issued URL.
+        if ($placementMeta !== [] && (is_int($widgetAssetId) || is_string($widgetAssetId))) {
+            $ownerContext['widgetAssetId'] = $widgetAssetId;
+            // The token is part of public fragment URLs that sit in cached HTML and is checked by another
+            // package that may be released separately, so it must stay byte-identical across versions: do not
+            // change the algorithm or the encoded input without a coordinated, cache-purging release.
+            $ownerContext['placementVersion'] = hash('sha256', json_encode($placementMeta, JSON_THROW_ON_ERROR));
+        }
         $contentVersion = ResolvePublicFragmentContentVersionAction::run(
             $page,
             $site,

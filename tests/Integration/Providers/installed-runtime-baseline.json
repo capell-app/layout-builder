@@ -4,10 +4,10 @@
     "scenarios": {
         "default": {
             "source": {
-                "ref": "4890802e59001003904925d508614f26d005549f",
-                "commit": "4890802e59001003904925d508614f26d005549f",
+                "ref": "HEAD",
+                "commit": "b6fd4778e5f31eb4eb7cda9095c7e568337ac3c2",
                 "providers": {
-                    "LayoutBuilderServiceProvider.php": "8229631a8fe36b303feb97b421e90b1a9fad1a745caf831083f7903dc72889e4",
+                    "LayoutBuilderServiceProvider.php": "7d02465a6f5521444355d0694900d0e4b90c2a69d4e7c2c35d7ab27695d10e04",
                     "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18",
                     "Providers/MigrationMetadataServiceProvider.php": "43ac1b9b6e9c372f46944c12f70c94dba5982691160f439b63feb3e81940fdd6"
                 },
@@ -383,7 +383,8 @@
                     "capell:layout-builder-widget-visual-regression": "Capell\\LayoutBuilder\\Console\\Commands\\WidgetVisualRegressionCommand",
                     "capell:layout-builder:prune-bulk-change-runs": "Capell\\LayoutBuilder\\Console\\Commands\\PruneLayoutBulkChangeRunsCommand",
                     "capell:layouts:bulk-change": "Capell\\LayoutBuilder\\Console\\Commands\\LayoutBulkChangeCommand",
-                    "capell:widget-snapshots:prune": "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand"
+                    "capell:widget-snapshots:prune": "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand",
+                    "layout-builder:resync-preset": "Capell\\LayoutBuilder\\Console\\Commands\\ResyncLayoutPresetCommand"
                 },
                 "config-defaults": {
                     "capell-layout-builder.php": {
@@ -397,6 +398,7 @@
                         "editor_mode.default": "content_first",
                         "layout_builder.lazy": true,
                         "preview.match_frontend_container_layout": true,
+                        "public_endpoints.requests_per_minute": 600,
                         "public_widget_snapshots.stale_while_revalidate_seconds": 3600,
                         "public_widget_snapshots.ttl_seconds": 86400,
                         "resources.demo_path": "<path>",
@@ -478,6 +480,12 @@
                     ],
                     "eloquent.restored: Capell\\LayoutBuilder\\Models\\Widget": [
                         "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@restored"
+                    ],
+                    "eloquent.saved: Capell\\Core\\Models\\Layout": [
+                        [
+                            "Capell\\LayoutBuilder\\Listeners\\MaintainPublicWidgetSnapshotsListener",
+                            "handleLayoutSaved"
+                        ]
                     ],
                     "eloquent.saved: Capell\\LayoutBuilder\\Models\\Widget": [
                         "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@saved"
@@ -563,6 +571,20 @@
                             ],
                             "before": null,
                             "entry": "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@restored"
+                        }
+                    ],
+                    "eloquent.saved: Capell\\Core\\Models\\Layout": [
+                        {
+                            "after": null,
+                            "before": [
+                                "<package:core>/src/Models/Concerns/HasDefault.php",
+                                "Capell\\Core\\Models\\Layout(Illuminate\\Database\\Eloquent\\Model $model):void",
+                                []
+                            ],
+                            "entry": [
+                                "Capell\\LayoutBuilder\\Listeners\\MaintainPublicWidgetSnapshotsListener",
+                                "handleLayoutSaved"
+                            ]
                         }
                     ]
                 },
@@ -2691,6 +2713,11 @@
                             ]
                         }
                     },
+                    "Capell\\Core\\Support\\Capabilities\\CapabilityRegistry": {
+                        "items": {
+                            "Capell\\Core\\Contracts\\Capabilities\\LayoutWidgetHost": "Capell\\LayoutBuilder\\Capabilities\\LayoutBuilderWidgetHost"
+                        }
+                    },
                     "Capell\\Core\\Support\\CapellCoreManager": {
                         "cloneableRelations": {
                             "page": ["widgetAssets"]
@@ -4020,7 +4047,9 @@
                         "capell-layout-builder.fragments.show",
                         "_fragments/{reference}",
                         ["GET", "HEAD"],
-                        [],
+                        [
+                            "Capell\\LayoutBuilder\\Http\\Middleware\\ThrottlePublicLayoutRequests"
+                        ],
                         "Capell\\LayoutBuilder\\Http\\Controllers\\PublicFragmentController",
                         {
                             "as": "capell-layout-builder.fragments.show",
@@ -4035,7 +4064,10 @@
                         "capell-layout-builder.layout-widgets.localized.show",
                         "{siteDomainPath}/_capell/layout-widgets/{reference}",
                         ["GET", "HEAD"],
-                        ["web"],
+                        [
+                            "web",
+                            "Capell\\LayoutBuilder\\Http\\Middleware\\ThrottlePublicLayoutRequests"
+                        ],
                         "Capell\\LayoutBuilder\\Http\\Controllers\\LazyLayoutWidgetController",
                         {
                             "as": "capell-layout-builder.layout-widgets.localized.show",
@@ -4051,7 +4083,10 @@
                         "capell-layout-builder.layout-widgets.show",
                         "_capell/layout-widgets/{reference}",
                         ["GET", "HEAD"],
-                        ["web"],
+                        [
+                            "web",
+                            "Capell\\LayoutBuilder\\Http\\Middleware\\ThrottlePublicLayoutRequests"
+                        ],
                         "Capell\\LayoutBuilder\\Http\\Controllers\\LazyLayoutWidgetController",
                         {
                             "as": "capell-layout-builder.layout-widgets.show",
@@ -4151,6 +4186,7 @@
                         "editor_mode.default": "content_first",
                         "layout_builder.lazy": true,
                         "preview.match_frontend_container_layout": true,
+                        "public_endpoints.requests_per_minute": 600,
                         "public_widget_snapshots.stale_while_revalidate_seconds": 3600,
                         "public_widget_snapshots.ttl_seconds": 86400,
                         "resources.demo_path": "<path>",
@@ -4339,10 +4375,10 @@
         },
         "foundation-theme": {
             "source": {
-                "ref": "4890802e59001003904925d508614f26d005549f",
-                "commit": "4890802e59001003904925d508614f26d005549f",
+                "ref": "5d9af2be05",
+                "commit": "5d9af2be05983985484ab26a575a50820d85de20",
                 "providers": {
-                    "LayoutBuilderServiceProvider.php": "8229631a8fe36b303feb97b421e90b1a9fad1a745caf831083f7903dc72889e4",
+                    "LayoutBuilderServiceProvider.php": "7d02465a6f5521444355d0694900d0e4b90c2a69d4e7c2c35d7ab27695d10e04",
                     "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18",
                     "Providers/MigrationMetadataServiceProvider.php": "43ac1b9b6e9c372f46944c12f70c94dba5982691160f439b63feb3e81940fdd6"
                 },
@@ -4748,7 +4784,8 @@
                     "capell:layout-builder-widget-visual-regression": "Capell\\LayoutBuilder\\Console\\Commands\\WidgetVisualRegressionCommand",
                     "capell:layout-builder:prune-bulk-change-runs": "Capell\\LayoutBuilder\\Console\\Commands\\PruneLayoutBulkChangeRunsCommand",
                     "capell:layouts:bulk-change": "Capell\\LayoutBuilder\\Console\\Commands\\LayoutBulkChangeCommand",
-                    "capell:widget-snapshots:prune": "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand"
+                    "capell:widget-snapshots:prune": "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand",
+                    "layout-builder:resync-preset": "Capell\\LayoutBuilder\\Console\\Commands\\ResyncLayoutPresetCommand"
                 },
                 "config-defaults": {
                     "capell-layout-builder.php": {
@@ -4762,6 +4799,7 @@
                         "editor_mode.default": "content_first",
                         "layout_builder.lazy": true,
                         "preview.match_frontend_container_layout": true,
+                        "public_endpoints.requests_per_minute": 600,
                         "public_widget_snapshots.stale_while_revalidate_seconds": 3600,
                         "public_widget_snapshots.ttl_seconds": 86400,
                         "resources.demo_path": "<path>",
@@ -4951,6 +4989,12 @@
                     "eloquent.restored: Capell\\LayoutBuilder\\Models\\Widget": [
                         "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@restored"
                     ],
+                    "eloquent.saved: Capell\\Core\\Models\\Layout": [
+                        [
+                            "Capell\\LayoutBuilder\\Listeners\\MaintainPublicWidgetSnapshotsListener",
+                            "handleLayoutSaved"
+                        ]
+                    ],
                     "eloquent.saved: Capell\\LayoutBuilder\\Models\\Widget": [
                         "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@saved"
                     ],
@@ -5050,6 +5094,20 @@
                             ],
                             "before": null,
                             "entry": "Capell\\Frontend\\Support\\Cache\\FrontendCacheInvalidationObserver@restored"
+                        }
+                    ],
+                    "eloquent.saved: Capell\\Core\\Models\\Layout": [
+                        {
+                            "after": null,
+                            "before": [
+                                "<package:core>/src/Models/Concerns/HasDefault.php",
+                                "Capell\\Core\\Models\\Layout(Illuminate\\Database\\Eloquent\\Model $model):void",
+                                []
+                            ],
+                            "entry": [
+                                "Capell\\LayoutBuilder\\Listeners\\MaintainPublicWidgetSnapshotsListener",
+                                "handleLayoutSaved"
+                            ]
                         }
                     ]
                 },
@@ -7206,6 +7264,11 @@
                             ]
                         }
                     },
+                    "Capell\\Core\\Support\\Capabilities\\CapabilityRegistry": {
+                        "items": {
+                            "Capell\\Core\\Contracts\\Capabilities\\LayoutWidgetHost": "Capell\\LayoutBuilder\\Capabilities\\LayoutBuilderWidgetHost"
+                        }
+                    },
                     "Capell\\Core\\Support\\CapellCoreManager": {
                         "cloneableRelations": {
                             "page": ["widgetAssets"]
@@ -8822,7 +8885,9 @@
                         "capell-layout-builder.fragments.show",
                         "_fragments/{reference}",
                         ["GET", "HEAD"],
-                        [],
+                        [
+                            "Capell\\LayoutBuilder\\Http\\Middleware\\ThrottlePublicLayoutRequests"
+                        ],
                         "Capell\\LayoutBuilder\\Http\\Controllers\\PublicFragmentController",
                         {
                             "as": "capell-layout-builder.fragments.show",
@@ -8837,7 +8902,10 @@
                         "capell-layout-builder.layout-widgets.localized.show",
                         "{siteDomainPath}/_capell/layout-widgets/{reference}",
                         ["GET", "HEAD"],
-                        ["web"],
+                        [
+                            "web",
+                            "Capell\\LayoutBuilder\\Http\\Middleware\\ThrottlePublicLayoutRequests"
+                        ],
                         "Capell\\LayoutBuilder\\Http\\Controllers\\LazyLayoutWidgetController",
                         {
                             "as": "capell-layout-builder.layout-widgets.localized.show",
@@ -8853,7 +8921,10 @@
                         "capell-layout-builder.layout-widgets.show",
                         "_capell/layout-widgets/{reference}",
                         ["GET", "HEAD"],
-                        ["web"],
+                        [
+                            "web",
+                            "Capell\\LayoutBuilder\\Http\\Middleware\\ThrottlePublicLayoutRequests"
+                        ],
                         "Capell\\LayoutBuilder\\Http\\Controllers\\LazyLayoutWidgetController",
                         {
                             "as": "capell-layout-builder.layout-widgets.show",
@@ -8968,8 +9039,8 @@
                 },
                 "views": {
                     "capell": [
-                        "<package:theme-foundation>/src/Providers/../../resources/views",
-                        "<package:theme-foundation>/src/Providers/../../resources/views"
+                        "<package:theme-foundation>/resources/views",
+                        "<package:theme-foundation>/resources/views"
                     ]
                 }
             },
@@ -8986,6 +9057,7 @@
                         "editor_mode.default": "content_first",
                         "layout_builder.lazy": true,
                         "preview.match_frontend_container_layout": true,
+                        "public_endpoints.requests_per_minute": 600,
                         "public_widget_snapshots.stale_while_revalidate_seconds": 3600,
                         "public_widget_snapshots.ttl_seconds": 86400,
                         "resources.demo_path": "<path>",

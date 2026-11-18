@@ -2,6 +2,12 @@
 
 <!-- prettier-ignore-start -->
 
+An editor opens a page and drags a call to action into the spot where it should go. Layout Builder, the page builder, puts pages together from widgets. A widget is a piece of content with its own settings, such as a call to action or an image with a headline. Capell's widget packages, such as a countdown or a slideshow, are placed on pages through it.
+
+Inside a page there is a content editor, where you change text and images in place, and a layout view, where you add, move and remove widgets. Your permissions decide which you get, and a role that edits layouts may need access to Widgets as well. Moving and resizing can be undone before you Save Layout, but adding or removing a widget cannot. Several pages can share one layout, and a shared layout links to the pages that use it, so you can see what an edit will touch.
+
+To swap a widget across many layouts, choose Move or replace widgets on the Layouts list. Runs that reach 50 layouts or 250 pages wait for background jobs, which your developer or host keeps running, and smaller runs apply at once. You see a preview first, and nothing changes until you approve it.
+
 ## What it does
 
 Layout Builder assembles public pages from reusable Widgets arranged in named Layout containers. Widgets hold translated content, media, visibility dates, and presentation settings; a Layout controls where each widget appears. A single Layout can be shared by several pages, so a structural edit can have a wider effect than the page currently open.
@@ -54,7 +60,7 @@ For scripted recovery, `capell:layouts:bulk-change` supports preview, approve/qu
 
 Public rendering preloads enabled, in-window widgets and passes a restricted payload to Blade. Anonymous HTML must not contain authoring selectors, permissions, model identifiers, signed editor URLs, or other admin metadata. Interactive/lazy widget extensions use encrypted, Site/language-bound snapshots; saving or deleting the owning page rebuilds or revokes them. A missing or invalid snapshot fails closed for the interaction rather than revealing stored state.
 
-Public fragment responses are cacheable for five minutes with a one-minute stale-while-revalidate window, omit session cookies, and are marked `noindex`. Allow for that cache when checking an urgent widget change.
+Public fragment responses require revalidation on every request, omit session cookies, and are marked `noindex`. This ensures changes to page access are checked before a fragment is served.
 
 Keep the Laravel scheduler running. It prunes expired/revoked public widget snapshots at 02:30 and terminal bulk-change runs daily, using overlap and single-server locks. Without it, normal page rendering continues but obsolete operational records accumulate.
 

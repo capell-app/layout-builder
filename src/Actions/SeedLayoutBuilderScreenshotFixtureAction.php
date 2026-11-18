@@ -31,7 +31,6 @@ final class SeedLayoutBuilderScreenshotFixtureAction
     {
         self::assertDisposableScreenshotEnvironment();
 
-        require_once (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/scripts/screenshots/FixtureState.php';
         FixtureState::boot();
 
         $widgetType = resolve(TypeCreator::class)->defaultWidgetType();
@@ -72,8 +71,7 @@ final class SeedLayoutBuilderScreenshotFixtureAction
                 && is_string($basePath)
                 && is_string($appPath)
                 && $basePath === $appPath
-                && ($basePath === realpath((str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/vendor/orchestra/testbench-core/laravel')
-                    || str_starts_with($basePath, (str_contains(__DIR__, '/vendor/capell-app/') ? dirname(__DIR__, 5) : dirname(__DIR__, 4)) . '/tmp/testbench-skeletons/')),
+                && class_exists(FixtureState::class) && FixtureState::isDisposableApplication($basePath),
             RuntimeException::class,
             'Layout Builder screenshot fixtures require the explicit disposable local screenshot environment.',
         );

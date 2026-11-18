@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Capell\LayoutBuilder\Actions\InstallPackageAction;
 use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 it('contributes content and layout permissions for default roles', function (): void {
     expect(LayoutBuilderPermissionRegistrar::permissionsForRole('editor'))->toBe([
@@ -41,4 +43,30 @@ it('keeps manifest permissions traceable to the registrar', function (): void {
     expect($manifest['permissions'] ?? [])->toEqualCanonicalizing(
         LayoutBuilderPermissionRegistrar::permissionsForRole('admin'),
     );
+});
+
+it('grants manifest editor defaults during setup without destructive or structural permissions', function (): void {
+    foreach (LayoutBuilderPermissionRegistrar::permissionsForRole('admin') as $permission) {
+        Permission::findOrCreate($permission, 'web');
+    }
+    $editor = Role::findOrCreate('editor', 'web');
+    InstallPackageAction::run();
+
+    expect($editor->refresh()->hasPermissionTo('ViewAny:Layout', 'web'))->toBeTrue()
+        ->and($editor->hasPermissionTo('View:Layout', 'web'))->toBeTrue()
+        ->and($editor->hasPermissionTo('EditContent:Layout', 'web'))->toBeTrue()
+        ->and($editor->hasPermissionTo('EditLayout:Layout', 'web'))->toBeFalse()
+        ->and($editor->hasPermissionTo('Delete:Layout', 'web'))->toBeFalse();
+});
+
+it('applies editor defaults through the upgrade migration and honours a renamed editor role', function (): void {
+    config(['capell.roles.editor' => 'content-editor']);
+    $editor = Role::findOrCreate('content-editor', 'web');
+    $migration = require dirname(__DIR__, 3) . '/database/migrations/2026_11_14_000001_grant_layout_builder_editor_permissions.php';
+    $migration->up();
+    expect($editor->refresh()->hasPermissionTo('EditContent:Layout', 'web'))->toBeTrue()
+        ->and($editor->hasPermissionTo('EditLayout:Layout', 'web'))->toBeFalse();
+    $editor->revokePermissionTo('EditContent:Layout');
+    $migration->down();
+    expect($editor->refresh()->hasPermissionTo('EditContent:Layout', 'web'))->toBeFalse();
 });

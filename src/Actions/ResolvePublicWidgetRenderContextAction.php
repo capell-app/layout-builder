@@ -150,6 +150,7 @@ final class ResolvePublicWidgetRenderContextAction
             widgetReference: $widgetReference,
             resourcePublicIds: $prepared->resourcePublicIds,
             interactions: $prepared->interactions,
+            unavailable: $prepared->unavailable,
         );
     }
 

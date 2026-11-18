@@ -25,7 +25,7 @@ trait ManagesWidgets
         $this->assertCanUpdateLayout();
         $this->assertContainerIsDetached($containerKey);
 
-        $occurrence = $this->getLastContainerWidgetOccurrence($containerKey, $widget->key) + 1;
+        $occurrence = $this->getLastContainerWidgetOccurrence($containerKey, $widget->key);
 
         $this->containers[$containerKey]['widgets'][] = [
             'widget_key' => $widget->key,
@@ -230,6 +230,9 @@ trait ManagesWidgets
         $this->assertCanUpdateLayout();
         $this->assertContainerIsDetached($containerKey);
 
+        $this->ensureLoaded();
+        $this->rememberLayoutMutation();
+
         if (isset($this->containers[$containerKey]['widgets'][$widgetIndex])) {
             unset($this->containers[$containerKey]['widgets'][$widgetIndex]);
             $this->containers[$containerKey]['widgets'] = array_values($this->containers[$containerKey]['widgets']);
@@ -266,6 +269,8 @@ trait ManagesWidgets
         if (! isset($this->containers[$containerKey]['widgets'][$widgetIndex])) {
             return;
         }
+
+        $this->rememberLayoutMutation();
 
         $this->containers[$containerKey]['widgets'][$widgetIndex]['meta'] = array_merge(
             $this->containers[$containerKey]['widgets'][$widgetIndex]['meta'] ?? [],

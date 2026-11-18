@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\Admin\Enums\ResourceEnum;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Filament\Resources\Layouts\LayoutResource as CoreLayoutResource;
@@ -50,10 +51,10 @@ it('uses a distinct layout resource name alongside the core layout resource', fu
 });
 
 it('groups layout builder resources under web pages navigation', function (): void {
-    expect(LayoutResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_websites'))
+    expect(LayoutResource::getNavigationGroup())->toBe(NavigationGroupEnum::Design)
         ->and(LayoutResource::getNavigationParentItem())->toBeNull()
         ->and(LayoutResource::getNavigationSort())->toBe(3)
-        ->and(WidgetResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_websites'))
+        ->and(WidgetResource::getNavigationGroup())->toBe(NavigationGroupEnum::Design)
         ->and(WidgetResource::getNavigationParentItem())->toBeNull()
         ->and(WidgetResource::getNavigationSort())->toBe(2);
 });

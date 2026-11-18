@@ -52,7 +52,7 @@ The Filament widget's `getWidgetName()` must return the same package-prefixed ke
 
 Resource loading defaults use `PresentationLoadingStrategy`. The definition-wide default is `Eager`; per-group overrides may reference only keys declared in `resourceGroups`. Instance presentation settings remain authoritative over these defaults.
 
-`presentationCapabilities` declares which standard presentation controls the widget supports. Interactive definitions must explicitly list their supported trigger events, behaviors, and target types using Capell's interaction enums. Non-interactive definitions retain empty lists by default.
+`presentationCapabilities` declares which standard presentation controls the widget supports. Interactive definitions must explicitly list their supported trigger events, behaviours, and target types using Capell's interaction enums. Non-interactive definitions retain empty lists by default.
 
 At render time, `WidgetExtensionViewResolver` checks the stable `capell::widgets.{key}` theme slot on every call. The active theme and its parent may override that slot. If neither provides it, the package fallback is used; a missing fallback raises a diagnostic exception naming the widget and package.
 
@@ -68,7 +68,7 @@ Duplicate identical definitions are harmless. A different definition using an oc
 
 Content Builder reserves `data.__capell` for platform metadata. Every registered widget receives a canonical, unique UUID in `data.__capell.instance_id` during hydration and dehydration. Existing valid unique identities remain stable; copied, cloned, imported, translated, templated, and nested widget state with a missing, invalid, or duplicate identity receives a new one. Presentation, interaction, and resource settings already stored beneath `__capell` are merged rather than replaced.
 
-Cloning regenerates the root widget identity and every nested registered target before the cloned item enters Livewire state. State traversal is bounded to 64 levels and 10,000 array nodes. Over-limit normalization and authoring preparation leave the original state untouched; an over-limit unavailable-widget restoration aborts dehydration rather than persisting Capell's internal placeholder shape.
+Cloning regenerates the root widget identity and every nested registered target before the cloned item enters Livewire state. State traversal is bounded to 64 levels and 10,000 array nodes. Over-limit normalisation and authoring preparation leave the original state untouched; an over-limit unavailable-widget restoration aborts dehydration rather than persisting Capell's internal placeholder shape.
 
 ## Secure lazy interaction targets
 
@@ -84,7 +84,7 @@ Canonical widget extensions also reserve `data.__capell.state_version`. Missing 
 
 Unknown widget blocks are opaque. Content Builder shows a generic unavailable-widget placeholder, does not render editable fields for the unknown payload, and restores the original type, data, and extension-owned keys on dehydration. State processors must therefore act only on keys present in Admin's `WidgetDiscovery`; they must never recursively inspect an unavailable widget's payload.
 
-Layout Builder connects state versioning through Admin's tagged `ContentWidgetStateProcessor` seam. Admin owns identity normalization and remains fully functional when Layout Builder is absent; packages must not call Layout Builder directly from Content Builder.
+Layout Builder connects state versioning through Admin's tagged `ContentWidgetStateProcessor` seam. Admin owns identity normalisation and remains fully functional when Layout Builder is absent; packages must not call Layout Builder directly from Content Builder.
 
 ## Content dependencies
 

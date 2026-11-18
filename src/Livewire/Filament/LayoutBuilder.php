@@ -364,8 +364,6 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
                 linkedContainerKey: $linkedContainerKey,
             );
         } catch (LogicException $exception) {
-            $this->reload();
-            $this->rememberLayoutVersion();
             $this->addError('layoutConflict', $exception->getMessage());
 
             return false;
@@ -414,6 +412,8 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         }
 
         $this->ensureLoaded();
+
+        $this->rememberLayoutMutation();
 
         $targetPosition = $position;
 

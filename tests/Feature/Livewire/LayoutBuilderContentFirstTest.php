@@ -511,19 +511,17 @@ it('persists authorised automatic layout saves with the existing notifications a
         ->and($layout->containers['container-2']['widgets'])->toBe([]);
 });
 
-it('reports stale layout saves without writes and recovers using the other editors layout', function (): void {
+it('keeps unsaved layout and history after repeated conflicting saves without overwriting another editor', function (): void {
     $layout = Layout::factory()->create(['containers' => [
         'main' => ['widgets' => []],
     ]]);
-
     $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
         ->call('insertContainerAtPosition', 1)
         ->assertSet('layoutModified', true);
-
-    $otherEditorContainers = [
-        'main' => ['widgets' => [], 'meta' => ['html_class' => 'other-editor']],
-        'other-editor' => ['widgets' => [], 'meta' => []],
-    ];
+    $unsavedContainers = $component->get('containers');
+    $undoSnapshots = $component->get('layoutUndoSnapshots');
+    $expectedVersion = $component->get('expectedLayoutUpdatedAt');
+    $otherEditorContainers = ['other-editor' => ['widgets' => [], 'meta' => []]];
     Layout::query()->whereKey($layout->getKey())->firstOrFail()->forceFill([
         'containers' => $otherEditorContainers,
         'updated_at' => now()->addMinute(),
@@ -532,33 +530,19 @@ it('reports stale layout saves without writes and recovers using the other edito
     $writes = [];
     contentFirstTrackDatabaseWrites($writes);
 
-    $component
-        ->dispatch('save-layout', withNotifications: true)
-        ->assertOk()
-        ->assertHasErrors(['layoutConflict' => 'The layout changed in another editor. Reload before saving.'])
-        ->assertSet('layout.id', $layout->getKey())
-        ->assertSet('containers', $otherEditorContainers)
-        ->assertSet('expectedLayoutUpdatedAt', $layout->updated_at?->toIso8601String())
-        ->assertNotDispatched('capell-layout-builder-authoring-saved')
-        ->assertNotDispatched('layout-builder-reset');
-
+    foreach ([1, 2] as $attempt) {
+        $component->dispatch('save-layout', withNotifications: true)
+            ->assertOk()
+            ->assertHasErrors(['layoutConflict' => 'The layout changed in another editor. Reload before saving.'])
+            ->assertSet('containers', $unsavedContainers)
+            ->assertSet('layoutUndoSnapshots', $undoSnapshots)
+            ->assertSet('layoutModified', true)
+            ->assertSet('expectedLayoutUpdatedAt', $expectedVersion)
+            ->assertNotDispatched('capell-layout-builder-authoring-saved')
+            ->assertNotDispatched('layout-builder-reset');
+    }
     expect($writes)->toBeEmpty()
         ->and($layout->refresh()->getAttributes())->toBe($otherEditorAttributes);
-
-    $component
-        ->call('insertContainerAtPosition', 2)
-        ->dispatch('save-layout', withNotifications: true)
-        ->assertOk()
-        ->assertHasNoErrors()
-        ->assertSet('layoutModified', false)
-        ->assertDispatched('layout-builder-reset')
-        ->assertDispatched('capell-layout-builder-authoring-saved', status: 'published', redirectUrl: null);
-
-    expect($writes)->not->toBeEmpty()
-        ->and($layout->refresh()->containers)->toBe([
-            ...$otherEditorContainers,
-            'container-3' => ['widgets' => []],
-        ]);
 });
 
 it('reports a permanently deleted layout as a conflict without writes', function (): void {
@@ -1348,3 +1332,20 @@ function contentFirstEditorOutcomes(mixed $effects, string $scenario): array
 
     return $outcomes;
 }
+
+it('undoes and redoes widget addition removal and content settings as distinct edits', function (): void {
+    $widget = Widget::factory()->create(['key' => 'history-widget']);
+    $layout = Layout::factory()->create(['containers' => ['main' => ['widgets' => []]]]);
+    $component = Livewire::test(LayoutBuilder::class, ['layout' => $layout])
+        ->call('addWidgetsToContainer', 'main', [$widget->getKey()]);
+    $added = $component->get('containers');
+    $component->call('undoLayoutMutation')->assertSet('containers.main.widgets', [])
+        ->call('redoLayoutMutation')->assertSet('containers', $added)
+        ->call('editLayoutWidget', 'main', 0, ['label' => 'Edited content settings']);
+    $edited = $component->get('containers');
+    $component->call('undoLayoutMutation')->assertSet('containers', $added)
+        ->call('redoLayoutMutation')->assertSet('containers', $edited)
+        ->call('removeWidget', 'main', 0)->assertSet('containers.main.widgets', [])
+        ->call('undoLayoutMutation')->assertSet('containers', $edited)
+        ->call('redoLayoutMutation')->assertSet('containers.main.widgets', []);
+});

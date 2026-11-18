@@ -29,6 +29,12 @@ return [
         'skip_render_empty' => env('CAPELL_LAYOUT_BUILDER_SKIP_RENDER_EMPTY_WIDGETS', true),
     ],
 
+    // Per-client budget for the public fragment and lazy-widget endpoints. Each lazy widget on a
+    // page is one request, so keep this well above the widgets a single page view can load.
+    'public_endpoints' => [
+        'requests_per_minute' => (int) env('CAPELL_LAYOUT_BUILDER_PUBLIC_REQUESTS_PER_MINUTE', 600),
+    ],
+
     'public_widget_snapshots' => [
         'ttl_seconds' => (int) env('CAPELL_WIDGET_SNAPSHOT_TTL', 86400),
         'stale_while_revalidate_seconds' => (int) env('CAPELL_WIDGET_SNAPSHOT_STALE_TTL', 3600),

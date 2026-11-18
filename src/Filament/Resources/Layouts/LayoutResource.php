@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Filament\Resources\Layouts;
 
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Pages\CreateLayout;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Pages\EditLayout;
 use Capell\LayoutBuilder\Filament\Resources\Layouts\Pages\ListLayouts;
@@ -19,9 +20,9 @@ abstract class LayoutResource extends \Capell\Admin\Filament\Resources\Layouts\L
     protected static string $tableConfigurator = LayoutsTable::class;
 
     #[Override]
-    public static function getNavigationGroup(): ?string
+    public static function getNavigationGroup(): NavigationGroupEnum
     {
-        return (string) __('capell-admin::navigation.group_websites');
+        return NavigationGroupEnum::Design;
     }
 
     #[Override]

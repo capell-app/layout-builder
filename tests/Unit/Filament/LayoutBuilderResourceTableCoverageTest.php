@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Admin\Enums\NavigationGroupEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -67,7 +68,7 @@ it('exposes widget resource metadata search details and soft-deleted query scope
     expect(WidgetResource::getModel())->toBe(Widget::class)
         ->and(WidgetResource::getResourceType())->toBe(ConfiguratorTypeEnum::Widget)
         ->and(WidgetResource::getNavigationLabel())->toBe(__('capell-layout-builder::navigation.widgets'))
-        ->and(WidgetResource::getNavigationGroup())->toBe((string) __('capell-admin::navigation.group_websites'))
+        ->and(WidgetResource::getNavigationGroup())->toBe(NavigationGroupEnum::Design)
         ->and(WidgetResource::getNavigationParentItem())->toBeNull()
         ->and(WidgetResource::getNavigationIcon())->toBe('heroicon-o-puzzle-piece')
         ->and(WidgetResource::getActiveNavigationIcon())->toBe('heroicon-s-puzzle-piece')

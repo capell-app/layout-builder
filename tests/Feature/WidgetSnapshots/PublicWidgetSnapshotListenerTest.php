@@ -11,6 +11,7 @@ use Capell\Core\EventSourcing\Events\PageArchived;
 use Capell\Core\EventSourcing\Events\PageUnpublished;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
+use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\PageWorkflowState;
 use Capell\Core\Models\Site;
@@ -21,6 +22,7 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetSnapshots\WidgetSnapshotWorkflowSubscriber;
 use Capell\LayoutBuilder\Tests\Fixtures\WidgetExtensions\ExampleWidgetExtensionDefinition;
 use Capell\PublishingStudio\Facades\CapellPublishingStudio;
+use Illuminate\Support\Facades\DB;
 
 it('registers the widget snapshot subscriber only with the core lifecycle manager', function (): void {
     expect(CapellCore::subscriberManager()->hasSubscriber(WidgetSnapshotWorkflowSubscriber::class))->toBeTrue()
@@ -108,6 +110,49 @@ it('supports immediate explicit security withdrawal and lets revocation win over
     WithdrawPublicWidgetSnapshotsAction::run($context->page);
 
     expect(PublicWidgetSnapshot::query()->sole()->revoked_at)->not->toBeNull();
+});
+
+it('rebuilds snapshots for every page using a changed shared layout after commit', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    $first = snapshotListenerContext('First page');
+    $second = snapshotListenerContext('Second page');
+    $firstPage = $first->page;
+    $secondPage = $second->page;
+    throw_unless($firstPage instanceof Page && $secondPage instanceof Page, RuntimeException::class, 'Expected page contexts.');
+    $layout = $first->layout;
+    throw_unless($layout instanceof Layout, RuntimeException::class, 'Expected a layout context.');
+    $secondPage->forceFill(['layout_id' => $layout->getKey()])->saveQuietly();
+    PageSavedAction::run($first->page);
+    PageSavedAction::run($second->page);
+
+    $layout->update(['containers' => ['main' => ['widgets' => [[
+        'type' => 'capell-app.slideshow',
+        'data' => ['title' => 'Shared changed', '__capell' => ['instance_id' => 'shared-target', 'state_version' => 2]],
+    ]]]]]);
+
+    $snapshots = PublicWidgetSnapshot::query()->where('target_instance_id', 'shared-target')->whereNotNull('current_key')->get();
+    expect($snapshots)->toHaveCount(2)
+        ->and($snapshots->pluck('pageable_id')->all())->toEqualCanonicalizing([$firstPage->getKey(), $secondPage->getKey()])
+        ->and($snapshots->map(fn (PublicWidgetSnapshot $snapshot): mixed => data_get($snapshot->encrypted_payload, 'widget.data.title'))->all())
+        ->toBe(['Shared changed', 'Shared changed']);
+});
+
+it('does not publish shared layout snapshots before commit or after rollback', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    $context = snapshotListenerContext('Rollback');
+    $layout = $context->layout;
+    throw_unless($layout instanceof Layout, RuntimeException::class, 'Expected a layout context.');
+    DB::beginTransaction();
+    try {
+        $layout->update(['containers' => ['main' => ['widgets' => [[
+            'type' => 'capell-app.slideshow',
+            'data' => ['title' => 'Uncommitted', '__capell' => ['instance_id' => 'rollback-target', 'state_version' => 2]],
+        ]]]]]);
+        expect(PublicWidgetSnapshot::query()->where('target_instance_id', 'rollback-target')->exists())->toBeFalse();
+    } finally {
+        DB::rollBack();
+    }
+    expect(PublicWidgetSnapshot::query()->where('target_instance_id', 'rollback-target')->exists())->toBeFalse();
 });
 
 function snapshotListenerContext(string $title): FrontendRenderContextData

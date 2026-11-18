@@ -28,13 +28,13 @@ final class ResyncLayoutPresetCommand extends Command
             ->first();
 
         if (! $preset instanceof LayoutPreset) {
-            $this->components->error('Linked layout preset not found.');
+            $this->components->error(__('capell-layout-builder::message.linked_preset_not_found'));
 
             return self::FAILURE;
         }
 
         $run = CreateLayoutPresetSyncRunAction::run($preset);
-        $this->components->info(sprintf('Queued preset sync run %s.', $run->uuid));
+        $this->components->info(__('capell-layout-builder::message.preset_sync_queued', ['run' => $run->uuid]));
 
         return self::SUCCESS;
     }

@@ -50,7 +50,7 @@ For scripted recovery, `capell:layouts:bulk-change` supports preview, approve/qu
 
 Public rendering preloads enabled, in-window widgets and passes a restricted payload to Blade. Anonymous HTML must not contain authoring selectors, permissions, model identifiers, signed editor URLs, or other admin metadata. Interactive/lazy widget extensions use encrypted, Site/language-bound snapshots; saving or deleting the owning page rebuilds or revokes them. A missing or invalid snapshot fails closed for the interaction rather than revealing stored state.
 
-Public fragment responses are cacheable for five minutes with a one-minute stale-while-revalidate window, omit session cookies, and are marked `noindex`. Allow for that cache when checking an urgent widget change.
+Public fragment responses require revalidation on every request, omit session cookies, and are marked `noindex`. This ensures changes to page access are checked before a fragment is served.
 
 Keep the Laravel scheduler running. It prunes expired/revoked public widget snapshots at 02:30 and terminal bulk-change runs daily, using overlap and single-server locks. Without it, normal page rendering continues but obsolete operational records accumulate.
 

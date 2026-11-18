@@ -36,7 +36,7 @@ it('evicts an actual static artifact when replacing block media through the real
 
     $translation = $page->translations()->firstOrFail();
     $key = (string) Str::uuid();
-    $image = $translation->addMedia(UploadedFile::fake()->image('evict.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key) ?? throw new LogicException('Expected a collection.'), 'public');
+    $image = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('evict.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key) ?? throw new LogicException('Expected a collection.'), 'public');
     $translation->update(['content' => json_encode([['type' => 'logos', 'data' => ['title' => 'Eviction logos', 'media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]]], JSON_THROW_ON_ERROR)]);
     CapellLayoutManager::clearContainerWidgets();
     try {
@@ -62,7 +62,8 @@ it('evicts an actual static artifact when replacing block media through the real
         $editor->set($upload->getStatePath(), [$replacementUpload]);
         $editor->call('save')->assertHasNoFormErrors();
         $savedTranslation = $translation->fresh() ?? throw new LogicException('Missing saved translation.');
-        $replacement = $savedTranslation->getMedia(ResolveBuilderBlockMediaAction::collection($key))->sole();
+        $replacement = $savedTranslation->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($key))->sole();
+        throw_unless($replacement instanceof Media, LogicException::class, 'Expected Capell media.');
         expect($replacement->uuid)->not->toBe($image->uuid)
             ->and(Storage::disk('public')->get($replacement->getPathRelativeToRoot()))->toBe($replacementContents)
             ->and(Storage::disk('public')->exists($replacement->getPathRelativeToRoot()))->toBeTrue();

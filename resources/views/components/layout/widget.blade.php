@@ -34,7 +34,9 @@
     $interactions = $renderContext->interactions;
 @endphp
 
-@if ($preparedWidgetHtml !== null)
+@if ($renderContext->unavailable)
+    {{-- A package said this widget has nothing to show on this page: no wrapper either. --}}
+@elseif ($preparedWidgetHtml !== null)
     <x-capell-layout-builder::layout-widgets.runtime-wrapper
         :settings="$presentation"
         :resource-public-ids="$resourcePublicIds"

@@ -76,4 +76,9 @@ final class LayoutBuilderAssetHarness extends LayoutBuilder
     {
         $this->deleteRemovedWidgetAssets();
     }
+
+    public function exposeUpdateAssets(string $containerKey, int $widgetIndex): void
+    {
+        $this->updateAssets($containerKey, $widgetIndex);
+    }
 }

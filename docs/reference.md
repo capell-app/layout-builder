@@ -6,7 +6,7 @@ Developer reference for `capell-app/layout-builder`. Start with the [README](../
 
 ## Package Details
 
-Layout Builder is an **Available**, **Schema-owning** Capell package in the **Capell Essentials** product group. It ships as `capell-app/layout-builder` and extends these surfaces: admin, frontend, console.
+Layout Builder is an **Available** Capell package in the **Capell Essentials** product group. It ships as `capell-app/layout-builder` and extends these surfaces: admin, frontend, console.
 
 - Status: Available
 - Tier: free
@@ -41,6 +41,7 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - `packages/layout-builder/database/migrations/2026_07_10_000003_create_layout_preset_sync_runs_table.php`
 - `packages/layout-builder/database/migrations/2026_08_28_000003_change_widget_visibility_to_datetime.php`
 - `packages/layout-builder/database/migrations/2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table.php`
+- `packages/layout-builder/database/migrations/2026_11_14_000001_grant_layout_builder_editor_permissions.php`
 
 ### Models
 
@@ -187,6 +188,7 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - `LayoutEditorState`
 - `LayoutSidebarWidgetContributor`
 - `PublicLayoutAssetMembership`
+- `PublicLayoutWidgetAvailability`
 - `PublicLayoutWidgetPayloadContributor`
 - `PublicLayoutWidgetPayloadResolver`
 - `WidgetAssetReferenceRepointer`
@@ -239,6 +241,7 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - `GenerateLayoutPreviewImageAction`
 - `GetLayoutPreviewImageUrlAction`
 - `GetWidgetContainerWidthAction`
+- `GrantLayoutBuilderDefaultRolePermissionsAction`
 - `HeroWidgetHasPrimaryHeadingAction`
 - `InsertLinkedLayoutPresetAction`
 - `InstallLayoutBuilderPackageAction`
@@ -266,9 +269,12 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - `UndoLayoutMutationSnapshotAction`
 - `NormalizeLayoutContainerPaddingAction`
 - `PersistLayoutBuilderStateAction`
+- `PlaceLayoutWidgetAction`
+- `PreparePublicWidgetAssetMetaAction`
 - `PreviewLayoutPlanAction`
 - `PruneLayoutBulkChangeRunsAction`
 - `PublishLayoutBuilderAdminAssetsAction`
+- `RegisterPreviewWidgetsAction`
 - `RenderAdminLayoutPreviewAction`
 - `RepointWidgetAssetReferencesAction`
 - `ResetLayoutContainerThemeSettingsAction`
@@ -376,6 +382,7 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - `capell:layout-builder:prune-bulk-change-runs`
 - `capell:layouts:bulk-change`
 - `capell:widget-snapshots:prune`
+- `layout-builder:resync-preset`
 
 ### Manifest action API
 
@@ -407,6 +414,7 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - `migration: Capell\LayoutBuilder\Manifest\LayoutBuilderMigrationsContribution`
 - `model: Capell\LayoutBuilder\Manifest\LayoutBuilderModelsContribution`
 - `page-type: Capell\LayoutBuilder\Manifest\LayoutBuilderPageTypesContribution`
+- `permission: Capell\LayoutBuilder\Manifest\LayoutBuilderPermissionsContribution`
 - `route: Capell\LayoutBuilder\Manifest\LayoutBuilderRoutesContribution`
 - `scheduled-job: Capell\LayoutBuilder\Manifest\LayoutBuilderBulkChangePruneScheduleContribution`
 - `scheduled-job: Capell\LayoutBuilder\Manifest\LayoutBuilderSnapshotPruneScheduleContribution`
@@ -467,7 +475,7 @@ Layout Builder is an **Available**, **Schema-owning** Capell package in the **Ca
 - Required tables: `layouts`, `widgets`, `widget_assets`, `widget_widgets`, `layout_presets`, `layout_bulk_change_runs`, `layout_bulk_change_results`, `layout_preset_usages`, `layout_preset_sync_runs`, `layout_preset_sync_results`, `public_widget_snapshots`.
 - Models: `Layout`, `LayoutBulkChangeResult`, `LayoutBulkChangeRun`, `LayoutPreset`, `LayoutPresetSyncResult`, `LayoutPresetSyncRun`, `LayoutPresetUsage`, `PublicWidgetSnapshot`, `Widget`, `WidgetAsset`, `WidgetWidget`.
 - Core record references in migrations: `sites via site_id`, `languages via language_id`, `layouts via layout_id`, `widgets via widget_id`, `themes via theme_id`.
-- Migration files: `2026_05_10_190841_02_create_widgets_table.php`, `2026_05_10_190841_03_create_widget_assets_table.php`, `2026_05_10_190841_04_create_widget_widgets_table.php`, `2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `2026_05_10_190841_06_create_layout_presets_table.php`, `2026_06_07_000001_create_layout_bulk_change_tables.php`, `2026_07_09_000001_create_public_widget_snapshots_table.php`, `2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table.php`, `2026_07_10_000002_create_layout_preset_usages_table.php`, `2026_07_10_000003_create_layout_preset_sync_runs_table.php`, `2026_08_28_000003_change_widget_visibility_to_datetime.php`, `2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table.php`.
+- Migration files: `2026_05_10_190841_02_create_widgets_table.php`, `2026_05_10_190841_03_create_widget_assets_table.php`, `2026_05_10_190841_04_create_widget_widgets_table.php`, `2026_05_10_190841_05_add_container_widgets_to_layouts_table.php`, `2026_05_10_190841_06_create_layout_presets_table.php`, `2026_06_07_000001_create_layout_bulk_change_tables.php`, `2026_07_09_000001_create_public_widget_snapshots_table.php`, `2026_07_10_000001_add_linked_preset_fields_to_layout_presets_table.php`, `2026_07_10_000002_create_layout_preset_usages_table.php`, `2026_07_10_000003_create_layout_preset_sync_runs_table.php`, `2026_08_28_000003_change_widget_visibility_to_datetime.php`, `2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table.php`, `2026_11_14_000001_grant_layout_builder_editor_permissions.php`.
 - Migration impact: run host migrations through the package install flow before opening package surfaces.
 - Deletion/retention behaviour: migrations declare cascade-on-delete relationships and null-on-delete relationships; retention is scheduled through `capell:widget-snapshots:prune` (daily; declared in the manifest) and `capell:layout-builder:prune-bulk-change-runs` (daily; declared in the manifest).
 

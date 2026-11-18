@@ -1,0 +1,81 @@
+[
+    {
+        "claim": "An editor opens a page and drags a call to action into the spot where it should go.",
+        "evidence": [
+            "resources/lang/en/button.php",
+            "resources/lang/en/generic.php",
+            "src/Livewire/Filament/Concerns/ManagesWidgets.php",
+            "src/Filament/Configurators/Widgets/ModernCTASectionConfigurator.php"
+        ]
+    },
+    {
+        "claim": "Layout Builder, the page builder, puts pages together from widgets. A widget is a piece of content with its own settings, such as a call to action or an image with a headline.",
+        "evidence": [
+            "src/Models/Widget.php",
+            "src/Support/Loader/LayoutLoader.php",
+            "src/Filament/Configurators/Widgets/ModernCTASectionConfigurator.php"
+        ]
+    },
+    {
+        "claim": "Capell's widget packages, such as a countdown or a slideshow, are placed on pages through it.",
+        "evidence": ["capell.json", "src/Models/Widget.php"]
+    },
+    {
+        "claim": "Inside a page there is a content editor, where you change text and images in place, and a layout view, where you add, move and remove widgets.",
+        "evidence": [
+            "src/Enums/LayoutBuilderEditorMode.php",
+            "src/Livewire/Filament/Concerns/AuthorizesLayoutBuilderAccess.php"
+        ]
+    },
+    {
+        "claim": "Your permissions decide which you get, and a role that edits layouts may need access to Widgets as well.",
+        "evidence": [
+            "src/Livewire/Filament/Concerns/AuthorizesLayoutBuilderAccess.php",
+            "src/Policies/WidgetPolicy.php",
+            "src/Filament/Components/Forms/WidgetSelect.php"
+        ]
+    },
+    {
+        "claim": "Moving and resizing can be undone before you Save Layout, but adding or removing a widget cannot.",
+        "evidence": [
+            "src/Livewire/Filament/Concerns/ManagesLayoutBuilderState.php",
+            "src/Livewire/Filament/Concerns/ManagesContainers.php",
+            "src/Livewire/Filament/Concerns/ManagesWidgets.php",
+            "src/Livewire/Filament/LayoutBuilder.php",
+            "src/Support/LayoutMutationHistory.php",
+            "resources/lang/en/button.php"
+        ]
+    },
+    {
+        "claim": "Several pages can share one layout, and a shared layout links to the pages that use it, so you can see what an edit will touch.",
+        "evidence": [
+            "src/Support/Loader/LayoutLoader.php",
+            "resources/views/livewire/filament/layout-builder/index.blade.php",
+            "resources/lang/en/button.php",
+            "resources/lang/en/message.php"
+        ]
+    },
+    {
+        "claim": "To swap a widget across many layouts, choose Move or replace widgets on the Layouts list.",
+        "evidence": [
+            "src/Filament/Resources/Layouts/Tables/LayoutsTable.php",
+            "resources/lang/en/button.php",
+            "src/Enums/LayoutBulkWidgetOperationType.php"
+        ]
+    },
+    {
+        "claim": "Runs that reach 50 layouts or 250 pages wait for background jobs, which your developer or host keeps running, and smaller runs apply at once.",
+        "evidence": [
+            "src/Filament/Resources/Layouts/Tables/LayoutsTable.php",
+            "src/Actions/BulkChanges/QueueLayoutBulkChangeRunAction.php",
+            "src/Actions/BulkChanges/ApplyLayoutBulkChangeRunAction.php"
+        ]
+    },
+    {
+        "claim": "You see a preview first, and nothing changes until you approve it.",
+        "evidence": [
+            "src/Filament/Resources/Layouts/Tables/LayoutsTable.php",
+            "resources/lang/en/button.php"
+        ]
+    }
+]

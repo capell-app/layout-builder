@@ -93,6 +93,50 @@ it('stores an immutable encrypted snapshot and renders HTML and registry-owned V
     }
 });
 
+it('returns a private empty server error when lazy widget rendering crashes', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    $locator = lazyWidgetLocator(lazyWidgetContext('Crash target'));
+    View::composer('capell-layout-builder::components.layout-widgets.interaction-target', function (): never {
+        throw new RuntimeException('Sensitive render failure');
+    });
+
+    $this->get(route('capell-layout-builder.layout-widgets.show', ['reference' => $locator]))
+        ->assertStatus(500)
+        ->assertContent('')
+        ->assertHeader('Cache-Control', 'no-store, private');
+});
+
+it('loads public snapshot locators with a constant query budget as widget count grows', function (): void {
+    resolve(WidgetExtensionRegistry::class)->register(ExampleWidgetExtensionDefinition::make());
+    $context = lazyWidgetContext('Query budget');
+    $page = $context->page;
+    throw_unless($page instanceof Model, RuntimeException::class, 'Expected a page context.');
+    $translation = $page->getRelation('translation');
+    throw_unless($translation instanceof Model, RuntimeException::class, 'Expected a translation context.');
+    $counts = [];
+    foreach ([1, 20] as $size) {
+        $blocks = [];
+        for ($index = 0; $index < $size; $index++) {
+            $block = lazyWidgetBlock('Widget ' . $index, 'budget-' . $index);
+            $blocks[] = $block;
+        }
+        $translation->forceFill(['content' => $blocks])->save();
+        RebuildPublicWidgetSnapshotsAction::run($context);
+        DB::enableQueryLog();
+        DB::flushQueryLog();
+        try {
+            $locators = resolve(BuildPublicWidgetInteractionLocatorsAction::class)->build($context);
+            $counts[] = count(DB::getQueryLog());
+        } finally {
+            DB::disableQueryLog();
+            DB::flushQueryLog();
+        }
+        expect($locators)->toHaveCount($size);
+    }
+    expect($counts[1])->toBeLessThanOrEqual($counts[0])
+        ->and($counts[1])->toBeLessThanOrEqual(3);
+});
+
 it('rejects tampered oversized expired and revoked locators with the same generic response', function (string $mode): void {
     $this->freezeTime();
 
@@ -583,14 +627,14 @@ function registerLazyWidgetResourceGroup(
 }
 
 /** @return array<string, mixed> */
-function lazyWidgetBlock(string $title): array
+function lazyWidgetBlock(string $title, string $instanceId = 'lazy-instance'): array
 {
     return [
         'type' => 'capell-app.slideshow',
         'data' => [
             'title' => $title,
             '__capell' => [
-                'instance_id' => 'lazy-instance',
+                'instance_id' => $instanceId,
                 'state_version' => 2,
                 'editor_url' => 'must-not-leak',
             ],

@@ -9,10 +9,13 @@ use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\AdminRuntimeActivator;
 use Capell\BlockLibrary\Support\DefaultBlockCatalog;
 use Capell\Core\Actions\Install\RegisterCommandsInCurrentProcessAction;
+use Capell\Core\Contracts\Capabilities\LayoutWidgetHost;
 use Capell\Core\Data\BlueprintSubjectDescriptorData;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\Layout;
+use Capell\Core\Support\Capabilities\CapabilityRegistry;
 use Capell\Core\Support\ContentGraph\ContentGraphRegistry;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
 use Capell\Core\Support\Packages\RouteGroupIsolation;
@@ -33,10 +36,12 @@ use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
 use Capell\LayoutBuilder\Bridges\LayoutBuilderAdminBridge;
+use Capell\LayoutBuilder\Capabilities\LayoutBuilderWidgetHost;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
 use Capell\LayoutBuilder\Console\Commands\LayoutBulkChangeCommand;
 use Capell\LayoutBuilder\Console\Commands\PruneLayoutBulkChangeRunsCommand;
 use Capell\LayoutBuilder\Console\Commands\PrunePublicWidgetSnapshotsCommand;
+use Capell\LayoutBuilder\Console\Commands\ResyncLayoutPresetCommand;
 use Capell\LayoutBuilder\Console\Commands\SeedLayoutBuilderScreenshotFixtureCommand;
 use Capell\LayoutBuilder\Console\Commands\WidgetVisualRegressionCommand;
 use Capell\LayoutBuilder\Contracts\Assets\PublicLayoutWidgetAssetsRenderer;
@@ -44,6 +49,7 @@ use Capell\LayoutBuilder\Contracts\LayoutContainerThemePresentationProjector;
 use Capell\LayoutBuilder\Contracts\LayoutContentGroupContributor;
 use Capell\LayoutBuilder\Contracts\LayoutSidebarWidgetContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutAssetMembership;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetAvailability;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadResolver;
 use Capell\LayoutBuilder\Contracts\WidgetAssetReferenceRepointer;
@@ -54,6 +60,7 @@ use Capell\LayoutBuilder\Enums\LayoutWidgetTarget;
 use Capell\LayoutBuilder\Fragments\LayoutBuilderFragmentUrlResolver;
 use Capell\LayoutBuilder\Http\Controllers\LazyLayoutWidgetController;
 use Capell\LayoutBuilder\Http\Controllers\PublicFragmentController;
+use Capell\LayoutBuilder\Http\Middleware\ThrottlePublicLayoutRequests;
 use Capell\LayoutBuilder\Listeners\MaintainPublicWidgetSnapshotsListener;
 use Capell\LayoutBuilder\Models\LayoutPreset;
 use Capell\LayoutBuilder\Models\Widget;
@@ -151,6 +158,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         $this->app->tag([], LayoutContainerThemePresentationProjector::TAG);
         $this->app->tag([WidgetExtensionContentStateProcessor::class], ContentWidgetStateProcessor::TAG);
         $this->app->tag([], LayoutSidebarWidgetContributor::TAG);
+        $this->app->tag([], PublicLayoutWidgetAvailability::TAG);
         $this->app->scoped(LayoutLoader::class);
         $this->app->scoped(LayoutBuilderFrontendComponentContributor::class);
         $this->app->scoped(LayoutBuilderLayoutWidgetResourceUsageContributor::class);
@@ -217,6 +225,8 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     #[Override]
     protected function bootInstalledRuntime(): void
     {
+        // Installed-runtime boot runs on a fresh installed boot and after a late install alike.
+        $this->app->make(CapabilityRegistry::class)->provide(LayoutWidgetHost::class, LayoutBuilderWidgetHost::class);
         $this->callAfterResolving(PublicRenderDataContributorRegistry::class, function (PublicRenderDataContributorRegistry $contributors): void {
             if (! isset($contributors->all()['builder_blocks'])) {
                 $contributors->register(new BuilderBlockPublicRenderDataContributor);
@@ -237,6 +247,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
         CapellCore::subscriberManager()->subscribe(WidgetSnapshotWorkflowSubscriber::class);
         Event::listen(PageSaved::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleSaved']);
         Event::listen(PageDeleted::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleDeleted']);
+        Event::listen('eloquent.saved: ' . Layout::class, [MaintainPublicWidgetSnapshotsListener::class, 'handleLayoutSaved']);
         Event::listen(RequestHandled::class, function (RequestHandled $event): void {
             if (! $event->request->is('_fragments/*') || ! $event->response->isSuccessful()) {
                 return;
@@ -293,6 +304,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
                 LayoutBulkChangeCommand::class,
                 PruneLayoutBulkChangeRunsCommand::class,
                 PrunePublicWidgetSnapshotsCommand::class,
+                ResyncLayoutPresetCommand::class,
                 SeedLayoutBuilderScreenshotFixtureCommand::class,
             ];
             $this->commands($commands);
@@ -327,6 +339,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
     {
         Route::name('capell-layout-builder.fragments.')
             ->prefix('_fragments')
+            ->middleware(ThrottlePublicLayoutRequests::class)
             ->group(function (): void {
                 Route::get('{reference}', PublicFragmentController::class)
                     ->where('reference', '.*')
@@ -345,7 +358,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
 
     private function registerLazyLayoutWidgetRoute(): void
     {
-        Route::middleware('web')
+        Route::middleware(['web', ThrottlePublicLayoutRequests::class])
             ->name('capell-layout-builder.layout-widgets.')
             ->group(function (): void {
                 Route::get('/{siteDomainPath}/_capell/layout-widgets/{reference}', LazyLayoutWidgetController::class)

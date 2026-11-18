@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 use Capell\Admin\Enums\PageTranslationSchemaHookEnum;
+use Capell\Admin\Settings\AdminSettings;
 use Capell\Admin\Testing\Filament\ReadsRawSchemaComponents;
 use Capell\Core\Models\Page;
 use Capell\LayoutBuilder\Filament\Components\Forms\Page\HeroEditor;
 use Capell\LayoutBuilder\Filament\Extenders\Page\HeroPageSchemaExtender;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Field;
 use Filament\Schemas\Schema;
 
 it('contributes the hero editor as a full width section after the translated title', function (): void {
@@ -71,4 +74,34 @@ function layoutBuilderFilamentObjectName(object $object): ?string
     $name = $object->getName();
 
     return is_string($name) ? $name : null;
+}
+
+it('labels the hero as the top of the page and offers guidance while helper tips are on', function (): void {
+    $page = Page::factory()->createOne();
+    $editor = layoutBuilderHeroContentField($page);
+
+    expect($editor->getLabel())->toBe(__('capell-layout-builder::form.hero'))
+        ->and(collect($editor->getHintActions())->filter(fn (Action $action): bool => $action->isVisible())->map(fn (Action $action): ?string => $action->getName())->values()->all())
+        ->toBe(['heroGuidance']);
+});
+
+it('drops the hero hint and guidance when helper tips are turned off', function (): void {
+    $settings = resolve(AdminSettings::class);
+    $settings->show_helper_tooltips = false;
+    $settings->save();
+
+    $editor = layoutBuilderHeroContentField(Page::factory()->createOne());
+
+    expect(collect($editor->getHintActions())->filter(fn (Action $action): bool => $action->isVisible())->all())
+        ->toBe([]);
+});
+
+function layoutBuilderHeroContentField(Page $page): Field
+{
+    $field = ReadsRawSchemaComponents::childComponents(layoutBuilderMountedHeroEditor($page))[0] ?? null;
+
+    expect($field)->toBeInstanceOf(Field::class);
+    assert($field instanceof Field);
+
+    return $field;
 }

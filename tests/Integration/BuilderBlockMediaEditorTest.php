@@ -14,6 +14,7 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Translation;
 use Capell\Tests\Support\Concerns\CreatesAdminUser;
+use Filament\Actions\Testing\TestAction;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -37,7 +38,7 @@ it('keeps separate block media collections and image selections when saving the 
     $translation = $page->translations()->create(['language_id' => Language::factory()->create()->id, 'title' => 'Page']);
     $images = [];
     foreach ($keys as $index => $key) {
-        $images[] = $translation->addMedia(UploadedFile::fake()->image('logo-' . $index . '.png'))
+        $images[] = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('logo-' . $index . '.png'))
             ->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
     }
 
@@ -74,7 +75,7 @@ it('keeps separate block media collections and image selections when saving the 
     $page->refresh();
     $translation->refresh();
     foreach ($keys as $index => $key) {
-        expect($translation->getMedia(ResolveBuilderBlockMediaAction::collection($key))->pluck('uuid')->all())->toBe([$images[$index]->uuid]);
+        expect($translation->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($key))->pluck('uuid')->all())->toBe([$images[$index]->uuid]);
     }
 
     $saved = $page->translations()->firstOrFail()->content;
@@ -90,7 +91,7 @@ it('clones then removes media through the real editor without deleting the origi
     $key = (string) Str::uuid();
     $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
     $translation = $page->translations()->create(['language_id' => Language::factory()->create()->id, 'title' => 'Clone page']);
-    $image = $translation->addMedia(UploadedFile::fake()->image('original.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
+    $image = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('original.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
     $translation->update(['content' => [['type' => 'logos', 'data' => ['title' => 'Partners', 'media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]]]]);
     $editor = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])->assertSuccessful();
     $instance = $editor->instance();
@@ -101,15 +102,15 @@ it('clones then removes media through the real editor without deleting the origi
     throw_unless($builder instanceof ContentBuilder, LogicException::class);
     $state = $builder->getRawState();
     throw_unless(is_array($state), LogicException::class);
-    $builder->getCloneAction()->call(['arguments' => ['item' => array_key_first($state)], 'component' => $builder]);
-    $state = $builder->getRawState();
+    // Clone through Livewire, as the editor does, so the separated clone state is the component's own.
+    $editor->callAction(TestAction::make('clone')->schemaComponent((string) str((string) $builder->getKey())->after('form.'), schema: 'form')->arguments(['item' => array_key_first($state)]));
+    $state = $editor->get((string) $builder->getStatePath());
     throw_unless(is_array($state), LogicException::class);
     $cloned = data_get(array_values($state), '1.data');
     throw_unless(is_array($cloned) && is_string($cloned['media_key'] ?? null), LogicException::class);
     expect($cloned['media_key'])->not->toBe($key);
     $cloneKey = $cloned['media_key'];
-    $editor->set($builder->getStatePath(), $builder->getRawState());
-    $cloneImage = $translation->fresh()->getMedia(ResolveBuilderBlockMediaAction::collection($cloneKey))->first();
+    $cloneImage = $translation->fresh()->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($cloneKey))->first();
     expect($cloneImage)->not->toBeNull()->and($cloneImage->uuid)->not->toBe($image->uuid)
         ->and(data_get($cloned, 'logos.*.image'))->toBe([$cloneImage->uuid]);
     expect($cloned['block_images'])->toBe([$cloneImage->uuid => $cloneImage->uuid]);
@@ -132,8 +133,8 @@ it('clones then removes media through the real editor without deleting the origi
     $editor->set($uploads[1]->getStatePath(), []);
     $editor->call('save')->assertHasNoFormErrors();
     $translation->refresh();
-    expect($translation->getMedia(ResolveBuilderBlockMediaAction::collection($key))->pluck('uuid')->all())->toBe([$image->uuid])
-        ->and($translation->getMedia(ResolveBuilderBlockMediaAction::collection($cloneKey)))->toBeEmpty()
+    expect($translation->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($key))->pluck('uuid')->all())->toBe([$image->uuid])
+        ->and($translation->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($cloneKey)))->toBeEmpty()
         ->and(Storage::disk('public')->exists($image->getPathRelativeToRoot()))->toBeTrue();
 
     $editor = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])->assertSuccessful();
@@ -150,10 +151,10 @@ it('clones then removes media through the real editor without deleting the origi
     $builder->getCloneAction()->call(['arguments' => ['item' => array_key_first($state)], 'component' => $builder]);
     $stateWithClone = $builder->getRawState();
     throw_unless(is_array($stateWithClone), LogicException::class);
-    expect($translation->media()->where('collection_name', 'like', 'builder-block-%')->count())->toBe(2);
+    expect($translation->mediaOwner()->media()->where('collection_name', 'like', 'builder-block-%')->count())->toBe(2);
     $editor->set($builder->getStatePath(), $state);
     $editor->call('save')->assertHasNoFormErrors();
-    expect($translation->media()->where('collection_name', 'like', 'builder-block-%')->count())->toBe(2);
+    expect($translation->mediaOwner()->media()->where('collection_name', 'like', 'builder-block-%')->count())->toBe(2);
 });
 
 it('retains committed block media and renders its original image after restoring saved page state', function (bool $restore): void {
@@ -163,7 +164,7 @@ it('retains committed block media and renders its original image after restoring
     $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
     $translation = Translation::factory()->translatable($page)->create();
     $key = (string) Str::uuid();
-    $image = $translation->addMedia(UploadedFile::fake()->image('committed.png'))
+    $image = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('committed.png'))
         ->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
     $metadata = $image->translations()->create(['language_id' => $translation->language_id, 'meta' => ['alt' => 'Original partner']]);
     $translation->update(['content' => [['type' => 'logos', 'data' => ['media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]]]]);
@@ -207,7 +208,7 @@ it('preserves another editors unsaved clone media metadata and files during an u
     $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
     $translation = Translation::factory()->translatable($page)->create();
     $key = (string) Str::uuid();
-    $image = $translation->addMedia(UploadedFile::fake()->image('shared.png'))
+    $image = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('shared.png'))
         ->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
     $image->translations()->create(['language_id' => $translation->language_id, 'meta' => ['alt' => 'Shared partner']]);
     $translation->update(['content' => [['type' => 'logos', 'data' => ['title' => 'Partners', 'media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]]]]);
@@ -225,7 +226,7 @@ it('preserves another editors unsaved clone media metadata and files during an u
     $cloneState = $builderB->getRawState();
     $cloneKey = data_get($cloneState, array_key_last(is_array($cloneState) ? $cloneState : []) . '.data.media_key');
     throw_unless(is_string($cloneKey), LogicException::class);
-    $clone = $translation->fresh()?->getMedia(ResolveBuilderBlockMediaAction::collection($cloneKey))->first();
+    $clone = $translation->fresh()?->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($cloneKey))->first();
     throw_unless($clone instanceof Media, LogicException::class);
     $metadata = $clone->translations()->firstOrFail();
     $attributes = $metadata->getAttributes();
@@ -241,9 +242,9 @@ it('preserves another editors unsaved clone media metadata and files during an u
     $firstKey = array_key_first($stateA);
     $blockA = $stateA[$firstKey] ?? null;
     throw_unless($firstKey !== null && is_array($blockA) && is_array($blockA['data'] ?? null), LogicException::class);
-    $blockA['data']['title'] = 'Updated partners';
-    $stateA[$firstKey] = $blockA;
-    $editorA->set($builderA->getStatePath(), $stateA);
+    // Set only the edited field: re-sending the whole builder state would resubmit the
+    // stored image paths, which Filament rejects as tampered uploads.
+    $editorA->set($builderA->getStatePath() . '.' . $firstKey . '.data.title', 'Updated partners');
     $editorA->call('save')->assertHasNoFormErrors();
 
     expect(data_get($translation->fresh()?->content, '0.data.title'))->toBe('Updated partners')
@@ -265,7 +266,7 @@ it('compensates all copied media and files when the second copy fails before pub
     $collection = ResolveBuilderBlockMediaAction::collection($key);
     $images = [];
     foreach (['one.png', 'two.png'] as $name) {
-        $images[] = $owner->addMedia(UploadedFile::fake()->image($name))->toMediaCollection($collection, 'public');
+        $images[] = $owner->mediaOwner()->addMedia(UploadedFile::fake()->image($name))->toMediaCollection($collection, 'public');
     }
 
     foreach ($images as $image) {
@@ -311,7 +312,7 @@ it('compensates all copied media and files when the second copy fails before pub
     // failed media operation must never publish a new collection or selectors.
     expect(data_get(array_values($failedState), '*.data.media_key'))->toBe([$key, $key])
         ->and(data_get(array_values($failedState), '*.data.block_images'))->toBe(array_fill(0, 2, data_get(array_values($state), '0.data.block_images')))
-        ->and($copies)->toBe(2)->and($owner->media()->pluck('uuid')->all())->toBe(array_map(static fn (Media $image): string => $image->uuid ?? throw new LogicException('Missing media UUID.'), $images))
+        ->and($copies)->toBe(2)->and($owner->mediaOwner()->media()->pluck('uuid')->all())->toBe(array_map(static fn (Media $image): string => $image->uuid ?? throw new LogicException('Missing media UUID.'), $images))
         ->and(Storage::disk('public')->allFiles())->toEqualCanonicalizing($files)
         ->and(Translation::withTrashed()->count())->toBe($translationCount)
         ->and(Media::withTrashed()->count())->toBe($mediaCount);
@@ -324,7 +325,7 @@ it('refuses an occupied target collection and never compensates media it did not
     $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
     $owner = Translation::factory()->translatable($page)->create();
     $key = (string) Str::uuid();
-    $image = $owner->addMedia(UploadedFile::fake()->image('original.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
+    $image = $owner->mediaOwner()->addMedia(UploadedFile::fake()->image('original.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
     $image->translations()->create(['language_id' => $owner->language_id, 'meta' => ['alt' => 'Original']]);
     $files = Storage::disk('public')->allFiles();
     $mediaCount = Media::withTrashed()->count();
@@ -351,7 +352,7 @@ it('refuses an occupied target collection and never compensates media it did not
         Str::createUuidsNormally();
     }
 
-    expect($owner->media()->pluck('uuid')->all())->toBe([$image->uuid])
+    expect($owner->mediaOwner()->media()->pluck('uuid')->all())->toBe([$image->uuid])
         ->and(Storage::disk('public')->allFiles())->toEqualCanonicalizing($files)
         ->and(Media::withTrashed()->count())->toBe($mediaCount)
         ->and(Translation::withTrashed()->count())->toBe($translationCount);
@@ -363,7 +364,7 @@ it('preserves committed media files when an editor content save rolls back', fun
     $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
     $translation = Translation::factory()->translatable($page)->create();
     $key = (string) Str::uuid();
-    $image = $translation->addMedia(UploadedFile::fake()->image('rollback.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
+    $image = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('rollback.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
     $translation->update(['content' => [['type' => 'logos', 'data' => ['media_key' => $key]]]]);
     $editor = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])->assertSuccessful();
     $instance = $editor->instance();
@@ -381,4 +382,75 @@ it('preserves committed media files when an editor content save rolls back', fun
     })->toThrow(RuntimeException::class, 'Roll back content');
     expect(Media::query()->whereKey($image->id)->exists())->toBeTrue()
         ->and(Storage::disk('public')->exists($image->getPathRelativeToRoot()))->toBeTrue();
+});
+
+it('rejects tampered block media paths while accepting the shared media owner uuid', function (string $tampered): void {
+    $this->actingAsAdmin();
+    Storage::fake('public');
+    Storage::fake('private-elsewhere');
+    config(['filesystems.disks.public.visibility' => 'public']);
+    $key = (string) Str::uuid();
+    $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
+    $translation = $page->translations()->create(['language_id' => Language::factory()->create()->id, 'title' => 'Tamper page']);
+    $image = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('shared.png'))->toMediaCollection(ResolveBuilderBlockMediaAction::collection($key), 'public');
+    $translation->update(['content' => [['type' => 'logos', 'data' => ['title' => 'Partners', 'media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]]]]);
+
+    $editor = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])->assertSuccessful();
+    $instance = $editor->instance();
+    throw_unless($instance instanceof EditPage, LogicException::class);
+    $form = $instance->getSchema('form');
+    throw_unless($form instanceof Schema, LogicException::class);
+    $upload = collect($form->getFlatFields(withHidden: true))->first(static fn ($field): bool => $field instanceof SpatieMediaLibraryFileUpload && $field->getName() === 'block_images');
+    throw_unless($upload instanceof SpatieMediaLibraryFileUpload, LogicException::class);
+    $statePath = (string) $upload->getStatePath();
+
+    $editor->set($statePath, [(string) Str::uuid() => $tampered])->call('save');
+    $errorKeys = array_map(strval(...), array_keys($editor->errors()->toArray()));
+    expect($errorKeys)->not->toBeEmpty()->and(array_all($errorKeys, static fn (string $key): bool => str_ends_with($key, 'block_images')))->toBeTrue();
+    expect($translation->fresh()?->mediaOwner()->getMedia(ResolveBuilderBlockMediaAction::collection($key))->pluck('uuid')->all())->toBe([$image->uuid]);
+
+    $accepted = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()]);
+    $accepted->call('save')->assertHasNoFormErrors();
+})->with([
+    'parent traversal' => '../../../.env',
+    'nested traversal' => 'builder-block/../../secrets.png',
+    'absolute path' => '/etc/passwd',
+    'foreign disk path' => 'private-elsewhere://other-owner/secret.png',
+]);
+
+it('rejects the uuid of media another page owns under the same collection name', function (): void {
+    $this->actingAsAdmin();
+    Storage::fake('public');
+    config(['filesystems.disks.public.visibility' => 'public']);
+    $key = (string) Str::uuid();
+    $collection = ResolveBuilderBlockMediaAction::collection($key);
+    $language = Language::factory()->create();
+    $page = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
+    $translation = $page->translations()->create(['language_id' => $language->id, 'title' => 'Own page']);
+    $own = $translation->mediaOwner()->addMedia(UploadedFile::fake()->image('own.png'))->toMediaCollection($collection, 'public');
+    $translation->update(['content' => [['type' => 'logos', 'data' => ['title' => 'Partners', 'media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $own->uuid]]]]]]);
+
+    $otherPage = Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]);
+    $otherTranslation = $otherPage->translations()->create(['language_id' => $language->id, 'title' => 'Other page']);
+    $foreign = $otherTranslation->mediaOwner()->addMedia(UploadedFile::fake()->image('foreign.png'))->toMediaCollection($collection, 'public');
+    expect($otherTranslation->mediaOwner()->is($translation->mediaOwner()))->toBeFalse()
+        ->and($foreign->uuid)->not->toBe($own->uuid);
+    $files = Storage::disk('public')->allFiles();
+
+    $editor = Livewire::test(EditPage::class, ['record' => $page->getRouteKey()])->assertSuccessful();
+    $instance = $editor->instance();
+    throw_unless($instance instanceof EditPage, LogicException::class);
+    $form = $instance->getSchema('form');
+    throw_unless($form instanceof Schema, LogicException::class);
+    $upload = collect($form->getFlatFields(withHidden: true))->first(static fn ($field): bool => $field instanceof SpatieMediaLibraryFileUpload && $field->getName() === 'block_images');
+    throw_unless($upload instanceof SpatieMediaLibraryFileUpload, LogicException::class);
+
+    $editor->set((string) $upload->getStatePath(), [(string) Str::uuid() => $foreign->uuid])->call('save');
+    $errorKeys = array_map(strval(...), array_keys($editor->errors()->toArray()));
+    expect($errorKeys)->not->toBeEmpty()->and(array_all($errorKeys, static fn (string $key): bool => str_ends_with($key, 'block_images')))->toBeTrue()
+        ->and($translation->fresh()?->mediaOwner()->getMedia($collection)->pluck('uuid')->all())->toBe([$own->uuid])
+        ->and($otherTranslation->fresh()?->mediaOwner()->getMedia($collection)->pluck('uuid')->all())->toBe([$foreign->uuid])
+        ->and(Storage::disk('public')->exists($own->getPathRelativeToRoot()))->toBeTrue()
+        ->and(Storage::disk('public')->exists($foreign->getPathRelativeToRoot()))->toBeTrue()
+        ->and(Storage::disk('public')->allFiles())->toEqualCanonicalizing($files);
 });

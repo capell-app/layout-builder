@@ -1,6 +1,6 @@
 {
     "name": "capell-app/layout-builder",
-    "description": "The visual layout and widget composition engine for Capell CMS — content-first and drag-drop editing, responsive containers, reusable widgets, and safe public rendering.",
+    "description": "Compose Capell pages from reusable widgets in shared layouts, edited in place or rearranged, with bulk widget replacement.",
     "keywords": [
         "capell",
         "layout-builder",
@@ -14,7 +14,7 @@
         "php": "^8.4",
         "capell-app/admin": "^1.0.72",
         "capell-app/block-library": "^1.0",
-        "capell-app/core": "^1.0.76",
+        "capell-app/core": "^1.0.78",
         "capell-app/frontend": "^1.0.72"
     },
     "suggest": {

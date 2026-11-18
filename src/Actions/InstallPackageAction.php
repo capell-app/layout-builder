@@ -32,5 +32,7 @@ class InstallPackageAction
 
         $layoutCreator = resolve(LayoutCreator::class);
         $layoutCreator->setup();
+
+        GrantLayoutBuilderDefaultRolePermissionsAction::run();
     }
 }

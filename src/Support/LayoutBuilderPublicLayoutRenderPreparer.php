@@ -11,10 +11,12 @@ use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Data\PublicPageRenderData;
 use Capell\Frontend\Support\Render\PublicRenderDataScope;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetRenderContextAction;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetAvailability;
 use Capell\LayoutBuilder\Data\PublicWidgetRenderContextData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Override;
+use Throwable;
 use WeakMap;
 
 /**
@@ -76,7 +78,7 @@ final class LayoutBuilderPublicLayoutRenderPreparer implements PublicLayoutRende
                 }
 
                 CapellLayoutManager::storeContainerWidget((string) $containerKey, $widgetKey, $widget, $occurrence);
-                $contexts[(string) $containerKey][$this->identity($widgetKey, $occurrence)] = ['index' => $widgetIndex, 'context' => ResolvePublicWidgetRenderContextAction::run(
+                $renderContext = ResolvePublicWidgetRenderContextAction::run(
                     layout: $context->layout,
                     containerKey: (string) $containerKey,
                     widgetIndex: $widgetIndex,
@@ -84,7 +86,22 @@ final class LayoutBuilderPublicLayoutRenderPreparer implements PublicLayoutRende
                     widgetData: $widgetData,
                     type: $widget->getMetaComponentType(),
                     hasPreparedHtml: $data->preparedWidgetHtml((string) $containerKey, $widgetKey, $occurrence) !== null,
-                )];
+                );
+
+                if (! $this->available($widget, $context)) {
+                    $renderContext = new PublicWidgetRenderContextData(
+                        occurrence: $renderContext->occurrence,
+                        widgetDomId: $renderContext->widgetDomId,
+                        presentation: $renderContext->presentation,
+                        isLazyFragment: $renderContext->isLazyFragment,
+                        widgetReference: null,
+                        resourcePublicIds: [],
+                        interactions: [],
+                        unavailable: true,
+                    );
+                }
+
+                $contexts[(string) $containerKey][$this->identity($widgetKey, $occurrence)] = ['index' => $widgetIndex, 'context' => $renderContext];
             }
         }
 
@@ -115,6 +132,32 @@ final class LayoutBuilderPublicLayoutRenderPreparer implements PublicLayoutRende
         $entry = $this->prepared[$data];
 
         return $entry['layout'] === $layout ? $entry : null;
+    }
+
+    /**
+     * Runs before the public query guard, so availability checks may query. A check
+     * that throws is reported and leaves out that widget only.
+     */
+    private function available(Widget $widget, FrontendRenderContextData $context): bool
+    {
+        foreach (app()->tagged(PublicLayoutWidgetAvailability::TAG) as $availability) {
+            if (! $availability instanceof PublicLayoutWidgetAvailability) {
+                continue;
+            }
+
+            try {
+                if (! $availability->available($widget, $context)) {
+                    return false;
+                }
+            } catch (Throwable $exception) {
+                // One failing package check hides only the widget it was asked about.
+                report($exception);
+
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function identity(string $widgetKey, int $occurrence): string

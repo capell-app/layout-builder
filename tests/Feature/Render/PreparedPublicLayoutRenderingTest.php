@@ -28,6 +28,7 @@ use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\LayoutBuilder\Actions\BuildPublicLayoutGraphAction;
 use Capell\LayoutBuilder\Actions\Fragments\BuildLayoutBuilderFragmentReferenceAction;
 use Capell\LayoutBuilder\Actions\ResolvePublicWidgetRenderContextAction;
+use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetAvailability;
 use Capell\LayoutBuilder\Contracts\PublicLayoutWidgetPayloadContributor;
 use Capell\LayoutBuilder\Listeners\LayoutLoaded;
 use Capell\LayoutBuilder\Models\Widget;
@@ -41,6 +42,7 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -189,6 +191,58 @@ it('preserves every container and renders each prepared occurrence once with a t
         expect($html)->not->toContain($marker);
     }
 })->with(['Core layout' => false, 'Foundation layout' => true]);
+
+it('leaves out every occurrence of a widget a package marks unavailable, wrapper included', function (): void {
+    [$context, $widget] = preparedLayoutFixture();
+    resolve(LayoutLoaded::class)->handle('loadedLayout', new stdClass);
+    $checked = new ArrayObject;
+    app()->instance('prepared-test-availability', new readonly class($checked) implements PublicLayoutWidgetAvailability
+    {
+        /** @param ArrayObject<int, string> $checked */
+        public function __construct(private ArrayObject $checked) {}
+
+        public function available(Widget $widget, FrontendRenderContextData $context): bool
+        {
+            // Runs before the public view query guard, so it may query.
+            $this->checked->append($widget->key . ':' . Widget::query()->whereKey($widget->getKey())->count());
+
+            return false;
+        }
+    });
+    app()->tag(['prepared-test-availability'], PublicLayoutWidgetAvailability::TAG);
+
+    $html = renderPreparedLayout($context);
+    $dom = HTMLDocument::createFromString($html, LIBXML_NOERROR);
+
+    expect($checked->getArrayCopy())->toBe([$widget->key . ':1', $widget->key . ':1', $widget->key . ':1'])
+        ->and($dom->querySelectorAll('#layout-container-0d6e4079e36703eb')->length)->toBe(1)
+        ->and($dom->querySelectorAll('#layout-container-7d10de8554ed5ca4')->length)->toBe(1)
+        ->and($dom->querySelectorAll('[data-prepared]')->length)->toBe(0)
+        ->and($dom->querySelectorAll('[data-fallback]')->length)->toBe(0)
+        ->and($dom->querySelectorAll('[data-capell-widget-runtime]')->length)->toBe(0)
+        ->and($dom->querySelectorAll('.layout-widget')->length)->toBe(0);
+});
+
+it('reports a failing availability check and leaves out only the widget it was asked about', function (): void {
+    [$context] = preparedLayoutFixture();
+    resolve(LayoutLoaded::class)->handle('loadedLayout', new stdClass);
+    Exceptions::fake();
+    app()->instance('prepared-test-failing-availability', new class implements PublicLayoutWidgetAvailability
+    {
+        public function available(Widget $widget, FrontendRenderContextData $context): bool
+        {
+            throw new RuntimeException('Availability store is down.');
+        }
+    });
+    app()->tag(['prepared-test-failing-availability'], PublicLayoutWidgetAvailability::TAG);
+
+    $dom = HTMLDocument::createFromString(renderPreparedLayout($context), LIBXML_NOERROR);
+
+    expect($dom->querySelectorAll('#layout-container-0d6e4079e36703eb')->length)->toBe(1)
+        ->and($dom->querySelectorAll('[data-prepared]')->length)->toBe(0)
+        ->and($dom->querySelectorAll('.layout-widget')->length)->toBe(0);
+    Exceptions::assertReported(static fn (RuntimeException $exception): bool => $exception->getMessage() === 'Availability store is down.');
+});
 
 it('supports legacy includes without implicitly opting authored layouts into prepared html', function (bool $prepared, bool $area): void {
     [$context] = preparedLayoutFixture();

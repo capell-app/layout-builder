@@ -31,6 +31,7 @@ use Composer\Semver\Intervals;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 
 it('declares the admin resources and extension points owned by layout builder', function (): void {
     $manifestContents = file_get_contents(dirname(__DIR__, 2) . '/capell.json');
@@ -116,8 +117,9 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
     expect(Semver::satisfies('1.0.71', $adminConstraint))->toBeFalse()
         ->and(Semver::satisfies('1.0.72', $adminConstraint))->toBeTrue()
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
+        // Core 1.0.76 is the first release with what Layout Builder needs; a later floor is still valid.
         ->and(Semver::satisfies('1.0.75', $coreConstraint))->toBeFalse()
-        ->and(Semver::satisfies('1.0.76', $coreConstraint))->toBeTrue()
+        ->and(Intervals::isSubsetOf($parser->parseConstraints($coreConstraint), $parser->parseConstraints('>=1.0.76')))->toBeTrue()
         ->and(Intervals::isSubsetOf($parser->parseConstraints($frontendConstraint), $parser->parseConstraints('>=1.0.31')))->toBeTrue()
         ->and($manifest['capellApiVersion'] ?? null)->toBe('^1.0');
 });
@@ -188,6 +190,7 @@ it('declares runtime model page type route and migration contribution metadata',
         ->and($routes['routes'])->toBe([
             'capell-layout-builder.fragments.show',
             'capell-layout-builder.layout-widgets.show',
+            'capell-layout-builder.layout-widgets.localized.show',
         ])
         ->and($routes['reservedFrontendPath'])->toBe('_fragments')
         ->and($security['publicSurface']['routeNames'])->toBe([
@@ -209,6 +212,7 @@ it('declares runtime model page type route and migration contribution metadata',
             '2026_07_10_000003_create_layout_preset_sync_runs_table',
             '2026_08_28_000003_change_widget_visibility_to_datetime',
             '2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table',
+            '2026_11_14_000001_grant_layout_builder_editor_permissions',
         ])
         ->and(class_implements(LayoutBuilderMigrationsContribution::class))->toContain(RunsExtensionMigration::class);
 });
@@ -343,4 +347,18 @@ it('declares media invalidation for the public builder block render data', funct
     expect(array_column($sources, 'model'))->toContain(Media::class)
         ->and(data_get($manifest, 'performance.cacheSafety.variesBy'))->toBe(['site', 'locale', 'page'])
         ->and(class_implements(BuilderBlockPublicRenderDataContributor::class))->toContain(RegistersExtensionPublicRenderData::class);
+});
+
+it('registers preset recovery with Artisan and the package command manifest', function (): void {
+    expect(Artisan::all())->toHaveKey('layout-builder:resync-preset');
+    $this->artisan('layout-builder:resync-preset', ['preset' => 'missing-preset'])
+        ->expectsOutputToContain(__('capell-layout-builder::message.linked_preset_not_found'))
+        ->assertFailed();
+
+    $manifest = layoutBuilderJson('capell.json');
+    $contributions = $manifest['contributes'] ?? null;
+    throw_unless(is_array($contributions), RuntimeException::class, 'Expected manifest contributions.');
+    $commands = collect($contributions)->firstWhere('type', 'console-command');
+    expect(data_get($manifest, 'commands.resyncPreset'))->toBe('layout-builder:resync-preset')
+        ->and(data_get($commands, 'commands'))->toContain('layout-builder:resync-preset');
 });

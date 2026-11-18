@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\ContentSections\Models\Section;
 use Capell\Core\Data\RenderableContributionIdentityData;
 use Capell\Core\Data\RenderableDefinitionData;
 use Capell\Core\Enums\ExtensionContributionType;
@@ -78,6 +79,79 @@ it('renders explicitly grouped widget assets without querying frontend context',
 
     expect($html)->toContain('Grouped Asset')
         ->and($html)->toContain('data-render-key="feature"');
+});
+
+it('never passes an executable URL scheme from asset meta into public HTML', function (string $url): void {
+    $viewPath = storage_path('framework/testing/layout-builder-public-widget-assets-renderer');
+    File::put($viewPath . '/linked.blade.php', '<a class="primary" href="{{ $meta["url"] ?? "" }}">go</a><a class="nested" href="{{ $meta["actions"][0]["url"] ?? "" }}">more</a><span>{{ $meta["label"] ?? "" }}</span><em>{{ $meta["note"] ?? "" }}</em><b>{{ $meta["caption"] ?? "" }}</b>');
+    resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
+        key: 'linked',
+        type: RenderableTypeEnum::Section,
+        blade: 'layout-builder-renderer-test::linked',
+    ));
+
+    $language = Language::factory()->create();
+    $widget = Widget::factory()->create();
+    $asset = layoutBuilderRendererWidgetAsset($language, 'Linked Asset', [
+        'kind' => 'linked',
+        'url' => $url,
+        'actions' => [['url' => $url]],
+        'label' => 'Note: kept as text',
+        'note' => 'JavaScript: the basics',
+        'caption' => $url,
+    ]);
+    $widgetAsset = WidgetAsset::factory()->widget($widget)->asset($asset)->container('main')->occurrence(1)->create();
+    $widgetAsset->setRelation('asset', $asset);
+
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetData: ['occurrence' => 1],
+        widgetAssetsByWidget: collect([$widget->getKey() . ':main:1' => collect([$widgetAsset])]),
+    );
+
+    expect($html)->toContain('class="primary" href=""')
+        ->and($html)->toContain('class="nested" href=""')
+        ->and($html)->toContain('Note: kept as text')
+        ->and($html)->toContain('<em>JavaScript: the basics</em>')
+        ->and(mb_strtolower(html_entity_decode($html)))->not->toContain('alert(1)')
+        ->and(mb_strtolower(html_entity_decode($html)))->not->toContain('msgbox(1)')
+        ->and(mb_strtolower(html_entity_decode($html)))->not->toContain('data:text');
+})->with([
+    'javascript' => 'javascript:alert(1)',
+    'mixed case with whitespace' => " \tJaVaScRiPt:alert(1)",
+    'control characters' => "java\u{0000}script:alert(1)",
+    'vbscript' => 'vbscript:msgbox(1)',
+    'html data URL' => 'data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==',
+]);
+
+it('filters javascript links from a published section rendered through a layout widget', function (): void {
+    $viewPath = storage_path('framework/testing/layout-builder-public-widget-assets-renderer');
+    File::put($viewPath . '/section-link.blade.php', '<section><a href="{{ $meta["url"] ?? "" }}">{{ $translation->title }}</a></section>');
+    resolve(RenderableRegistry::class)->register(new RenderableDefinitionData(
+        key: 'section-link',
+        type: RenderableTypeEnum::Section,
+        blade: 'layout-builder-renderer-test::section-link',
+    ));
+    $language = Language::factory()->create();
+    $widget = Widget::factory()->create();
+    $section = Section::factory()->withTranslations($language, ['title' => 'Published section'])->create([
+        'visible_from' => now()->subDay(),
+        'meta' => ['kind' => 'section-link', 'url' => 'javascript:alert(1)'],
+    ]);
+    $section->setRelation('translation', $section->translations()->firstOrFail());
+    $attachment = WidgetAsset::factory()->widget($widget)->asset($section)->container('main')->occurrence(1)->create();
+    $attachment->setRelation('asset', $section);
+
+    $html = resolve(PublicLayoutWidgetAssetsRenderer::class)->render(
+        widget: $widget,
+        containerKey: 'main',
+        widgetData: ['occurrence' => 1],
+        widgetAssetsByWidget: collect([$widget->getKey() . ':main:1' => collect([$attachment])]),
+    );
+
+    expect($html)->toContain('<a href="">Published section</a>')
+        ->not->toContain('javascript:', 'alert(1)', 'widget_id', 'asset_id');
 });
 
 it('falls back to frontend context and filters non-public translations', function (): void {

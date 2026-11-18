@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 return [
+    'linked_preset_not_found' => 'Linked layout preset not found.',
+    'preset_sync_queued' => 'Queued preset sync run :run.',
     'edit_widget_linked' => 'Content changes apply to every occurrence linked to this widget. Use Make independent copy on an occurrence to edit it separately.',
     'duplicate_widget_linked' => 'This adds another occurrence of the same widget. Editing its content updates every linked occurrence. To edit this occurrence separately, use Make independent copy.',
     'independent_widget_copy' => 'Replace this occurrence with a separate widget, copying its content and uploaded media. Future changes to this widget will not change the original.',

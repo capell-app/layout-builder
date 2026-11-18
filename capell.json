@@ -6,7 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
-    "description": "Compose pages visually with reusable widgets and named layout areas: edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
+    "description": "Compose Capell pages from reusable widgets in shared layouts, edited in place or rearranged, with bulk widget replacement.",
     "product": {
         "group": "Capell Essentials",
         "tier": "free",
@@ -38,6 +38,9 @@
         "runtime": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
         "admin": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"],
         "frontend": ["Capell\\LayoutBuilder\\LayoutBuilderServiceProvider"]
+    },
+    "capabilityContracts": {
+        "provides": { "layout-widget-host": 1 }
     },
     "contributes": [
         {
@@ -128,7 +131,8 @@
             "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderRoutesContribution",
             "routes": [
                 "capell-layout-builder.fragments.show",
-                "capell-layout-builder.layout-widgets.show"
+                "capell-layout-builder.layout-widgets.show",
+                "capell-layout-builder.layout-widgets.localized.show"
             ],
             "prefix": "_fragments",
             "middleware": ["web"],
@@ -149,7 +153,8 @@
                 "2026_07_10_000002_create_layout_preset_usages_table",
                 "2026_07_10_000003_create_layout_preset_sync_runs_table",
                 "2026_08_28_000003_change_widget_visibility_to_datetime",
-                "2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table"
+                "2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table",
+                "2026_11_14_000001_grant_layout_builder_editor_permissions"
             ]
         },
         {
@@ -172,17 +177,30 @@
                 "capell:layout-builder-widget-visual-regression",
                 "capell:layout-builder:prune-bulk-change-runs",
                 "capell:layouts:bulk-change",
-                "capell:widget-snapshots:prune"
+                "capell:widget-snapshots:prune",
+                "layout-builder:resync-preset"
             ],
             "commandClasses": [
                 "Capell\\LayoutBuilder\\Console\\Commands\\InstallCommand",
                 "Capell\\LayoutBuilder\\Console\\Commands\\WidgetVisualRegressionCommand",
                 "Capell\\LayoutBuilder\\Console\\Commands\\PruneLayoutBulkChangeRunsCommand",
                 "Capell\\LayoutBuilder\\Console\\Commands\\LayoutBulkChangeCommand",
-                "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand"
+                "Capell\\LayoutBuilder\\Console\\Commands\\PrunePublicWidgetSnapshotsCommand",
+                "Capell\\LayoutBuilder\\Console\\Commands\\ResyncLayoutPresetCommand"
             ],
             "excludedCommands": {
                 "capell:layout-builder-screenshot-fixture": "Seeds disposable screenshot data only; not an operational command."
+            }
+        },
+        {
+            "type": "permission",
+            "class": "Capell\\LayoutBuilder\\Manifest\\LayoutBuilderPermissionsContribution",
+            "permissions": [],
+            "resolver": "permissions",
+            "defaultRoles": {
+                "editor": {
+                    "Layout": ["view_any", "view", "edit_content"]
+                }
             }
         }
     ],
@@ -211,7 +229,8 @@
         "prune": "capell:layout-builder:prune-bulk-change-runs",
         "visualRegression": "capell:layout-builder-widget-visual-regression",
         "bulkChange": "capell:layouts:bulk-change",
-        "pruneSnapshots": "capell:widget-snapshots:prune"
+        "pruneSnapshots": "capell:widget-snapshots:prune",
+        "resyncPreset": "layout-builder:resync-preset"
     },
     "actions": {
         "install": "Capell\\LayoutBuilder\\Actions\\InstallLayoutBuilderPackageAction",
@@ -232,7 +251,19 @@
         "ForceDelete:Layout",
         "Replicate:Layout",
         "Reorder:Layout",
-        "BulkMutate:Layout"
+        "BulkMutate:Layout",
+        "ViewAny:Widget",
+        "View:Widget",
+        "Create:Widget",
+        "Update:Widget",
+        "Delete:Widget",
+        "DeleteAny:Widget",
+        "Restore:Widget",
+        "RestoreAny:Widget",
+        "ForceDelete:Widget",
+        "ForceDeleteAny:Widget",
+        "Replicate:Widget",
+        "Reorder:Widget"
     ],
     "capabilities": [
         "layout-builder",
@@ -253,7 +284,11 @@
             "signedRoutes": [],
             "tokenizedRoutes": [],
             "webhookRoutes": [],
-            "throttledRoutes": []
+            "throttledRoutes": [
+                "GET /_capell/layout-widgets/{reference} (capell-layout-builder.layout-widgets.show)",
+                "GET /_fragments/{reference} (capell-layout-builder.fragments.show)",
+                "GET /{siteDomainPath}/_capell/layout-widgets/{reference} (capell-layout-builder.layout-widgets.localized.show)"
+            ]
         },
         "sensitiveData": {
             "encryptedFields": [
@@ -294,7 +329,19 @@
                 "ForceDelete:Layout",
                 "Replicate:Layout",
                 "Reorder:Layout",
-                "BulkMutate:Layout"
+                "BulkMutate:Layout",
+                "ViewAny:Widget",
+                "View:Widget",
+                "Create:Widget",
+                "Update:Widget",
+                "Delete:Widget",
+                "DeleteAny:Widget",
+                "Restore:Widget",
+                "RestoreAny:Widget",
+                "ForceDelete:Widget",
+                "ForceDeleteAny:Widget",
+                "Replicate:Widget",
+                "Reorder:Widget"
             ]
         }
     },
@@ -367,48 +414,857 @@
         "privateDocsRequested": false
     },
     "marketplace": {
-        "summary": "Compose pages visually with reusable widgets and named layout areas: edit content fast in content-first mode, or drag-and-drop the full layout. Renders to clean, query-free public HTML that never leaks editor internals.",
-        "problem": "Editors who cannot compose page layouts depend on developers for routine layout changes.",
-        "outcome": "A site has page layouts that editors can compose and revise in admin.",
+        "summary": "Editors build and rearrange pages from widgets without a developer, and replace a widget across many layouts after a preview.",
+        "description": "Build pages from widgets you place, move and reuse. Change text and images in the content editor, or rearrange widgets in the layout view. Replace or move a widget across many layouts after a preview, and large runs finish in background jobs, which your developer or host keeps running.",
+        "problem": "I have to ask a developer every time a page needs a section moved, swapped or added.",
+        "outcome": "Editors compose pages from reusable widgets and swap a widget across layouts after a preview.",
         "faq": [
             {
-                "question": "How can editors change a layout?",
-                "answer": "Editors can add, reorder, resize and edit page widgets in admin."
+                "question": "Can I undo a change I make in the layout view?",
+                "answer": "Moving and resizing a widget can be undone until you press Save Layout. Adding or removing a widget cannot be undone."
             },
             {
-                "question": "Are layout edits reversible?",
-                "answer": "Yes. Layout Builder supports reversible layout edits."
+                "question": "What happens if two editors change the same layout?",
+                "answer": "If someone else saved the layout after you opened it, your save is rejected and the builder reloads their version. You then make your change again on the refreshed layout."
             },
             {
-                "question": "What do visitors see on pages?",
-                "answer": "Visitors receive the saved layout as public output without authoring markers."
+                "question": "Can I swap one widget for another across many layouts at once?",
+                "answer": "Yes, with Move or replace widgets on the Layouts list. You see a preview first and nothing changes until you approve it. Runs that reach 50 layouts or 250 pages wait for background jobs."
             }
         ],
         "screenshots": [
             {
                 "path": "docs/assets/marketplace/extension-card.jpg",
-                "alt": "Layout Builder extension preview image",
-                "caption": "Layout Builder extension preview"
+                "alt": "Marketplace card titled Layout Builder with a home page and a Layouts list beside the words Area, Widget and HTML.",
+                "caption": "The Marketplace card for Layout Builder, the page builder that places widgets on pages."
             },
             {
                 "path": "docs/screenshots/widgets-admin-index.png",
-                "alt": "Layout Builder reusable Widgets admin index",
-                "caption": "Review reusable widgets, blueprint types, layout usage, status, and update history."
+                "alt": "Widgets list with name, type, usage and status, showing Announcement Bar unused and Article Archives used in six layouts.",
+                "caption": "See which widgets are in use and which are unused before you change one."
             },
             {
                 "path": "docs/screenshots/sections-admin-index.png",
-                "alt": "Layout Builder layouts admin index with seeded layout cards",
-                "caption": "Manage reusable layouts, container counts, status, and live usage from the admin index."
+                "alt": "Layouts list as cards headed Archives, Article and Author Results, with page counts and a Move or replace widgets button.",
+                "caption": "Browse layouts, see how many pages use each one and start a widget swap."
             },
             {
                 "path": "docs/screenshots/create-edit-widget-form.png",
-                "alt": "Layout Builder Create Widget form with translation and presentation tabs",
-                "caption": "Build a reusable widget with translations, placement, items, appearance, background, rendering, and visibility scheduling."
+                "alt": "Announcement Bar widget form with a title, rich text content, a Publish panel and tabs for Details and Placement.",
+                "caption": "Edit a widget's content and publishing, with separate tabs for placement and appearance."
             }
         ],
         "categories": ["admin", "foundation", "frontend"]
     },
     "contributionTraceability": {
-        "deferredContributions": []
-    }
+        "deferredContributions": [],
+        "contributions": [
+            {
+                "type": "model",
+                "key": "model:Capell\\LayoutBuilder\\Models\\Widget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "model",
+                "key": "model:Capell\\LayoutBuilder\\Models\\WidgetAsset",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "model",
+                "key": "model:Capell\\LayoutBuilder\\Models\\WidgetWidget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "frontend-component",
+                "key": "accordion",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "call_to_action",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "comparison",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "counter",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "divider",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "faq",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "features",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "hero",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "logos",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "pricing",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "stats",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "table",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "tabs",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "team",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "testimonial",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "timeline",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "content",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "image",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "title",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "public-render-data",
+                "key": "builder_blocks",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "blueprint-subject",
+                "key": "widget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "page-type",
+                "key": "widget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "model",
+                "key": "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\DefaultLayoutInterceptor:default",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "model",
+                "key": "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\HomeLayoutInterceptor:home",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "model",
+                "key": "model-interceptor:Capell\\Core\\Models\\Layout:Capell\\LayoutBuilder\\Support\\Interceptors\\Layouts\\ResultsLayoutInterceptor:results",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Asset:Card",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Asset:Media",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Asset:Page",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Asset:Tile",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetAccordion",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetBanner",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetWidget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetCarousel",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetFeatures",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetMedia",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AssetTestimonials",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:AnnouncementBar",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:Assets",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:BannerImage",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:Default",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:Hero",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:Navigation",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:NavigationTabs",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:PageBreadcrumbs",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:PageChildren",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:PageContent",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:PageLatest",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:PageSiblings",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:PageSlot",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:Pages",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:Snippet",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApHeroBanner",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApCardGrid",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApFeatureList",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApCTASection",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApImageGallery",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApTeamMembers",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApPricingTable",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApTestimonials",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApFaqSection",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApStatsSection",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApAlternatingContent",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:ApProcessSteps",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkRichText",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkStructuredText",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkDataDisplay",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkForms",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkInteractions",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkEmbeds",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Widget:KitchenSinkUtilityStates",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Asset:SectionWidget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "component:Asset:SectionTeamMember",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.accordion",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.banners",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.widgets",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.carousel",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.features",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.media",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.testimonials",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.announcement-bar",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.banner-image",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.default",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.hero",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.navigation",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.navigation.tabs",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.page.breadcrumbs",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.page.children",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.page.content",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.page.latest",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.page.siblings",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.slot",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.asset.pages",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.snippet",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.hero-banner",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.card-grid",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.feature-list",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.cta-section",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.image-gallery",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.team-members",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.pricing-table",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.testimonials",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.faq-section",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.stats-section",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.alternating-content",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.modern.process-steps",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.rich-text",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.structured-text",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.data-display",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.forms",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.interactions",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.embeds",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.kitchen-sink.utility-states",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:asset:capell.asset.section.widget",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:asset:capell.asset.section.team-member",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "content-widget",
+                "key": "renderable:layout-widget:capell.widget.pages",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "render-hook",
+                "key": "main-content-layout",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "admin-page",
+                "key": "bridge:capell-app/layout-builder:Capell\\LayoutBuilder\\Bridges\\LayoutBuilderAdminBridge",
+                "providerBucket": "runtime"
+            },
+            {
+                "type": "admin-resource",
+                "key": "resource:Widget:default",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "admin-resource",
+                "key": "resource:Layout:layout-builder",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "admin-resource",
+                "key": "resource:Layout:preset",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:LayoutContainers:Default",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:LayoutWidgets:DefaultLayout",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:LayoutWidgets:PageLayout",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:LayoutWidgets:ResultsLayout",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:Default",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:Assets",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:Carousel",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:Hero",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:Navigation",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:PageContent",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:Results",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:System",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:HeroBanner",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:CardGrid",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:FeatureList",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:CTASection",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:ImageGallery",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Widgets:KitchenSinkReference",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:WidgetAssets:PageWidgetAssetForm",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:WidgetAssets:RegisteredAssetWidgetAssetForm",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "configurator",
+                "key": "configurator:Blueprints:WidgetTypeConfigurator",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "admin-resource",
+                "key": "resource:LayoutPreset:default",
+                "providerBucket": "admin"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.audio-playlist",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.auth-menu",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.before-after",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.content-reveal",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.countdown",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.data-chart",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.directory-filter-bar",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.directory-listing-badges",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.experiment-text",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.extension-cookbook",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.hotspots",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.live-poll",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.location-map",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.slideshow",
+                "providerBucket": "frontend"
+            },
+            {
+                "type": "frontend-component",
+                "key": "capell-app.youtube",
+                "providerBucket": "frontend"
+            }
+        ]
+    },
+    "roles": ["scaffold-full-profile"]
 }

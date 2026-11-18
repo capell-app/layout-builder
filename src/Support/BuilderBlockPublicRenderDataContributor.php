@@ -125,10 +125,18 @@ final class BuilderBlockPublicRenderDataContributor implements PublicRenderDataC
             }
         }
 
-        new ModelCollection($translations)->loadMissing('media');
-        $allMedia = [];
+        // Block media belongs to each translation's media owner, which every language of the record shares.
+        $mediaOwners = [];
         foreach ($translations as $translation) {
-            $ownerMedia = $translation->getRelation('media');
+            $mediaOwner = $translation->mediaOwner();
+            $mediaOwners[spl_object_id($mediaOwner)] = $mediaOwner;
+        }
+
+        $this->loadOwnerMedia(array_values($mediaOwners));
+
+        $allMedia = [];
+        foreach ($mediaOwners as $mediaOwner) {
+            $ownerMedia = $mediaOwner->getRelation('media');
             foreach ($ownerMedia instanceof Collection ? $ownerMedia : [] as $media) {
                 if ($media instanceof Media && (is_int($media->getKey()) || is_string($media->getKey()))) {
                     $allMedia[$media->getKey()] = $media;
@@ -161,7 +169,7 @@ final class BuilderBlockPublicRenderDataContributor implements PublicRenderDataC
                 $store->put($owner, $block['type'], $state, $renderData);
                 $blocks[] = $renderData;
                 $collection = $mediaBlock ? ResolveBuilderBlockMediaAction::collection($state['media_key'] ?? null) : null;
-                foreach ($collection === null ? [] : $translation->getMedia($collection) as $media) {
+                foreach ($collection === null ? [] : $translation->mediaOwner()->getMedia($collection) as $media) {
                     if (! $media instanceof Media) {
                         continue;
                     }
@@ -181,5 +189,36 @@ final class BuilderBlockPublicRenderDataContributor implements PublicRenderDataC
         $metadata = new PublicRenderDataContributionMetadataData(hash('sha256', json_encode($value->value, JSON_THROW_ON_ERROR)), cacheDependencies: $dependencies);
 
         return $this->prepared[$context] = ['value' => $value, 'metadata' => $metadata];
+    }
+
+    /**
+     * Loads the media of every owner in one query, whatever their model types, so a page and its widgets cost a
+     * single media read.
+     *
+     * @param  list<Model>  $owners
+     */
+    private function loadOwnerMedia(array $owners): void
+    {
+        $pending = array_values(array_filter($owners, static fn (Model $owner): bool => ! $owner->relationLoaded('media')));
+
+        if ($pending === []) {
+            return;
+        }
+
+        $media = Media::query()
+            ->where(static function ($query) use ($pending): void {
+                foreach (collect($pending)->groupBy(static fn (Model $owner): string => $owner->getMorphClass()) as $type => $group) {
+                    $query->orWhere(static fn ($owned) => $owned->where('model_type', $type)->whereIn('model_id', $group->map(static fn (Model $owner): mixed => $owner->getKey())->all()));
+                }
+            })
+            ->orderBy('order_column')
+            ->get()
+            ->groupBy(static fn (Media $item): string => $item->model_type . ':' . $item->model_id);
+
+        foreach ($pending as $owner) {
+            $key = $owner->getKey();
+            $owned = is_int($key) || is_string($key) ? $media->get($owner->getMorphClass() . ':' . $key, collect())->all() : [];
+            $owner->setRelation('media', new ModelCollection($owned));
+        }
     }
 }

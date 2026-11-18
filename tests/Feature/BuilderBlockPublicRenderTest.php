@@ -27,6 +27,7 @@ use Capell\LayoutBuilder\Support\BuilderBlockRenderDataStore;
 use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -62,10 +63,10 @@ it('hydrates owner scoped Spatie images for logos and team and caches only the p
     $collection = ResolveBuilderBlockMediaAction::collection($key);
     $ownerTranslation = Translation::factory()->translatable($owner)->create();
     $owner->setRelation('translation', $ownerTranslation);
-    $image = Media::factory()->model($ownerTranslation)->create([
+    $image = Media::factory()->model($ownerTranslation->mediaOwner())->create([
         'collection_name' => $collection, 'disk' => 'public', 'mime_type' => 'image/png', 'file_name' => 'portrait.png',
     ]);
-    $foreign = Media::factory()->model(Translation::factory()->translatable(Page::factory()->create())->create())->create([
+    $foreign = Media::factory()->model(Translation::factory()->translatable(Page::factory()->create())->create()->mediaOwner())->create([
         'collection_name' => $collection, 'disk' => 'public', 'mime_type' => 'image/png',
     ]);
     $preparedState = ['media_key' => $key, $items => [
@@ -100,7 +101,7 @@ it('resolves Widget translation images when Foundation renders nested content', 
     $key = (string) Str::uuid();
     $widgetTranslation = Translation::factory()->translatable($widget)->create();
     $widget->setRelation('translation', $widgetTranslation);
-    $image = Media::factory()->model($widgetTranslation)->create([
+    $image = Media::factory()->model($widgetTranslation->mediaOwner())->create([
         'collection_name' => ResolveBuilderBlockMediaAction::collection($key),
         'disk' => 'public', 'mime_type' => 'image/png', 'file_name' => 'portrait.png',
     ]);
@@ -128,7 +129,7 @@ it('rejects private non-image missing and foreign-collection media', function ()
     foreach ([['disk' => 'local', 'mime_type' => 'image/png', 'collection_name' => $collection],
         ['disk' => 'public', 'mime_type' => 'application/pdf', 'collection_name' => $collection],
         ['disk' => 'public', 'mime_type' => 'image/png', 'collection_name' => 'another-block']] as $attributes) {
-        Media::factory()->model($translation)->create($attributes);
+        Media::factory()->model($translation->mediaOwner())->create($attributes);
     }
 
     expect(ResolveBuilderBlockMediaAction::run($page, $key))->toBe([])
@@ -143,7 +144,7 @@ it('prepares media before guarded public rendering and declares media and alt-te
     $key = (string) Str::uuid();
     $translation = Translation::factory()->translatable($page)->create();
     $page->setRelation('translation', $translation);
-    $image = Media::factory()->model($translation)->create([
+    $image = Media::factory()->model($translation->mediaOwner())->create([
         'collection_name' => ResolveBuilderBlockMediaAction::collection($key),
         'disk' => 'public', 'mime_type' => 'image/png', 'file_name' => 'logo.png',
     ]);
@@ -171,11 +172,20 @@ it('prepares every Pageable context before guarded rendering including leftover 
     $page = new $modelClass;
     throw_unless($page instanceof Model && $page instanceof Pageable, LogicException::class);
     $page->setRawAttributes(['id' => 901, 'content_structure_override' => ContentStructure::Blocks->value]);
+    // A rendered Pageable is a stored record, and its media is addressed by its morph alias.
+    $page->exists = true;
+    if (! in_array($modelClass, Relation::morphMap(), true)) {
+        /** @var class-string<Model> $modelClass */
+        Relation::morphMap([Str::snake(class_basename($modelClass)) => $modelClass]);
+    }
+
     $page->setRelation('blueprint', Blueprint::factory()->page()->create(['meta' => ['content_structure' => ContentStructure::Blocks->value]]));
 
     $translation = Translation::factory()->translatable(Page::factory()->create(['content_structure_override' => ContentStructure::Blocks->value]))->create();
     $key = (string) Str::uuid();
-    $image = Media::factory()->model($translation)->create(['collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png']);
+    // Block media belongs to the translation's media owner: the rendered Pageable when it holds media.
+    $translation->setRelation('translatable', $page);
+    $image = Media::factory()->model($translation->mediaOwner())->create(['collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png']);
     $blocks = [
         ['type' => 'hero', 'data' => ['title' => 'Pageable heading', 'media_key' => (string) Str::uuid()]],
         ['type' => 'logos', 'data' => ['media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]],
@@ -214,7 +224,7 @@ it('hydrates all block metadata with a fixed query count', function (): void {
         $blocks = [];
         foreach (range(1, $count) as $index) {
             $key = (string) Str::uuid();
-            $image = Media::factory()->model($translation)->create(['collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png']);
+            $image = Media::factory()->model($translation->mediaOwner())->create(['collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png']);
             Translation::factory()->translatable($image)->create(['meta' => ['alt' => 'Logo ' . $index]]);
             $blocks[] = ['type' => 'logos', 'data' => ['media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]];
         }
@@ -249,7 +259,7 @@ it('batches media metadata across several distinct widget owners as well as bloc
             $blocks = [];
             foreach (range(1, $blockCount) as $index) {
                 $key = (string) Str::uuid();
-                $image = Media::factory()->model($translation)->create(['collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png']);
+                $image = Media::factory()->model($translation->mediaOwner())->create(['collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png']);
                 Translation::factory()->translatable($image)->create(['meta' => ['alt' => 'Logo']]);
                 $blocks[] = ['type' => 'logos', 'data' => ['media_key' => $key, 'logos' => [['name' => 'Partner', 'image' => $image->uuid]]]];
             }
@@ -288,7 +298,7 @@ it('retains real Spatie versioned public media URLs', function (): void {
     config(['filesystems.disks.public.visibility' => 'public', 'media-library.version_urls' => true]);
     $translation = Translation::factory()->translatable(Page::factory()->create())->create();
     $key = (string) Str::uuid();
-    $image = Media::factory()->model($translation)->create([
+    $image = Media::factory()->model($translation->mediaOwner())->create([
         'collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png', 'file_name' => 'versioned.png',
     ]);
     $url = $image->getUrl();
@@ -301,7 +311,7 @@ it('uses the shared credential policy for CDN media parameters', function (strin
     config(['filesystems.disks.public.visibility' => 'public', 'media-library.url_generator' => BuilderBlockTestUrlGenerator::class, 'testing.builder_block_media_url' => $url]);
     $translation = Translation::factory()->translatable(Page::factory()->create())->create();
     $key = (string) Str::uuid();
-    $image = Media::factory()->model($translation)->create([
+    $image = Media::factory()->model($translation->mediaOwner())->create([
         'collection_name' => ResolveBuilderBlockMediaAction::collection($key), 'disk' => 'public', 'mime_type' => 'image/png',
     ]);
     $images = ResolveBuilderBlockMediaAction::run($translation, $key);

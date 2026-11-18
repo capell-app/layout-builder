@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Listeners;
 
+use Capell\Core\Contracts\Pageable;
 use Capell\Core\Events\PageDeleted;
 use Capell\Core\Events\PageSaved;
 use Capell\Core\EventSourcing\Enums\PageWorkflowStatus;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
+use Capell\Core\Models\Page;
 use Capell\Core\Models\PageWorkflowState;
 use Capell\Core\Models\Site;
 use Capell\Frontend\Data\FrontendRenderContextData;
@@ -60,6 +62,36 @@ final readonly class MaintainPublicWidgetSnapshotsListener
             // must remain available if it fails.
             report($throwable);
         }
+    }
+
+    public function handleLayoutSaved(Layout $layout): void
+    {
+        if (! $layout->wasChanged(['containers', 'site_id', 'theme_id'])) {
+            return;
+        }
+
+        // Read fresh contexts only after widget assets and the layout commit
+        // together. Rolled-back changes must not publish snapshots.
+        $layout->getConnection()->afterCommit(function () use ($layout): void {
+            try {
+                $types = [Page::class];
+                foreach (CapellCore::getPageTypes() as $type) {
+                    if (is_string($type->model) && is_a($type->model, Model::class, true) && is_a($type->model, Pageable::class, true)) {
+                        $types[] = $type->model;
+                    }
+                }
+
+                foreach (array_unique($types) as $modelClass) {
+                    $modelClass::query()->where('layout_id', $layout->getKey())->eachById(function (Model $page): void {
+                        if ($page instanceof Pageable) {
+                            $this->handleSaved(new PageSaved($page));
+                        }
+                    });
+                }
+            } catch (Throwable $throwable) {
+                report($throwable);
+            }
+        });
     }
 
     public function handleDeleted(PageDeleted $event): void

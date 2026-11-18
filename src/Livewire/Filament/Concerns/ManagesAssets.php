@@ -856,13 +856,12 @@ trait ManagesAssets
                         fn (EloquentBuilder $query): EloquentBuilder => $query
                             ->where('occurrence', $occurrence)
                             ->when(
-                                $widgetHasPageAssets ? fn (EloquentBuilder $query) => $query
-                                    ->where([
-                                        'container' => $oldContainerKey,
-                                        'pageable_type' => $this->pageContext()->getMorphClass(),
-                                        'pageable_id' => $this->pageContext()->getKey(),
-                                    ]) : null,
-                                fn (EloquentBuilder $query) => $query->whereNull(['container', 'pageable_id', 'pageable_type']),
+                                $widgetHasPageAssets,
+                                fn (EloquentBuilder $query): EloquentBuilder => $query
+                                    ->where('container', $oldContainerKey)
+                                    ->where('pageable_type', $this->pageContext()->getMorphClass())
+                                    ->where('pageable_id', $this->pageContext()->getKey()),
+                                fn (EloquentBuilder $query): EloquentBuilder => $query->whereNull(['container', 'pageable_id', 'pageable_type']),
                             ),
                     )
                     ->when(
@@ -871,7 +870,24 @@ trait ManagesAssets
                             $model = $query->getModel();
                             $qualifiedKeyName = $model->getTable() . '.' . $model->getKeyName();
 
-                            return $query->orWhereIn($qualifiedKeyName, $assetIds->all());
+                            // Submitted ids come from public Livewire state, so they may only
+                            // reach this widget's shared assets or the current page's own rows.
+                            return $query->orWhere(
+                                fn (EloquentBuilder $query): EloquentBuilder => $query
+                                    ->whereIn($qualifiedKeyName, $assetIds->all())
+                                    ->where(
+                                        fn (EloquentBuilder $query): EloquentBuilder => $query
+                                            ->whereNull(['pageable_id', 'pageable_type'])
+                                            ->when(
+                                                $this->inPageContext(),
+                                                fn (EloquentBuilder $query): EloquentBuilder => $query->orWhere(
+                                                    fn (EloquentBuilder $query): EloquentBuilder => $query
+                                                        ->where('pageable_type', $this->pageContext()->getMorphClass())
+                                                        ->where('pageable_id', $this->pageContext()->getKey()),
+                                                ),
+                                            ),
+                                    ),
+                            );
                         },
                     ),
             )

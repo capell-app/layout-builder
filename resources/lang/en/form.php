@@ -219,7 +219,7 @@ return [
     'heading_size' => 'Heading Size',
     'heading_style' => 'Heading Style',
     'height' => 'Height',
-    'hero' => 'Hero',
+    'hero' => 'Top of page (hero)',
     'hero_settings' => 'Hero Settings',
     'horizontal' => 'Horizontal',
     'hide_info_banner' => 'Hide Information Banner',

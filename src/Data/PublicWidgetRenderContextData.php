@@ -22,5 +22,6 @@ final class PublicWidgetRenderContextData extends Data
         public ?string $widgetReference,
         public array $resourcePublicIds,
         public array $interactions,
+        public bool $unavailable = false,
     ) {}
 }
