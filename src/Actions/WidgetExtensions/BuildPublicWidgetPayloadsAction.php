@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionPayloadBatchData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionPayloadInputData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionRenderContextData;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionInputFactory;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionStateWalker;
@@ -71,7 +72,9 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
     /** @return array<string, object> */
     public function build(FrontendRenderContextData $context): array
     {
-        return $this->buildDiscovered($this->walker->fromContext($context), $context);
+        // The page render runs after the request's layout preload, so reuse it
+        // instead of loading the same widget graph a second time.
+        return $this->buildDiscovered($this->walker->fromContext($context, resolve(LayoutLoader::class)), $context);
     }
 
     /**
@@ -110,7 +113,7 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
         $renderContext = WidgetExtensionRenderContextData::fromFrontendContext($context);
 
         foreach ($groups as $group) {
-            $this->resolveGroup($group['definition'], $group['items'], $renderContext, $payloads);
+            $this->resolveGroup($group['definition'], $group['items'], $renderContext, $payloads, $context);
         }
 
         return $payloads;
@@ -136,11 +139,12 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
         array $items,
         WidgetExtensionRenderContextData $context,
         array &$payloads,
+        FrontendRenderContextData $frontendContext,
     ): void {
         try {
             $resolved = $definition->batchPayloadResolver === null
                 ? $this->convertInputs($definition, $items)
-                : $this->resolveBatch($definition, new WidgetExtensionPayloadBatchData($items, $context));
+                : $this->resolveBatch($definition, new WidgetExtensionPayloadBatchData($items, $context, $frontendContext));
 
             foreach ($items as $item) {
                 $result = $resolved[$item->instanceId] ?? null;
@@ -195,7 +199,7 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
         try {
             Log::warning($message, array_filter([
                 'widget_key' => $widgetKey,
-                'failure_type' => $throwable === null ? null : $throwable::class,
+                'failure_type' => $throwable instanceof Throwable ? $throwable::class : null,
             ]));
         } catch (Throwable) {
             // Diagnostics cannot make a public page unavailable.
@@ -205,7 +209,7 @@ final readonly class BuildPublicWidgetPayloadsAction implements PublicContentWid
     /** @param class-string $class */
     private function classCodeFingerprint(string $class): string
     {
-        $file = (new ReflectionClass($class))->getFileName();
+        $file = new ReflectionClass($class)->getFileName();
 
         return is_string($file) && is_file($file)
             ? (hash_file('sha256', $file) ?: $class)

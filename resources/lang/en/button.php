@@ -90,7 +90,7 @@ return [
     'enable_extension' => 'Enable extension',
     'save_asset_draft' => 'Save draft',
     'enable_lockdown' => 'Enable Lockdown',
-    'enable_lockdown_tooltip' => 'Serve maintenance pages publicly and widget all admin users except break-glass access.',
+    'enable_lockdown_tooltip' => 'Serve maintenance pages publicly and block every admin user except break-glass access.',
     'expand' => 'Expand',
     'expand_all' => 'Expand All',
     'exit_edit_mode' => 'Done Editing',

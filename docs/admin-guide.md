@@ -4,6 +4,14 @@ This guide is for editors who build pages and owners deciding how to use widgets
 
 ## Using Layout Builder (editor how-to)
 
+### How to make your first change from the live page
+
+1. Open the page in the admin visual editor. Its mode toggle offers **Content** and **Layout builder**.
+2. To change text or images in a widget, use **Content**.
+3. To add, move or remove widgets, use **Layout builder**. It needs the structural Layout permissions, so ask an administrator if the control is missing or a change is refused.
+4. Save the page. Saving a page is supported from both controls; if a save is refused, read the message on screen and check your permissions before retrying.
+5. If the Layout is shared, a change to it reaches every page that uses it. Open the other affected Pages and check them before you finish.
+
 ### How to add a widget to a page
 
 1. Open the page you want to edit in the admin.

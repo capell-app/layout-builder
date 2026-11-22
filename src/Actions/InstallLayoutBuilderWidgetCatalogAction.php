@@ -26,8 +26,6 @@ class InstallLayoutBuilderWidgetCatalogAction
     use AsFake;
     use AsObject;
 
-    private const string NavigationPackage = 'capell-app/navigation';
-
     /**
      * @param  Collection<array-key, mixed>  $languages
      */
@@ -113,9 +111,17 @@ class InstallLayoutBuilderWidgetCatalogAction
 
     private function installNavigation(LayoutWidgetCatalogDefinitionData $definition): ?Model
     {
+        if (! CapellCore::isPackageAvailable('capell-app/navigation')) {
+            return null;
+        }
+
+        if (! CapellCore::isPackageInstalled('capell-app/navigation')) {
+            return null;
+        }
+
         $navigationModel = Navigation::class;
 
-        if (! CapellCore::isPackageInstalled(self::NavigationPackage) || ! class_exists($navigationModel)) {
+        if (! class_exists($navigationModel)) {
             return null;
         }
 

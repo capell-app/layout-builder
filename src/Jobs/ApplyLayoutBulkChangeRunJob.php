@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Jobs;
 
+use Capell\Core\Actions\Extensions\RunUnderPackageAdmissionAction;
 use Capell\LayoutBuilder\Actions\BulkChanges\ApplyLayoutBulkChangeRunAction;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Support\LayoutBuilderPermissionRegistrar;
 use Illuminate\Bus\Queueable;
@@ -30,7 +32,27 @@ final class ApplyLayoutBulkChangeRunJob implements ShouldQueue
         private readonly ?int $actorId = null,
     ) {}
 
+    /** A job queued before Layout Builder was disabled changes no layouts; the run stays queued. */
     public function handle(): void
+    {
+        RunUnderPackageAdmissionAction::run(LayoutBuilderServiceProvider::$packageName, $this->apply(...));
+    }
+
+    public function failed(Throwable $throwable): void
+    {
+        $run = LayoutBulkChangeRun::query()->find($this->runId);
+
+        if ($run instanceof LayoutBulkChangeRun) {
+            $run->forceFill([
+                'status' => LayoutBulkChangeRunStatus::Failed,
+                'summary' => [
+                    'error' => $throwable->getMessage(),
+                ],
+            ])->save();
+        }
+    }
+
+    private function apply(): void
     {
         $run = LayoutBulkChangeRun::query()->find($this->runId);
 
@@ -51,20 +73,6 @@ final class ApplyLayoutBulkChangeRunJob implements ShouldQueue
         }
 
         ApplyLayoutBulkChangeRunAction::run($run, $this->actorId);
-    }
-
-    public function failed(Throwable $throwable): void
-    {
-        $run = LayoutBulkChangeRun::query()->find($this->runId);
-
-        if ($run instanceof LayoutBulkChangeRun) {
-            $run->forceFill([
-                'status' => LayoutBulkChangeRunStatus::Failed,
-                'summary' => [
-                    'error' => $throwable->getMessage(),
-                ],
-            ])->save();
-        }
     }
 
     private function queuedActorMayApply(LayoutBulkChangeRun $run): bool

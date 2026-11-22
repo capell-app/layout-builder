@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Support\FrontendAuthoring;
+namespace Capell\LayoutBuilder\Bridges\FrontendAuthoring;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\PageUrl;
@@ -16,6 +17,7 @@ use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
+use LogicException;
 
 final class LayoutBuilderEditableRegionContributor
 {
@@ -155,6 +157,10 @@ final class LayoutBuilderEditableRegionContributor
         ?string $containerKey = null,
         ?int $widgetIndex = null,
     ): EditableRegionPayloadData {
+        if (! CapellCore::isPackageAvailable('capell-app/frontend-authoring')) {
+            throw new LogicException('Editable regions need the Frontend Authoring package.');
+        }
+
         return new EditableRegionPayloadData(
             model: $field === 'layout' ? Layout::class : Widget::class,
             recordKey: $recordKey,

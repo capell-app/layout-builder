@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\Diagnostics\DoctorCheckResultData;
+use Capell\Core\Data\Rendering\Assets\FrontendResourceData;
 use Capell\Core\Enums\PresentationLoadingStrategy;
-use Capell\Frontend\Data\Assets\FrontendResourceData;
 use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\Assets\PublicResourceSourceData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;

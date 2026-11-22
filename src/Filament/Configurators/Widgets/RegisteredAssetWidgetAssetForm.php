@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
 use Capell\Admin\Facades\CapellAdmin;
+use Capell\Core\Facades\CapellCore;
 use Capell\LayoutBuilder\Models\WidgetAsset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
@@ -14,8 +15,6 @@ use Override;
 
 class RegisteredAssetWidgetAssetForm extends AbstractWidgetAssetConfigurator
 {
-    private const string WORKSPACE_REGISTRY_CLASS = 'Capell\\PublishingStudio\\WorkspaceRegistry';
-
     /**
      * @return array<array-key, mixed>
      */
@@ -56,7 +55,11 @@ class RegisteredAssetWidgetAssetForm extends AbstractWidgetAssetConfigurator
 
     private function usesDraftStatePath(Schema $configurator): bool
     {
-        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return false;
+        }
+
+        $workspaceRegistry = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
         if (! class_exists($workspaceRegistry)) {
             return false;

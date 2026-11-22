@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Capell\LayoutBuilder\Support\FrontendAuthoring;
+namespace Capell\LayoutBuilder\Bridges\FrontendAuthoring;
 
 use Capell\Core\Contracts\Pageable;
 use Capell\FrontendAuthoring\Contracts\EditableRegionEditorSurface;

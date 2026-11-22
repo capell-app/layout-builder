@@ -145,17 +145,18 @@ it('registers and resolves layout asset bridges by key', function (): void {
 });
 
 it('refuses to register the admin surface when the published asset directory is missing', function (): void {
-    $publishes = dirname(__DIR__, 2) . '/publishes';
-    $held = $publishes . '.held';
-
-    throw_unless(rename($publishes, $held), RuntimeException::class, 'Could not hold the publish directory for the test.');
+    // Point the registrar at a package root without publishes/ instead of
+    // renaming the real directory, which parallel shards read while booting.
+    $packageRoot = sys_get_temp_dir() . '/capell-layout-builder-no-publishes-' . bin2hex(random_bytes(6));
+    mkdir($packageRoot);
 
     app()->forgetInstance(LayoutBuilderAdminRegistrar::REGISTRATION_FLAG);
 
     try {
-        expect(fn () => new LayoutBuilderAdminRegistrar(app())->register())
+        expect(fn () => new LayoutBuilderAdminRegistrar(app(), $packageRoot)->register())
             ->toThrow(RuntimeException::class, 'Publish directory not found.');
+        expect(dirname(__DIR__, 2) . '/publishes')->toBeDirectory();
     } finally {
-        rename($held, $publishes);
+        rmdir($packageRoot);
     }
 });

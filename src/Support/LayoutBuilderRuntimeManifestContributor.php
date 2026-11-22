@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support;
 
+use Capell\Core\Data\Rendering\FrontendRuntimeManifestData;
+use Capell\Core\Enums\Rendering\RenderingStrategyEnum;
 use Capell\Core\Models\Layout;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Contracts\FrontendRuntimeManifestContributor;
-use Capell\Frontend\Data\FrontendRuntimeManifestData;
-use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;

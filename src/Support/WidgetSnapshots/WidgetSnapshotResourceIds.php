@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Support\WidgetSnapshots;
 
-use Capell\Frontend\Data\Assets\FrontendResourceData;
+use Capell\Core\Data\Rendering\Assets\FrontendResourceData;
+use Capell\Core\Enums\Rendering\FrontendResourceKind;
 use Capell\Frontend\Data\Assets\PublicResourceSourceData;
-use Capell\Frontend\Enums\FrontendResourceKind;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;
 use Capell\LayoutBuilder\Support\LayoutBuilderLayoutWidgetResourceUsageContributor;
 

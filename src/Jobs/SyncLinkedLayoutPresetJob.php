@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Jobs;
 
+use Capell\Core\Actions\Extensions\RunUnderPackageAdmissionAction;
 use Capell\LayoutBuilder\Actions\RunLinkedLayoutPresetSyncAction;
 use Capell\LayoutBuilder\Enums\LayoutPresetSyncRunStatus;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\LayoutPresetSyncRun;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,13 +38,16 @@ final class SyncLinkedLayoutPresetJob implements ShouldQueue
             : [];
     }
 
+    /** A job queued before Layout Builder was disabled syncs no presets; the run stays queued. */
     public function handle(): void
     {
-        $run = LayoutPresetSyncRun::query()->find($this->runId);
+        RunUnderPackageAdmissionAction::run(LayoutBuilderServiceProvider::$packageName, function (): void {
+            $run = LayoutPresetSyncRun::query()->find($this->runId);
 
-        if ($run instanceof LayoutPresetSyncRun) {
-            RunLinkedLayoutPresetSyncAction::run($run);
-        }
+            if ($run instanceof LayoutPresetSyncRun) {
+                RunLinkedLayoutPresetSyncAction::run($run);
+            }
+        });
     }
 
     public function failed(Throwable $throwable): void

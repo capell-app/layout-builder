@@ -32,8 +32,6 @@ class CreateLayoutBuilderDemoSiteAction
     use AsFake;
     use AsObject;
 
-    private const string NavigationPackage = 'capell-app/navigation';
-
     private DemoCreator $demoCreator;
 
     public function handle(DemoSitePlanData $plan): bool
@@ -361,9 +359,17 @@ class CreateLayoutBuilderDemoSiteAction
      */
     private function setupSiteNavigations(Site $site, EloquentCollection $languages, Page $homePage): void
     {
+        if (! CapellCore::isPackageAvailable('capell-app/navigation')) {
+            return;
+        }
+
+        if (! CapellCore::isPackageInstalled('capell-app/navigation')) {
+            return;
+        }
+
         $navigationDemoCreatorClass = NavigationDemoCreator::class;
 
-        if (! CapellCore::isPackageInstalled(self::NavigationPackage) || ! class_exists($navigationDemoCreatorClass)) {
+        if (! class_exists($navigationDemoCreatorClass)) {
             return;
         }
 

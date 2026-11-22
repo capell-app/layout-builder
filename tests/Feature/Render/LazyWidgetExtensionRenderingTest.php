@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Data\Rendering\Assets\FrontendResourceData;
 use Capell\Core\Enums\ContentStructure;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
@@ -12,7 +13,6 @@ use Capell\Core\Models\SiteDomain;
 use Capell\Core\Models\Theme;
 use Capell\Frontend\Actions\BuildPublicPageRenderDataAction;
 use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
-use Capell\Frontend\Data\Assets\FrontendResourceData;
 use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\Assets\PublicResourceSourceData;
 use Capell\Frontend\Data\FrontendRenderContextData;

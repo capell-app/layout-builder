@@ -78,6 +78,10 @@ it('installs layout builder from its package manifest', function (): void {
         ->toContain('capell-app/core')
         ->toContain('capell-app/frontend');
 
+    // The shared test setup records every booted package as installed and enabled; this test installs it,
+    // so it starts from the state of a package that Composer added but nobody has installed yet.
+    CapellCore::markPackageUninstalled('capell-app/layout-builder');
+
     CapellCore::registerManifestPackage(CapellManifestData::fromArray(
         $manifestData,
         dirname($manifestPath),

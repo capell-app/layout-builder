@@ -5,10 +5,10 @@
         "default": {
             "source": {
                 "ref": "HEAD",
-                "commit": "b6fd4778e5f31eb4eb7cda9095c7e568337ac3c2",
+                "commit": "521cc77de78770e73fff25fdf239bb2483c3a670",
                 "providers": {
-                    "LayoutBuilderServiceProvider.php": "7d02465a6f5521444355d0694900d0e4b90c2a69d4e7c2c35d7ab27695d10e04",
-                    "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18",
+                    "LayoutBuilderServiceProvider.php": "65205505e191b450294396a80ec4dba81da76c24feb1c09596a38dd989a1440a",
+                    "Providers/AbstractFoundationWidgetServiceProvider.php": "4b8f10bf74dd1b821c7e81558fc3df8a0f0bbba4ee0551446657233441679cf8",
                     "Providers/MigrationMetadataServiceProvider.php": "43ac1b9b6e9c372f46944c12f70c94dba5982691160f439b63feb3e81940fdd6"
                 },
                 "configure": null
@@ -4115,9 +4115,6 @@
                     ]
                 ],
                 "tagged-consumers": {
-                    "capell-frontend-authoring:editable-regions": [
-                        "Capell\\LayoutBuilder\\Support\\FrontendAuthoring\\LayoutBuilderEditableRegionContributor"
-                    ],
                     "capell.content-graph.extractor": [
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetAssetContentGraphExtractor",
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetContentGraphExtractor",
@@ -4144,9 +4141,6 @@
                     ]
                 },
                 "tags": {
-                    "capell-frontend-authoring:editable-regions": [
-                        "Capell\\LayoutBuilder\\Support\\FrontendAuthoring\\LayoutBuilderEditableRegionContributor"
-                    ],
                     "capell.content-graph.extractor": [
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetAssetContentGraphExtractor",
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetContentGraphExtractor",
@@ -4375,11 +4369,11 @@
         },
         "foundation-theme": {
             "source": {
-                "ref": "5d9af2be05",
-                "commit": "5d9af2be05983985484ab26a575a50820d85de20",
+                "ref": "HEAD",
+                "commit": "521cc77de78770e73fff25fdf239bb2483c3a670",
                 "providers": {
-                    "LayoutBuilderServiceProvider.php": "7d02465a6f5521444355d0694900d0e4b90c2a69d4e7c2c35d7ab27695d10e04",
-                    "Providers/AbstractFoundationWidgetServiceProvider.php": "01c643b03cf3ef2746bf7c791604411d4559c6fde78a776f1f8479c1b4c54b18",
+                    "LayoutBuilderServiceProvider.php": "65205505e191b450294396a80ec4dba81da76c24feb1c09596a38dd989a1440a",
+                    "Providers/AbstractFoundationWidgetServiceProvider.php": "4b8f10bf74dd1b821c7e81558fc3df8a0f0bbba4ee0551446657233441679cf8",
                     "Providers/MigrationMetadataServiceProvider.php": "43ac1b9b6e9c372f46944c12f70c94dba5982691160f439b63feb3e81940fdd6"
                 },
                 "configure": "packages/layout-builder/tests/Integration/Providers/Fixtures/foundation-theme.php"
@@ -8968,9 +8962,6 @@
                     ]
                 ],
                 "tagged-consumers": {
-                    "capell-frontend-authoring:editable-regions": [
-                        "Capell\\LayoutBuilder\\Support\\FrontendAuthoring\\LayoutBuilderEditableRegionContributor"
-                    ],
                     "capell.content-graph.extractor": [
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetAssetContentGraphExtractor",
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetContentGraphExtractor",
@@ -9003,9 +8994,6 @@
                     ]
                 },
                 "tags": {
-                    "capell-frontend-authoring:editable-regions": [
-                        "Capell\\LayoutBuilder\\Support\\FrontendAuthoring\\LayoutBuilderEditableRegionContributor"
-                    ],
                     "capell.content-graph.extractor": [
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetAssetContentGraphExtractor",
                         "Capell\\LayoutBuilder\\Support\\ContentGraph\\Extractors\\WidgetContentGraphExtractor",

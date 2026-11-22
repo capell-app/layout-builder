@@ -368,7 +368,6 @@ it('orchestrates demo site layout population with creator collaborators', functi
     File::ensureDirectoryExists($mediaRoot . '/video');
     $image = imagecreatetruecolor(4, 4);
     imagejpeg($image, $mediaRoot . '/img/example.jpg');
-    imagedestroy($image);
     file_put_contents($mediaRoot . '/video/SampleVideo_1280x720_1mb.mp4', 'owned test video');
     config(['capell-layout-builder.resources.demo_path' => $mediaRoot, 'media-library.queue_conversions_by_default' => true]);
     $contentCreator = Mockery::mock(ContentCreator::class);

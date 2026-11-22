@@ -22,8 +22,12 @@
             "capell-app/frontend"
         ],
         "supports": [
+            "capell-app/ai-orchestrator",
             "capell-app/content-sections",
+            "capell-app/filament-peek",
             "capell-app/frontend-authoring",
+            "capell-app/html-cache",
+            "capell-app/navigation",
             "capell-app/publishing-studio",
             "capell-app/structured-content-library",
             "capell-app/theme-foundation"
@@ -1183,86 +1187,6 @@
                 "type": "configurator",
                 "key": "configurator:Blueprints:WidgetTypeConfigurator",
                 "providerBucket": "admin"
-            },
-            {
-                "type": "admin-resource",
-                "key": "resource:LayoutPreset:default",
-                "providerBucket": "admin"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.audio-playlist",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.auth-menu",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.before-after",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.content-reveal",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.countdown",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.data-chart",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.directory-filter-bar",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.directory-listing-badges",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.experiment-text",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.extension-cookbook",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.hotspots",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.live-poll",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.location-map",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.slideshow",
-                "providerBucket": "frontend"
-            },
-            {
-                "type": "frontend-component",
-                "key": "capell-app.youtube",
-                "providerBucket": "frontend"
             }
         ]
     },

@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Data\Rendering\FrontendRuntimeManifestData;
 use Capell\Core\Enums\ContainerWidthEnum;
 use Capell\Core\Enums\PresentationDeliveryMode;
+use Capell\Core\Enums\Rendering\RenderingStrategyEnum;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -18,9 +20,7 @@ use Capell\Frontend\Contracts\PublicLayoutRenderPreparer;
 use Capell\Frontend\Data\Assets\FrontendResourcePlanData;
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\Frontend\Data\FrontendRenderPayload;
-use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Data\PublicPageRenderData;
-use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\Frontend\Facades\Frontend;
 use Capell\Frontend\Support\Render\BladeFrontendResponseRenderer;
 use Capell\Frontend\Support\Render\PublicRenderDataScope;
@@ -121,11 +121,6 @@ function preparedLayoutFixture(bool $presentation = true, bool $foundation = fal
 
     $runtime = FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::BladeOnly);
     $data = new PublicPageRenderData(
-        page: $page,
-        site: $site,
-        language: $language,
-        layout: $layout,
-        theme: $theme,
         layoutGraph: (object) ['containers' => [
             ['key' => 'main', 'widgets' => [
                 ['key' => $widget->key, 'occurrence' => 1, 'data' => ['sections' => [

@@ -21,8 +21,6 @@ use Illuminate\Support\Collection;
 
 class WidgetCreator
 {
-    private const string NavigationPackage = 'capell-app/navigation';
-
     /**
      * @var class-string<Widget>
      */
@@ -548,23 +546,28 @@ class WidgetCreator
     ): Widget {
         $type ??= resolve(TypeCreator::class)->navigationWidgetType();
         $typeModel = Blueprint::class;
-        $navigationModel = Navigation::class;
 
         $navigationType = $typeModel::query()->navigationType()->default()->first();
         if ($navigationType === null) {
             $navigationType = resolve(BlueprintCreator::class)->createNavigationType();
         }
 
-        $navigation = CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationModel)
-            ? $navigationModel::query()->firstOrCreate([
-                'key' => $navigationKey,
-                'blueprint_id' => $navigationType->id,
-                'site_id' => $site?->id,
-            ], [
-                'name' => $navigationName,
-                'items' => $navigationItems,
-            ])
-            : null;
+        $navigation = null;
+
+        if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
+            $navigationModel = Navigation::class;
+
+            if (class_exists($navigationModel)) {
+                $navigation = $navigationModel::query()->firstOrCreate([
+                    'key' => $navigationKey,
+                    'blueprint_id' => $navigationType->id,
+                    'site_id' => $site?->id,
+                ], [
+                    'name' => $navigationName,
+                    'items' => $navigationItems,
+                ]);
+            }
+        }
 
         if ($navigation instanceof Model && $navigationItems !== [] && $navigation->getAttribute('items') !== $navigationItems) {
             $navigation->forceFill(['items' => $navigationItems])->save();

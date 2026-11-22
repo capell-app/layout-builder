@@ -21,8 +21,6 @@ use Override;
 
 class NavigationWidgetConfigurator extends DefaultWidgetConfigurator
 {
-    private const string NavigationPackage = 'capell-app/navigation';
-
     #[Override]
     public function make(Schema $configurator): array
     {
@@ -49,13 +47,20 @@ class NavigationWidgetConfigurator extends DefaultWidgetConfigurator
 
     protected function navigationSelect(): Group
     {
-        $navigationSelect = NavigationSelect::class;
+        $navigationField = TextInput::make('navigation');
+
+        if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
+            $navigationSelect = NavigationSelect::class;
+
+            if (class_exists($navigationSelect)) {
+                $navigationField = $navigationSelect::make('navigation')->useKeyAsValue();
+            }
+        }
 
         return Group::make()
             ->statePath('meta')
             ->schema([
-                (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationSelect) ? $navigationSelect::make('navigation')->useKeyAsValue() : TextInput::make('navigation'))
-                    ->required(),
+                $navigationField->required(),
             ]);
     }
 

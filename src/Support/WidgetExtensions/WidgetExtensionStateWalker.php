@@ -6,6 +6,8 @@ namespace Capell\LayoutBuilder\Support\WidgetExtensions;
 
 use Capell\Frontend\Data\FrontendRenderContextData;
 use Capell\LayoutBuilder\Data\WidgetExtensions\DiscoveredWidgetExtensionData;
+use Capell\LayoutBuilder\Data\WidgetExtensions\WidgetExtensionDefinitionData;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -27,7 +29,7 @@ final readonly class WidgetExtensionStateWalker
     ) {}
 
     /** @return list<DiscoveredWidgetExtensionData> */
-    public function fromContext(FrontendRenderContextData $context): array
+    public function fromContext(FrontendRenderContextData $context, ?LayoutLoader $loader = null): array
     {
         $sources = [];
         $page = $context->page;
@@ -45,7 +47,7 @@ final readonly class WidgetExtensionStateWalker
             $sources[] = $containers;
         }
 
-        return $this->walk($sources);
+        return $this->walk([...$sources, ...(new WidgetExtensionReusableSources)->sources($context, $loader)]);
     }
 
     /** @param array<mixed> $sources
@@ -67,11 +69,11 @@ final readonly class WidgetExtensionStateWalker
 
             // Unknown widgets are immutable opaque state. Never inspect their
             // payload for canonical-looking nested blocks.
-            if ($widgetPosition && is_string($type) && is_array($data) && $definition === null) {
+            if ($widgetPosition && is_string($type) && is_array($data) && ! $definition instanceof WidgetExtensionDefinitionData) {
                 return;
             }
 
-            if ($widgetPosition && $definition !== null && is_array($data)) {
+            if ($widgetPosition && $definition instanceof WidgetExtensionDefinitionData && is_array($data)) {
                 $capell = is_array($data['__capell'] ?? null) ? $data['__capell'] : [];
                 $instanceId = $capell['instance_id'] ?? null;
 

@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use Capell\Core\Enums\FrontendRuntime;
+use Capell\Core\Enums\Rendering\RenderingStrategyEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Frontend\Actions\ResolveFrontendRuntimeAction;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 

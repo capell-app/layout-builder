@@ -12,14 +12,18 @@
     "license": "proprietary",
     "require": {
         "php": "^8.4",
-        "capell-app/admin": "^1.0.72",
+        "capell-app/admin": "^1.0.78",
         "capell-app/block-library": "^1.0",
-        "capell-app/core": "^1.0.78",
-        "capell-app/frontend": "^1.0.72"
+        "capell-app/core": "^1.0.79",
+        "capell-app/frontend": "^1.0.79"
     },
     "suggest": {
+        "capell-app/ai-orchestrator": "Adds AI-assisted layout planning through AI Orchestrator.",
         "capell-app/content-sections": "Allows reusable content sections in layouts.",
+        "capell-app/filament-peek": "Keeps unsaved layout changes visible in Filament Peek previews.",
         "capell-app/frontend-authoring": "Adds authenticated in-page layout authoring.",
+        "capell-app/html-cache": "Clears cached pages that show a widget when the widget changes.",
+        "capell-app/navigation": "Adds navigation widgets and demo navigation menus.",
         "capell-app/publishing-studio": "Connects layout snapshots to publishing workflows.",
         "capell-app/structured-content-library": "Allows structured content records in layouts.",
         "capell-app/theme-foundation": "Provides shared Blade rendering for installed layouts."

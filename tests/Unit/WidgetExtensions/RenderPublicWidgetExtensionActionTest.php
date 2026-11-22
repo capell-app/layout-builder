@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Data\Rendering\FrontendRuntimeManifestData;
+use Capell\Core\Enums\Rendering\RenderingStrategyEnum;
 use Capell\Frontend\Data\Assets\FrontendResourcePlanData;
 use Capell\Frontend\Data\FrontendRenderContextData;
-use Capell\Frontend\Data\FrontendRuntimeManifestData;
 use Capell\Frontend\Data\PublicPageRenderData;
-use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\Frontend\Support\Render\PublicViewQueryGuard;
 use Capell\Frontend\Support\View\ThemeViewRegistrar;
 use Capell\LayoutBuilder\Actions\LayoutWidgets\BuildLayoutWidgetResourceUsagesAction;
@@ -228,11 +228,6 @@ function widgetExtensionPublicRenderData(array $payloads): PublicPageRenderData
     $runtime = FrontendRuntimeManifestData::forRenderingStrategy(RenderingStrategyEnum::BladeOnly);
 
     return new PublicPageRenderData(
-        page: null,
-        site: null,
-        language: null,
-        layout: null,
-        theme: null,
         layoutGraph: null,
         runtimeManifest: $runtime,
         resourcePlan: new FrontendResourcePlanData([], [], [], [], [], [], [], hash('sha256', 'empty')),

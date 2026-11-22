@@ -48,7 +48,6 @@ class LayoutPreviewRenderer
         ob_start();
         imagepng($image);
         $png = ob_get_clean();
-        imagedestroy($image);
 
         throw_if(! is_string($png) || $png === '', RuntimeException::class, 'Unable to encode layout preview PNG.');
 

@@ -114,8 +114,9 @@ it('keeps manifest hard dependencies aligned with composer requirements', functi
     // provider registers commands through the current-process helper; both first
     // ship in the 1.0.72 foundation release. LayoutBuilderCoreRegistrar imports Core's
     // EventSourcing PageStateContributor contract, which first ships in Core 1.0.76.
+    // A later admin floor is still valid, so assert the lower bound rather than one accepted version.
     expect(Semver::satisfies('1.0.71', $adminConstraint))->toBeFalse()
-        ->and(Semver::satisfies('1.0.72', $adminConstraint))->toBeTrue()
+        ->and(Intervals::isSubsetOf($parser->parseConstraints($adminConstraint), $parser->parseConstraints('>=1.0.72')))->toBeTrue()
         ->and($composerRequirements['capell-app/block-library'] ?? null)->toBe('^1.0')
         // Core 1.0.76 is the first release with what Layout Builder needs; a later floor is still valid.
         ->and(Semver::satisfies('1.0.75', $coreConstraint))->toBeFalse()

@@ -36,7 +36,7 @@
         ]
     },
     {
-        "claim": "Moving and resizing can be undone before you Save Layout, but adding or removing a widget cannot.",
+        "claim": "Widget changes, including adding and removing, can be undone before you Save Layout. Edits to a widget's own content save at once.",
         "evidence": [
             "src/Livewire/Filament/Concerns/ManagesLayoutBuilderState.php",
             "src/Livewire/Filament/Concerns/ManagesContainers.php",

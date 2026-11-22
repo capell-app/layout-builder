@@ -11,6 +11,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
+use Capell\Core\Support\Database\RuntimeSchemaState;
 use Capell\Core\Support\TableName;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
@@ -20,7 +21,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class LayoutLoader
@@ -76,7 +76,7 @@ class LayoutLoader
             $layout->load(['media' => fn (BuilderContract $query): BuilderContract => $query->ordered()]);
         }
 
-        if ($selectedWidgetKeys === [] || ! Schema::hasTable(TableName::resolve('widgets'))) {
+        if ($selectedWidgetKeys === [] || ! resolve(RuntimeSchemaState::class)->hasTableOrFail(TableName::resolve('widgets'))) {
             $layout->setRelation('layoutWidgets', collect());
             $this->preloaded[$cacheKey] = [];
 

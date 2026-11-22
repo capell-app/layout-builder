@@ -10,10 +10,10 @@ use Capell\Core\Actions\RuntimeRefresh\RefreshInstalledPackageRuntimeAction;
 use Capell\Core\Facades\CapellCore;
 use Capell\FrontendAuthoring\Enums\EditableRegionSurface;
 use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
+use Capell\LayoutBuilder\Bridges\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Policies\LayoutPresetPolicy;
-use Capell\LayoutBuilder\Support\FrontendAuthoring\LayoutBuilderEditorSurface;
 use Capell\Tests\Support\InstalledRuntimeParity;
 use Capell\Tests\Support\InstalledRuntimeState;
 use Capell\Tests\Support\InstalledRuntimeTestCase;
@@ -27,6 +27,12 @@ it('activates editor and console surfaces once while retaining the host widget p
     InstalledRuntimeState::run(static function () use ($installed): void {
         $app = InstalledRuntimeTestCase::boot(InstalledRuntimeParity::manifest('layout-builder'), $installed, static function (Application $app): void {
             $app->singleton(EditorSurfaceRegistry::class);
+            // Stands in for an installed Frontend Authoring, which this runtime does not boot.
+            CapellCore::partialMock()
+                ->shouldReceive('isPackageAvailable')
+                ->with('capell-app/frontend-authoring')
+                ->andReturnTrue();
+            CapellCore::shouldReceive('isPackageAvailable')->passthru();
             $app->booting(static function (): void {
                 Gate::policy(Widget::class, LayoutPresetPolicy::class);
             });

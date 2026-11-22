@@ -45,7 +45,13 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private const string WIDGET_TYPE_CONFIGURATOR = WidgetTypeConfigurator::class;
 
-    public function __construct(private readonly Application $app) {}
+    /**
+     * @param  string|null  $basePath  Package root; defaults to this package's own directory.
+     */
+    public function __construct(
+        private readonly Application $app,
+        private readonly ?string $basePath = null,
+    ) {}
 
     #[Override]
     public static function compatibleCapellApiVersion(): string
@@ -237,7 +243,7 @@ final class LayoutBuilderAdminRegistrar implements ExtensionContribution, Regist
 
     private function packageBasePath(): string
     {
-        return dirname(__DIR__, 2);
+        return $this->basePath ?? dirname(__DIR__, 2);
     }
 
     private function hasRegisteredAdminSurface(): bool

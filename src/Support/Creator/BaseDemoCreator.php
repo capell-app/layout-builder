@@ -34,8 +34,6 @@ use SplFileInfo;
 
 abstract class BaseDemoCreator
 {
-    protected const string NavigationPackage = 'capell-app/navigation';
-
     /**
      * @var class-string<Model&HasMedia>
      */
@@ -81,10 +79,12 @@ abstract class BaseDemoCreator
 
     protected function getPageNavigationLabel(Page $page, Language $language): string
     {
-        $navigationCreator = NavigationCreator::class;
+        if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
+            $navigationCreator = NavigationCreator::class;
 
-        if (CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($navigationCreator)) {
-            return $navigationCreator::getPageNavigationLabel($page, $language);
+            if (class_exists($navigationCreator)) {
+                return $navigationCreator::getPageNavigationLabel($page, $language);
+            }
         }
 
         return $page->translation->title ?? $page->name;

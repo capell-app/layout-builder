@@ -3,14 +3,14 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Data\Rendering\FrontendRuntimeManifestData;
 use Capell\Core\Enums\RenderableTypeEnum;
+use Capell\Core\Enums\Rendering\RenderingStrategyEnum;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Frontend\Data\FrontendRuntimeManifestData;
-use Capell\Frontend\Enums\RenderingStrategyEnum;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\LayoutBuilderRuntimeManifestContributor;

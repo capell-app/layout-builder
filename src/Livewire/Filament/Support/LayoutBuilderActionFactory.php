@@ -13,6 +13,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
+use Capell\HtmlCache\Actions\ClearCachedUrlsForModelAction;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingWidgetAssetException;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
@@ -45,18 +46,6 @@ use Throwable;
 
 final class LayoutBuilderActionFactory
 {
-    private const string CLEAR_CACHED_URLS_FOR_MODEL_ACTION = 'Capell\\HtmlCache\\Actions\\ClearCachedUrlsForModelAction';
-
-    private const string CREATE_RECORD_DRAFT_WORKSPACE_ACTION = 'Capell\\PublishingStudio\\Actions\\CreateRecordDraftWorkspaceAction';
-
-    private const string SAVE_RECORD_DRAFT_ACTION = 'Capell\\PublishingStudio\\Actions\\SaveRecordDraftAction';
-
-    private const string WORKSPACE_CLASS = 'Capell\\PublishingStudio\\Models\\Workspace';
-
-    private const string WORKSPACE_CONTEXT_CLASS = 'Capell\\PublishingStudio\\WorkspaceContext';
-
-    private const string WORKSPACE_REGISTRY_CLASS = 'Capell\\PublishingStudio\\WorkspaceRegistry';
-
     /**
      * @var array<string, mixed>|null
      */
@@ -1072,8 +1061,8 @@ final class LayoutBuilderActionFactory
 
         // Ensure UpdatedModelAction is not triggered
         WidgetAsset::withoutEvents(function () use ($widgetAsset, $configurator, $draftableNewAssetWorkspace): void {
-            if ($this->isWorkspace($draftableNewAssetWorkspace)) {
-                $workspaceContextClass = self::WORKSPACE_CONTEXT_CLASS;
+            if ($this->isWorkspace($draftableNewAssetWorkspace) && CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+                $workspaceContextClass = 'Capell\\PublishingStudio\\WorkspaceContext';
                 $workspaceContextClass::runWith($draftableNewAssetWorkspace, function () use ($widgetAsset, $configurator, $draftableNewAssetWorkspace): void {
                     $configurator->saveRelationships();
                     $this->moveCreatedDraftableAssetIntoWorkspace($widgetAsset, $draftableNewAssetWorkspace);
@@ -1168,8 +1157,12 @@ final class LayoutBuilderActionFactory
 
     private function workspaceForNewDraftableAsset(WidgetAsset $widgetAsset, string $type): ?Model
     {
-        $createWorkspaceAction = self::CREATE_RECORD_DRAFT_WORKSPACE_ACTION;
-        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return null;
+        }
+
+        $createWorkspaceAction = 'Capell\\PublishingStudio\\Actions\\CreateRecordDraftWorkspaceAction';
+        $workspaceRegistry = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
         if (! class_exists($createWorkspaceAction) || ! class_exists($workspaceRegistry)) {
             return null;
@@ -1215,7 +1208,11 @@ final class LayoutBuilderActionFactory
      */
     private function createDraftableAssetFromBuilderData(string $type, array $data, ?Model $workspace): ?Model
     {
-        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return null;
+        }
+
+        $workspaceRegistry = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
         if (! $this->isWorkspace($workspace) || ! class_exists($workspaceRegistry)) {
             return null;
@@ -1432,8 +1429,12 @@ final class LayoutBuilderActionFactory
      */
     private function saveDraftableAssetFromWidgetAsset(WidgetAsset $record, array $data, bool $canUpdatePersistedRecord): bool
     {
-        $saveRecordDraftAction = self::SAVE_RECORD_DRAFT_ACTION;
-        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return false;
+        }
+
+        $saveRecordDraftAction = 'Capell\\PublishingStudio\\Actions\\SaveRecordDraftAction';
+        $workspaceRegistry = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
         if (! class_exists($saveRecordDraftAction) || ! class_exists($workspaceRegistry)) {
             return false;
@@ -1660,7 +1661,11 @@ final class LayoutBuilderActionFactory
      */
     private function isDraftableAssetType(array $arguments): bool
     {
-        $workspaceRegistry = self::WORKSPACE_REGISTRY_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return false;
+        }
+
+        $workspaceRegistry = 'Capell\\PublishingStudio\\WorkspaceRegistry';
 
         if (! class_exists($workspaceRegistry)) {
             return false;
@@ -1790,13 +1795,11 @@ final class LayoutBuilderActionFactory
 
     private function clearCachedPagesForWidget(Widget $record): void
     {
-        $actionClass = self::CLEAR_CACHED_URLS_FOR_MODEL_ACTION;
-
-        if (! class_exists($actionClass)) {
+        if (! CapellCore::isPackageAvailable('capell-app/html-cache')) {
             return;
         }
 
-        $actionClass::run(
+        ClearCachedUrlsForModelAction::run(
             $record,
             refresh: config('capell-admin.auto_refresh_cache') === true,
         );
@@ -1804,7 +1807,11 @@ final class LayoutBuilderActionFactory
 
     private function currentWorkspace(): ?Model
     {
-        $workspaceContextClass = self::WORKSPACE_CONTEXT_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return null;
+        }
+
+        $workspaceContextClass = 'Capell\\PublishingStudio\\WorkspaceContext';
 
         if (! class_exists($workspaceContextClass)) {
             return null;
@@ -1817,7 +1824,11 @@ final class LayoutBuilderActionFactory
 
     private function isWorkspace(mixed $workspace): bool
     {
-        $workspaceClass = self::WORKSPACE_CLASS;
+        if (! CapellCore::isPackageAvailable('capell-app/publishing-studio')) {
+            return false;
+        }
+
+        $workspaceClass = 'Capell\\PublishingStudio\\Models\\Workspace';
 
         return $workspace instanceof Model
             && class_exists($workspaceClass)

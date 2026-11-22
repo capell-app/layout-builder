@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Support\RenderHooks;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Contracts\Rendering\RenderHookExtensionInterface;
+use Capell\Core\Data\Rendering\RenderHookContext;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Frontend\Contracts\FrontendContextReader;
-use Capell\Frontend\Contracts\RenderHookExtensionInterface;
 use Capell\Frontend\Data\MainContentRenderHookData;
-use Capell\Frontend\Data\RenderHookContext;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\CapellLayoutManager;
 use Capell\LayoutBuilder\Support\LayoutWidgetData;

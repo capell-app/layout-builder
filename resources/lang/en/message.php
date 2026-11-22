@@ -66,6 +66,7 @@ return [
     'layout_container_key_not_unique' => 'Container key ":key" must be unique.',
     'layout_count_on_pages' => '{0} This layout is not used by other pages. View: <a href=":url">Pages using this layout</a>.|{1} This layout is shared with 1 other page. View <a href=":url">pages using this layout</a>.|[2,*] This layout is shared with :count other pages. View <a href=":url">pages using this layout</a>.',
     'layout_empty' => 'This layout is empty.',
+    'layout_draft_expired' => 'Your unsaved layout edits expired. Reload the editor to continue from the saved layout.',
     'layout_has_blocking_diagnostics' => 'Fix the blocking layout issues before saving.',
     'layout_tree_container_count' => '{0} No containers|{1} 1 container|[2,*] :count containers',
     'layout_tree_widget_count' => '{0} No widgets|{1} 1 widget|[2,*] :count widgets',

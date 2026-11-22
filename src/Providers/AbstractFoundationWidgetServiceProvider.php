@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Capell\LayoutBuilder\Providers;
 
+use Capell\Core\Data\Rendering\Assets\FrontendResourceData;
 use Capell\Core\Enums\PackageTypeEnum;
 use Capell\Core\Enums\PresentationLoadingStrategy;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Support\Packages\AbstractPackageServiceProvider;
-use Capell\Frontend\Data\Assets\FrontendResourceData;
 use Capell\Frontend\Data\Assets\FrontendResourceGroupData;
 use Capell\Frontend\Data\Assets\PublicResourceSourceData;
 use Capell\Frontend\Support\Assets\FrontendResourceRegistry;

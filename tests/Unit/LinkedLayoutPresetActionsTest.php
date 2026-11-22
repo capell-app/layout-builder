@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Capell\Core\Models\CapellExtension;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
 use Capell\LayoutBuilder\Actions\CreateLinkedLayoutPresetAction;
@@ -11,6 +12,8 @@ use Capell\LayoutBuilder\Actions\SyncLayoutPresetUsagesAction;
 use Capell\LayoutBuilder\Data\LayoutPresetLinkData;
 use Capell\LayoutBuilder\Enums\LayoutPresetMode;
 use Capell\LayoutBuilder\Enums\LayoutPresetSyncRunStatus;
+use Capell\LayoutBuilder\Jobs\SyncLinkedLayoutPresetJob;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\LayoutPresetSyncRun;
 use Capell\LayoutBuilder\Models\LayoutPresetUsage;
 use Illuminate\Support\Facades\Queue;
@@ -119,3 +122,44 @@ function linkedLayoutPresetTestInteger(mixed $value): int
 
     return (int) $value;
 }
+
+it('syncs no linked preset from a queued job once Layout Builder is disabled elsewhere, and syncs it after re-enable', function (): void {
+    Queue::fake();
+
+    $site = Site::factory()->create();
+    $sourceLayout = Layout::factory()->site($site)->create([
+        'containers' => ['main' => ['widgets' => [['widget_key' => 'hero', 'occurrence' => 1]]]],
+    ]);
+    $preset = CreateLinkedLayoutPresetAction::run($sourceLayout, $site, ['main'], 'Shared main');
+    $itemIdValue = data_get($preset->snapshot, 'items.0.id');
+    $itemId = is_string($itemIdValue) ? $itemIdValue : '';
+    $presetId = linkedLayoutPresetTestInteger($preset->getKey());
+    $consumerLayout = Layout::factory()->site($site)->create([
+        'containers' => [
+            'landing-main' => LinkLayoutPresetContainerAction::run(
+                ['widgets' => [['widget_key' => 'legacy', 'occurrence' => 1]]],
+                new LayoutPresetLinkData($presetId, $itemId, $preset->key),
+            ),
+        ],
+    ]);
+    SyncLayoutPresetUsagesAction::run($consumerLayout);
+    $run = LayoutPresetSyncRun::query()->create([
+        'preset_id' => $preset->getKey(),
+        'revision' => $preset->revision,
+        'status' => LayoutPresetSyncRunStatus::Queued,
+        'summary' => [],
+    ]);
+    $job = new SyncLinkedLayoutPresetJob(linkedLayoutPresetTestInteger($run->getKey()));
+
+    CapellExtension::query()->where('composer_name', LayoutBuilderServiceProvider::$packageName)->toBase()->update(['status' => 'disabled']);
+    $job->handle();
+
+    expect($consumerLayout->refresh()->containers['landing-main']['widgets'][0]['widget_key'])->toBe('legacy')
+        ->and($run->refresh()->status)->toBe(LayoutPresetSyncRunStatus::Queued);
+
+    CapellExtension::query()->where('composer_name', LayoutBuilderServiceProvider::$packageName)->toBase()->update(['status' => 'enabled']);
+    $job->handle();
+
+    expect($consumerLayout->refresh()->containers['landing-main']['widgets'][0]['widget_key'])->toBe('hero')
+        ->and($run->refresh()->status)->toBe(LayoutPresetSyncRunStatus::Completed);
+});

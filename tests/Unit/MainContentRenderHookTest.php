@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Capell\Core\Data\RenderableDefinitionData;
+use Capell\Core\Data\Rendering\RenderHookContext;
 use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
@@ -10,7 +11,6 @@ use Capell\Core\Support\Renderables\RenderableRegistry;
 use Capell\Frontend\Actions\AssertPublicHtmlContainsNoAuthoringSurfaceAction;
 use Capell\Frontend\Contracts\FrontendContextReader;
 use Capell\Frontend\Data\MainContentRenderHookData;
-use Capell\Frontend\Data\RenderHookContext;
 use Capell\Frontend\Enums\RenderHookLocation;
 use Capell\Frontend\Support\Render\RenderHookRegistry;
 use Capell\LayoutBuilder\Actions\ApplyLayoutSidebarWidgetContributionsAction;

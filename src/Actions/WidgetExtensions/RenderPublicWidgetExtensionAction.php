@@ -13,6 +13,7 @@ use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionRegistry;
 use Capell\LayoutBuilder\Support\WidgetExtensions\WidgetExtensionViewResolver;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Log;
+use Spatie\LaravelData\Data;
 use Throwable;
 
 final readonly class RenderPublicWidgetExtensionAction
@@ -38,10 +39,9 @@ final readonly class RenderPublicWidgetExtensionAction
         $data = is_array($widgetData['data'] ?? null) ? $widgetData['data'] : [];
         $capell = is_array($data['__capell'] ?? null) ? $data['__capell'] : [];
         $instanceId = $capell['instance_id'] ?? null;
-        $payload = is_string($instanceId) ? $this->payload($instanceId, $payloadSource) : null;
-        $renderClass = $definition->renderData;
+        $payload = is_string($instanceId) ? $this->payload($instanceId, $definition->renderData, $payloadSource) : null;
 
-        if (! $payload instanceof $renderClass) {
+        if (! $payload instanceof Data) {
             return $this->fallback();
         }
 
@@ -93,14 +93,20 @@ final readonly class RenderPublicWidgetExtensionAction
         ])->render();
     }
 
-    /** @param array<string, object>|PublicPageRenderData|null $payloadSource */
-    private function payload(string $instanceId, PublicPageRenderData|array|null $payloadSource): ?object
+    /**
+     * @template TRenderData of Data
+     *
+     * @param  class-string<TRenderData>  $renderClass
+     * @param  array<string, object>|PublicPageRenderData|null  $payloadSource
+     * @return TRenderData|null
+     */
+    private function payload(string $instanceId, string $renderClass, PublicPageRenderData|array|null $payloadSource): ?Data
     {
-        if (is_array($payloadSource)) {
-            return $payloadSource[$instanceId] ?? null;
-        }
+        $payload = is_array($payloadSource)
+            ? ($payloadSource[$instanceId] ?? null)
+            : ($payloadSource ?? $this->currentRenderData())?->contentWidgetPayload($instanceId);
 
-        return ($payloadSource ?? $this->currentRenderData())?->contentWidgetPayload($instanceId);
+        return $payload instanceof $renderClass ? $payload : null;
     }
 
     private function currentRenderData(): ?PublicPageRenderData

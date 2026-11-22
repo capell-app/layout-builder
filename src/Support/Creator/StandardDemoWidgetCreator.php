@@ -377,7 +377,6 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
      */
     public function createStaticNavigationWidget(Collection $languages, Site $site): Widget
     {
-        $model = Navigation::class;
 
         // Create menu + items
         $name = 'Example Menu';
@@ -407,16 +406,22 @@ abstract class StandardDemoWidgetCreator extends BaseDemoCreator
         $navigationType = $this->typeModel::query()->navigationType()->default()->first();
         $navigationType ??= resolve(BlueprintCreator::class)->createNavigationType();
 
-        $navigation = CapellCore::isPackageInstalled(self::NavigationPackage) && class_exists($model)
-            ? $model::query()->updateOrCreate([
-                'key' => $key,
-                'site_id' => $site->id,
-                'blueprint_id' => $navigationType->id,
-            ], [
-                'name' => $name,
-                'items' => $this->navigationPageItems($pages, $languages->first()),
-            ])
-            : null;
+        $navigation = null;
+
+        if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
+            $model = Navigation::class;
+
+            if (class_exists($model)) {
+                $navigation = $model::query()->updateOrCreate([
+                    'key' => $key,
+                    'site_id' => $site->id,
+                    'blueprint_id' => $navigationType->id,
+                ], [
+                    'name' => $name,
+                    'items' => $this->navigationPageItems($pages, $languages->first()),
+                ]);
+            }
+        }
 
         // Create widget
         $widget = $this->widgetModel::query()->firstOrCreate(['key' => 'example-navigation'], [

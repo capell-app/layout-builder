@@ -23,7 +23,6 @@ beforeEach(function (): void {
     $image = imagecreatetruecolor(480, 300);
     throw_unless($image instanceof GdImage, RuntimeException::class);
     imagewebp($image, $this->previewRoot . '/resources/previews/example.webp');
-    imagedestroy($image);
 
     $manifest = InstalledRuntimeParity::manifest('layout-builder');
     $manifest['name'] = 'preview-fixture/widgets';

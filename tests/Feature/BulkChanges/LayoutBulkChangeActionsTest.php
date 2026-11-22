@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Capell\Core\Data\PageVariationData;
 use Capell\Core\Facades\CapellCore;
+use Capell\Core\Models\CapellExtension;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
@@ -17,6 +18,7 @@ use Capell\LayoutBuilder\Enums\LayoutBulkChangeResultStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkChangeRunStatus;
 use Capell\LayoutBuilder\Enums\LayoutBulkWidgetOperationType;
 use Capell\LayoutBuilder\Jobs\ApplyLayoutBulkChangeRunJob;
+use Capell\LayoutBuilder\LayoutBuilderServiceProvider;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeResult;
 use Capell\LayoutBuilder\Models\LayoutBulkChangeRun;
 use Capell\LayoutBuilder\Models\Widget;
@@ -855,6 +857,31 @@ it('applies a redelivered queued bulk change only once', function (): void {
 
     expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Applied)
         ->and(bulkFreshRun($queuedRun)->summary)->toMatchArray(['applied_layouts' => 1])
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe(['hero', 'breadcrumbs']);
+});
+
+it('applies no queued bulk change once Layout Builder is disabled elsewhere, and applies it after re-enable', function (): void {
+    Queue::fake();
+    $layout = bulkLayout(['main' => ['widgets' => [['widget_key' => 'breadcrumbs', 'container' => 'main', 'occurrence' => 1], ['widget_key' => 'hero', 'container' => 'main', 'occurrence' => 1]]]]);
+    $run = PreviewLayoutBulkChangeAction::run(bulkCriteria(['layout_keys' => [$layout->key]]), bulkWidgetOperation([
+        'type' => LayoutBulkWidgetOperationType::MoveWidget->value,
+        'source_widget_key' => 'breadcrumbs',
+        'target_widget_key' => 'hero',
+        'placement' => 'after',
+    ]));
+    $queuedRun = QueueLayoutBulkChangeRunAction::run($run);
+    $job = new ApplyLayoutBulkChangeRunJob(bulkLayoutTestInteger($queuedRun->getKey()));
+
+    CapellExtension::query()->where('composer_name', LayoutBuilderServiceProvider::$packageName)->toBase()->update(['status' => 'disabled']);
+    $job->handle();
+
+    expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Queued)
+        ->and(bulkWidgetKeys($layout, 'main'))->toBe(['breadcrumbs', 'hero']);
+
+    CapellExtension::query()->where('composer_name', LayoutBuilderServiceProvider::$packageName)->toBase()->update(['status' => 'enabled']);
+    $job->handle();
+
+    expect(bulkFreshRun($queuedRun)->status)->toBe(LayoutBulkChangeRunStatus::Applied)
         ->and(bulkWidgetKeys($layout, 'main'))->toBe(['hero', 'breadcrumbs']);
 });
 

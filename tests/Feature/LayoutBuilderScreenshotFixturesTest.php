@@ -20,6 +20,7 @@ use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAct
 use Capell\LayoutBuilder\Livewire\Filament\LayoutBuilder;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
+use Capell\LayoutBuilder\Support\Loader\LayoutLoader;
 use Capell\LayoutBuilder\Tests\LayoutBuilderTestCase;
 use Capell\ScreenshotFixtures\FixtureState;
 use Capell\Tests\Fixtures\Models\User;
@@ -38,6 +39,7 @@ use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -214,6 +216,49 @@ final class LayoutBuilderScreenshotFixturesTest extends LayoutBuilderTestCase
             ->assertSee('Find opening hours and plan your studio visit.')
             ->assertDontSee('wire:snapshot', false)
             ->assertDontSee('capell.layout-builder.widget.default', false);
+    }
+
+    public function test_it_loads_the_layout_widget_graph_once_per_public_page_request(): void
+    {
+        $language = Language::factory()->english()->create();
+        $site = Site::factory()->language($language)->withTranslations($language)->create(['default' => true]);
+        SiteDomain::factory()->site($site)->language($language)->create(['domain' => 'localhost', 'scheme' => 'http', 'path' => null]);
+        $this->actingAs(User::factory()->create()->assignRole('super_admin'));
+        $page = $this->seedNativeEditor();
+        SetupPageUrlsAction::run($page);
+        $this->app->make(Factory::class)->guard()->logout();
+
+        $widgetGraphQueries = [];
+        $assetQueries = [];
+        $tableProbes = 0;
+        DB::listen(function (QueryExecuted $query) use (&$widgetGraphQueries, &$assetQueries, &$tableProbes): void {
+            $fromLayoutLoader = collect(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS))
+                ->contains(fn (array $frame): bool => ($frame['class'] ?? null) === LayoutLoader::class);
+
+            if (! $fromLayoutLoader) {
+                return;
+            }
+
+            if (preg_match('/information_schema\.tables|sqlite_master/', $query->sql) === 1) {
+                $tableProbes++;
+            }
+
+            if (str_contains($query->sql, 'from `widgets` where `key` in') || str_contains($query->sql, 'from "widgets" where "key" in')) {
+                $widgetGraphQueries[] = $query->sql;
+            }
+
+            if (str_contains($query->sql, 'from `widget_assets` where `widget_id` in') || str_contains($query->sql, 'from "widget_assets" where "widget_id" in')) {
+                $assetQueries[] = $query->sql;
+            }
+        });
+
+        $this->get($page->pageUrl()->firstOrFail()->full_url)
+            ->assertOk()
+            ->assertSee('Explore practical workshops and creative studio sessions.');
+
+        $this->assertCount(1, $widgetGraphQueries);
+        $this->assertCount(1, $assetQueries);
+        $this->assertSame(0, $tableProbes);
     }
 
     public function test_it_exposes_owned_fixture_copy_in_the_native_content_editor(): void

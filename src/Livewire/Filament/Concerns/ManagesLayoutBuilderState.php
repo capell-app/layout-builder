@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Capell\LayoutBuilder\Livewire\Filament\Concerns;
 
 use Capell\Core\Contracts\Pageable;
+use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
+use Capell\FilamentPeek\Actions\StoreLayoutBuilderPreviewStateAction;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
@@ -27,8 +29,6 @@ use LogicException;
 
 trait ManagesLayoutBuilderState
 {
-    private const string STORE_LAYOUT_BUILDER_PREVIEW_STATE_ACTION = 'Capell\\FilamentPeek\\Actions\\StoreLayoutBuilderPreviewStateAction';
-
     #[Computed]
     public function contentInventory(): LayoutContentInventoryData
     {
@@ -143,17 +143,11 @@ trait ManagesLayoutBuilderState
             return;
         }
 
-        $actionClass = self::STORE_LAYOUT_BUILDER_PREVIEW_STATE_ACTION;
-
-        if (! class_exists($actionClass)) {
+        if (! CapellCore::isPackageAvailable('capell-app/filament-peek')) {
             return;
         }
 
-        $action = resolve($actionClass);
-
-        if (! is_object($action) || ! method_exists($action, 'clear') || ! method_exists($action, 'handle')) {
-            return;
-        }
+        $action = StoreLayoutBuilderPreviewStateAction::make();
 
         if (! $modified) {
             $action->clear($this->page);

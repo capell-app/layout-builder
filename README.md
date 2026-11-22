@@ -4,13 +4,13 @@
 
 An editor opens a page and drags a call to action into the spot where it should go. Layout Builder, the page builder, puts pages together from widgets. A widget is a piece of content with its own settings, such as a call to action or an image with a headline. Capell's widget packages, such as a countdown or a slideshow, are placed on pages through it.
 
-Inside a page there is a content editor, where you change text and images in place, and a layout view, where you add, move and remove widgets. Your permissions decide which you get, and a role that edits layouts may need access to Widgets as well. Moving and resizing can be undone before you Save Layout, but adding or removing a widget cannot. Several pages can share one layout, and a shared layout links to the pages that use it, so you can see what an edit will touch.
+Inside a page there is a content editor, where you change text and images in place, and a layout view, where you add, move and remove widgets. Your permissions decide which you get, and a role that edits layouts may need access to Widgets as well. Widget changes, including adding and removing, can be undone before you Save Layout. Edits to a widget's own content save at once. Several pages can share one layout, and a shared layout links to the pages that use it, so you can see what an edit will touch.
 
 To swap a widget across many layouts, choose Move or replace widgets on the Layouts list. Runs that reach 50 layouts or 250 pages wait for background jobs, which your developer or host keeps running, and smaller runs apply at once. You see a preview first, and nothing changes until you approve it.
 
-- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/extensions/layout-builder).
-- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/extensions/layout-builder).
-- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.72`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.78`, `capell-app/frontend ^1.0.72`.
+- **Price and availability:** Check current availability and price on the [Capell Marketplace listing](https://capell.app/marketplace/extensions/layout-builder).
+- **Licence:** Check the licence terms on the [Capell Marketplace listing](https://capell.app/marketplace/extensions/layout-builder).
+- **Requires:** `PHP ^8.4`, `capell-app/admin ^1.0.78`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.79`, `capell-app/frontend ^1.0.79`.
 - **Install:** `composer require capell-app/layout-builder`.
 
 ## Quick Start
@@ -30,7 +30,7 @@ Registries and typed Actions provide stable extension points for widget definiti
 
 ## Limits And Pitfalls
 
-- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.72`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.78`, `capell-app/frontend ^1.0.72`.
+- Install the required Capell packages at the versions in `composer.json`: `capell-app/admin ^1.0.78`, `capell-app/block-library ^1.0`, `capell-app/core ^1.0.79`, `capell-app/frontend ^1.0.79`.
 - Run migrations before opening package resources or public routes.
 - Keep the host Laravel scheduler running so package-registered schedules can execute: `capell:layout-builder:prune-bulk-change-runs (daily; manifest declared)`, `capell:widget-snapshots:prune (daily; manifest declared)`.
 - Keep public Blade and cached HTML free of authoring markers, model IDs, permissions, signed editor URLs, and lazy database queries.
@@ -85,8 +85,12 @@ Source: [`BuildPublicLayoutGraphAction`](src/Actions/BuildPublicLayoutGraphActio
 
 ## Works With
 
+- [Ai Orchestrator](../ai-orchestrator/README.md): optional integration backed by the interop evidence map.
 - [Content Sections](../content-sections/README.md): optional integration backed by the interop evidence map.
+- [Filament Peek](../filament-peek/README.md): optional integration backed by the interop evidence map.
 - [Frontend Authoring](../frontend-authoring/README.md): optional integration backed by the interop evidence map.
+- [Html Cache](../html-cache/README.md): optional integration backed by the interop evidence map.
+- [Navigation](../navigation/README.md): optional integration backed by the interop evidence map.
 - [Publishing Studio](../publishing-studio/README.md): optional integration backed by the interop evidence map.
 - [Structured Content Library](../structured-content-library/README.md): optional integration backed by the interop evidence map.
 - [Theme Foundation](../theme-foundation/README.md): optional integration backed by the interop evidence map.
@@ -133,6 +137,6 @@ Read [CHANGELOG.md](CHANGELOG.md) before upgrading.
 - [Capell content language plan](../../docs/CONTENT_LANGUAGE_PLAN.md)
 - [Capell documentation design system](../../docs/DESIGN_SYSTEM.md)
 - [Capell and package ERD notes](../../docs/erd/capell-and-package-erds.md)
-- Related packages: [Block Library](../block-library/README.md), [Content Sections](../content-sections/README.md), [Frontend Authoring](../frontend-authoring/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md), [Foundation Theme](../theme-foundation/README.md).
+- Related packages: [Block Library](../block-library/README.md), [AI Orchestrator](../ai-orchestrator/README.md), [Content Sections](../content-sections/README.md), [Filament Peek](../filament-peek/README.md), [Frontend Authoring](../frontend-authoring/README.md), [HTML Cache](../html-cache/README.md), [Navigation](../navigation/README.md), [Publishing Studio](../publishing-studio/README.md), [Structured Content Library](../structured-content-library/README.md), [Foundation Theme](../theme-foundation/README.md).
 
 <!-- prettier-ignore-end -->

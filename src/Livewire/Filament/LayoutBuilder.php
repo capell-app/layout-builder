@@ -232,10 +232,10 @@ class LayoutBuilder extends Component implements HasActions, HasForms, HasPageRe
         $state = SessionFacade::get($this->serverSideLayoutStateKey());
 
         if (! is_array($state)) {
-            $this->loadFromStore();
-            $this->layoutStateStoredServerSide = false;
-
-            return;
+            // End the whole request before Livewire applies any stale edits.
+            abort(response(__('capell-layout-builder::message.layout_draft_expired'), 409, [
+                'Content-Type' => 'text/plain; charset=UTF-8',
+            ]));
         }
 
         /** @var array<string, mixed> $state */
