@@ -7,7 +7,6 @@ namespace Capell\LayoutBuilder;
 use Capell\Admin\Contracts\Widgets\ContentWidgetStateProcessor;
 use Capell\Admin\Facades\CapellAdmin;
 use Capell\Admin\Support\AdminRuntimeActivator;
-use Capell\AIOrchestrator\Support\AIOrchestratorModuleRegistry;
 use Capell\BlockLibrary\Support\DefaultBlockCatalog;
 use Capell\Core\Actions\Install\RegisterCommandsInCurrentProcessAction;
 use Capell\Core\Contracts\Capabilities\LayoutWidgetHost;
@@ -31,13 +30,11 @@ use Capell\Frontend\Contracts\PublicWidgetInteractionLocatorBuilder;
 use Capell\Frontend\Contracts\WidgetInteractionLocatorResolver;
 use Capell\Frontend\Support\Render\PublicRenderDataContributorRegistry;
 use Capell\Frontend\Support\Routing\ReservedFrontendPathRegistry;
-use Capell\FrontendAuthoring\Support\EditorSurfaceRegistry;
 use Capell\LayoutBuilder\Actions\RepointWidgetAssetReferencesAction;
 use Capell\LayoutBuilder\Actions\WidgetExtensions\BuildPublicWidgetPayloadsAction;
 use Capell\LayoutBuilder\Actions\WidgetSnapshots\BuildPublicWidgetInteractionLocatorsAction;
-use Capell\LayoutBuilder\Bridges\AiOrchestrator\LayoutBuilderAIOrchestratorModule;
-use Capell\LayoutBuilder\Bridges\FrontendAuthoring\LayoutBuilderEditableRegionContributor;
-use Capell\LayoutBuilder\Bridges\FrontendAuthoring\LayoutBuilderEditorSurface;
+use Capell\LayoutBuilder\Bridges\AiOrchestrator\LayoutBuilderAiOrchestratorRegistrar;
+use Capell\LayoutBuilder\Bridges\FrontendAuthoring\LayoutBuilderFrontendAuthoringRegistrar;
 use Capell\LayoutBuilder\Bridges\LayoutBuilderAdminBridge;
 use Capell\LayoutBuilder\Capabilities\LayoutBuilderWidgetHost;
 use Capell\LayoutBuilder\Console\Commands\InstallCommand;
@@ -299,11 +296,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        $this->callAfterResolving(AIOrchestratorModuleRegistry::class, static function (AIOrchestratorModuleRegistry $registry): void {
-            if (! isset($registry->modules()['layout-builder'])) {
-                $registry->register(new LayoutBuilderAIOrchestratorModule);
-            }
-        });
+        LayoutBuilderAiOrchestratorRegistrar::register($this->app);
     }
 
     private function registerConsoleCommands(): void
@@ -399,11 +392,7 @@ final class LayoutBuilderServiceProvider extends AbstractPackageServiceProvider
             return;
         }
 
-        $this->app->tag([LayoutBuilderEditableRegionContributor::class], 'capell-frontend-authoring:editable-regions');
-
-        $this->callAfterResolving(EditorSurfaceRegistry::class, function (EditorSurfaceRegistry $registry): void {
-            $registry->register($this->app->make(LayoutBuilderEditorSurface::class));
-        });
+        LayoutBuilderFrontendAuthoringRegistrar::register($this->app);
     }
 
     private function registerPageTypes(): void

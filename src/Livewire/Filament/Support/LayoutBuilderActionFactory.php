@@ -13,7 +13,7 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Site;
-use Capell\HtmlCache\Actions\ClearCachedUrlsForModelAction;
+use Capell\LayoutBuilder\Bridges\HtmlCache\LayoutBuilderHtmlCacheBridge;
 use Capell\LayoutBuilder\Enums\ConfiguratorTypeEnum;
 use Capell\LayoutBuilder\Exceptions\MissingWidgetAssetException;
 use Capell\LayoutBuilder\Filament\Configurators\Widgets\DefaultWidgetConfigurator;
@@ -1799,9 +1799,9 @@ final class LayoutBuilderActionFactory
             return;
         }
 
-        ClearCachedUrlsForModelAction::run(
+        LayoutBuilderHtmlCacheBridge::clearForModel(
             $record,
-            refresh: config('capell-admin.auto_refresh_cache') === true,
+            config('capell-admin.auto_refresh_cache') === true,
         );
     }
 

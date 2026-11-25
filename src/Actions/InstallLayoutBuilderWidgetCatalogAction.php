@@ -9,10 +9,10 @@ use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Blueprint;
 use Capell\Core\Models\Language;
 use Capell\Core\Support\Creator\BlueprintCreator as CoreTypeCreator;
+use Capell\LayoutBuilder\Bridges\Navigation\LayoutBuilderNavigationBridge;
 use Capell\LayoutBuilder\Data\LayoutWidgetCatalogDefinitionData;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
-use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsFake;
@@ -119,9 +119,9 @@ class InstallLayoutBuilderWidgetCatalogAction
             return null;
         }
 
-        $navigationModel = Navigation::class;
+        $navigationModel = LayoutBuilderNavigationBridge::navigationModel();
 
-        if (! class_exists($navigationModel)) {
+        if ($navigationModel === null) {
             return null;
         }
 

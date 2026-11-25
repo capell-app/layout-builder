@@ -1,6 +1,8 @@
 @php
     use Capell\Core\Enums\ContainerWidthEnum;
     use Capell\Frontend\Actions\GetLayoutContainerWidthAction;
+    use Capell\Frontend\Data\MainContentRenderHookData;
+    use Capell\LayoutBuilder\Actions\RenderErrorRecoveryHooksAction;
     use Capell\LayoutBuilder\Actions\WidgetExtensions\RenderPublicWidgetExtensionAction;
     use Capell\LayoutBuilder\Enums\ContainerAlignmentEnum;
     use Capell\LayoutBuilder\Enums\ResponsiveVisibilityEnum;
@@ -132,6 +134,17 @@
             'publicRenderData' => $publicRenderData ?? null,
             'pageSlot' => $pageSlot,
         ])
+
+        @if ($widgetKey === 'page-content' && ($recoveryHookContext ?? null) instanceof MainContentRenderHookData)
+            @php
+                $errorRecoveryOutput = RenderErrorRecoveryHooksAction::run($recoveryHookContext);
+            @endphp
+            @if ($errorRecoveryOutput !== '')
+                <div class="capell-error-recovery">
+                    {!! $errorRecoveryOutput !!}
+                </div>
+            @endif
+        @endif
     @endforeach
 
     @foreach ($container['widgets'] ?? [] as $widgetExtensionData)

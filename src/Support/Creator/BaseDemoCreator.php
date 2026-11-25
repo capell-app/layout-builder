@@ -15,10 +15,10 @@ use Capell\Core\Models\Media;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Translation;
+use Capell\LayoutBuilder\Bridges\Navigation\LayoutBuilderNavigationBridge;
 use Capell\LayoutBuilder\Enums\LayoutTypeEnum;
 use Capell\LayoutBuilder\Models\Widget;
 use Capell\LayoutBuilder\Models\WidgetAsset;
-use Capell\Navigation\Support\Creator\NavigationCreator;
 use Exception;
 use FilesystemIterator;
 use Illuminate\Database\Eloquent\Model;
@@ -80,9 +80,9 @@ abstract class BaseDemoCreator
     protected function getPageNavigationLabel(Page $page, Language $language): string
     {
         if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
-            $navigationCreator = NavigationCreator::class;
+            $navigationCreator = LayoutBuilderNavigationBridge::navigationCreator();
 
-            if (class_exists($navigationCreator)) {
+            if ($navigationCreator !== null) {
                 return $navigationCreator::getPageNavigationLabel($page, $language);
             }
         }

@@ -12,10 +12,10 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Site;
 use Capell\Core\Support\Creator\BlueprintCreator;
 use Capell\LayoutBuilder\Actions\InstallLayoutBuilderWidgetCatalogAction;
+use Capell\LayoutBuilder\Bridges\Navigation\LayoutBuilderNavigationBridge;
 use Capell\LayoutBuilder\Enums\FrontendComponentKeyEnum;
 use Capell\LayoutBuilder\Enums\WidgetComponentEnum;
 use Capell\LayoutBuilder\Models\Widget;
-use Capell\Navigation\Models\Navigation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
@@ -555,9 +555,9 @@ class WidgetCreator
         $navigation = null;
 
         if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
-            $navigationModel = Navigation::class;
+            $navigationModel = LayoutBuilderNavigationBridge::navigationModel();
 
-            if (class_exists($navigationModel)) {
+            if ($navigationModel !== null) {
                 $navigation = $navigationModel::query()->firstOrCreate([
                     'key' => $navigationKey,
                     'blueprint_id' => $navigationType->id,

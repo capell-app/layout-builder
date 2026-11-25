@@ -12,12 +12,12 @@ use Capell\Core\Models\Language;
 use Capell\Core\Models\Layout;
 use Capell\Core\Models\Page;
 use Capell\Core\Models\Site;
+use Capell\LayoutBuilder\Bridges\Navigation\LayoutBuilderNavigationBridge;
 use Capell\LayoutBuilder\Data\DemoSitePlanData;
 use Capell\LayoutBuilder\Support\Creator\ContentCreator;
 use Capell\LayoutBuilder\Support\Creator\DemoCreator;
 use Capell\LayoutBuilder\Support\Creator\TypeCreator;
 use Capell\LayoutBuilder\Support\Creator\WidgetCreator;
-use Capell\Navigation\Support\Creator\NavigationDemoCreator;
 use Exception;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Model;
@@ -367,9 +367,9 @@ class CreateLayoutBuilderDemoSiteAction
             return;
         }
 
-        $navigationDemoCreatorClass = NavigationDemoCreator::class;
+        $navigationDemoCreatorClass = LayoutBuilderNavigationBridge::navigationDemoCreator();
 
-        if (! class_exists($navigationDemoCreatorClass)) {
+        if ($navigationDemoCreatorClass === null) {
             return;
         }
 

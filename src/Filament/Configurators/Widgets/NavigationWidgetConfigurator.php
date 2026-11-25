@@ -6,12 +6,12 @@ namespace Capell\LayoutBuilder\Filament\Configurators\Widgets;
 
 use Capell\Admin\Filament\Components\Forms\FixedWidthSidebar;
 use Capell\Core\Facades\CapellCore;
+use Capell\LayoutBuilder\Bridges\Navigation\LayoutBuilderNavigationBridge;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\CreateDetailsSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\SettingsSchema;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetAdminTab;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\Tab\WidgetPresentationTabs;
 use Capell\LayoutBuilder\Filament\Components\Forms\Widget\TranslationsRepeater;
-use Capell\Navigation\Filament\Components\Forms\NavigationSelect;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -50,9 +50,9 @@ class NavigationWidgetConfigurator extends DefaultWidgetConfigurator
         $navigationField = TextInput::make('navigation');
 
         if (CapellCore::isPackageAvailable('capell-app/navigation') && CapellCore::isPackageInstalled('capell-app/navigation')) {
-            $navigationSelect = NavigationSelect::class;
+            $navigationSelect = LayoutBuilderNavigationBridge::navigationSelect();
 
-            if (class_exists($navigationSelect)) {
+            if ($navigationSelect !== null) {
                 $navigationField = $navigationSelect::make('navigation')->useKeyAsValue();
             }
         }

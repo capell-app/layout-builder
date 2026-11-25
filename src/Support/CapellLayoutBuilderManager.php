@@ -25,6 +25,7 @@ final class CapellLayoutBuilderManager
             '2026_08_28_000003_change_widget_visibility_to_datetime',
             '2026_09_01_000001_add_shadowed_by_workspace_id_to_widgets_table',
             '2026_11_14_000001_grant_layout_builder_editor_permissions',
+            '2026_11_22_000001_store_widget_asset_keys_as_text',
         ];
     }
 }

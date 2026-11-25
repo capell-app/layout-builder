@@ -8,11 +8,11 @@ use Capell\Core\Contracts\Pageable;
 use Capell\Core\Facades\CapellCore;
 use Capell\Core\Models\Site;
 use Capell\Core\Models\Theme;
-use Capell\FilamentPeek\Actions\StoreLayoutBuilderPreviewStateAction;
 use Capell\LayoutBuilder\Actions\AnalyzeLayoutHealthAction;
 use Capell\LayoutBuilder\Actions\BuildLayoutContentInventoryAction;
 use Capell\LayoutBuilder\Actions\Mutations\PushLayoutMutationSnapshotAction;
 use Capell\LayoutBuilder\Actions\SummarizeLayoutChangesAction;
+use Capell\LayoutBuilder\Bridges\FilamentPeek\LayoutBuilderPeekBridge;
 use Capell\LayoutBuilder\Data\LayoutBuilderStateData;
 use Capell\LayoutBuilder\Data\LayoutChangeData;
 use Capell\LayoutBuilder\Data\LayoutContentInventoryData;
@@ -147,15 +147,13 @@ trait ManagesLayoutBuilderState
             return;
         }
 
-        $action = StoreLayoutBuilderPreviewStateAction::make();
-
         if (! $modified) {
-            $action->clear($this->page);
+            LayoutBuilderPeekBridge::clear($this->page);
 
             return;
         }
 
-        $action->handle(
+        LayoutBuilderPeekBridge::store(
             page: $this->page,
             layout: $this->layout,
             containers: $this->containers ?? [],

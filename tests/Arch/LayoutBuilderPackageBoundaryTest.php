@@ -63,6 +63,7 @@ it('keeps optional package integrations behind explicit gates', function (): voi
         'src/Livewire/Filament/Support/LayoutBuilderActionFactory.php',
         'src/Support/Creator/TypeCreator.php',
         'src/Bridges/FrontendAuthoring/',
+        'src/Bridges/HtmlCache/',
     ];
     $optionalImports = [
         'use Capell\\ContentSections\\',

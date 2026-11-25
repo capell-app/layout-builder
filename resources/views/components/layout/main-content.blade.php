@@ -28,9 +28,10 @@
                 continue;
             }
 
-            $context->pageContentWidgetRendered = $context->pageContentWidgetRendered || collect($container['widgets'] ?? $container ?? [])
+            $containerHasPageContent = collect($container['widgets'] ?? $container ?? [])
                 ->map(static fn (mixed $widgetData): array => LayoutWidgetData::normalize($widgetData))
                 ->contains(static fn (array $widgetData): bool => LayoutWidgetData::key($widgetData) === 'page-content');
+            $context->pageContentWidgetRendered = $context->pageContentWidgetRendered || $containerHasPageContent;
 
             $hasSlotWidget = ! $context->slotRendered && $layoutWidgets->contains(
                 static fn (Widget $layoutWidget): bool => WidgetIsSlotAction::run($layoutWidget),
@@ -61,6 +62,7 @@
             'htmlClass' => $htmlClass,
             'pageSlot' => $hasSlotWidget ? $context->pageSlot : null,
             'previousColspan' => $previousColspan,
+            'recoveryHookContext' => $containerHasPageContent ? $context : null,
         ])
 
         @php
