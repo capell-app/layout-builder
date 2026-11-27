@@ -6,6 +6,7 @@
     "kind": "package",
     "capellApiVersion": "^1.0",
     "version": "1.0.0",
+    "launchStatus": "shipped",
     "description": "Compose Capell pages from reusable widgets in shared layouts, edited in place or rearranged, with bulk widget replacement.",
     "product": {
         "group": "Capell Essentials",
